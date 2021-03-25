@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-window.__ACTIVE_LAYER__ = '__LAYER__'
+window.__ACTIVE_LAYER__ = { name:undefined }
 window.__MOUSE_ACTION__ = undefined;
 window.__ACTIVE_ELEMENT__ = undefined;
 window.__ACTIVE_LINE__ = undefined;
@@ -13,6 +13,8 @@ window.__NEW_EDGE__ = undefined
 window.__LINE_COUNTER = 0
 window.__LAYER_COUNTER = 0
 window.__MODE__ = 'normal'
+window.__POS__ = undefined
+window.__ACTIVE_LAYER__ = undefined
 
 ReactDOM.render(
   <React.StrictMode>
