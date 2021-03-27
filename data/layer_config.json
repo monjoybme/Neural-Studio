@@ -12,12 +12,13 @@
                     "sparse": "False",
                     "tensor": "None",
                     "ragged": "False"
-                }
+                },
+                "doc": "https://keras.io/api/layers/core_layers/input"
             },
             {
                 "name": "Dense",
                 "args": {
-                    "units,": "REQUIRED",
+                    "units": "REQUIRED",
                     "activation": "None",
                     "use_bias": "True",
                     "kernel_initializer": "glorot_uniform",
@@ -27,34 +28,40 @@
                     "activity_regularizer": "None",
                     "kernel_constraint": "None",
                     "bias_constraint": "None"
-                }
+                },
+                "doc": "https://keras.io/api/layers/core_layers/dense"
             },
             {
                 "name": "Activation",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/core_layers/activation"
             },
             {
                 "name": "Embedding",
                 "args": {
-                    "input_dim,": "REQUIRED",
-                    "output_dim,": "REQUIRED",
+                    "input_dim": "REQUIRED",
+                    "output_dim": "REQUIRED",
                     "embeddings_initializer": "uniform",
                     "embeddings_regularizer": "None",
                     "activity_regularizer": "None",
                     "embeddings_constraint": "None",
                     "mask_zero": "False",
                     "input_length": "None"
-                }
+                },
+                "doc": "https://keras.io/api/layers/core_layers/embedding"
             },
             {
                 "name": "Masking",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/core_layers/masking"
             },
             {
                 "name": "Lambda",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/core_layers/lambda"
             }
-        ]
+        ],
+        "doc": "https://keras.io/api/layers/core_layers/"
     },
     "convolution-layers": {
         "name": "Convolution layers",
@@ -62,8 +69,8 @@
             {
                 "name": "Conv1D",
                 "args": {
-                    "filters,": "REQUIRED",
-                    "kernel_size,": "REQUIRED",
+                    "filters": "REQUIRED",
+                    "kernel_size": "REQUIRED",
                     "strides": "1",
                     "padding": "valid",
                     "data_format": "channels_last",
@@ -78,13 +85,14 @@
                     "activity_regularizer": "None",
                     "kernel_constraint": "None",
                     "bias_constraint": "None"
-                }
+                },
+                "doc": "https://keras.io/api/layers/convolution_layers/convolution1d"
             },
             {
                 "name": "Conv2D",
                 "args": {
-                    "filters,": "REQUIRED",
-                    "kernel_size,": "REQUIRED",
+                    "filters": "REQUIRED",
+                    "kernel_size": "REQUIRED",
                     "strides": "(1 1)",
                     "padding": "valid",
                     "data_format": "None",
@@ -99,13 +107,14 @@
                     "activity_regularizer": "None",
                     "kernel_constraint": "None",
                     "bias_constraint": "None"
-                }
+                },
+                "doc": "https://keras.io/api/layers/convolution_layers/convolution2d"
             },
             {
                 "name": "Conv3D",
                 "args": {
-                    "filters,": "REQUIRED",
-                    "kernel_size,": "REQUIRED",
+                    "filters": "REQUIRED",
+                    "kernel_size": "REQUIRED",
                     "strides": "(1 1 1)",
                     "padding": "valid",
                     "data_format": "None",
@@ -120,13 +129,14 @@
                     "activity_regularizer": "None",
                     "kernel_constraint": "None",
                     "bias_constraint": "None"
-                }
+                },
+                "doc": "https://keras.io/api/layers/convolution_layers/convolution3d"
             },
             {
                 "name": "SeparableConv1D",
                 "args": {
-                    "filters,": "REQUIRED",
-                    "kernel_size,": "REQUIRED",
+                    "filters": "REQUIRED",
+                    "kernel_size": "REQUIRED",
                     "strides": "1",
                     "padding": "valid",
                     "data_format": "None",
@@ -144,13 +154,14 @@
                     "depthwise_constraint": "None",
                     "pointwise_constraint": "None",
                     "bias_constraint": "None"
-                }
+                },
+                "doc": "https://keras.io/api/layers/convolution_layers/separable_convolution1d"
             },
             {
                 "name": "SeparableConv2D",
                 "args": {
-                    "filters,": "REQUIRED",
-                    "kernel_size,": "REQUIRED",
+                    "filters": "REQUIRED",
+                    "kernel_size": "REQUIRED",
                     "strides": "(1 1)",
                     "padding": "valid",
                     "data_format": "None",
@@ -168,12 +179,13 @@
                     "depthwise_constraint": "None",
                     "pointwise_constraint": "None",
                     "bias_constraint": "None"
-                }
+                },
+                "doc": "https://keras.io/api/layers/convolution_layers/separable_convolution2d"
             },
             {
                 "name": "DepthwiseConv2D",
                 "args": {
-                    "kernel_size,": "REQUIRED",
+                    "kernel_size": "REQUIRED",
                     "strides": "(1 1)",
                     "padding": "valid",
                     "depth_multiplier": "1",
@@ -188,13 +200,14 @@
                     "activity_regularizer": "None",
                     "depthwise_constraint": "None",
                     "bias_constraint": "None"
-                }
+                },
+                "doc": "https://keras.io/api/layers/convolution_layers/depthwise_convolution2d"
             },
             {
                 "name": "Conv2DTranspose",
                 "args": {
-                    "filters,": "REQUIRED",
-                    "kernel_size,": "REQUIRED",
+                    "filters": "REQUIRED",
+                    "kernel_size": "REQUIRED",
                     "strides": "(1 1)",
                     "padding": "valid",
                     "output_padding": "None",
@@ -209,13 +222,14 @@
                     "activity_regularizer": "None",
                     "kernel_constraint": "None",
                     "bias_constraint": "None"
-                }
+                },
+                "doc": "https://keras.io/api/layers/convolution_layers/convolution2d_transpose"
             },
             {
                 "name": "Conv3DTranspose",
                 "args": {
-                    "filters,": "REQUIRED",
-                    "kernel_size,": "REQUIRED",
+                    "filters": "REQUIRED",
+                    "kernel_size": "REQUIRED",
                     "strides": "(1 1 1)",
                     "padding": "valid",
                     "output_padding": "None",
@@ -230,62 +244,77 @@
                     "activity_regularizer": "None",
                     "kernel_constraint": "None",
                     "bias_constraint": "None"
-                }
+                },
+                "doc": "https://keras.io/api/layers/convolution_layers/convolution3d_transpose"
             }
-        ]
+        ],
+        "doc": "https://keras.io/api/layers/convolution_layers/"
     },
     "pooling-layers": {
         "name": "Pooling layers",
         "layers": [
             {
                 "name": "MaxPooling1D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/pooling_layers/max_pooling1d"
             },
             {
                 "name": "MaxPooling2D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/pooling_layers/max_pooling2d"
             },
             {
                 "name": "MaxPooling3D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/pooling_layers/max_pooling3d"
             },
             {
                 "name": "AveragePooling1D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/pooling_layers/average_pooling1d"
             },
             {
                 "name": "AveragePooling2D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/pooling_layers/average_pooling2d"
             },
             {
                 "name": "AveragePooling3D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/pooling_layers/average_pooling3d"
             },
             {
                 "name": "GlobalMaxPooling1D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/pooling_layers/global_max_pooling1d"
             },
             {
                 "name": "GlobalMaxPooling2D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/pooling_layers/global_max_pooling2d"
             },
             {
                 "name": "GlobalMaxPooling3D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/pooling_layers/global_max_pooling3d"
             },
             {
                 "name": "GlobalAveragePooling1D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/pooling_layers/global_average_pooling1d"
             },
             {
                 "name": "GlobalAveragePooling2D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/pooling_layers/global_average_pooling2d"
             },
             {
                 "name": "GlobalAveragePooling3D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/pooling_layers/global_average_pooling3d"
             }
-        ]
+        ],
+        "doc": "https://keras.io/api/layers/pooling_layers/"
     },
     "recurrent-layers": {
         "name": "Recurrent layers",
@@ -293,7 +322,7 @@
             {
                 "name": "LSTM",
                 "args": {
-                    "units,": "REQUIRED",
+                    "units": "REQUIRED",
                     "activation": "tanh",
                     "recurrent_activation": "sigmoid",
                     "use_bias": "True",
@@ -316,12 +345,13 @@
                     "stateful": "False",
                     "time_major": "False",
                     "unroll": "False"
-                }
+                },
+                "doc": "https://keras.io/api/layers/recurrent_layers/lstm"
             },
             {
                 "name": "GRU",
                 "args": {
-                    "units,": "REQUIRED",
+                    "units": "REQUIRED",
                     "activation": "tanh",
                     "recurrent_activation": "sigmoid",
                     "use_bias": "True",
@@ -344,12 +374,13 @@
                     "unroll": "False",
                     "time_major": "False",
                     "reset_after": "True"
-                }
+                },
+                "doc": "https://keras.io/api/layers/recurrent_layers/gru"
             },
             {
                 "name": "SimpleRNN",
                 "args": {
-                    "units,": "REQUIRED",
+                    "units": "REQUIRED",
                     "activation": "tanh",
                     "use_bias": "True",
                     "kernel_initializer": "glorot_uniform",
@@ -369,21 +400,24 @@
                     "go_backwards": "False",
                     "stateful": "False",
                     "unroll": "False"
-                }
+                },
+                "doc": "https://keras.io/api/layers/recurrent_layers/simple_rnn"
             },
             {
                 "name": "TimeDistributed",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/recurrent_layers/time_distributed"
             },
             {
                 "name": "Bidirectional",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/recurrent_layers/bidirectional"
             },
             {
                 "name": "ConvLSTM2D",
                 "args": {
-                    "filters,": "REQUIRED",
-                    "kernel_size,": "REQUIRED",
+                    "filters": "REQUIRED",
+                    "kernel_size": "REQUIRED",
                     "strides": "(1 1)",
                     "padding": "valid",
                     "data_format": "None",
@@ -408,21 +442,24 @@
                     "stateful": "False",
                     "dropout": "0.0",
                     "recurrent_dropout": "0.0"
-                }
+                },
+                "doc": "https://keras.io/api/layers/recurrent_layers/conv_lstm2d"
             },
             {
                 "name": "Base RNN",
                 "args": {
-                    "cell,": "REQUIRED",
+                    "cell": "REQUIRED",
                     "return_sequences": "False",
                     "return_state": "False",
                     "go_backwards": "False",
                     "stateful": "False",
                     "unroll": "False",
                     "time_major": "False"
-                }
+                },
+                "doc": "https://keras.io/api/layers/recurrent_layers/rnn"
             }
-        ]
+        ],
+        "doc": "https://keras.io/api/layers/recurrent_layers/"
     },
     "preprocessing-layers": {
         "name": "Preprocessing layers",
@@ -438,13 +475,16 @@
                     "output_sequence_length": "None",
                     "pad_to_max_tokens": "True",
                     "vocabulary": "None"
-                }
+                },
+                "doc": "https://keras.io/api/layers/preprocessing_layers/core_preprocessing_layers/text_vectorization"
             },
             {
                 "name": "Normalization",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/preprocessing_layers/core_preprocessing_layers/normalization"
             }
-        ]
+        ],
+        "doc": "https://keras.io/api/layers/preprocessing_layers/"
     },
     "normalization-layers": {
         "name": "Normalization layers",
@@ -473,7 +513,8 @@
                     "virtual_batch_size": "None",
                     "adjustment": "None",
                     "name": "None"
-                }
+                },
+                "doc": "https://keras.io/api/layers/normalization_layers/batch_normalization"
             },
             {
                 "name": "LayerNormalization",
@@ -490,46 +531,57 @@
                     "gamma_constraint": "None",
                     "trainable": "True",
                     "name": "None"
-                }
+                },
+                "doc": "https://keras.io/api/layers/normalization_layers/layer_normalization"
             }
-        ]
+        ],
+        "doc": "https://keras.io/api/layers/normalization_layers/"
     },
     "regularization-layers": {
         "name": "Regularization layers",
         "layers": [
             {
                 "name": "Dropout",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/regularization_layers/dropout"
             },
             {
                 "name": "SpatialDropout1D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/regularization_layers/spatial_dropout1d"
             },
             {
                 "name": "SpatialDropout2D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/regularization_layers/spatial_dropout2d"
             },
             {
                 "name": "SpatialDropout3D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/regularization_layers/spatial_dropout3d"
             },
             {
                 "name": "GaussianDropout",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/regularization_layers/gaussian_dropout"
             },
             {
                 "name": "GaussianNoise",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/regularization_layers/gaussian_noise"
             },
             {
                 "name": "ActivityRegularization",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/regularization_layers/activity_regularization"
             },
             {
                 "name": "AlphaDropout",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/regularization_layers/alpha_dropout"
             }
-        ]
+        ],
+        "doc": "https://keras.io/api/layers/regularization_layers/"
     },
     "attention-layers": {
         "name": "Attention layers",
@@ -537,8 +589,8 @@
             {
                 "name": "MultiHeadAttention",
                 "args": {
-                    "num_heads,": "REQUIRED",
-                    "key_dim,": "REQUIRED",
+                    "num_heads": "REQUIRED",
+                    "key_dim": "REQUIRED",
                     "value_dim": "None",
                     "dropout": "0.0",
                     "use_bias": "True",
@@ -551,111 +603,138 @@
                     "activity_regularizer": "None",
                     "kernel_constraint": "None",
                     "bias_constraint": "None"
-                }
+                },
+                "doc": "https://keras.io/api/layers/attention_layers/multi_head_attention"
             },
             {
                 "name": "Attention",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/attention_layers/attention"
             },
             {
                 "name": "AdditiveAttention",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/attention_layers/additive_attention"
             }
-        ]
+        ],
+        "doc": "https://keras.io/api/layers/attention_layers/"
     },
     "reshaping-layers": {
         "name": "Reshaping layers",
         "layers": [
             {
                 "name": "Reshape",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/reshaping_layers/reshape"
             },
             {
                 "name": "Flatten",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/reshaping_layers/flatten"
             },
             {
                 "name": "RepeatVector",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/reshaping_layers/repeat_vector"
             },
             {
                 "name": "Permute",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/reshaping_layers/permute"
             },
             {
                 "name": "Cropping1D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/reshaping_layers/cropping1d"
             },
             {
                 "name": "Cropping2D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/reshaping_layers/cropping2d"
             },
             {
                 "name": "Cropping3D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/reshaping_layers/cropping3d"
             },
             {
                 "name": "UpSampling1D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/reshaping_layers/up_sampling1d"
             },
             {
                 "name": "UpSampling2D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/reshaping_layers/up_sampling2d"
             },
             {
                 "name": "UpSampling3D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/reshaping_layers/up_sampling3d"
             },
             {
                 "name": "ZeroPadding1D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/reshaping_layers/zero_padding1d"
             },
             {
                 "name": "ZeroPadding2D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/reshaping_layers/zero_padding2d"
             },
             {
                 "name": "ZeroPadding3D",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/reshaping_layers/zero_padding3d"
             }
-        ]
+        ],
+        "doc": "https://keras.io/api/layers/reshaping_layers/"
     },
     "merging-layers": {
         "name": "Merging layers",
         "layers": [
             {
                 "name": "Concatenate",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/merging_layers/concatenate"
             },
             {
                 "name": "Average",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/merging_layers/average"
             },
             {
                 "name": "Maximum",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/merging_layers/maximum"
             },
             {
                 "name": "Minimum",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/merging_layers/minimum"
             },
             {
                 "name": "Add",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/merging_layers/add"
             },
             {
                 "name": "Subtract",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/merging_layers/subtract"
             },
             {
                 "name": "Multiply",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/merging_layers/multiply"
             },
             {
                 "name": "Dot",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/merging_layers/dot"
             }
-        ]
+        ],
+        "doc": "https://keras.io/api/layers/merging_layers/"
     },
     "locallyconnected-layers": {
         "name": "Locally-connected layers",
@@ -663,8 +742,8 @@
             {
                 "name": "LocallyConnected1D",
                 "args": {
-                    "filters,": "REQUIRED",
-                    "kernel_size,": "REQUIRED",
+                    "filters": "REQUIRED",
+                    "kernel_size": "REQUIRED",
                     "strides": "1",
                     "padding": "valid",
                     "data_format": "None",
@@ -678,13 +757,14 @@
                     "kernel_constraint": "None",
                     "bias_constraint": "None",
                     "implementation": "1"
-                }
+                },
+                "doc": "https://keras.io/api/layers/locally_connected_layers/locall_connected1d"
             },
             {
                 "name": "LocallyConnected2D",
                 "args": {
-                    "filters,": "REQUIRED",
-                    "kernel_size,": "REQUIRED",
+                    "filters": "REQUIRED",
+                    "kernel_size": "REQUIRED",
                     "strides": "(1 1)",
                     "padding": "valid",
                     "data_format": "None",
@@ -698,24 +778,29 @@
                     "kernel_constraint": "None",
                     "bias_constraint": "None",
                     "implementation": "1"
-                }
+                },
+                "doc": "https://keras.io/api/layers/locally_connected_layers/locall_connected2d"
             }
-        ]
+        ],
+        "doc": "https://keras.io/api/layers/locally_connected_layers/"
     },
     "activation-layers": {
         "name": "Activation layers",
         "layers": [
             {
                 "name": "ReLU",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/activation_layers/relu"
             },
             {
                 "name": "Softmax",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/activation_layers/softmax"
             },
             {
                 "name": "LeakyReLU",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/activation_layers/leaky_relu"
             },
             {
                 "name": "PReLU",
@@ -724,16 +809,20 @@
                     "alpha_regularizer": "None",
                     "alpha_constraint": "None",
                     "shared_axes": "None"
-                }
+                },
+                "doc": "https://keras.io/api/layers/activation_layers/prelu"
             },
             {
                 "name": "ELU",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/activation_layers/elu"
             },
             {
                 "name": "ThresholdedReLU",
-                "args": {}
+                "args": {},
+                "doc": "https://keras.io/api/layers/activation_layers/threshold_relu"
             }
-        ]
+        ],
+        "doc": "https://keras.io/api/layers/activation_layers/"
     }
 }

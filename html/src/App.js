@@ -58,6 +58,8 @@ const Node = (props) =>{
     })
   }
 
+  let width = Math.max(10 + ( props.layer.name.length * 12 ),180)
+
   return (
     <div id={'node-'+props.layer.id} className='node' 
         onMouseUp={mouseUp} 
@@ -66,13 +68,17 @@ const Node = (props) =>{
         style={{
           top:props.layer.pos.y+'px',
           left:props.layer.pos.x+'px',
+          width:`${width}px`
         }} 
         key={props._key}
       >
       <div className='name' 
         id={'name'+props.layer.id}
+
         onMouseDown={dragMouseDown}
-        onDoubleClick={menuToggle} 
+        onDoubleClick={menuToggle}
+
+        style={{width:`${width-10}px`}} 
       >
         {props.layer.name}
       </div>
@@ -82,54 +88,7 @@ const Node = (props) =>{
 
 const App = (props) =>{
   let [layers,layersState] = React.useState({
-    'dense_1':{
-      id:'dense_1',
-      name:'Dense 1',
-      pos:{
-        x:600,
-        y:0
-      },
-      connections:{
-        inbound:[],
-        outbound:[]
-      }
-    },
-    'dense_2':{
-      id:'dense_2',
-      name:'Dense 2',
-      pos:{
-        x:400,
-        y:300
-      },
-      connections:{
-        inbound:['dense_1'],
-        outbound:[]
-      }
-    },
-    'dense_3':{
-      id:'dense_3',
-      name:'Dense 3',
-      pos:{
-        x:800,
-        y:300
-      },
-      connections:{
-        inbound:[],
-        outbound:[]
-      }
-    },
-    'dense_4':{
-      id:'dense_4',
-      name:'Dense 4',
-      pos:{
-        x:600,
-        y:600
-      },
-      connections:{
-        inbound:['dense_1'],
-        outbound:[]
-      }
-    },
+    
   })
 
   let [menu,menuState] = React.useState({
@@ -141,11 +100,7 @@ const App = (props) =>{
     ...layerGroups
   })
 
-  function removeEdge(e){
-    console.log(e);
-  }
-
-  React.useEffect(()=>{
+  React.useEffect(()=>{ 
     let svgCanvas = document.getElementById("svg-canvas");
     Array(...svgCanvas.children).forEach(edge=>svgCanvas.removeChild(edge));
     svgCanvas.innerHTML = `<marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
@@ -155,7 +110,9 @@ const App = (props) =>{
                           </marker>`
     Object.keys(layers).forEach(layer=>{
       layers[layer].connections.inbound.forEach((inbound,i)=>{
-        if (document.getElementById(`${inbound}->${layer}`)){  }
+        if (document.getElementById(`${inbound}->${layer}`)){ 
+          // document.getElementById(`${inbound}->${layer}`).onclick = removeEdge;
+         }
         else{
           document.getElementById("svg-canvas").innerHTML = (
             document.getElementById("svg-canvas").innerHTML +
@@ -169,10 +126,10 @@ const App = (props) =>{
               />` 
             )
           )
-          document.getElementById(`${inbound}->${layer}`).onmousedown = removeEdge
         }
       })
     });
+    console.log(layers)
   },[layers,])
 
   function mouseMove(e ){
@@ -194,7 +151,8 @@ const App = (props) =>{
     }
   }
   
-  function mouseDown(e){
+  function mouseDown(e){ 
+    e.preventDefault()
     if (window.__MODE__ === 'line'){
       document.getElementById("svg-canvas").innerHTML = (
         document.getElementById("svg-canvas").innerHTML +
@@ -216,7 +174,6 @@ const App = (props) =>{
     }
     else if (window.__MODE__ === 'delete'){
       if (window.__ACTIVE_ELEMENT__){
-        console.log(window.__ACTIVE_ELEMENT__)
         window.__ACTIVE_ELEMENT__.target.parentElement.removeChild(
           window.__ACTIVE_ELEMENT__.target
         )
@@ -298,27 +255,89 @@ const App = (props) =>{
   }
 
   function toolbarHandler(data={mode:undefined,layer:{name:"__LAYER__",args:{}}}){
-    if (data.mode === "layer"){
+    if (data.mode === "layer"){  
       if (window.__MODE__ !== "layer"){
         window.__MODE__ = "layer"
         document.getElementById("canvas").style.cursor = cursors[window.__MODE__]
         window.__ACTIVE_LAYER__ = data.layer
       }
       else{
-        window.__MODE__ = 'normal'
-        document.getElementById("canvas").style.cursor = 'default'
-        window.__ACTIVE_LAYER__ = { name: undefined }
-      } 
-      // window.__MODE__ = data.mode
-      // document.getElementById("canvas").style.cursor = cursors[window.__MODE__]
+        if (window.__ACTIVE_LAYER__.name === data.layer.name){
+          window.__MODE__ = 'normal'
+          document.getElementById("canvas").style.cursor = 'default'
+          window.__ACTIVE_LAYER__ = { name: undefined }
+        }
+        else{
+          window.__ACTIVE_LAYER__ = data.layer
+        }
+      }
     }
     else{
       setMode(data.mode)
     }
   }
 
+  function toggleSection(e){
+    l[e.target.id].visible = ~l[e.target.id].visible;
+    lState({
+      ...l
+    })
+  }
+
+  const LayerGroupCollapsed = (props) =>{ 
+    return (
+      <div className='layers' key={props.i} style={{height:"45px",padding:"0 10px 0 10px"}}>
+        <div 
+          className='name' 
+          id={props.id} 
+          style={{height:"45px"}} 
+          onClick={props.toggleSection}
+        > 
+          {props.layerGroup.name}
+        </div>
+      </div>
+    )
+  }
+
+  const LayerGroupOpen = (props) =>{
+    return (
+      <div className='layers' key={props.i}>
+        <div className='name' 
+          id={props.id} 
+          onClick={props.toggleSection}
+        > 
+          {props.layerGroup.name}
+        </div>
+            <div className='grid'>
+            {
+              props.layerGroup.layers.map((layer,j)=>{
+                return (
+                  <div className='btn' onClick={e=>{toolbarHandler({mode:"layer",layer:layer})}} id='btn-del' key={j}> 
+                    {layer.name} 
+                  </div>
+                )
+              })
+            }  
+          </div>
+      </div>
+    )
+  }
+
+  async function buildModel(e){
+    await fetch(
+      "http://localhost/build",
+      {
+        method:"POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...layers })
+      }
+    )
+    .then(response=>response.json())
+    .then(data=>console.log(data))
+  }
+
   return (
-    <div>
+    <div> 
       {menu.comp}
       <div className='nav'>
         <div className='title'>
@@ -337,27 +356,21 @@ const App = (props) =>{
             </div>
           </div>
         </div>
-
+        <div className="layergroups">
         {
           l.layerGroups.map((layerGroup,i)=>{
-            return(
-              <div className='layers' key={i}>
-                <div className='name'>{layerGroup}</div>
-                <div className='grid'>
-                  {
-                    l[layerGroup].layers.map((layer,j)=>{
-                      return (
-                        <div className='btn' onClick={e=>{toolbarHandler({mode:"layer",layer:layer})}} id='btn-del' key={j}> 
-                          {layer.name} 
-                        </div>
-                      )
-                    })
-                  }  
-                </div>
-              </div>
+            return (
+              l[layerGroup].visible ? 
+                <LayerGroupOpen key={i} i={i} id={layerGroup} layerGroup={l[layerGroup]} toggleSection={toggleSection} /> 
+              : 
+                <LayerGroupCollapsed key={i} i={i} id={layerGroup} layerGroup={l[layerGroup]} toggleSection={toggleSection} />
             )
           })
         }
+        </div>
+        <div className="bbtn" onClick={buildModel}>
+          Build
+        </div>
       </div>
       <div id='canvas' className="canvas" 
         onMouseMove={mouseMove} 
