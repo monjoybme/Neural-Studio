@@ -2,6 +2,8 @@ from flask import Flask,request,send_file,send_from_directory
 from flask_cors import CORS
 from json import dump
 
+from tf_gui.builder import build_model
+
 app = Flask(__name__)
 CORS(app)
 

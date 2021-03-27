@@ -735,6 +735,29 @@ const layerGroups = {
                 "args": {}
             }
         ]
+    },
+    "build-layers":{
+        "name":"Build Tools",
+        "layers":[
+            {
+                "name":"Model",
+                "args":{
+                    
+                }
+            },
+            {
+                "name":"Compile",
+                "args":{
+                    
+                }
+            },
+            {
+                "name":"Train",
+                "args":{
+                    
+                }
+            }
+        ]
     }
 }
 export {layerGroups};
