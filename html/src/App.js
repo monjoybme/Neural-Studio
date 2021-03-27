@@ -62,14 +62,14 @@ function downLayer (e){
 function moveNode(e){
   e.preventDefault()
   if (window.__ACTIVE_ELEMENT__){
-    // document.getElementById("canvas").style.height =  Math.max(window.innerHeight,e.pageY+50) + "px"
+    document.getElementById("canvas").style.height =  Math.max(window.innerHeight,e.pageY+50) + "px"
     window.__ACTIVE_ELEMENT__.target.style.left = e.pageX - 80 + 'px'
     window.__ACTIVE_ELEMENT__.target.style.top = e.pageY - 30 + 'px'
     window.__POS__ = {
       x:e.pageX - 80,
       y:e.pageY - 30
     }
-    console.log(e.clientY,e.pageY)
+    
   }
 }
 
@@ -186,7 +186,7 @@ const Menu = (props) =>{
     )
   }
   
-const Node = (props) =>{ 
+const Node = (props) =>{
     function dragMouseDown(e) {
       e.target.style.cursor = cursors[window.__MODE__];
       e = e || window.event;
@@ -244,7 +244,7 @@ const Node = (props) =>{
       })
     }
   
-    let width = Math.max(10 + ( props.layer.name.length * 12 ),180)
+    let width = Math.max(10 + ( props.layer.name.length * 11 ),150)
   
     return (
       <div id={'node-'+props.layer.id} className='node' 
@@ -422,7 +422,7 @@ const App = (props) =>{
   },[layers,layersState])
 
   return (
-    <div style={{overflow:"scroll"}}> 
+    <div> 
       {menu.comp}
       <div className='nav'>
         <div className='title'>
@@ -469,7 +469,7 @@ const App = (props) =>{
             return <Node  layer={layers[layer]} key={i} menuState={menuState} />
           })
         }
-        <svg xmlns="http://www.w3.org/2000/svg" id='svg-canvas'>
+        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" id='svg-canvas'>
         </svg>
       </div>
     </div>

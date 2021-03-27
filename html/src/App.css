@@ -48,8 +48,8 @@ input:focus{
 }
 
 #svg-canvas{
-  /* height: 150vh; */
-  /* width: 100vw; */
+  height: 150vh;
+  width: 100vw;
   overflow: hidden;
 }
 
@@ -97,7 +97,6 @@ input:focus{
 }
 
 .nav {
-  /* visibility: hidden; */
   height: 100vh;
   width: 30vh;
   position: fixed;
