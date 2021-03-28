@@ -11,8 +11,10 @@ CORS(app)
 def build_():
     with open("./data/example_build.json","w+") as file:
         dump(request.get_json(),file)
+
     return {
-        "status":200
+        "status":200,
+        "code":build_model(request.get_json())
     }
 
 if __name__ == '__main__':

@@ -1,3 +1,246 @@
+const example = {
+    "layer_0": {
+        "id": "layer_0",
+        "name": "Input",
+        "pos": {
+            "x": 306,
+            "y": 12
+        },
+        "connections": {
+            "inbound": [],
+            "outbound": [
+                "layer_1"
+            ]
+        },
+        "arguments": {
+            "shape": "None",
+            "batch_size": "None",
+            "name": "None",
+            "dtype": "None",
+            "sparse": "False",
+            "tensor": "None",
+            "ragged": "False"
+        }
+    },
+    "layer_1": {
+        "id": "layer_1",
+        "name": "Dense",
+        "pos": {
+            "x": 297,
+            "y": 100
+        },
+        "connections": {
+            "inbound": [
+                "layer_0"
+            ],
+            "outbound": [
+                "layer_7"
+            ]
+        },
+        "arguments": {
+            "units": "REQUIRED",
+            "activation": "None",
+            "use_bias": "True",
+            "kernel_initializer": "glorot_uniform",
+            "bias_initializer": "zeros",
+            "kernel_regularizer": "None",
+            "bias_regularizer": "None",
+            "activity_regularizer": "None",
+            "kernel_constraint": "None",
+            "bias_constraint": "None"
+        }
+    },
+    "layer_7": {
+        "id": "layer_7",
+        "name": "Activation",
+        "pos": {
+            "x": 315,
+            "y": 182
+        },
+        "connections": {
+            "inbound": [
+                "layer_1"
+            ],
+            "outbound": [
+                "layer_10"
+            ]
+        },
+        "arguments": {}
+    },
+    "layer_8": {
+        "id": "layer_8",
+        "name": "Activation",
+        "pos": {
+            "x": 412,
+            "y": 359
+        },
+        "connections": {
+            "inbound": [
+                "layer_10"
+            ],
+            "outbound": [
+                "layer_11"
+            ]
+        },
+        "arguments": {}
+    },
+    "layer_9": {
+        "id": "layer_9",
+        "name": "Activation",
+        "pos": {
+            "x": 571,
+            "y": 521
+        },
+        "connections": {
+            "inbound": [
+                "layer_11"
+            ],
+            "outbound": []
+        },
+        "arguments": {}
+    },
+    "layer_10": {
+        "id": "layer_10",
+        "name": "Dense",
+        "pos": {
+            "x": 358,
+            "y": 276
+        },
+        "connections": {
+            "inbound": [
+                "layer_7"
+            ],
+            "outbound": [
+                "layer_8"
+            ]
+        },
+        "arguments": {
+            "units": "REQUIRED",
+            "activation": "None",
+            "use_bias": "True",
+            "kernel_initializer": "glorot_uniform",
+            "bias_initializer": "zeros",
+            "kernel_regularizer": "None",
+            "bias_regularizer": "None",
+            "activity_regularizer": "None",
+            "kernel_constraint": "None",
+            "bias_constraint": "None"
+        }
+    },
+    "layer_11": {
+        "id": "layer_11",
+        "name": "Dense",
+        "pos": {
+            "x": 458,
+            "y": 445
+        },
+        "connections": {
+            "inbound": [
+                "layer_8"
+            ],
+            "outbound": [
+                "layer_9"
+            ]
+        },
+        "arguments": {
+            "units": "REQUIRED",
+            "activation": "None",
+            "use_bias": "True",
+            "kernel_initializer": "glorot_uniform",
+            "bias_initializer": "zeros",
+            "kernel_regularizer": "None",
+            "bias_regularizer": "None",
+            "activity_regularizer": "None",
+            "kernel_constraint": "None",
+            "bias_constraint": "None"
+        }
+    }
+}
+
+const activations = [
+    { name: "None" },
+    { name: "relu"  },
+    { name: "sigmoid"  },
+    { name: "softmax"  },
+    { name: "swish"  },
+    { name: "tanh"  },
+]
+
+const boolList = [
+    { name:"True" },
+    { name:"False" },
+]
+
+const kernelInitializers = [
+    { name : 'glorot_uniform',},
+    { name : 'glorot_normal',},
+    { name : 'he_normal',},
+    { name : 'he_uniform',},
+    { name : 'identity',},
+    { name : 'lecun_normal',},
+    { name : 'lecun_uniform',},
+    { name : 'ones',},
+    { name : 'orthogonal',},
+    { name : 'random_normal',},
+    { name : 'random_uniform',},
+    { name : 'serialize',},
+    { name : 'truncated_normal',},
+    { name : 'variance_scaling',},
+    { name : 'zeros', }
+]
+
+const kernelRegularizer = [
+    { name: "None" },
+    { name :'l1', },
+    { name :'l1_l2', },
+    { name :'l2', },
+]
+
+const convPaddingList = [
+    { name : "valid", },
+    { name : "same", },
+]
+
+const optimizerList = [   
+    {'name': 'adadelta',},
+    {'name': 'adagrad',},
+    {'name': 'adam',},
+    {'name': 'adamax',},
+    {'name': 'ftrl',},
+    {'name': 'nadam',},
+    {'name': 'optimizer',},
+    {'name': 'rmsprop',},
+    {'name': 'sgd',}
+]
+
+const lossList = [
+    {'name': 'binary_crossentropy',},
+    {'name': 'categorical_crossentropy',},
+    {'name': 'categorical_hinge',},
+    {'name': 'cosine_similarity',},
+    {'name': 'deserialize',},
+    {'name': 'get',},
+    {'name': 'hinge',},
+    {'name': 'huber',},
+    {'name': 'kl_divergence',},
+    {'name': 'kld',},
+    {'name': 'kullback_leibler_divergence',},
+    {'name': 'log_cosh',},
+    {'name': 'logcosh',},
+    {'name': 'mae',},
+    {'name': 'mape',},
+    {'name': 'mean_absolute_error',},
+    {'name': 'mean_absolute_percentage_error',},
+    {'name': 'mean_squared_error',},
+    {'name': 'mean_squared_logarithmic_error',},
+    {'name': 'mse',},
+    {'name': 'msle',},
+    {'name': 'poisson',},
+    {'name': 'serialize',},
+    {'name': 'sparse_categorical_crossentropy',},
+    {'name': 'squared_hinge',}
+]
+
 const layerGroups = {
     "core-layers": {
         "name": "Core layers",
@@ -5,54 +248,89 @@ const layerGroups = {
             {
                 "name": "Input",
                 "args": {
-                    "shape": "None",
-                    "batch_size": "None",
-                    "name": "None",
-                    "dtype": "None",
-                    "sparse": "False",
-                    "tensor": "None",
-                    "ragged": "False"
+                    "shape": {
+                        value:"None",
+                        type:"text",
+                        render:"text",
+                    },
+                    "batch_size": {
+                        value:"None",
+                        type:"number",
+                        render:"text"
+                    },
+                    "name": {
+                        value:"None",
+                        type:"text",
+                        render:"text"
+                    },
+                    "dtype": {
+                        value:"None",
+                        type:"text",
+                        render:"text"
+                    },
+                    "sparse": {
+                        value:"False",
+                        type:"bool",
+                        render:"list",
+                        options:boolList
+                    },
+                    "tensor": {
+                        value:"None",
+                        type:"text",
+                        render:false
+                    },
+                    "ragged": {
+                        value:"False",
+                        type:"bool",
+                        render:"list",
+                        options:boolList
+                    },
                 }
             },
             {
                 "name": "Dense",
                 "args": {
-                    "units": "REQUIRED",
-                    "activation": "None",
-                    "use_bias": "True",
-                    "kernel_initializer": "glorot_uniform",
-                    "bias_initializer": "zeros",
-                    "kernel_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "kernel_constraint": "None",
-                    "bias_constraint": "None"
+                    "units": {
+                        value:"REQUIRED",
+                        type:"number",
+                        render:"text"
+                    },
+                    "activation": {
+                        value:"None",
+                        type:"text",
+                        render:"list",
+                        options:activations
+                    },
+                    "use_bias": {
+                        value:"True",
+                        type:"bool",
+                        render:"list",
+                        options:boolList
+                    },
+                    "kernel_initializer": {
+                        value:"glorot_uniform",
+                        type:"text",
+                        render:"list",
+                        options:kernelInitializers
+                    },
+                    "bias_initializer": {
+                        value:"zeros",
+                        type:"text",
+                        render:"list",
+                        options:kernelInitializers
+                    }
                 }
             },
             {
                 "name": "Activation",
-                "args": {}
-            },
-            {
-                "name": "Embedding",
                 "args": {
-                    "input_dim": "REQUIRED",
-                    "output_dim": "REQUIRED",
-                    "embeddings_initializer": "uniform",
-                    "embeddings_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "embeddings_constraint": "None",
-                    "mask_zero": "False",
-                    "input_length": "None"
+                    "activation":{
+                        value:"None",
+                        type:"list",
+                        render:"list",
+                        options:activations
+                    },
                 }
-            },
-            {
-                "name": "Masking",
-                "args": {}
-            },
-            {
-                "name": "Lambda",
-                "args": {}
             }
         ]
     },
@@ -60,680 +338,85 @@ const layerGroups = {
         "name": "Convolution layers",
         "layers": [
             {
-                "name": "Conv1D",
-                "args": {
-                    "filters": "REQUIRED",
-                    "kernel_size": "REQUIRED",
-                    "strides": "1",
-                    "padding": "valid",
-                    "data_format": "channels_last",
-                    "dilation_rate": "1",
-                    "groups": "1",
-                    "activation": "None",
-                    "use_bias": "True",
-                    "kernel_initializer": "glorot_uniform",
-                    "bias_initializer": "zeros",
-                    "kernel_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "kernel_constraint": "None",
-                    "bias_constraint": "None"
-                }
-            },
-            {
                 "name": "Conv2D",
                 "args": {
-                    "filters": "REQUIRED",
-                    "kernel_size": "REQUIRED",
-                    "strides": "(1 1)",
-                    "padding": "valid",
-                    "data_format": "None",
-                    "dilation_rate": "(1 1)",
-                    "groups": "1",
-                    "activation": "None",
-                    "use_bias": "True",
-                    "kernel_initializer": "glorot_uniform",
-                    "bias_initializer": "zeros",
-                    "kernel_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "kernel_constraint": "None",
-                    "bias_constraint": "None"
+                    "filters": {
+                        value:"REQUIRED",
+                        type:"number",
+                        render:"text",
+                    },
+                    "kernel_size": {
+                        value:"REQUIRED",
+                        type:"number",
+                        render:"text",
+                    },
+                    "strides": {
+                        value:"1",
+                        type:"number",
+                        render:"text",
+                    },
+                    "padding": {
+                        value:"valid",
+                        type:"text",
+                        render:"list",
+                        options:convPaddingList
+                    },
+                    "activation": {
+                        value:"None",
+                        type:"text",
+                        render:"list",
+                        options:activations
+                    },
+                    "use_bias": {
+                        value:"True",
+                        type:"bool",
+                        render:"list",
+                        options:boolList
+                    },
+                    "kernel_initializer": {
+                        value:"glorot_uniform",
+                        type:"text",
+                        render:"list",
+                        options:kernelInitializers
+                    },
+                    "bias_initializer": {
+                        value:"zeros",
+                        type:"text",
+                        render:"list",
+                        options:kernelInitializers
+                    }
                 }
             },
-            {
-                "name": "Conv3D",
-                "args": {
-                    "filters": "REQUIRED",
-                    "kernel_size": "REQUIRED",
-                    "strides": "(1 1 1)",
-                    "padding": "valid",
-                    "data_format": "None",
-                    "dilation_rate": "(1 1 1)",
-                    "groups": "1",
-                    "activation": "None",
-                    "use_bias": "True",
-                    "kernel_initializer": "glorot_uniform",
-                    "bias_initializer": "zeros",
-                    "kernel_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "kernel_constraint": "None",
-                    "bias_constraint": "None"
-                }
-            },
-            {
-                "name": "SeparableConv1D",
-                "args": {
-                    "filters": "REQUIRED",
-                    "kernel_size": "REQUIRED",
-                    "strides": "1",
-                    "padding": "valid",
-                    "data_format": "None",
-                    "dilation_rate": "1",
-                    "depth_multiplier": "1",
-                    "activation": "None",
-                    "use_bias": "True",
-                    "depthwise_initializer": "glorot_uniform",
-                    "pointwise_initializer": "glorot_uniform",
-                    "bias_initializer": "zeros",
-                    "depthwise_regularizer": "None",
-                    "pointwise_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "depthwise_constraint": "None",
-                    "pointwise_constraint": "None",
-                    "bias_constraint": "None"
-                }
-            },
-            {
-                "name": "SeparableConv2D",
-                "args": {
-                    "filters": "REQUIRED",
-                    "kernel_size": "REQUIRED",
-                    "strides": "(1 1)",
-                    "padding": "valid",
-                    "data_format": "None",
-                    "dilation_rate": "(1 1)",
-                    "depth_multiplier": "1",
-                    "activation": "None",
-                    "use_bias": "True",
-                    "depthwise_initializer": "glorot_uniform",
-                    "pointwise_initializer": "glorot_uniform",
-                    "bias_initializer": "zeros",
-                    "depthwise_regularizer": "None",
-                    "pointwise_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "depthwise_constraint": "None",
-                    "pointwise_constraint": "None",
-                    "bias_constraint": "None"
-                }
-            },
-            {
-                "name": "DepthwiseConv2D",
-                "args": {
-                    "kernel_size": "REQUIRED",
-                    "strides": "(1 1)",
-                    "padding": "valid",
-                    "depth_multiplier": "1",
-                    "data_format": "None",
-                    "dilation_rate": "(1 1)",
-                    "activation": "None",
-                    "use_bias": "True",
-                    "depthwise_initializer": "glorot_uniform",
-                    "bias_initializer": "zeros",
-                    "depthwise_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "depthwise_constraint": "None",
-                    "bias_constraint": "None"
-                }
-            },
-            {
-                "name": "Conv2DTranspose",
-                "args": {
-                    "filters": "REQUIRED",
-                    "kernel_size": "REQUIRED",
-                    "strides": "(1 1)",
-                    "padding": "valid",
-                    "output_padding": "None",
-                    "data_format": "None",
-                    "dilation_rate": "(1 1)",
-                    "activation": "None",
-                    "use_bias": "True",
-                    "kernel_initializer": "glorot_uniform",
-                    "bias_initializer": "zeros",
-                    "kernel_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "kernel_constraint": "None",
-                    "bias_constraint": "None"
-                }
-            },
-            {
-                "name": "Conv3DTranspose",
-                "args": {
-                    "filters": "REQUIRED",
-                    "kernel_size": "REQUIRED",
-                    "strides": "(1 1 1)",
-                    "padding": "valid",
-                    "output_padding": "None",
-                    "data_format": "None",
-                    "dilation_rate": "(1 1 1)",
-                    "activation": "None",
-                    "use_bias": "True",
-                    "kernel_initializer": "glorot_uniform",
-                    "bias_initializer": "zeros",
-                    "kernel_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "kernel_constraint": "None",
-                    "bias_constraint": "None"
-                }
-            }
         ]
     },
     "pooling-layers": {
         "name": "Pooling layers",
         "layers": [
             {
-                "name": "MaxPooling1D",
-                "args": {}
-            },
-            {
                 "name": "MaxPooling2D",
-                "args": {}
-            },
-            {
-                "name": "MaxPooling3D",
-                "args": {}
-            },
-            {
-                "name": "AveragePooling1D",
-                "args": {}
-            },
-            {
-                "name": "AveragePooling2D",
-                "args": {}
-            },
-            {
-                "name": "AveragePooling3D",
-                "args": {}
-            },
-            {
-                "name": "GlobalMaxPooling1D",
-                "args": {}
-            },
-            {
-                "name": "GlobalMaxPooling2D",
-                "args": {}
-            },
-            {
-                "name": "GlobalMaxPooling3D",
-                "args": {}
-            },
-            {
-                "name": "GlobalAveragePooling1D",
-                "args": {}
+                "args": {
+                    pool_size:{
+                        value:"(2, 2)",
+                        type:"text",
+                        render:"text",
+                    }, 
+                    "strides": {
+                        value:"None",
+                        type:"number",
+                        render:"text",
+                    }, 
+                    "padding": {
+                        value:"valid",
+                        type:"list",
+                        render:"list",
+                        options:convPaddingList
+                    },
+                }
             },
             {
                 "name": "GlobalAveragePooling2D",
                 "args": {}
             },
-            {
-                "name": "GlobalAveragePooling3D",
-                "args": {}
-            }
-        ]
-    },
-    "recurrent-layers": {
-        "name": "Recurrent layers",
-        "layers": [
-            {
-                "name": "LSTM",
-                "args": {
-                    "units": "REQUIRED",
-                    "activation": "tanh",
-                    "recurrent_activation": "sigmoid",
-                    "use_bias": "True",
-                    "kernel_initializer": "glorot_uniform",
-                    "recurrent_initializer": "orthogonal",
-                    "bias_initializer": "zeros",
-                    "unit_forget_bias": "True",
-                    "kernel_regularizer": "None",
-                    "recurrent_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "kernel_constraint": "None",
-                    "recurrent_constraint": "None",
-                    "bias_constraint": "None",
-                    "dropout": "0.0",
-                    "recurrent_dropout": "0.0",
-                    "return_sequences": "False",
-                    "return_state": "False",
-                    "go_backwards": "False",
-                    "stateful": "False",
-                    "time_major": "False",
-                    "unroll": "False"
-                }
-            },
-            {
-                "name": "GRU",
-                "args": {
-                    "units": "REQUIRED",
-                    "activation": "tanh",
-                    "recurrent_activation": "sigmoid",
-                    "use_bias": "True",
-                    "kernel_initializer": "glorot_uniform",
-                    "recurrent_initializer": "orthogonal",
-                    "bias_initializer": "zeros",
-                    "kernel_regularizer": "None",
-                    "recurrent_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "kernel_constraint": "None",
-                    "recurrent_constraint": "None",
-                    "bias_constraint": "None",
-                    "dropout": "0.0",
-                    "recurrent_dropout": "0.0",
-                    "return_sequences": "False",
-                    "return_state": "False",
-                    "go_backwards": "False",
-                    "stateful": "False",
-                    "unroll": "False",
-                    "time_major": "False",
-                    "reset_after": "True"
-                }
-            },
-            {
-                "name": "SimpleRNN",
-                "args": {
-                    "units": "REQUIRED",
-                    "activation": "tanh",
-                    "use_bias": "True",
-                    "kernel_initializer": "glorot_uniform",
-                    "recurrent_initializer": "orthogonal",
-                    "bias_initializer": "zeros",
-                    "kernel_regularizer": "None",
-                    "recurrent_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "kernel_constraint": "None",
-                    "recurrent_constraint": "None",
-                    "bias_constraint": "None",
-                    "dropout": "0.0",
-                    "recurrent_dropout": "0.0",
-                    "return_sequences": "False",
-                    "return_state": "False",
-                    "go_backwards": "False",
-                    "stateful": "False",
-                    "unroll": "False"
-                }
-            },
-            {
-                "name": "TimeDistributed",
-                "args": {}
-            },
-            {
-                "name": "Bidirectional",
-                "args": {}
-            },
-            {
-                "name": "ConvLSTM2D",
-                "args": {
-                    "filters": "REQUIRED",
-                    "kernel_size": "REQUIRED",
-                    "strides": "(1 1)",
-                    "padding": "valid",
-                    "data_format": "None",
-                    "dilation_rate": "(1 1)",
-                    "activation": "tanh",
-                    "recurrent_activation": "hard_sigmoid",
-                    "use_bias": "True",
-                    "kernel_initializer": "glorot_uniform",
-                    "recurrent_initializer": "orthogonal",
-                    "bias_initializer": "zeros",
-                    "unit_forget_bias": "True",
-                    "kernel_regularizer": "None",
-                    "recurrent_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "kernel_constraint": "None",
-                    "recurrent_constraint": "None",
-                    "bias_constraint": "None",
-                    "return_sequences": "False",
-                    "return_state": "False",
-                    "go_backwards": "False",
-                    "stateful": "False",
-                    "dropout": "0.0",
-                    "recurrent_dropout": "0.0"
-                }
-            },
-            {
-                "name": "Base RNN",
-                "args": {
-                    "cell": "REQUIRED",
-                    "return_sequences": "False",
-                    "return_state": "False",
-                    "go_backwards": "False",
-                    "stateful": "False",
-                    "unroll": "False",
-                    "time_major": "False"
-                }
-            }
-        ]
-    },
-    "preprocessing-layers": {
-        "name": "Preprocessing layers",
-        "layers": [
-            {
-                "name": "TextVectorization",
-                "args": {
-                    "max_tokens": "None",
-                    "standardize": "lower_and_strip_punctuation",
-                    "split": "whitespace",
-                    "ngrams": "None",
-                    "output_mode": "int",
-                    "output_sequence_length": "None",
-                    "pad_to_max_tokens": "True",
-                    "vocabulary": "None"
-                }
-            },
-            {
-                "name": "Normalization",
-                "args": {}
-            }
-        ]
-    },
-    "normalization-layers": {
-        "name": "Normalization layers",
-        "layers": [
-            {
-                "name": "BatchNormalization",
-                "args": {
-                    "axis": "-1",
-                    "momentum": "0.99",
-                    "epsilon": "0.001",
-                    "center": "True",
-                    "scale": "True",
-                    "beta_initializer": "zeros",
-                    "gamma_initializer": "ones",
-                    "moving_mean_initializer": "zeros",
-                    "moving_variance_initializer": "ones",
-                    "beta_regularizer": "None",
-                    "gamma_regularizer": "None",
-                    "beta_constraint": "None",
-                    "gamma_constraint": "None",
-                    "renorm": "False",
-                    "renorm_clipping": "None",
-                    "renorm_momentum": "0.99",
-                    "fused": "None",
-                    "trainable": "True",
-                    "virtual_batch_size": "None",
-                    "adjustment": "None",
-                    "name": "None"
-                }
-            },
-            {
-                "name": "LayerNormalization",
-                "args": {
-                    "axis": "-1",
-                    "epsilon": "0.001",
-                    "center": "True",
-                    "scale": "True",
-                    "beta_initializer": "zeros",
-                    "gamma_initializer": "ones",
-                    "beta_regularizer": "None",
-                    "gamma_regularizer": "None",
-                    "beta_constraint": "None",
-                    "gamma_constraint": "None",
-                    "trainable": "True",
-                    "name": "None"
-                }
-            }
-        ]
-    },
-    "regularization-layers": {
-        "name": "Regularization layers",
-        "layers": [
-            {
-                "name": "Dropout",
-                "args": {}
-            },
-            {
-                "name": "SpatialDropout1D",
-                "args": {}
-            },
-            {
-                "name": "SpatialDropout2D",
-                "args": {}
-            },
-            {
-                "name": "SpatialDropout3D",
-                "args": {}
-            },
-            {
-                "name": "GaussianDropout",
-                "args": {}
-            },
-            {
-                "name": "GaussianNoise",
-                "args": {}
-            },
-            {
-                "name": "ActivityRegularization",
-                "args": {}
-            },
-            {
-                "name": "AlphaDropout",
-                "args": {}
-            }
-        ]
-    },
-    "attention-layers": {
-        "name": "Attention layers",
-        "layers": [
-            {
-                "name": "MultiHeadAttention",
-                "args": {
-                    "num_heads": "REQUIRED",
-                    "key_dim": "REQUIRED",
-                    "value_dim": "None",
-                    "dropout": "0.0",
-                    "use_bias": "True",
-                    "output_shape": "None",
-                    "attention_axes": "None",
-                    "kernel_initializer": "glorot_uniform",
-                    "bias_initializer": "zeros",
-                    "kernel_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "kernel_constraint": "None",
-                    "bias_constraint": "None"
-                }
-            },
-            {
-                "name": "Attention",
-                "args": {}
-            },
-            {
-                "name": "AdditiveAttention",
-                "args": {}
-            }
-        ]
-    },
-    "reshaping-layers": {
-        "name": "Reshaping layers",
-        "layers": [
-            {
-                "name": "Reshape",
-                "args": {}
-            },
-            {
-                "name": "Flatten",
-                "args": {}
-            },
-            {
-                "name": "RepeatVector",
-                "args": {}
-            },
-            {
-                "name": "Permute",
-                "args": {}
-            },
-            {
-                "name": "Cropping1D",
-                "args": {}
-            },
-            {
-                "name": "Cropping2D",
-                "args": {}
-            },
-            {
-                "name": "Cropping3D",
-                "args": {}
-            },
-            {
-                "name": "UpSampling1D",
-                "args": {}
-            },
-            {
-                "name": "UpSampling2D",
-                "args": {}
-            },
-            {
-                "name": "UpSampling3D",
-                "args": {}
-            },
-            {
-                "name": "ZeroPadding1D",
-                "args": {}
-            },
-            {
-                "name": "ZeroPadding2D",
-                "args": {}
-            },
-            {
-                "name": "ZeroPadding3D",
-                "args": {}
-            }
-        ]
-    },
-    "merging-layers": {
-        "name": "Merging layers",
-        "layers": [
-            {
-                "name": "Concatenate",
-                "args": {}
-            },
-            {
-                "name": "Average",
-                "args": {}
-            },
-            {
-                "name": "Maximum",
-                "args": {}
-            },
-            {
-                "name": "Minimum",
-                "args": {}
-            },
-            {
-                "name": "Add",
-                "args": {}
-            },
-            {
-                "name": "Subtract",
-                "args": {}
-            },
-            {
-                "name": "Multiply",
-                "args": {}
-            },
-            {
-                "name": "Dot",
-                "args": {}
-            }
-        ]
-    },
-    "locallyconnected-layers": {
-        "name": "Locally-connected layers",
-        "layers": [
-            {
-                "name": "LocallyConnected1D",
-                "args": {
-                    "filters": "REQUIRED",
-                    "kernel_size": "REQUIRED",
-                    "strides": "1",
-                    "padding": "valid",
-                    "data_format": "None",
-                    "activation": "None",
-                    "use_bias": "True",
-                    "kernel_initializer": "glorot_uniform",
-                    "bias_initializer": "zeros",
-                    "kernel_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "kernel_constraint": "None",
-                    "bias_constraint": "None",
-                    "implementation": "1"
-                }
-            },
-            {
-                "name": "LocallyConnected2D",
-                "args": {
-                    "filters": "REQUIRED",
-                    "kernel_size": "REQUIRED",
-                    "strides": "(1 1)",
-                    "padding": "valid",
-                    "data_format": "None",
-                    "activation": "None",
-                    "use_bias": "True",
-                    "kernel_initializer": "glorot_uniform",
-                    "bias_initializer": "zeros",
-                    "kernel_regularizer": "None",
-                    "bias_regularizer": "None",
-                    "activity_regularizer": "None",
-                    "kernel_constraint": "None",
-                    "bias_constraint": "None",
-                    "implementation": "1"
-                }
-            }
-        ]
-    },
-    "activation-layers": {
-        "name": "Activation layers",
-        "layers": [
-            {
-                "name": "ReLU",
-                "args": {}
-            },
-            {
-                "name": "Softmax",
-                "args": {}
-            },
-            {
-                "name": "LeakyReLU",
-                "args": {}
-            },
-            {
-                "name": "PReLU",
-                "args": {
-                    "alpha_initializer": "zeros",
-                    "alpha_regularizer": "None",
-                    "alpha_constraint": "None",
-                    "shared_axes": "None"
-                }
-            },
-            {
-                "name": "ELU",
-                "args": {}
-            },
-            {
-                "name": "ThresholdedReLU",
-                "args": {}
-            }
         ]
     },
     "build-layers":{
@@ -748,7 +431,18 @@ const layerGroups = {
             {
                 "name":"Compile",
                 "args":{
-                    
+                    "optmizer":{
+                        value:"rmsprop",
+                        type:"list",
+                        render:"list",
+                        options: optimizerList
+                    },
+                    "loss":{
+                        value:"None",
+                        type:"list",
+                        render:"list",
+                        options: lossList
+                    }
                 }
             },
             {
@@ -760,4 +454,4 @@ const layerGroups = {
         ]
     }
 }
-export {layerGroups};
+export {layerGroups, example};

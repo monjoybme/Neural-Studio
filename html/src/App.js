@@ -1,7 +1,7 @@
 import React from 'react';
 
 import './App.css';
-import { layerGroups } from './data/layers'; 
+import { layerGroups, example } from './data/layers'; 
 
 
 let cursors = {
@@ -10,6 +10,19 @@ let cursors = {
   normal:'default',
   layer:'cell',
   move:'move'
+}
+
+function layerIdGenerator(name=""){
+  name = name.toLowerCase();
+
+  if (window.__LAYER_COUNT[name] ){
+    window.__LAYER_COUNT[name] = window.__LAYER_COUNT[name] + 1;
+  }
+  else{
+    window.__LAYER_COUNT[name] = 1;
+  }
+
+  return window.__LAYER_COUNT[name]
 }
 
 // Toolbar Functions
@@ -39,10 +52,13 @@ function downDelete (e){
 
 function downLayer (e){
   e.preventDefault()
-  let _id = "layer_"+window.__LINE_COUNTER;
-  window.layers[_id] = {
-    id:_id,
-    name:window.__ACTIVE_LAYER__.name,
+  let name = window.__ACTIVE_LAYER__.name;
+  let id = layerIdGenerator(name);
+  
+  window.layers[name.toLowerCase() + "_" + id] = {
+    id:name.toLowerCase() + "_" + id,
+    name:name + " " + id,
+    type:name,
     pos:{
       x:e.pageX-90,
       y:e.pageY-30
@@ -56,6 +72,7 @@ function downLayer (e){
   window.layersState({
     ...window.layers
   })
+
   window.__LINE_COUNTER ++;
 }
 
@@ -155,30 +172,118 @@ function toolbarHandler(data={mode:undefined,layer:{name:"__LAYER__",args:{}}}){
   }
 }
 
+const TextProperty = (props) =>{
+  return (
+    <div className="property" >
+      <div> {props.name} </div>
+      <input 
+        name={props.name} 
+        defaultValue={props.data[props.name].value} 
+        onKeyUp={e=>{
+            props.data[props.name].value = e.target.value;
+            window.layers[props.layer_id].arguments[props.name].value = props.data[props.name].value
+            props.dataState({
+              ...props.data
+              })
+              window.layersState({
+              ...window.layers
+            })
+          }
+        } 
+      />
+    </div>
+  )
+}
+
+const ListProperty = (props) => {
+  let property = props.data[props.name]; 
+  let options = property.options;
+  
+  return (
+    <div className="property" >
+      <div> {props.name} </div>
+      <select defaultValue={property.value} onChange={(e)=>{
+        property.value = e.target.value;
+        window.layers[props.layer_id].arguments[props.name].value = property.value
+        props.dataState({
+          ...props.data
+          })
+          window.layersState({
+          ...window.layers
+        })
+      }}
+        >
+        {
+          options.map((option,i)=>{
+            return (
+              <option   
+                key={i}
+                name={option.value}
+              > 
+                {option.name} 
+              </option>
+            )
+          })
+        }
+      </select>
+    </div>
+  )
+}
+
 const Menu = (props) =>{
     let [data,dataState] = React.useState({
-      name:props.name,
-      id:props._id,
-      ...props.args
+      ...props.layer.arguments
     })
+
+    let [meta,metaState] = React.useState({
+      name:props.layer.name,
+      id:props.layer.id
+    })
+
+    React.useEffect(()=>{
+      
+    },[data,])
+
     return (
       <div className='menu' >
         <div className="name">
-          {data.name}
+          {meta.name}
         </div>
         <div className="properties">
           {
-            Object.keys(data).map((property,i)=>{
+            Object.keys(meta).map((property,i)=>{
               return (
                 <div className="property" key={i}>
                   <div> {property} </div>
                   <input 
                     name='id' 
-                    defaultValue={data.id} 
-                    onKeyUp={e=>dataState({...data,_id:e.target.value})} 
+                    defaultValue={meta[property]} 
+                    onKeyUp={e=>{
+                        meta[property] = e.target.value;
+                        window.layers[props.layer.id][property] = meta[property]
+
+                        window.layersState({
+                          ...window.layers
+                        })
+                        metaState({
+                          ...meta
+                          })
+                      }
+                    } 
                   />
                 </div>
               )
+            })
+          }
+          {
+            Object.keys(data).map((property,i)=>{
+              let comp;
+              switch (data[property].render){
+                case "text":
+                  return <TextProperty layer_id={props.layer.id} data={data} dataState={dataState} name={property} key={i} /> 
+                case "list":
+                return <ListProperty layer_id={props.layer.id} data={data} dataState={dataState} name={property} key={i} />
+              }
             })
           } 
         </div>    
@@ -240,7 +345,7 @@ const Node = (props) =>{
         comp:<div />
       })
       props.menuState({
-        comp:<Menu x={e.pageX} y={e.pageY} name={e.target.innerText} _id={props.layer.id} args={props.layer.args}/>
+        comp:<Menu x={e.pageX} y={e.pageY} layer={props.layer}/>
       })
     }
   
@@ -259,10 +364,10 @@ const Node = (props) =>{
           key={props._key}
         >
         <div className='name' 
-          id={'name'+props.layer.id}
+          id={'name-'+props.layer.id}
   
           onMouseDown={dragMouseDown}
-          onDoubleClick={menuToggle}
+          onClick={menuToggle}
   
           style={{width:`${width-10}px`}} 
         >
@@ -319,6 +424,8 @@ const App = (props) =>{
         })
       }
     }
+
+    window.__POS__ = undefined;
     window.__ACTIVE_ELEMENT__ = undefined;
     window.__ACTIVE_LINE__ = undefined;
 
@@ -374,6 +481,7 @@ const App = (props) =>{
   }
 
   async function buildModel(e){
+    console.log(layers)
     await fetch(
       "http://localhost/build",
       {
@@ -383,7 +491,12 @@ const App = (props) =>{
       }
     )
     .then(response=>response.json())
-    .then(data=>console.log(data))
+    .then(data=>{
+      let link = document.createElement("a");
+      link.href = `data:text/x-python,${data.code}`;
+      link.download = 'train.py'
+      link.click()
+    })
   }
 
   React.useEffect(()=>{ 
@@ -458,6 +571,9 @@ const App = (props) =>{
         </div>
         <div className="bbtn" onClick={buildModel}>
           Build
+        </div>
+        <div className="bbtn" onClick={(e)=>{layersState({...example})}}>
+          Load Example
         </div>
       </div>
       <div id='canvas' className="canvas" 
