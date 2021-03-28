@@ -67,7 +67,7 @@ function downLayer (e){
       inbound:[],
       outbound:[]
     },
-    arguments:window.__ACTIVE_LAYER__.args
+    arguments:{ ...window.__ACTIVE_LAYER__.args }
   }
   window.layersState({
     ...window.layers
@@ -173,21 +173,19 @@ function toolbarHandler(data={mode:undefined,layer:{name:"__LAYER__",args:{}}}){
 }
 
 const TextProperty = (props) =>{
+  let property = props.data[props.name];
   return (
     <div className="property" >
       <div> {props.name} </div>
       <input 
-        name={props.name} 
-        defaultValue={props.data[props.name].value} 
+        name={props.layer_id+props.name}
+        id = {props.layer_id+props.name}
+        defaultValue={property.value} 
         onKeyUp={e=>{
             props.data[props.name].value = e.target.value;
-            window.layers[props.layer_id].arguments[props.name].value = props.data[props.name].value
             props.dataState({
               ...props.data
-              })
-              window.layersState({
-              ...window.layers
-            })
+            }) 
           }
         } 
       />
@@ -202,15 +200,15 @@ const ListProperty = (props) => {
   return (
     <div className="property" >
       <div> {props.name} </div>
-      <select defaultValue={property.value} onChange={(e)=>{
-        property.value = e.target.value;
-        window.layers[props.layer_id].arguments[props.name].value = property.value
-        props.dataState({
-          ...props.data
-          })
-          window.layersState({
-          ...window.layers
-        })
+      <select 
+        name={props.layer_id+props.name}
+        id = {props.layer_id+props.name}
+        defaultValue={property.value} 
+        onChange={(e)=>{
+          props.data[props.name].value = e.target.value;
+          props.dataState({
+              ...props.data
+          }) 
       }}
         >
         {
@@ -241,7 +239,11 @@ const Menu = (props) =>{
     })
 
     React.useEffect(()=>{
-      
+      window.layers[props.layer.id].arguments = data;
+      window.layersState({
+        ...window.layers
+      })
+
     },[data,])
 
     return (
@@ -398,7 +400,6 @@ const App = (props) =>{
         let edge = window.__NEW_EDGE__;
         if (edge.in && edge.out && edge.in !== edge.out){
           let inNode = edge.in.id.split("-")[1],outNode = edge.out.id.split("-")[1];
-          // console.log(edge)
           layers[inNode].connections.inbound.push(outNode);
           layers[outNode].connections.outbound.push(inNode);
           document.getElementById('svg-canvas').removeChild(window.__ACTIVE_LINE__.line);
@@ -481,7 +482,6 @@ const App = (props) =>{
   }
 
   async function buildModel(e){
-    console.log(layers)
     await fetch(
       "http://localhost/build",
       {
@@ -492,10 +492,11 @@ const App = (props) =>{
     )
     .then(response=>response.json())
     .then(data=>{
-      let link = document.createElement("a");
-      link.href = `data:text/x-python,${data.code}`;
-      link.download = 'train.py'
-      link.click()
+      console.log(data)
+      // let link = document.createElement("a");
+      // link.href = `data:text/x-python,${data.code}`;
+      // link.download = 'train.py'
+      // link.click()
     })
   }
 

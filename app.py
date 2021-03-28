@@ -1,25 +1,22 @@
-from flask import Flask,request,send_file,send_from_directory
-from flask_cors import CORS
-from json import dump
-
+from tf_gui.web import App, Request, text_response, json_response
 from tf_gui.builder import build_model
 
-app = Flask(__name__)
-CORS(app)
+app = App()
 
-@app.route("/build",methods=['POST'])
-def build_():
-    with open("./data/example_build.json","w+") as file:
-        dump(request.get_json(),file)
+@app.route("/")
+async def index(request:Request):
+    print (text_response("HELLO"))
+    return text_response("Hello, World !")
 
-    return {
-        "status":200,
-        "code":build_model(request.get_json())
-    }
+@app.route("/build",)
+async def buiild(request:Request):
+    if request.header.method == 'POST':
+        return json_response({
+            "status":200,
+            "code":"Hello"
+        })
 
-if __name__ == '__main__':
-    app.run(
-        host='0.0.0.0',
-        port=80,
-        debug=True
+if __name__ == "__main__":
+    app.serve(
+        port=80
     )
