@@ -28,7 +28,7 @@ def json_response(
     data = dumps(data)
     response = ResponseHeader()
     response.status_code = status_code
-    response.message = [message]
+    response.message = message
     response.content_length = len(data)
     response.content_type = 'application/json; charset=utf-8'
     return response / data

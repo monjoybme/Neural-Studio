@@ -124,16 +124,15 @@ class App(object):
     async def handle_request(self,reader:asyncio.StreamReader,writer:asyncio.StreamWriter):
         response = False
         try:
-            header = await reader.readexactly(1)
+            header = await reader.read(1)
         except asyncio.IncompleteReadError:
             pass
         else:
             header += await reader.readuntil(separator=b'\r\n\r\n')
             header = RequestHeader().parse(str(header[self.__rnrn],encoding='utf-8'))
-
+                
             if header.method == "OPTIONS":
                 response = CORS_RESPONSE.format(origin=header.origin).encode()
-
             else:
                 func,var,query = self.__router.get(header.path)
                 if func:
@@ -145,7 +144,7 @@ class App(object):
                 writer.write( response )
                 await writer.drain()
                 writer.close()   
-            print (f'[{header.method}] {header.path}')
+            # print (f'[{header.method}] {header.path}')
 
     def serve(self,host:str='localhost',port:int=8080):
         print (

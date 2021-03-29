@@ -1,13 +1,84 @@
-from tf_gui.web import App, Request, text_response, json_response
-from tf_gui.builder import build_model
+from math import log
+from tf_gui.web.utils import send_file
+from typing import List
+import tensorflow as tf
 
-from json import dump
+from tensorflow import keras
+from tensorflow.keras import layers,optimizers,losses
+from tensorflow.python.keras.engine.training import Model
+
+from tf_gui.web import App, Request, text_response, json_response
+from tf_gui.web.headers import ResponseHeader
+from tf_gui.builder import build_model
+from tf_gui.trainer import  build_trainer
+
+from dataset import Dataset
+
+from json import dump, dumps
+from time import sleep,time
+from _thread import start_new_thread
+
+class TfGui(keras.callbacks.Callback):
+    batch = None    
+    logs = []
+    trainer = None
+    
+    def on_batch_end(self,batch,logs=None):
+        self.batch = batch
+        self.logs[self.epoch]['batch_log'] = logs
+        self.logs[self.epoch]['batch'] = batch + 1
+        self.trainer.update_id = time()
+
+    def on_epoch_end(self,epoch,logs=None):
+        self.logs[self.epoch]['epoch_log'] = logs
+
+    def on_epoch_begin(self, epoch, logs=None):
+        self.epoch = epoch
+        self.logs.append({
+            "epoch":epoch,
+            "batch_log":None,
+            "epoch_log":None
+        })
+
+class Trainer(object):
+    build_config = {}
+    model = keras.Model
+    update_id = 0
+
+    def __init__(self) -> None:
+        self.dataset = Dataset()
+        self.dataset.train_y = keras.utils.to_categorical(self.dataset.train_y)
+        self.dataset.test_y = keras.utils.to_categorical(self.dataset.test_y)
+
+    def start(self,)->None:
+        self.status = TfGui()
+        self.status.trainer = self
+
+        callback = [ self.status, ]
+        self.model:keras.Model = self.build_config['train']['model_1']
+        self.model.fit(
+            x=self.dataset.train_x,
+            y=self.dataset.train_y,
+            epochs=self.dataset.epochs,
+            batch_size=self.dataset.batch_size,
+            verbose=1,
+            validation_data=(self.dataset.test_x,self.dataset.test_y),
+            callbacks=callback
+        )
+
+    def get_status(self,)->List[dict]:
+        return {
+            "status":self.status.logs,
+            "batchs":self.dataset.batches,
+            "epochs":self.dataset.epochs,
+            "update_id":trainer.update_id
+        }
 
 app = App()
+trainer = Trainer()
 
 @app.route("/")
 async def index(request:Request):
-    print (text_response("HELLO"))
     return text_response("Hello, World !")
 
 @app.route("/build",)
@@ -21,6 +92,37 @@ async def buiild(request:Request):
             "status":200,
             "code":code
         })
+    else:
+        return json_response(
+            data={"message":"Method Not Allowed"},
+            status_code=401,
+            message="Method Not Allowed !"
+        )
+
+@app.route("/status")
+async def status(request:Request):
+    if request.header.method == "GET":
+        return json_response(trainer.get_status())
+
+    else:
+        return json_response(
+            data={"message":"Method Not Allowed"},
+            status_code=401,
+            message="Method Not Allowed !"
+        )
+
+
+@app.route("/train",)
+async def train(request:Request):
+    if request.header.method == 'POST':
+        data = await request.get_json()
+        build_config = build_trainer(data)
+        trainer.build_config = build_config
+        start_new_thread(trainer.start,tuple())
+        return json_response({
+            "status":"Training Ended"
+        })
+
     else:
         return json_response(
             data={"message":"Method Not Allowed"},
