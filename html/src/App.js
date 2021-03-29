@@ -1,8 +1,9 @@
-import React from 'react';
+import React from "react";
 
-import './App.css';
-import { layerGroups, example } from './data/layers'; 
+import Canvas from "./GraphCanvas";
 
+import "./App.css";
+import { layerGroups as _lg, example } from "./data/layers";
 
 let cursors = {
   line:'crosshair',
@@ -46,6 +47,7 @@ function downLine (e){
   }
   window.__LINE_COUNTER ++;
 }
+
 function downDelete (e){
   e.preventDefault()
 }
@@ -172,425 +174,184 @@ function toolbarHandler(data={mode:undefined,layer:{name:"__LAYER__",args:{}}}){
   }
 }
 
-const TextProperty = (props) =>{
-  let property = props.data[props.name];
+async function buildModel(e){
+  await fetch(
+    "http://localhost/build",
+    {
+      method:"POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...window.layers })
+    }
+  )
+  .then(response=>response.json())
+  .then(data=>{
+    console.log(data.code)
+    let link = document.createElement("a");
+    link.href = `data:text/x-python,${data.code}`;
+    link.download = 'train.py'
+    link.click()
+  })
+}
+
+function toggleSection(e){
+  window.layerGroups[e.target.id].visible = ~window.layerGroups[e.target.id].visible;
+  window.layerGroupsState({
+    ...window.layerGroups
+  })
+}
+
+const LayerGroupCollapsed = (props) =>{ 
   return (
-    <div className="property" >
-      <div> {props.name} </div>
-      <input 
-        name={props.layer_id+props.name}
-        id = {props.layer_id+props.name}
-        defaultValue={property.value} 
-        onKeyUp={e=>{
-            props.data[props.name].value = e.target.value;
-            props.dataState({
-              ...props.data
-            }) 
-          }
-        } 
-      />
+    <div className='layers' key={props.i} style={{height:"45px",padding:"0 10px 0 10px"}}>
+      <div 
+        className='name' 
+        id={props.id} 
+        style={{height:"45px"}} 
+        onClick={props.toggleSection}
+      > 
+        {props.layerGroup.name}
+      </div>
     </div>
   )
 }
 
-const ListProperty = (props) => {
-  let property = props.data[props.name]; 
-  let options = property.options;
-  
+const LayerGroupOpen = (props) =>{
   return (
-    <div className="property" >
-      <div> {props.name} </div>
-      <select 
-        name={props.layer_id+props.name}
-        id = {props.layer_id+props.name}
-        defaultValue={property.value} 
-        onChange={(e)=>{
-          props.data[props.name].value = e.target.value;
-          props.dataState({
-              ...props.data
-          }) 
-      }}
-        >
-        {
-          options.map((option,i)=>{
-            return (
-              <option   
-                key={i}
-                name={option.value}
-              > 
-                {option.name} 
-              </option>
-            )
-          })
-        }
-      </select>
-    </div>
-  )
-}
-
-const Menu = (props) =>{
-    let [data,dataState] = React.useState({
-      ...props.layer.arguments
-    })
-
-    let [meta,metaState] = React.useState({
-      name:props.layer.name,
-      id:props.layer.id
-    })
-
-    React.useEffect(()=>{
-      window.layers[props.layer.id].arguments = data;
-      window.layersState({
-        ...window.layers
-      })
-
-    },[data,])
-
-    return (
-      <div className='menu' >
-        <div className="name">
-          {meta.name}
-        </div>
-        <div className="properties">
+    <div className='layers' key={props.i}>
+      <div className='name' 
+        id={props.id} 
+        onClick={props.toggleSection}
+      > 
+        {props.layerGroup.name}
+      </div>
+          <div className='grid'>
           {
-            Object.keys(meta).map((property,i)=>{
+            props.layerGroup.layers.map((layer,j)=>{
               return (
-                <div className="property" key={i}>
-                  <div> {property} </div>
-                  <input 
-                    name='id' 
-                    defaultValue={meta[property]} 
-                    onKeyUp={e=>{
-                        meta[property] = e.target.value;
-                        window.layers[props.layer.id][property] = meta[property]
-
-                        window.layersState({
-                          ...window.layers
-                        })
-                        metaState({
-                          ...meta
-                          })
-                      }
-                    } 
-                  />
+                <div className='btn' onClick={e=>{toolbarHandler({mode:"layer",layer:layer})}} id='btn-del' key={j}> 
+                  {layer.name} 
                 </div>
               )
             })
-          }
-          {
-            Object.keys(data).map((property,i)=>{
-              let comp;
-              switch (data[property].render){
-                case "text":
-                  return <TextProperty layer_id={props.layer.id} data={data} dataState={dataState} name={property} key={i} /> 
-                case "list":
-                return <ListProperty layer_id={props.layer.id} data={data} dataState={dataState} name={property} key={i} />
-              }
-            })
-          } 
-        </div>    
-      </div>
-    )
-  }
-  
-const Node = (props) =>{
-    function dragMouseDown(e) {
-      e.target.style.cursor = cursors[window.__MODE__];
-      e = e || window.event;
-      e.preventDefault();
-      if (window.__MODE__ === 'line'){
-        window.__NEW_EDGE__ = {
-          out:e.target.parentElement
-        }
-      }
-      else if (window.__MODE__ === "delete"){
-        let inbound = window.layers[props.layer.id].connections.inbound;
-        let outbound = window.layers[props.layer.id].connections.outbound;
-        
-        inbound.forEach(layer=>{
-          window.layers[layer].connections.outbound.pop(props.layer.id);
-          window.layers[layer].connections.outbound = [
-            ...window.layers[layer].connections.outbound ,
-            ...outbound
-          ] 
-        })
-
-        outbound.forEach(layer=>{
-          window.layers[layer].connections.inbound.pop(props.layer.id);
-          window.layers[layer].connections.inbound = [
-            ...window.layers[layer].connections.inbound ,
-            ...inbound
-          ]
-        })
-        
-        delete window.layers[props.layer.id]
-        window.layersState({
-          ...window.layers
-        })
-      }
-      else {
-        window.__ACTIVE_ELEMENT__ = {
-          target : e.target.parentElement
-        }
-      }
-    }
-  
-    function mouseUp(e){
-      e.target.style.cursor = cursors[window.__MODE__];
-      if (window.__MODE__ === 'line' && window.__NEW_EDGE__){
-        window.__NEW_EDGE__['in'] = e.target.parentElement
-      }
-    }
-  
-    function menuToggle(e){
-      props.menuState({
-        comp:<div />
-      })
-      props.menuState({
-        comp:<Menu x={e.pageX} y={e.pageY} layer={props.layer}/>
-      })
-    }
-  
-    let width = Math.max(10 + ( props.layer.name.length * 11 ),150)
-  
-    return (
-      <div id={'node-'+props.layer.id} className='node' 
-          onMouseUp={mouseUp} 
-          onMouseOver={e=>{e.target.style.cursor = cursors[window.__MODE__]}}
-  
-          style={{
-            top:props.layer.pos.y+'px',
-            left:props.layer.pos.x+'px',
-            width:`${width}px`
-          }} 
-          key={props._key}
-        >
-        <div className='name' 
-          id={'name-'+props.layer.id}
-  
-          onMouseDown={dragMouseDown}
-          onClick={menuToggle}
-  
-          style={{width:`${width-10}px`}} 
-        >
-          {props.layer.name}
+          }  
         </div>
-      </div>
-    )
-  }
+    </div>
+  )
+}
 
-const App = (props) =>{
-  let [layers,layersState] = React.useState({
-    
-  })
+
+const App = (props) => {
 
   let [menu,menuState] = React.useState({
     comp:<div />
   })
 
-  let [l,lState] = React.useState({
-    layerGroups:Object.keys(layerGroups),
-    ...layerGroups
+  let [layerGroups,layerGroupsState] = React.useState({
+    layerGroups:Object.keys(_lg),
+    ..._lg
   })
-  
 
-  function mouseCleanUp(e){
-    if (window.__ACTIVE_LINE__ ){
-      if (window.__NEW_EDGE__){
-        let edge = window.__NEW_EDGE__;
-        if (edge.in && edge.out && edge.in !== edge.out){
-          let inNode = edge.in.id.split("-")[1],outNode = edge.out.id.split("-")[1];
-          layers[inNode].connections.inbound.push(outNode);
-          layers[outNode].connections.outbound.push(inNode);
-          document.getElementById('svg-canvas').removeChild(window.__ACTIVE_LINE__.line);
-          layersState({
-            ...layers
-          })
-          window.__NEW_EDGE__ = undefined;
-        }
-        else{
-          document.getElementById('svg-canvas').removeChild(window.__ACTIVE_LINE__.line);
-        }
-      }
-      else{
-        document.getElementById('svg-canvas').removeChild(window.__ACTIVE_LINE__.line);
-      }
-    }
-    else if (window.__ACTIVE_ELEMENT__){
-      if (window.__POS__){
-        let layer = window.__ACTIVE_ELEMENT__.target.id.split("-")[1]
-        layers[layer].pos = window.__POS__
-        layersState({
-          ...layers
-        })
-      }
-    }
+  let [layers,layersState] = React.useState({
+    
+  })
 
-    window.__POS__ = undefined;
-    window.__ACTIVE_ELEMENT__ = undefined;
-    window.__ACTIVE_LINE__ = undefined;
-
-    menuState({
-      comp:<div />
-    })
-  }
-
-  function toggleSection(e){
-    l[e.target.id].visible = ~l[e.target.id].visible;
-    lState({
-      ...l
-    })
-  }
-
-  const LayerGroupCollapsed = (props) =>{ 
-    return (
-      <div className='layers' key={props.i} style={{height:"45px",padding:"0 10px 0 10px"}}>
-        <div 
-          className='name' 
-          id={props.id} 
-          style={{height:"45px"}} 
-          onClick={props.toggleSection}
-        > 
-          {props.layerGroup.name}
-        </div>
-      </div>
-    )
-  }
-
-  const LayerGroupOpen = (props) =>{
-    return (
-      <div className='layers' key={props.i}>
-        <div className='name' 
-          id={props.id} 
-          onClick={props.toggleSection}
-        > 
-          {props.layerGroup.name}
-        </div>
-            <div className='grid'>
-            {
-              props.layerGroup.layers.map((layer,j)=>{
-                return (
-                  <div className='btn' onClick={e=>{toolbarHandler({mode:"layer",layer:layer})}} id='btn-del' key={j}> 
-                    {layer.name} 
-                  </div>
-                )
-              })
-            }  
-          </div>
-      </div>
-    )
-  }
-
-  async function buildModel(e){
-    await fetch(
-      "http://localhost/build",
-      {
-        method:"POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...layers })
-      }
-    )
-    .then(response=>response.json())
-    .then(data=>{
-      console.log(data)
-      // let link = document.createElement("a");
-      // link.href = `data:text/x-python,${data.code}`;
-      // link.download = 'train.py'
-      // link.click()
-    })
-  }
-
-  React.useEffect(()=>{ 
-    let svgCanvas = document.getElementById("svg-canvas");
-    Array(...svgCanvas.children).forEach(edge=>svgCanvas.removeChild(edge));
-    svgCanvas.innerHTML = `<marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
-                            markerWidth="3.5" markerHeight="3.5"
-                            orient="auto-start-reverse">
-                            <path d="M 0 0 L 10 5 L 0 10 z" />
-                          </marker>`
-    Object.keys(layers).forEach(layer=>{
-      layers[layer].connections.inbound.forEach((inbound,i)=>{
-        if (document.getElementById(`${inbound}->${layer}`)){ 
-          // document.getElementById(`${inbound}->${layer}`).onclick = removeEdge;
-         }
-        else{
-          document.getElementById("svg-canvas").innerHTML = (
-            document.getElementById("svg-canvas").innerHTML +
-            (
-              `<line id='${inbound}->${layer}' 
-                x1="${layers[inbound].pos.x+85}" y1="${layers[inbound].pos.y+58}" 
-                x2="${layers[layer].pos.x+85}" y2="${layers[layer].pos.y}" 
-                stroke="#333" 
-                stroke-width="2"
-                marker-end="url(#arrow)"
-              />` 
-            )
-          )
-        }
-      })
-    });
-
+  React.useEffect(()=>{
     window.layers = layers
     window.layersState = layersState
-
-  },[layers,layersState])
+    window.menu = menu
+    window.menuState = menuState
+    window.layerGroups = layerGroups
+    window.layerGroupsState = layerGroupsState
+  },[layers,layersState,menu,menuState,layerGroups,layerGroupsState])
 
   return (
-    <div> 
+    <div>
       {menu.comp}
-      <div className='nav'>
-        <div className='title'>
-          Tensorflow Builder 1.0.0
-        </div>
-        <div className='toolbar'>
-          <div className='row'>
-            <div className='btn named' onClick={e=>{toolbarHandler({mode:"delete"})}} id='btn-del'> 
+      <div className="nav">
+        <div className="title">Tensorflow Builder 1.0.0</div>
+        <div className="toolbar">
+          <div className="row">
+            <div
+              className="btn named"
+              onClick={(e) => {
+                toolbarHandler({ mode: "delete" });
+              }}
+              id="btn-del"
+            >
               Delete
             </div>
-            <div className='btn named' onClick={e=>{toolbarHandler({mode:"line"})}} id='btn-lin'> 
+            <div
+              className="btn named"
+              onClick={(e) => {
+                toolbarHandler({ mode: "line" });
+              }}
+              id="btn-lin"
+            >
               Edge
             </div>
-            <div className='btn named' onClick={e=>{toolbarHandler({mode:"move"})}} id='btn-del'> 
+            <div
+              className="btn named"
+              onClick={(e) => {
+                toolbarHandler({ mode: "move" });
+              }}
+              id="btn-del"
+            >
               Move
             </div>
-            <div className='btn named' onClick={e=>{toolbarHandler({mode:"normal"})}} id='btn-del'> 
+            <div
+              className="btn named"
+              onClick={(e) => {
+                toolbarHandler({ mode: "normal" });
+              }}
+              id="btn-del"
+            >
               Normal
             </div>
           </div>
         </div>
         <div className="layergroups">
-        {
-          l.layerGroups.map((layerGroup,i)=>{
-            return (
-              l[layerGroup].visible ? 
-                <LayerGroupOpen key={i} i={i} id={layerGroup} layerGroup={l[layerGroup]} toggleSection={toggleSection} /> 
-              : 
-                <LayerGroupCollapsed key={i} i={i} id={layerGroup} layerGroup={l[layerGroup]} toggleSection={toggleSection} />
-            )
-          })
-        }
+          {layerGroups.layerGroups.map((layerGroup, i) => {
+            return layerGroups[layerGroup].visible ? (
+              <LayerGroupOpen
+                key={i}
+                i={i}
+                id={layerGroup}
+                layerGroup={layerGroups[layerGroup]}
+                toggleSection={toggleSection}
+              />
+            ) : (
+              <LayerGroupCollapsed
+                key={i}
+                i={i}
+                id={layerGroup}
+                layerGroup={layerGroups[layerGroup]}
+                toggleSection={toggleSection}
+              />
+            );
+          })}
         </div>
         <div className="bbtn" onClick={buildModel}>
           Build
         </div>
-        <div className="bbtn" onClick={(e)=>{layersState({...example})}}>
+        <div
+          className="bbtn"
+          onClick={(e) => {
+            layersState({ ...example });
+          }}
+        >
           Load Example
         </div>
       </div>
-      <div id='canvas' className="canvas" 
-        // onMouseDown={mouseDown} 
-        onMouseUp={mouseCleanUp}
-      >
-        {
-          Object.keys(layers).map((layer,i)=>{
-            return <Node  layer={layers[layer]} key={i} menuState={menuState} />
-          })
-        }
-        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" id='svg-canvas'>
-        </svg>
-      </div>
+      <Canvas 
+        layers={layers}
+        layersState={layersState}
+        menu={menu}
+        menuState={menuState}
+        layerGroups={layerGroups}
+        layerGroupsState={layerGroupsState}
+      />
     </div>
-  )
-}
+  );
+};
 
 export default App;

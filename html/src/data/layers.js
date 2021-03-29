@@ -219,7 +219,6 @@ const lossList = [
     {'name': 'categorical_hinge',},
     {'name': 'cosine_similarity',},
     {'name': 'deserialize',},
-    {'name': 'get',},
     {'name': 'hinge',},
     {'name': 'huber',},
     {'name': 'kl_divergence',},
@@ -250,7 +249,7 @@ const layerGroups = {
                 "args": {
                     "shape": {
                         value:"None",
-                        type:"text",
+                        type:"tuple",
                         render:"text",
                     },
                     "batch_size": {
