@@ -15,6 +15,7 @@ window.__LAYER_COUNT = {}
 window.__MODE__ = 'normal'
 window.__POS__ = undefined
 window.__ACTIVE_LAYER__ = undefined
+window.__UPDATE_RUNNING__ = false
 
 ReactDOM.render(
   <React.StrictMode>

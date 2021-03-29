@@ -1,6 +1,7 @@
 import React from "react";
 
 import Canvas from "./GraphCanvas";
+import Training from './Training';
 
 import "./App.css";
 import { layerGroups as _lg, example } from "./data/layers";
@@ -74,8 +75,8 @@ function downLayer (e){
   window.layersState({
     ...window.layers
   })
-
   window.__LINE_COUNTER ++;
+  setMode("normal")
 }
 
 function moveNode(e){
@@ -193,6 +194,8 @@ async function buildModel(e){
   })
 }
 
+
+
 function toggleSection(e){
   window.layerGroups[e.target.id].visible = ~window.layerGroups[e.target.id].visible;
   window.layerGroupsState({
@@ -202,7 +205,7 @@ function toggleSection(e){
 
 const LayerGroupCollapsed = (props) =>{ 
   return (
-    <div className='layers' key={props.i} style={{height:"45px",padding:"0 10px 0 10px"}}>
+    <div className='layers' key={props.i} style={{height:"45px",}}>
       <div 
         className='name' 
         id={props.id} 
@@ -239,6 +242,21 @@ const LayerGroupOpen = (props) =>{
   )
 }
 
+async function trainModel(e){
+  window.__TRAIN__ = true
+  await fetch(
+    "http://localhost/train",
+    {
+      method:"POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...window.layers })
+    }
+  ).then(respomse=>respomse.json()).then(data=>{
+    window.compState({
+      state:false
+    })
+  })
+}
 
 const App = (props) => {
 
@@ -255,6 +273,36 @@ const App = (props) => {
     
   })
 
+  let [trainingStatus,trainingStatusState] = React.useState({
+    status:[],
+    update_id:0
+  })
+
+  let [comp,compState] = React.useState({
+    state:true,
+  })
+  
+  async function getStatus(){
+    if (window.__TRAIN__){
+      window.__UPDATE_RUNNING__ = true
+      await fetch(
+        "http://localhost/status",
+        {
+          method:"GET",
+        }
+      ).then(respomse=>respomse.json()).then(data=>{
+        if (data.update_id !== trainingStatus.update_id){
+          trainingStatusState({
+            ...data
+          })
+        }
+      }).catch(err=>{
+        console.log(err)
+      })
+    }
+    setTimeout(getStatus,10)
+  }
+
   React.useEffect(()=>{
     window.layers = layers
     window.layersState = layersState
@@ -262,15 +310,28 @@ const App = (props) => {
     window.menuState = menuState
     window.layerGroups = layerGroups
     window.layerGroupsState = layerGroupsState
-  },[layers,layersState,menu,menuState,layerGroups,layerGroupsState])
+    window.comp = comp
+    window.compState = compState
+    window.trainingStatus = trainingStatus
+    window.trainingStatusState = trainingStatusState
+    
+    if (!window.__UPDATE_RUNNING__){
+      getStatus()
+    }
+  },[
+    layers,layersState,
+    menu, menuState,
+    layerGroups,layerGroupsState,
+    trainingStatus,trainingStatusState,
+    comp,compState
+  ])
 
   return (
-    <div>
+    <div className="app">
       {menu.comp}
       <div className="nav">
         <div className="title">Tensorflow Builder 1.0.0</div>
         <div className="toolbar">
-          <div className="row">
             <div
               className="btn named"
               onClick={(e) => {
@@ -307,7 +368,6 @@ const App = (props) => {
             >
               Normal
             </div>
-          </div>
         </div>
         <div className="layergroups">
           {layerGroups.layerGroups.map((layerGroup, i) => {
@@ -330,26 +390,40 @@ const App = (props) => {
             );
           })}
         </div>
-        <div className="bbtn" onClick={buildModel}>
+        <div className="btn-large" onClick={buildModel}>
           Build
         </div>
         <div
-          className="bbtn"
+          className="btn-large"
           onClick={(e) => {
             layersState({ ...example });
           }}
         >
           Load Example
         </div>
+        <div
+          className="btn-large"
+          onClick={trainModel}
+        >
+          Train
+        </div>
       </div>
-      <Canvas 
-        layers={layers}
-        layersState={layersState}
-        menu={menu}
-        menuState={menuState}
-        layerGroups={layerGroups}
-        layerGroupsState={layerGroupsState}
-      />
+      {
+        comp.state ? 
+        (
+          <Canvas 
+            layers={layers}
+            layersState={layersState}
+            menu={menu}
+            menuState={menuState}
+            layerGroups={layerGroups}
+            layerGroupsState={layerGroupsState}
+          />
+        ) :
+        <Training 
+          trainingStatus={trainingStatus}
+        />
+      }
     </div>
   );
 };

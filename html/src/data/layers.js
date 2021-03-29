@@ -1,159 +1,799 @@
 const example = {
-    "layer_0": {
-        "id": "layer_0",
-        "name": "Input",
+    "input_1": {
+        "id": "input_1",
+        "name": "Input 1",
+        "type": "Input",
         "pos": {
-            "x": 306,
+            "x": 312,
             "y": 12
         },
         "connections": {
             "inbound": [],
             "outbound": [
-                "layer_1"
+                "conv2d_1"
             ]
         },
         "arguments": {
-            "shape": "None",
-            "batch_size": "None",
-            "name": "None",
-            "dtype": "None",
-            "sparse": "False",
-            "tensor": "None",
-            "ragged": "False"
+            "shape": {
+                "value": "( 28, 28, 1)",
+                "type": "tuple",
+                "render": "text"
+            },
+            "batch_size": {
+                "value": "None",
+                "type": "number",
+                "render": "text"
+            },
+            "name": {
+                "value": "None",
+                "type": "text",
+                "render": "text"
+            },
+            "dtype": {
+                "value": "None",
+                "type": "text",
+                "render": "text"
+            },
+            "sparse": {
+                "value": "False",
+                "type": "bool",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "True"
+                    },
+                    {
+                        "name": "False"
+                    }
+                ]
+            },
+            "tensor": {
+                "value": "None",
+                "type": "text",
+                "render": false
+            },
+            "ragged": {
+                "value": "False",
+                "type": "bool",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "True"
+                    },
+                    {
+                        "name": "False"
+                    }
+                ]
+            }
         }
     },
-    "layer_1": {
-        "id": "layer_1",
-        "name": "Dense",
+    "conv2d_1": {
+        "id": "conv2d_1",
+        "name": "Conv2D 1",
+        "type": "Conv2D",
         "pos": {
-            "x": 297,
-            "y": 100
+            "x": 391,
+            "y": 124
         },
         "connections": {
             "inbound": [
-                "layer_0"
+                "input_1"
             ],
             "outbound": [
-                "layer_7"
+                "conv2d_2"
             ]
         },
         "arguments": {
-            "units": "REQUIRED",
-            "activation": "None",
-            "use_bias": "True",
-            "kernel_initializer": "glorot_uniform",
-            "bias_initializer": "zeros",
-            "kernel_regularizer": "None",
-            "bias_regularizer": "None",
-            "activity_regularizer": "None",
-            "kernel_constraint": "None",
-            "bias_constraint": "None"
+            "filters": {
+                "value": "32",
+                "type": "number",
+                "render": "text"
+            },
+            "kernel_size": {
+                "value": "3",
+                "type": "number",
+                "render": "text"
+            },
+            "strides": {
+                "value": "2",
+                "type": "number",
+                "render": "text"
+            },
+            "padding": {
+                "value": "same",
+                "type": "text",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "valid"
+                    },
+                    {
+                        "name": "same"
+                    }
+                ]
+            },
+            "activation": {
+                "value": "relu",
+                "type": "text",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "None"
+                    },
+                    {
+                        "name": "relu"
+                    },
+                    {
+                        "name": "sigmoid"
+                    },
+                    {
+                        "name": "softmax"
+                    },
+                    {
+                        "name": "swish"
+                    },
+                    {
+                        "name": "tanh"
+                    }
+                ]
+            },
+            "use_bias": {
+                "value": "True",
+                "type": "bool",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "True"
+                    },
+                    {
+                        "name": "False"
+                    }
+                ]
+            },
+            "kernel_initializer": {
+                "value": "glorot_uniform",
+                "type": "text",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "glorot_uniform"
+                    },
+                    {
+                        "name": "glorot_normal"
+                    },
+                    {
+                        "name": "he_normal"
+                    },
+                    {
+                        "name": "he_uniform"
+                    },
+                    {
+                        "name": "identity"
+                    },
+                    {
+                        "name": "lecun_normal"
+                    },
+                    {
+                        "name": "lecun_uniform"
+                    },
+                    {
+                        "name": "ones"
+                    },
+                    {
+                        "name": "orthogonal"
+                    },
+                    {
+                        "name": "random_normal"
+                    },
+                    {
+                        "name": "random_uniform"
+                    },
+                    {
+                        "name": "serialize"
+                    },
+                    {
+                        "name": "truncated_normal"
+                    },
+                    {
+                        "name": "variance_scaling"
+                    },
+                    {
+                        "name": "zeros"
+                    }
+                ]
+            },
+            "bias_initializer": {
+                "value": "zeros",
+                "type": "text",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "glorot_uniform"
+                    },
+                    {
+                        "name": "glorot_normal"
+                    },
+                    {
+                        "name": "he_normal"
+                    },
+                    {
+                        "name": "he_uniform"
+                    },
+                    {
+                        "name": "identity"
+                    },
+                    {
+                        "name": "lecun_normal"
+                    },
+                    {
+                        "name": "lecun_uniform"
+                    },
+                    {
+                        "name": "ones"
+                    },
+                    {
+                        "name": "orthogonal"
+                    },
+                    {
+                        "name": "random_normal"
+                    },
+                    {
+                        "name": "random_uniform"
+                    },
+                    {
+                        "name": "serialize"
+                    },
+                    {
+                        "name": "truncated_normal"
+                    },
+                    {
+                        "name": "variance_scaling"
+                    },
+                    {
+                        "name": "zeros"
+                    }
+                ]
+            }
         }
     },
-    "layer_7": {
-        "id": "layer_7",
-        "name": "Activation",
+    "conv2d_2": {
+        "id": "conv2d_2",
+        "name": "Conv2D 2",
+        "type": "Conv2D",
         "pos": {
-            "x": 315,
-            "y": 182
+            "x": 399,
+            "y": 233
         },
         "connections": {
             "inbound": [
-                "layer_1"
+                "conv2d_1"
             ],
             "outbound": [
-                "layer_10"
+                "globalaveragepooling2d_1"
+            ]
+        },
+        "arguments": {
+            "filters": {
+                "value": "32",
+                "type": "number",
+                "render": "text"
+            },
+            "kernel_size": {
+                "value": "3",
+                "type": "number",
+                "render": "text"
+            },
+            "strides": {
+                "value": "2",
+                "type": "number",
+                "render": "text"
+            },
+            "padding": {
+                "value": "same",
+                "type": "text",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "valid"
+                    },
+                    {
+                        "name": "same"
+                    }
+                ]
+            },
+            "activation": {
+                "value": "relu",
+                "type": "text",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "None"
+                    },
+                    {
+                        "name": "relu"
+                    },
+                    {
+                        "name": "sigmoid"
+                    },
+                    {
+                        "name": "softmax"
+                    },
+                    {
+                        "name": "swish"
+                    },
+                    {
+                        "name": "tanh"
+                    }
+                ]
+            },
+            "use_bias": {
+                "value": "True",
+                "type": "bool",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "True"
+                    },
+                    {
+                        "name": "False"
+                    }
+                ]
+            },
+            "kernel_initializer": {
+                "value": "glorot_uniform",
+                "type": "text",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "glorot_uniform"
+                    },
+                    {
+                        "name": "glorot_normal"
+                    },
+                    {
+                        "name": "he_normal"
+                    },
+                    {
+                        "name": "he_uniform"
+                    },
+                    {
+                        "name": "identity"
+                    },
+                    {
+                        "name": "lecun_normal"
+                    },
+                    {
+                        "name": "lecun_uniform"
+                    },
+                    {
+                        "name": "ones"
+                    },
+                    {
+                        "name": "orthogonal"
+                    },
+                    {
+                        "name": "random_normal"
+                    },
+                    {
+                        "name": "random_uniform"
+                    },
+                    {
+                        "name": "serialize"
+                    },
+                    {
+                        "name": "truncated_normal"
+                    },
+                    {
+                        "name": "variance_scaling"
+                    },
+                    {
+                        "name": "zeros"
+                    }
+                ]
+            },
+            "bias_initializer": {
+                "value": "zeros",
+                "type": "text",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "glorot_uniform"
+                    },
+                    {
+                        "name": "glorot_normal"
+                    },
+                    {
+                        "name": "he_normal"
+                    },
+                    {
+                        "name": "he_uniform"
+                    },
+                    {
+                        "name": "identity"
+                    },
+                    {
+                        "name": "lecun_normal"
+                    },
+                    {
+                        "name": "lecun_uniform"
+                    },
+                    {
+                        "name": "ones"
+                    },
+                    {
+                        "name": "orthogonal"
+                    },
+                    {
+                        "name": "random_normal"
+                    },
+                    {
+                        "name": "random_uniform"
+                    },
+                    {
+                        "name": "serialize"
+                    },
+                    {
+                        "name": "truncated_normal"
+                    },
+                    {
+                        "name": "variance_scaling"
+                    },
+                    {
+                        "name": "zeros"
+                    }
+                ]
+            }
+        }
+    },
+    "globalaveragepooling2d_1": {
+        "id": "globalaveragepooling2d_1",
+        "name": "GlobalAveragePooling2D 1",
+        "type": "GlobalAveragePooling2D",
+        "pos": {
+            "x": 342,
+            "y": 345
+        },
+        "connections": {
+            "inbound": [
+                "conv2d_2"
+            ],
+            "outbound": [
+                "dense_1"
             ]
         },
         "arguments": {}
     },
-    "layer_8": {
-        "id": "layer_8",
-        "name": "Activation",
+    "dense_1": {
+        "id": "dense_1",
+        "name": "Dense 1",
+        "type": "Dense",
         "pos": {
-            "x": 412,
-            "y": 359
+            "x": 422,
+            "y": 470
         },
         "connections": {
             "inbound": [
-                "layer_10"
+                "globalaveragepooling2d_1"
             ],
             "outbound": [
-                "layer_11"
+                "model_1"
+            ]
+        },
+        "arguments": {
+            "units": {
+                "value": "10",
+                "type": "number",
+                "render": "text"
+            },
+            "activation": {
+                "value": "softmax",
+                "type": "text",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "None"
+                    },
+                    {
+                        "name": "relu"
+                    },
+                    {
+                        "name": "sigmoid"
+                    },
+                    {
+                        "name": "softmax"
+                    },
+                    {
+                        "name": "swish"
+                    },
+                    {
+                        "name": "tanh"
+                    }
+                ]
+            },
+            "use_bias": {
+                "value": "False",
+                "type": "bool",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "True"
+                    },
+                    {
+                        "name": "False"
+                    }
+                ]
+            },
+            "kernel_initializer": {
+                "value": "glorot_uniform",
+                "type": "text",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "glorot_uniform"
+                    },
+                    {
+                        "name": "glorot_normal"
+                    },
+                    {
+                        "name": "he_normal"
+                    },
+                    {
+                        "name": "he_uniform"
+                    },
+                    {
+                        "name": "identity"
+                    },
+                    {
+                        "name": "lecun_normal"
+                    },
+                    {
+                        "name": "lecun_uniform"
+                    },
+                    {
+                        "name": "ones"
+                    },
+                    {
+                        "name": "orthogonal"
+                    },
+                    {
+                        "name": "random_normal"
+                    },
+                    {
+                        "name": "random_uniform"
+                    },
+                    {
+                        "name": "serialize"
+                    },
+                    {
+                        "name": "truncated_normal"
+                    },
+                    {
+                        "name": "variance_scaling"
+                    },
+                    {
+                        "name": "zeros"
+                    }
+                ]
+            },
+            "bias_initializer": {
+                "value": "zeros",
+                "type": "text",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "glorot_uniform"
+                    },
+                    {
+                        "name": "glorot_normal"
+                    },
+                    {
+                        "name": "he_normal"
+                    },
+                    {
+                        "name": "he_uniform"
+                    },
+                    {
+                        "name": "identity"
+                    },
+                    {
+                        "name": "lecun_normal"
+                    },
+                    {
+                        "name": "lecun_uniform"
+                    },
+                    {
+                        "name": "ones"
+                    },
+                    {
+                        "name": "orthogonal"
+                    },
+                    {
+                        "name": "random_normal"
+                    },
+                    {
+                        "name": "random_uniform"
+                    },
+                    {
+                        "name": "serialize"
+                    },
+                    {
+                        "name": "truncated_normal"
+                    },
+                    {
+                        "name": "variance_scaling"
+                    },
+                    {
+                        "name": "zeros"
+                    }
+                ]
+            }
+        }
+    },
+    "model_1": {
+        "id": "model_1",
+        "name": "Model 1",
+        "type": "Model",
+        "pos": {
+            "x": 420,
+            "y": 580
+        },
+        "connections": {
+            "inbound": [
+                "dense_1"
+            ],
+            "outbound": [
+                "compile_1"
             ]
         },
         "arguments": {}
     },
-    "layer_9": {
-        "id": "layer_9",
-        "name": "Activation",
+    "compile_1": {
+        "id": "compile_1",
+        "name": "Compile 1",
+        "type": "Compile",
         "pos": {
-            "x": 571,
-            "y": 521
+            "x": 426,
+            "y": 687
         },
         "connections": {
             "inbound": [
-                "layer_11"
+                "model_1"
+            ],
+            "outbound": [
+                "train_1"
+            ]
+        },
+        "arguments": {
+            "optmizer": {
+                "value": "adam",
+                "type": "list",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "adadelta"
+                    },
+                    {
+                        "name": "adagrad"
+                    },
+                    {
+                        "name": "adam"
+                    },
+                    {
+                        "name": "adamax"
+                    },
+                    {
+                        "name": "ftrl"
+                    },
+                    {
+                        "name": "nadam"
+                    },
+                    {
+                        "name": "optimizer"
+                    },
+                    {
+                        "name": "rmsprop"
+                    },
+                    {
+                        "name": "sgd"
+                    }
+                ]
+            },
+            "loss": {
+                "value": "categorical_crossentropy",
+                "type": "list",
+                "render": "list",
+                "options": [
+                    {
+                        "name": "binary_crossentropy"
+                    },
+                    {
+                        "name": "categorical_crossentropy"
+                    },
+                    {
+                        "name": "categorical_hinge"
+                    },
+                    {
+                        "name": "cosine_similarity"
+                    },
+                    {
+                        "name": "deserialize"
+                    },
+                    {
+                        "name": "hinge"
+                    },
+                    {
+                        "name": "huber"
+                    },
+                    {
+                        "name": "kl_divergence"
+                    },
+                    {
+                        "name": "kld"
+                    },
+                    {
+                        "name": "kullback_leibler_divergence"
+                    },
+                    {
+                        "name": "log_cosh"
+                    },
+                    {
+                        "name": "logcosh"
+                    },
+                    {
+                        "name": "mae"
+                    },
+                    {
+                        "name": "mape"
+                    },
+                    {
+                        "name": "mean_absolute_error"
+                    },
+                    {
+                        "name": "mean_absolute_percentage_error"
+                    },
+                    {
+                        "name": "mean_squared_error"
+                    },
+                    {
+                        "name": "mean_squared_logarithmic_error"
+                    },
+                    {
+                        "name": "mse"
+                    },
+                    {
+                        "name": "msle"
+                    },
+                    {
+                        "name": "poisson"
+                    },
+                    {
+                        "name": "serialize"
+                    },
+                    {
+                        "name": "sparse_categorical_crossentropy"
+                    },
+                    {
+                        "name": "squared_hinge"
+                    }
+                ]
+            }
+        }
+    },
+    "train_1": {
+        "id": "train_1",
+        "name": "Train 1",
+        "type": "Train",
+        "pos": {
+            "x": 442,
+            "y": 794
+        },
+        "connections": {
+            "inbound": [
+                "compile_1"
             ],
             "outbound": []
         },
         "arguments": {}
-    },
-    "layer_10": {
-        "id": "layer_10",
-        "name": "Dense",
-        "pos": {
-            "x": 358,
-            "y": 276
-        },
-        "connections": {
-            "inbound": [
-                "layer_7"
-            ],
-            "outbound": [
-                "layer_8"
-            ]
-        },
-        "arguments": {
-            "units": "REQUIRED",
-            "activation": "None",
-            "use_bias": "True",
-            "kernel_initializer": "glorot_uniform",
-            "bias_initializer": "zeros",
-            "kernel_regularizer": "None",
-            "bias_regularizer": "None",
-            "activity_regularizer": "None",
-            "kernel_constraint": "None",
-            "bias_constraint": "None"
-        }
-    },
-    "layer_11": {
-        "id": "layer_11",
-        "name": "Dense",
-        "pos": {
-            "x": 458,
-            "y": 445
-        },
-        "connections": {
-            "inbound": [
-                "layer_8"
-            ],
-            "outbound": [
-                "layer_9"
-            ]
-        },
-        "arguments": {
-            "units": "REQUIRED",
-            "activation": "None",
-            "use_bias": "True",
-            "kernel_initializer": "glorot_uniform",
-            "bias_initializer": "zeros",
-            "kernel_regularizer": "None",
-            "bias_regularizer": "None",
-            "activity_regularizer": "None",
-            "kernel_constraint": "None",
-            "bias_constraint": "None"
-        }
     }
 }
 
