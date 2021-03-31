@@ -221,81 +221,6 @@ select:focus{
 
 }
 
-.menu{
-  position: fixed;
-  z-index: 999;
-  height: 100vh;
-  width: 15vw;
-  padding: 5px;
-
-  top: 0px;
-  left: 85vw;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  background: white;
-  border: rgba(51, 51, 51, 0.241) 1px solid;
-  box-shadow: rgba(51, 51, 51, 0.35) -2px 0px 10px -5px;
-}
-
-.menu .name{
-  font-size: small;
-  font-weight: 500;
-  letter-spacing: 1px;
-  height: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.menu .properties{
-  width: 13vw;
-  display: grid;
-  grid-gap: 10px;
-  margin-top: 5px;
-}
-
-.menu .property{
-  height: 60px;
-  border: rgba(51, 51, 51, 0.241) 1px solid;
-  border-radius: 2px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 5px;
-}
-
-.menu select{
-  width: 11.5vw;
-  margin-top: 6px;
-  height: 25px;
-
-  border: rgba(51, 51, 51, 0.186) solid 1px;
-  border-radius: 3px;
-}
-
-.menu input{
-  border: rgba(51, 51, 51, 0.186) solid 1px;
-  border-radius: 3px;
-
-  background: whitesmoke;
-  
-  height: 25px;
-  padding-left: 10px;
-  margin-top: 5px;
-}
-
-line{
-  stroke-width: 1.5px;
-  stroke : rgb(51, 51, 51);
-  -moz-box-shadow: -5px -5px 5px rgb(255, 12, 12);
-  -webkit-box-shadow: -5px -5px 5px rgb(255, 0, 0);
-  box-shadow: -5px -5px 5px rgb(255, 6, 6); 
-}
 
 
 
@@ -305,8 +230,8 @@ line{
   height: 100vh;
   position: absolute;
   top: 0px;
-  left: 20vw;
-  width: 80vw;
+  left: 15vw;
+  width: 85vw;
   padding: 1vw;
 }
 
@@ -350,7 +275,7 @@ line{
 }
 
 .epochs .progress {
-  width: 70vw;
+  width: 92%;
   height: 20px;
   background: #ddd;
   display: flex;

@@ -1,81 +1,92 @@
-from math import log
-from tf_gui.web.utils import send_file
-from typing import List
-import tensorflow as tf
+# import tensorflow as tf
+import csv
+import pandas as pd
 
-from tensorflow import keras
-from tensorflow.keras import layers,optimizers,losses
-from tensorflow.python.keras.engine.training import Model
+# from tensorflow import keras
+# from tensorflow.keras import layers,optimizers,losses
+# from tensorflow.python.keras.engine.training import Model
 
 from tf_gui.web import App, Request, text_response, json_response
 from tf_gui.web.headers import ResponseHeader
 from tf_gui.builder import build_model
-from tf_gui.trainer import  build_trainer
+# from tf_gui.trainer import  build_trainer
 
-from dataset import Dataset
+from pygments.lexers import Python3Lexer
 
+from typing import List
 from json import dump, dumps
 from time import sleep,time
 from _thread import start_new_thread
+from os import path as pathlib
 
-class TfGui(keras.callbacks.Callback):
-    batch = None    
-    logs = []
-    trainer = None
-    
-    def on_batch_end(self,batch,logs=None):
-        self.batch = batch
-        self.logs[self.epoch]['batch_log'] = logs
-        self.logs[self.epoch]['batch'] = batch + 1
-        self.trainer.update_id = time()
+import sys
 
-    def on_epoch_end(self,epoch,logs=None):
-        self.logs[self.epoch]['epoch_log'] = logs
+dataset_path = pathlib.abspath("data\\datasets\\mnist")
+sys.path.append(dataset_path)
 
-    def on_epoch_begin(self, epoch, logs=None):
-        self.epoch = epoch
-        self.logs.append({
-            "epoch":epoch,
-            "batch_log":None,
-            "epoch_log":None
-        })
+from dataset import Dataset
 
-class Trainer(object):
-    build_config = {}
-    model = keras.Model
-    update_id = 0
+# class TfGui(keras.callbacks.Callback):
+#     batch = None    
+#     logs = []
 
-    def __init__(self) -> None:
-        self.dataset = Dataset()
-        self.dataset.train_y = keras.utils.to_categorical(self.dataset.train_y)
-        self.dataset.test_y = keras.utils.to_categorical(self.dataset.test_y)
+#     def on_batch_end(self,batch,logs=None):
+#         self.batch = batch
+#         self.logs[self.epoch]['batch_log'] = logs
+#         self.logs[self.epoch]['batch'] = batch + 1
+#         self.trainer.update_id = time()
 
-    def start(self,)->None:
-        self.status = TfGui()
-        self.status.trainer = self
+#     def on_epoch_end(self,epoch,logs=None):
+#         self.logs[self.epoch]['epoch_log'] = logs
 
-        callback = [ self.status, ]
-        self.model:keras.Model = self.build_config['train']['model_1']
-        self.model.fit(
-            x=self.dataset.train_x,
-            y=self.dataset.train_y,
-            epochs=self.dataset.epochs,
-            batch_size=self.dataset.batch_size,
-            verbose=1,
-            validation_data=(self.dataset.test_x,self.dataset.test_y),
-            callbacks=callback
-        )
+#     def on_epoch_begin(self, epoch, logs=None):
+#         self.epoch = epoch
+#         self.logs.append({
+#             "epoch":epoch,
+#             "batch_log":None,
+#             "epoch_log":None
+#         })
 
-    def get_status(self,)->List[dict]:
-        return {
-            "status":self.status.logs,
-            "batchs":self.dataset.batches,
-            "epochs":self.dataset.epochs,
-            "update_id":trainer.update_id
-        }
+#     def reset(self,):
+#         self.batch = None    
+#         self.logs = []
+
+# class Trainer(object):
+#     build_config = {}
+#     model = keras.Model
+#     update_id = 0
+
+#     def __init__(self):
+#         self.dataset = Dataset()
+#         self.dataset.train_y = keras.utils.to_categorical(self.dataset.train_y)
+#         self.dataset.test_y = keras.utils.to_categorical(self.dataset.test_y)
+
+#         self.status = TfGui()
+#         self.status.trainer = self
+
+#     def start(self,)->None:
+#         callback = [ self.status, ]
+#         self.model:keras.Model = self.build_config['train']['model_1']
+#         self.model.fit(
+#             x=self.dataset.train_x,
+#             y=self.dataset.train_y,
+#             epochs=self.dataset.epochs,
+#             batch_size=self.dataset.batch_size,
+#             verbose=1,
+#             validation_data=(self.dataset.test_x,self.dataset.test_y),
+#             callbacks=callback
+#         )
+
+#     def get_status(self,)->List[dict]:
+#         return {
+#             "status":self.status.logs,
+#             "batchs":self.dataset.batches,
+#             "epochs":self.dataset.epochs,
+#             "update_id":trainer.update_id
+#         }
 
 app = App()
-trainer = Trainer()
+# trainer = Trainer()
 
 @app.route("/")
 async def index(request:Request):
@@ -117,7 +128,10 @@ async def train(request:Request):
     if request.header.method == 'POST':
         data = await request.get_json()
         build_config = build_trainer(data)
+        
         trainer.build_config = build_config
+        trainer.status.reset()
+
         start_new_thread(trainer.start,tuple())
         return json_response({
             "status":"Training Ended"
@@ -129,6 +143,16 @@ async def train(request:Request):
             status_code=401,
             message="Method Not Allowed !"
         )
+
+
+
+# Language Server
+@app.route("/code/highlight")
+async def highlight_code(request:Request):
+    data = await request.get_json()
+    return json_response({
+        "code": list(lexer.get_tokens(data['code'])) 
+    })
 
 if __name__ == "__main__":
     app.serve(

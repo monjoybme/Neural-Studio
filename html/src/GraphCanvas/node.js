@@ -61,7 +61,7 @@ const Node = (props) => {
       comp: <div />,
     });
     props.menuState({
-      comp: <Menu x={e.pageX} y={e.pageY} layer={props.layer} />,
+      comp: <Menu layer={props.layer} layers={props.layers} layersState={props.layersState} menu={props.menu} menuState={props.menuState} layerGroups={props.layerGroups}  layerGroupsState={props.layerGroupsState} />,
     });
   }
 

@@ -1,0 +1,150 @@
+.menu{
+    position: fixed;
+    z-index: 999;
+    height: 100vh;
+    width: 15vw;
+    padding: 5px;
+  
+    top: 0px;
+    left: 85vw;
+  
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  
+    background: white;
+    border: rgba(51, 51, 51, 0.241) 1px solid;
+    box-shadow: rgba(51, 51, 51, 0.35) -2px 0px 10px -5px;
+  }
+  
+  .menu .name{
+    font-size: small;
+    font-weight: 500;
+    letter-spacing: 1px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .menu .properties{
+    width: 13vw;
+    display: grid;
+    grid-gap: 10px;
+    margin-top: 5px;
+  }
+  
+  .menu .property{
+    height: 60px;
+    border: rgba(51, 51, 51, 0.241) 1px solid;
+    border-radius: 2px;
+  
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 5px;
+  }
+  
+  .property .btn{
+    border: rgba(51, 51, 51, 0.186) solid 1px;
+    border-radius: 3px;
+  
+    background: whitesmoke;
+    
+    height: 25px;
+    padding-left: 10px;
+    margin-top: 5px;
+    width: 94%;
+  
+    font-size: small;
+    cursor: pointer;
+  }
+  
+  .menu select{
+    width: 11.5vw;
+    margin-top: 6px;
+    height: 25px;
+  
+    border: rgba(51, 51, 51, 0.186) solid 1px;
+    border-radius: 3px;
+  }
+  
+  .menu input{
+    border: rgba(51, 51, 51, 0.186) solid 1px;
+    border-radius: 3px;
+  
+    background: whitesmoke;
+    
+    height: 25px;
+    padding-left: 10px;
+    margin-top: 5px;
+  }
+  
+  line{
+    stroke-width: 1.5px;
+    stroke : rgb(51, 51, 51);
+    -moz-box-shadow: -5px -5px 5px rgb(255, 12, 12);
+    -webkit-box-shadow: -5px -5px 5px rgb(255, 0, 0);
+    box-shadow: -5px -5px 5px rgb(255, 6, 6); 
+  }
+  
+
+.dataset {
+  position: absolute;
+  z-index: 99999;
+  top: 1vh;
+  left: 16vw;
+  height: 98vh;
+  width: 83vw;
+
+  background: white;
+  border: rgba(51, 51, 51, 0.241) 1px solid;
+  box-shadow: rgba(51, 51, 51, 0.35) -2px 0px 10px -5px;
+}
+
+.dataset .upload{
+  border: rgba(51, 51, 51, 0.186) solid 1px;
+  border-radius: 3px;
+
+  background: whitesmoke;
+  
+  height: 25px;
+  padding-left: 10px;
+  margin-top: 5px;
+}
+
+
+.dataset .head{
+  width: 100%;
+  padding: 7px 10px;
+  height: 40px;
+  border: rgba(51, 51, 51, 0.241) 1px solid;
+
+  display: flex;
+  justify-content: space-between;
+}
+
+.dataset .head input{
+  border: none;
+}
+
+.dataset .head .btn{
+  border: rgba(51, 51, 51, 0.186) solid 1px;
+  border-radius: 3px;
+
+  background: whitesmoke;
+  
+  height: 25px;
+  width: 70px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: small;
+  cursor: pointer;
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+

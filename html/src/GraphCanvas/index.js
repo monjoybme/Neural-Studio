@@ -58,7 +58,7 @@ React.useEffect(()=>{
     Object.keys(props.layers).forEach(layer=>{
         props.layers[layer].connections.inbound.forEach((inbound,i)=>{
         if (document.getElementById(`${inbound}->${layer}`)){ 
-            // document.getElementById(`${inbound}->${layer}`).onclick = removeEdge;
+            
             }
         else{
             document.getElementById("svg-canvas").innerHTML = (
@@ -85,7 +85,6 @@ React.useEffect(()=>{
                     return (
                         <Node
                             layer={props.layers[layer]} key={i}
-                            
                             layers={props.layers}
                             layersState={props.layersState}
                             menu={props.menu}

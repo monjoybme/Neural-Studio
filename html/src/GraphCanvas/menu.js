@@ -1,4 +1,7 @@
 import React from "react";
+import Editor, { DiffEditor, useMonaco, loader } from "@monaco-editor/react";
+
+import './menu.css'
 
 let cursors = {
   line: "crosshair",
@@ -9,7 +12,7 @@ let cursors = {
 };
 
 const TextProperty = (props) =>{
-    let property = props.data[props.name];
+    let property = props.layers[props.layer_id].arguments[props.name];
     return (
       <div className="property" >
         <div> {props.name} </div>
@@ -18,10 +21,10 @@ const TextProperty = (props) =>{
           id = {props.layer_id+props.name}
           defaultValue={property.value} 
           onKeyUp={e=>{
-              props.data[props.name].value = e.target.value;
-              props.dataState({
-                ...props.data
-              }) 
+              props.layers[props.layer_id].arguments[props.name].value = e.target.value;
+              props.layersState({
+                ...props.layers
+              })
             }
           } 
         />
@@ -29,112 +32,163 @@ const TextProperty = (props) =>{
     )
   }
   
-  const ListProperty = (props) => {
-    let property = props.data[props.name]; 
-    let options = property.options;
-    
-    return (
-      <div className="property" >
-        <div> {props.name} </div>
-        <select 
-          name={props.layer_id+props.name}
-          id = {props.layer_id+props.name}
-          defaultValue={property.value} 
-          onChange={(e)=>{
-            props.data[props.name].value = e.target.value;
-            props.dataState({
-                ...props.data
-            }) 
-        }}
-          >
-          {
-            options.map((option,i)=>{
-              return (
-                <option   
-                  key={i}
-                  name={option.value}
-                > 
-                  {option.name} 
-                </option>
-              )
-            })
-          }
-        </select>
-      </div>
-    )
-  }
-
-const Menu = (props) => {
-  let [data, dataState] = React.useState({
-    ...props.layer.arguments,
-  });
-
-  let [meta, metaState] = React.useState({
-    name: props.layer.name,
-    id: props.layer.id,
-  });
-
-  React.useEffect(() => {
-    window.layers[props.layer.id].arguments = data;
-    window.layersState({
-      ...window.layers,
-    });
-  }, [data]);
+const ListProperty = (props) => {
+  let property = props.layers[props.layer_id].arguments[props.name];
+  let options = property.options;
 
   return (
-    <div className="menu">
-      <div className="name">{meta.name}</div>
-      <div className="properties">
-        {Object.keys(meta).map((property, i) => {
-          return (
-            <div className="property" key={i}>
-              <div> {property} </div>
+    <div className="property" >
+      <div> {props.name} </div>
+      <select 
+        name={props.layer_id+props.name}
+        id = {props.layer_id+props.name}
+        defaultValue={property.value} 
+        onChange={(e)=>{
+          props.layers[props.layer_id].arguments[props.name].value = e.target.value;
+          props.layersState({
+            ...props.layers
+          }) 
+      }}
+        >
+        {
+          options.map((option,i)=>{
+            return (
+              <option   
+                key={i}
+                name={option.value}
+              > 
+                {option.name} 
+              </option>
+            )
+          })
+        }
+      </select>
+    </div>
+  )
+}
+
+const Dataset = (props) =>{
+  let { config } = props;
+
+  function updateCode(e){
+    props.layers[config.id].arguments.dataset.value = e;
+    props.layersState({
+      ...props.layers
+    })
+  }
+
+  React.useEffect(()=>{
+    props.layers[config.id].arguments.dataset.value = config.arguments.dataset.value.lastIndexOf("__id__") > 0 ?
+      config.arguments.dataset.value.replace("__id__",config.id)
+      :
+      config.arguments.dataset.value
+    
+    props.layersState({
+      ...props.layers
+    })
+  })
+
+  return (
+    <div className="dataset">
+      <div className="head">
+        <input  defaultValue={ config.name } />
+        <div className="btn" onClick={e=>{
+              props.menuState({comp:<div />})
+            }
+          }
+          >
+          Save
+        </div>
+      </div>
+      <Editor
+          defaultLanguage="python"
+          defaultValue={ 
+            config.arguments.dataset.value.lastIndexOf("__id__") > 0 ?
+              config.arguments.dataset.value.replace("__id__",config.id)
+              :
+              config.arguments.dataset.value 
+          }
+          onChange={updateCode}
+      />
+    </div>
+  )
+}
+
+
+const Menu = (props) => {
+  return props.layer.type === 'Dataset' ?
+      (
+        <Dataset 
+          config={props.layer}
+
+          layers={props.layers}
+          layersState={props.layersState}
+          menu={props.menu}
+          menuState={props.menuState}
+        />
+      )
+      :
+      (
+        <div className="menu">
+          <div className="name">{props.layer.name}</div>
+          <div className="properties">
+            
+            <div className="property" >
+              <div> {props.layer.name} </div>
               <input
                 name="id"
-                defaultValue={meta[property]}
+                defaultValue={props.layer.name}
                 onKeyUp={(e) => {
-                  meta[property] = e.target.value;
-                  window.layers[props.layer.id][property] = meta[property];
-
-                  window.layersState({
-                    ...window.layers,
-                  });
-                  metaState({
-                    ...meta,
-                  });
+                  props.layers[props.layer.id].name = e.target.value;
+                  props.layersState({
+                    ...props.layers
+                  })
                 }}
               />
             </div>
-          );
-        })}
-        {Object.keys(data).map((property, i) => {
-          let comp;
-          switch (data[property].render) {
-            case "text":
-              return (
-                <TextProperty
-                  layer_id={props.layer.id}
-                  data={data}
-                  dataState={dataState}
-                  name={property}
-                  key={i}
-                />
-              );
-            case "list":
-              return (
-                <ListProperty
-                  layer_id={props.layer.id}
-                  data={data}
-                  dataState={dataState}
-                  name={property}
-                  key={i}
-                />
-              );
-          }
-        })}
-      </div>
-    </div>
-  );
+
+            <div className="property">
+              <div> {props.layer.id} </div>
+              <input
+                name="id"
+                defaultValue={props.layer.id}
+              />
+            </div>
+            {Object.keys(props.layer.arguments).map((property, i) => {
+              let comp;
+              switch (props.layer.arguments[property].render) {
+                case "text":
+                  return (
+                    <TextProperty
+                      layer_id={props.layer.id}
+                      name={property}
+                      key={i}
+
+                      layers={props.layers}
+                      layersState={props.layersState}
+                      menu={props.menu}
+                      menuState={props.menuState}
+                    />
+                  );
+                case "list":
+                  return (
+                    <ListProperty
+                      layer_id={props.layer.id}
+                      name={property}
+                      key={i}
+
+                      layers={props.layers}
+                      layersState={props.layersState}
+                      menu={props.menu}
+                      menuState={props.menuState}
+                    />
+                  );
+              }
+            })}
+          </div>
+        </div>
+      )
+
 };
 
 export default Menu;
