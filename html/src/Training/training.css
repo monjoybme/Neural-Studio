@@ -1,0 +1,92 @@
+.training{
+    height: 90vh;
+    top: 0px;
+    left: 0vw;
+    width: 85vw;
+    padding: 0 15px 15px 15px;
+  }
+  
+  .training .title{
+    height: 50px;
+    display: flex;
+    font-size: large;
+    font-weight: 500;
+    letter-spacing: 1px;
+    align-items: center;
+  }
+  
+  .logs{
+    display: grid;
+    margin-top: 1vh;
+    grid-gap: 1vh;
+  }
+  
+  .log{
+    width: 100%;
+    border: solid 1px rgba(51, 51, 51, 0.042);
+    background: rgba(228, 228, 228, 0.207);
+    padding: 1vh;
+  }
+  
+  .notif {
+      font-size: small;
+      letter-spacing: 1px;
+  }
+
+  .epoch {
+    display: grid;
+    grid-template-columns: 2fr 16fr 2fr;
+  }
+
+  .epoch .head{
+
+  }
+
+.epoch .epochname {
+    font-size: 14px;
+    height: 50%;
+    margin: 0px 0px 10px 0px;
+}
+
+.epoch .batch{
+    font-size: 12px;
+    height: 50%;
+    margin: 5px 0px 0px 0px;
+}
+
+.progress {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.progress .bar{
+    width: 100%;
+    height: 50%;
+    border: solid 1px rgba(51, 51, 51, 0.1);
+    background: rgba(228, 228, 228, 0.3);
+    border-radius: 2px;
+}
+
+.progress .done{
+    background: rgb(80, 157, 80);
+    height: 100%;
+}
+
+.outputs {
+    display: grid;
+}
+
+.outputs .output {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.output .name {
+    font-size: 12px;
+}
+
+.output .val {
+    font-size: 12px;
+}

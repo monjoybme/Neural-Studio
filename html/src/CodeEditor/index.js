@@ -1,28 +1,55 @@
-import React, { useState, useEffect } from "react";
-import Editor, { DiffEditor, useMonaco, loader } from "@monaco-editor/react";
+import React from "react";
+import Training from '../Training';
+import Editor from "@monaco-editor/react";
 
 import "./code.css"
 
 const CodeEditor = (props) => {
-    React.useEffect(async function(){
-        
-    })
+
+  let [comp,compState] = React.useState({
+    state:true
+  })
+
+    async function trainModel(e) {
+      window.__TRAIN__ = true;
+      await fetch(
+        "http://localhost/train",
+        {
+          method:"POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...props.layers })
+        }
+      )
+      .then(response=>response.json())
+      .then(data=>{
+        window.__TRAIN__ = true
+        compState({
+          state:false
+        })
+      })
+    }
+
     return (
       <div className="tfcode">
         <div className="menubar">
             <div className="btn">
                 Download
             </div>
-            <div className="btn">
+            <div className="btn" onClick={trainModel}>
                 Train
             </div>
         </div>
-        <Editor
-            height="90vh"
-            defaultLanguage="python"
-            defaultValue={props.code.data}
-            onChange={e=>console.log(e)}
-        />
+        {
+          comp.state ?
+            <Editor
+              height="90vh"
+              defaultLanguage="python"
+              defaultValue={props.code.data}
+              onChange={e=>console.log(e)}
+            />
+            :
+            <Training />
+        }
       </div>
     );
   };

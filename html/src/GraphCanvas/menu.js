@@ -1,16 +1,9 @@
 import React from "react";
-import Editor, { DiffEditor, useMonaco, loader } from "@monaco-editor/react";
+import Editor from "@monaco-editor/react";
 import Options from '../data/options';
 
 import './menu.css'
 
-let cursors = {
-  line: "crosshair",
-  delete: "no-drop",
-  normal: "default",
-  layer: "cell",
-  move: "move",
-};
 
 const TextProperty = (props) =>{
     let property = props.layers[props.layer_id].arguments[props.name];
@@ -82,7 +75,7 @@ const Dataset = (props) =>{
 
   React.useEffect(()=>{
     props.layers[config.id].arguments.dataset.value = config.arguments.dataset.value.lastIndexOf("__id__") > 0 ?
-      config.arguments.dataset.value.replace("__id__",config.id)
+      config.arguments.dataset.value.replaceAll(/__id__/g,config.id)
       :
       config.arguments.dataset.value
     
@@ -107,7 +100,7 @@ const Dataset = (props) =>{
           defaultLanguage="python"
           defaultValue={ 
             config.arguments.dataset.value.lastIndexOf("__id__") > 0 ?
-              config.arguments.dataset.value.replace("__id__",config.id)
+              config.arguments.dataset.value.replaceAll(/__id__/g,config.id)
               :
               config.arguments.dataset.value 
           }

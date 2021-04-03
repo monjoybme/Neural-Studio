@@ -20,7 +20,7 @@ from sklearn.model_selection , train_test_split
 """
 
 
-#<dataset id=__id__>
+#dataset id=__id__
 class Dataset:
     """
     Dataset will be used in training 
@@ -55,7 +55,9 @@ class Dataset:
         self.test_x = None
         self.test_y = None
 
-        self.calculate_batches()
+# Do not change the anything.
+__id__ = Dataset()
+#end-dataset id=__id__
 `,
                     type:"dataset",
                     render:"dataset",
@@ -79,7 +81,7 @@ numpy as np
 from sklearn.model_selection , train_test_split
 """
 
-#<dataset id=__id__>
+#dataset id=__id__
 class Dataset:
     """
     Dataset will be used in training 
@@ -115,8 +117,10 @@ class Dataset:
         self.train_y = keras.utils.to_categorical(Y)
         self.test_x = X.reshape(-1,784) / 255
         self.test_y = keras.utils.to_categorical(Y)
-
-#</dataset>
+    
+# Do not change the anything.
+__id__ = Dataset()
+#end-dataset id=__id__
                     `,
                     type:"dataset",
                     render:"dataset",
