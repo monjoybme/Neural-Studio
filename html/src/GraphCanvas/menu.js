@@ -1,5 +1,6 @@
 import React from "react";
 import Editor, { DiffEditor, useMonaco, loader } from "@monaco-editor/react";
+import Options from '../data/options';
 
 import './menu.css'
 
@@ -34,7 +35,9 @@ const TextProperty = (props) =>{
   
 const ListProperty = (props) => {
   let property = props.layers[props.layer_id].arguments[props.name];
-  let options = property.options;
+  let options = Options[property.options];
+
+  // console.log(property.value,property.options)
 
   return (
     <div className="property" >
@@ -55,9 +58,9 @@ const ListProperty = (props) => {
             return (
               <option   
                 key={i}
-                name={option.value}
+                name={option}
               > 
-                {option.name} 
+                {option} 
               </option>
             )
           })

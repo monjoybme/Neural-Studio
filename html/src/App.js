@@ -4,7 +4,7 @@ import Canvas from "./GraphCanvas";
 import Training from "./Training";
 
 import "./App.css";
-import { layerGroups as _lg, example } from "./data/layers";
+import _lg  from "./data/layers";
 import CodeEditor from "./CodeEditor";
 
 window.copy = function(object){
@@ -357,7 +357,8 @@ const App = (props) => {
           <div
             className="btn"
             onClick={(e) => {
-              compState({ state: true });
+              // compState({ state: true });
+              buildModel()
             }}
           >
             Build
@@ -371,7 +372,7 @@ const App = (props) => {
           <div
             className="btn"
             onClick={(e) => {
-              layersState({ ...example });
+              layersState({  });
             }}
           >
             Load Example
@@ -421,6 +422,9 @@ const App = (props) => {
             Normal
           </div>
           
+        </div>
+        <div className="head">
+          Layers 
         </div>
         <div className="layergroups">
           {layerGroups.layerGroups.map((layerGroup, i) => {

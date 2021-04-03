@@ -98,10 +98,10 @@ async def buiild(request:Request):
         build_config = await request.get_json()
         with open("./data/example_build.json","w+") as file:
             dump(build_config,file,)
-        code = build_model(build_config)
+        # code = build_model(build_config)
         return json_response({
             "status":200,
-            "code":code
+            "code":""
         })
     else:
         return json_response(

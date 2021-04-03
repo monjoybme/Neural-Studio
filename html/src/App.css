@@ -95,6 +95,16 @@ select:focus{
   align-items: center;
 }
 
+.nav .head{
+  height: 40px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin-top: 5px;
+}
+
 .nav .title{
   height: 60px;
   width: 15vw;
@@ -162,7 +172,7 @@ select:focus{
   overflow-x: hidden;
   border: solid 1px rgba(51, 51, 51, 0.042);
   
-  height: 50vh;
+  height: 70vh;
   width: 95%;
   padding : 10px 0vh 0vh 7px;
 
