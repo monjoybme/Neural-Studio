@@ -1,111 +1,144 @@
+import re
+
+import pandas as pd
+import numpy as np
 import tensorflow as tf
 
 from tensorflow import keras
-from tensorflow.keras import layers,optimizers,losses
+from tensorflow.keras import layers,optimizers,losses,metrics,callbacks
 
-def build_inbound(inbound:list)->str:
-    inbound = [ f"""build_config['train']['{node}']""" for node in inbound ]
-    return ( "([" + ", ".join(inbound) + "])" if len(inbound) > 1 else "(" + inbound[0] + ")" ) if len(inbound) else ""
+from typing import List
+from json import load,dump
+from threading import Thread
 
-def set_argument(argument,config):
-    value = config['value']
-    value = ( None if value == 'None' else f"'{value}'" ) if config['type'] == 'text' else value
-    return f"    {argument}={value},"
+def execute_code(_code:str)->None:
+    try:
+        exec(_code)
+        globals().update(locals())
+    except:
+        # print (_code)
+        pass
+
+class TfGui(keras.callbacks.Callback):
+    batch = None 
+    epoch = 0
     
-def build_arguments(arguments:dict)->str:
-    arguments = '\n'.join([ set_argument(arg,cnf) for arg,cnf in arguments.items() ])
-    return arguments
-
-def build_input(layer,build_config,*args,**kwargs)->str:
-    arguments =  build_arguments(layer['arguments'])
-    return eval(f"""layers.Input(
-{arguments}
+    batch_size=8
+    batches = 1
+    epochs = 1
+    
+    trainer = None
+    
+    def __repr__(self,):
+        return f"""TfGui(
+    batch={self.batch},
+    logs={self.logs},
+    batch_size={self.batch_size},
+    epochs={self.epochs},
 )
-""")
-
-def build_dense(layer,build_config,*args,**kwargs)->str:
-    arguments =  build_arguments(layer['arguments'])
-    inbound = build_inbound(layer['connections']['inbound'])
+"""
     
-    return eval(f"""layers.{layer['type']}(
-{arguments}
-){inbound}
-""")
-
-def build_conv2d(layer,build_config,*args,**kwargs)->str:
-    arguments =  build_arguments(layer['arguments'])
-    inbound = build_inbound(layer['connections']['inbound'])
+    @property
+    def status(self,):
+        return {
+            "epochs":self.epochs,
+            "batchs":self.batches
+        }
     
-    return eval(f"""layers.{layer['type']}(
-{arguments}
-){inbound}
-""")
-
-def build_globalaverage2d(layer,build_config,*args,**kwargs)->str:
-    inbound = layer['connections']['inbound']
-    inbound = build_inbound(layer['connections']['inbound'])
+    def __init__(self,trainer):
+        self.trainer = trainer
     
-    return eval(f"""layers.{layer['type']}(){inbound}""")
-
-def build_model(layer,build_config,*args,**kwargs)->str:
-    in_nodes = [ f"""build_config['train']['{node}']""" for node in build_config['input_nodes']]
-    out_nodes = [ f"""build_config['train']['{node}']""" for node in layer['connections']['inbound']]
-    return eval(f"""keras.Model(
-    [ {', '.join(in_nodes)}, ],
-    [ {', '.join(out_nodes)}, ]
-)""")
-
-def build_compile(layer,build_config,*args,**kwargs)->str:
-    model, = layer['connections']['inbound']
-    eval(f"""
-build_config['train']['{model}'].compile(
-    optimizer='{layer['arguments']['optmizer']['value']}',
-    loss='{layer['arguments']['loss']['value']}'
-)""")
-    return True
-
-def build_train(layer,build_config,*args,**kwargs)->str:
-    return ""
-
-build_functions = {
-    "Input":build_input,
-    "Conv2D":build_conv2d,
-    "GlobalAveragePooling2D":build_globalaverage2d,
-    "Dense":build_dense,
-    "Model":build_model,
-    "Compile":build_compile,
-    "Train":build_train
-}
-
-def build_trainer(build_config)->dict:
-    inputs = []
-    for _id,config in build_config.items():
-        if config['type'] == 'Input':
-            inputs.append(_id)
-            
-    build_config['input_nodes'] = inputs
-    levels = [ set() for i in range(len(build_config))]
-    def setLevel(node,config,di=0):
-        levels[di].add(node)
-        if build_config[node]['connections']['outbound']:
-            for next_node in build_config[node]['connections']['outbound']: 
-                setLevel(next_node,build_config,di+1)
-
-    for inp in inputs:
-        setLevel(inp,build_config,0)
+    def on_train_begin(self,epoch,logs=None):
+        pass
+    
+    def on_batch_end(self,batch,logs=None):
+        self.batch = batch
+        self._epoch['log'] = {
+            "batch":batch,
+            "output":logs
+        }
         
-    build_config['levels'] = levels
-    levels = [list(level) for level in levels if len(level)]
-    
-    build_config['train'] = {
-    
-    }
-
-    for level in levels:
-        for layer in level:
-            layer = build_config[layer]
-            layer_build = build_functions[layer['type']](layer,build_config) 
-            build_config['train'][layer['id']] = layer_build
+    def on_epoch_begin(self,epoch,logs=None):
+        self.epoch = epoch
+        self._epoch = {
+            "epoch":epoch,
+            "log":{
+                "batch":0,
+                "output":None
+            },
+            "train":{
+                "epochs":self.epochs,
+                "batches":self.batches
+            }
+        }
         
-    return build_config
+        self.trainer.update_log(
+            log_type = "epoch",
+            log=self._epoch
+        )
+
+    def on_train_end(self, logs):
+        self.trainer.update_log(log_type="notif",log={
+            "message":"Training Ended",
+            "ended":True
+        })
+
+class Trainer(object):
+    build_config = {}
+    model = keras.Model
+    update_id = 0
     
+    logs = []
+
+    def __init__(self):
+        globals()['tfgui'] = TfGui(self,)
+        self.tfgui = globals()['tfgui']
+    
+    def update_log(self,log_type:str,log):
+        self.logs.append({
+            "type":log_type,
+            "data":log
+        })
+        
+    def start(self,build_config:dict,code:str)->None:
+        
+        self.update_log("notif",{"message":"Copiling Code"})
+        charset = 'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\"'
+        self.update_log("notif",{"message":"Performing imports"})
+        imports, = re.findall("""#import[a-zA-Z\n .,_\-]+#end-import""",code)
+        execute_code(imports)
+        execute_code(build_config['train_config']['dataset']['value'])
+        
+        self.update_log("notif",{"message":"Building Model"})
+        for level in build_config['levels']:
+            for layer in level:
+                _code = re.findall(f"""{layer} =[{charset}]+#end-{layer}""",code)
+                if len(_code):
+                    execute_code(_code[0])
+
+        self.update_log("notif",{"message":"Compiling Model"})
+
+        if build_config['train_config']['optimizer']:
+            execute_code(build_config['train_config']['optimizer']['value'])
+
+        if build_config['train_config']['callbacks']:
+            for callback in build_config['train_config']['callbacks']:
+                execute_code(callback['value'])    
+        
+        if build_config['train_config']['loss']:
+            execute_code(build_config['train_config']['loss']['value'])
+
+        comp = build_config['train_config']['compile']['id']
+        model = build_config['train_config']['model']['id']
+        execute_code(re.findall(f"""{model}.compile[{charset}]+#end-{comp}""",code)[0])
+        
+        self.tfgui.epochs = int(build_config['train_config']['train']['arguments']['epochs']['value'])
+        self.tfgui.batch_size = int(build_config['train_config']['train']['arguments']['batch_size']['value'])
+        self.tfgui.batches = int(np.ceil(globals()[build_config['train_config']['dataset']['id']].train_x.__len__() / tfgui.batch_size))
+        
+        train_code, = re.findall(f"""{model}.fit\([a-z\n\t =_0-9.,\[\]\)]+#end-train_\d+""",code)
+        train_thread = Thread(target=execute_code,args=(train_code,))
+        train_thread.start()
+        self.update_log("notif",{"message":"Training Started"})
+        
+        return train_thread

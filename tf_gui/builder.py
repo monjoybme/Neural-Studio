@@ -1,96 +1,110 @@
+from typing import Tuple
+
 def build_inbound(inbound:list)->str:
     return ( "([" + ", ".join(inbound) + "])" if len(inbound) > 1 else "(" + inbound[0] + ")" ) if len(inbound) else ""
 
 def set_argument(argument,config):
     value = config['value']
+    try:
+        value = eval(value)
+    except:
+        pass
     value = ( None if value == 'None' else f"'{value}'" ) if config['type'] == 'text' else value
-    return f"    {argument}={value},"
+    return f"    {argument}={value.__repr__()},"
     
 def build_arguments(arguments:dict)->str:
     arguments = '\n'.join([ set_argument(arg,cnf) for arg,cnf in arguments.items() ])
     return arguments
 
-def build_input(layer,build_config,*args,**kwargs)->str:
+def build_default(layer,build_config,*args,**kwargs)->str:
     arguments =  build_arguments(layer['arguments'])
-    return f"""#<{layer['id']}>
-{layer['id']} = layers.Input(
-{arguments}
-)
-#</{layer['id']}>
-"""
-
-def build_dense(layer,build_config,*args,**kwargs)->str:
-    arguments =  build_arguments(layer['arguments'])
-    inbound = build_inbound(layer['connections']['inbound'])
+    inbound = build_inbound(layer['connections']['inbound']) if layer['type']['name'] != 'Input' else '' 
     
-    return f"""#<{layer['id']}>
-{layer['id']} = layers.{layer['type']}(
+    return f"""{layer['id']} = {layer['type']['_class']}.{layer['type']['name']}(
 {arguments}
-){inbound}
-#</{layer['id']}>
-"""
-
-def build_conv2d(layer,build_config,*args,**kwargs)->str:
-    arguments =  build_arguments(layer['arguments'])
-    inbound = build_inbound(layer['connections']['inbound'])
-    
-    return f"""#<{layer['id']}>
-{layer['id']} = layers.{layer['type']}(
-{arguments}
-){inbound}
-#</{layer['id']}>
-"""
-
-def build_globalaverage2d(layer,build_config,*args,**kwargs)->str:
-    inbound = layer['connections']['inbound']
-    inbound = build_inbound(layer['connections']['inbound'])
-    
-    return f"""#<{layer['id']}>
-{layer['id']} = layers.{layer['type']}(){inbound}
-#</{layer['id']}>
+){inbound} #end-{layer['id']}
 """
 
 def build_model(layer,build_config,*args,**kwargs)->str:
-    return f"""##<{layer['id']}>
-{layer['id']} = keras.Model(
+    build_config['train_config']['model'] = layer
+    return f"""{layer['id']} = keras.Model(
     [ {', '.join(build_config['input_nodes'])}, ],
     [ {', '.join(layer['connections']['inbound'])}, ]
-)
-#</{layer['id']}>
+) #end-{layer['id']}
 """
 
 def build_compile(layer,build_config,*args,**kwargs)->str:
-    model, = layer['connections']['inbound']
-    return f"""#<{layer['id']}>
+    build_config['train_config']['compile'] = layer
+    model,*_ = [node for node in layer['connections']['inbound'] if "model" in node]
+    metrics = layer['arguments']['metrics']['value']
+    
+    train_config = build_config['train_config']
+    return f"""{train_config['optimizer']['value'] if train_config['optimizer'] else ''}
 {model}.compile(
-    optimizer='{layer['arguments']['optmizer']['value']}',
-    loss='{layer['arguments']['loss']['value']}'
-)
-#</{layer['id']}>
+    optimizer={train_config['optimizer']['id'] if train_config['optimizer'] else "'"+layer['arguments']['optmizer']['value']+"'"},
+    loss='{layer['arguments']['loss']['value']}',
+    metrics=[ {', '.join(metrics)}, ]
+) #end-{layer['id']}
 """
 
 def build_train(layer,build_config,*args,**kwargs)->str:
-    return ""
+    callbacks = [callback['value'] for callback in build_config['train_config']['callbacks']]
+    callback_ids = [callback['id'] for callback in build_config['train_config']['callbacks']]
+    build_config['train_config']['train'] = layer
+    
+    return f"""{"".join(callbacks)}
+{build_config['train_config']['model']['id']}.fit(
+    x={build_config['train_config']['dataset']['id']}.train_x,
+    y={build_config['train_config']['dataset']['id']}.train_y,
+    batch_size={layer['arguments']['batch_size']['value']},
+    epochs={layer['arguments']['epochs']['value']},
+    callbacks=[ tfgui, {', '.join(callback_ids)} ]
+) #end-{layer['id']}
+"""
 
 build_functions = {
-    "Input":build_input,
-    "Conv2D":build_conv2d,
-    "GlobalAveragePooling2D":build_globalaverage2d,
-    "Dense":build_dense,
+    "default":build_default,
     "Model":build_model,
     "Compile":build_compile,
     "Train":build_train
 }
 
-def build_model(build_config:dict)->str:
+def build_code(build_config:dict)->Tuple[str,dict]:
     inputs = []
-    dataset = None
-    for _id,config in build_config.items():
-        if config['type'] == 'Input':
-            inputs.append(_id)
-        elif config['type'] == 'Dataset':
-            dataset = _id
+    train_config = {
+        "dataset":None,
+        "optimizer":None,
+        "loss":None,
+        "callbacks":[],
+        
+        "model":None,
+        "compile":None,
+        "train":None
+    }
 
+
+    for _id,config in build_config.items():
+        # print (config['type']['name'])
+        if config['type']['name'] == 'Input':
+            inputs.append(_id)
+            
+        elif config['type']['name'] == 'Dataset':
+            train_config['dataset'] = _id
+                
+        elif config['type']['name'] == 'Model':
+            train_config['model'] = _id
+            
+        elif config['type']['name'] == 'Loss':
+            train_config['loss'] = _id
+        
+        if config['type']['_class'] == 'optimizers':
+            train_config['optimizer'] = _id
+            
+        elif config['type']['_class'] == 'callbacks':
+            train_config['callbacks'].append(_id)
+    
+
+    build_config['train_config'] = train_config
     build_config['input_nodes'] = inputs
     levels = [ set() for i in range(len(build_config))]
     def setLevel(node,config,di=0):
@@ -102,33 +116,54 @@ def build_model(build_config:dict)->str:
     for inp in inputs:
         setLevel(inp,build_config,0)
         
-    build_config['levels'] = levels        
+    build_config['levels'] = levels
     levels = [list(level) for level in levels if len(level)]
-    build = "#<layers>\n\n"
+    for key,val in train_config.items():
+        if val != None:
+            if key == 'dataset':
+                train_config['dataset'] = {
+                    "id":val,
+                    "value":build_config[val]['arguments']['dataset']['value']
+                }
+            elif key == 'optimizer':
+                train_config['optimizer'] = {
+                    'id':val,
+                    'value':build_default(build_config[val],build_config)+'\n'
+                }
+            elif key == 'callbacks':
+                callbacks = []
+                for callback in train_config['callbacks']:
+                    callbacks.append({
+                        "id":callback,
+                        "value":build_default(build_config[callback],build_config)
+                    })
+                train_config['callbacks'] = callbacks
+                
+    build = ''
+
     for level in levels:
         for layer in level:
             layer = build_config[layer]
-            build += build_functions[layer['type']](layer,build_config) + '\n'
-    build += '#</layers>'
-
-    return """#-*- Code generated by Tensorflow GUI -*-
-#<import>
+            if layer['type']['name'] in build_functions: 
+                build += build_functions[layer['type']['name']](layer,build_config) + '\n\n'
+            else:
+                build += build_functions['default'](layer,build_config) + '\n\n'
+                
+    build = build[:-2]
+    code = """#-*- Code generated by Tensorflow GUI -*-
+#import
 import pandas as pd
-import nympy as np
+import numpy as np
 import tensorflow as tf
 
 from tensorflow import keras
-from tensorflow.keras import layers,optimizer,losses,metrics
-#</import>
+from tensorflow.keras import layers,optimizers,losses,metrics,callbacks
+#end-import
 
 {dataset}
-
-dataset = Dataset()
-
 {build}
 """.format(
-    dataset='\n'.join(
-            build_config[dataset]['arguments']['dataset']['value'].split("\n")[13:]
-        ) if dataset else '',
-    build=build
+dataset=train_config['dataset']['value'],
+build=build
 )
+    return build_config,code
