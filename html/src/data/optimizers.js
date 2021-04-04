@@ -3,7 +3,7 @@ const optimizers = {
   layers: [
     {
       name: "SGD",
-      type: "Optimizer",
+      type: { name: "SGD", _class: "optimizers" },
       args: {
         learning_rate: {
           value: "0.01",
@@ -28,7 +28,7 @@ const optimizers = {
     },
     {
       name: "RMSprop",
-      type: "Optimizer",
+      type: { name: "RMSprop", _class: "optimizers" },
       args: {
         learning_rate: {
           value: "0.001",
@@ -65,7 +65,7 @@ const optimizers = {
     },
     {
       name: "Adam",
-      type: "Optimizer",
+      type: { name: "Adam", _class: "optimizers" },
       args: {
         learning_rate: {
           value: "0.001",
@@ -92,7 +92,7 @@ const optimizers = {
     },
     {
       name: "Adadelta",
-      type: "Optimizer",
+      type: { name: "Adadelta", _class: "optimizers" },
       args: {
         learning_rate: {
           value: "0.001",
@@ -117,7 +117,7 @@ const optimizers = {
     },
     {
       name: "Adagrad",
-      type: "Optimizer",
+      type: { name: "Adagrad", _class: "optimizers" },
       args: {
         learning_rate: {
           value: "0.001",
@@ -147,7 +147,7 @@ const optimizers = {
     },
     {
       name: "Adamax",
-      type: "Optimizer",
+      type: { name: "Adamax", _class: "optimizers" },
       args: {
         learning_rate: {
           value: "0.001",
@@ -168,7 +168,7 @@ const optimizers = {
     },
     {
       name: "Nadam",
-      type: "Optimizer",
+      type: { name: "Nadam", _class: "optimizers" },
       args: {
         learning_rate: {
           value: "0.001",
@@ -189,7 +189,7 @@ const optimizers = {
     },
     {
       name: "Ftrl",
-      type: "Optimizer",
+      type: { name: "Ftrl", _class: "optimizers" },
       args: {
         learning_rate: {
           value: "0.001",

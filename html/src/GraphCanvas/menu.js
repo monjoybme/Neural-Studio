@@ -30,8 +30,6 @@ const ListProperty = (props) => {
   let property = props.layers[props.layer_id].arguments[props.name];
   let options = Options[property.options];
 
-  // console.log(property.value,property.options)
-
   return (
     <div className="property" >
       <div> {props.name} </div>
@@ -59,6 +57,53 @@ const ListProperty = (props) => {
           })
         }
       </select>
+    </div>
+  )
+}
+
+const CheckboxProperty = (props) => {
+  let property = props.layers[props.layer_id].arguments[props.name];
+  let options = Options[property.options];
+
+  function selectBox(e){
+    if (props.layers[props.layer_id].arguments[props.name].value.lastIndexOf(e.target.name) > -1){
+      props.layers[props.layer_id].arguments[props.name].value.pop(e.target.name)
+    }
+    else{
+      props.layers[props.layer_id].arguments[props.name].value.push(e.target.name)
+    }
+    // console.log(props.layers[props.layer_id].arguments[props.name].value)
+
+    props.layersState({
+      ...props.layers
+    }) 
+  }
+  return (
+    <div className="property" style={{height:"auto"}}>
+      <div> {props.name} </div>
+      <div className="checkboxes">
+        {
+          options.map((option,i)=>{
+            return (
+              <label className='checkbox' key={i}>
+                <input 
+                  type="checkbox" 
+                  name={option} 
+                  key={i}  
+                  defaultChecked={ 
+                    props.
+                    layers[props.layer_id].
+                    arguments[props.name].
+                    value.
+                    lastIndexOf(option) > -1 }
+                  onChange={selectBox}
+                 /> 
+                {option}
+              </label>
+            )
+          })        
+        }
+      </div>
     </div>
   )
 }
@@ -112,7 +157,8 @@ const Dataset = (props) =>{
 
 
 const Menu = (props) => {
-  return props.layer.type === 'Dataset' ?
+  // console.log(props.layer.arguments)
+  return props.layer.type.name === 'Dataset' ?
       (
         <Dataset 
           config={props.layer}
@@ -169,6 +215,19 @@ const Menu = (props) => {
                 case "list":
                   return (
                     <ListProperty
+                      layer_id={props.layer.id}
+                      name={property}
+                      key={i}
+
+                      layers={props.layers}
+                      layersState={props.layersState}
+                      menu={props.menu}
+                      menuState={props.menuState}
+                    />
+                  );
+                case "checkbox":
+                  return (
+                    <CheckboxProperty
                       layer_id={props.layer.id}
                       name={property}
                       key={i}

@@ -46,7 +46,6 @@ const options = {
     "zeros",
   ],
   metrics: [
-    "None",
     "binary_accuracy",
     "binary_crossentropy",
     "categorical_accuracy",

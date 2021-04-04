@@ -1,6 +1,6 @@
-import callbacks from "./callbacks";
 import datasets from "./datasets";
-import optimizers from './optimizers';
+import optimizers from "./optimizers";
+import callbaacks from "./callbacks";
 
 const layers = {
   "datasets":datasets,
@@ -9,7 +9,7 @@ const layers = {
     layers: [
       {
         name: "Input",
-        type: "Input",
+        type: { name: "Input", _class: "layers" },
         args: {
           shape: {
             value: "None",
@@ -53,7 +53,7 @@ const layers = {
       },
       {
         name: "Dense",
-        type: "Dense",
+        type: { name: "Dense", _class: "layers" },
         args: {
           units: {
             value: "REQUIRED",
@@ -108,7 +108,7 @@ const layers = {
       },
       {
         name: "Activation",
-        type: "Activation",
+        type: { name: "Activation", _class: "layers" },
         args: {
           activation: {
             value: "REQUIRED",
@@ -121,7 +121,7 @@ const layers = {
       },
       {
         name: "Embedding",
-        type: "Embedding",
+        type: { name: "Embedding", _class: "layers" },
         args: {
           input_dim: {
             value: "REQUIRED",
@@ -170,7 +170,7 @@ const layers = {
       },
       {
         name: "Masking",
-        type: "Masking",
+        type: { name: "Masking", _class: "layers" },
         args: {
           mask_value: {
             value: "0.0,",
@@ -183,7 +183,7 @@ const layers = {
       },
       {
         name: "Lambda",
-        type: "Lambda",
+        type: { name: "Lambda", _class: "layers" },
         args: {
           function: {
             value: "REQUIRED",
@@ -192,7 +192,7 @@ const layers = {
             options: "function",
           },
           output_shape: {
-            value: "None, mas",
+            value: "None mas",
             type: "str",
             render: "text",
             options: "shape",
@@ -204,7 +204,7 @@ const layers = {
             options: "None",
           },
           arguments: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "arguments",
@@ -220,7 +220,7 @@ const layers = {
     layers: [
       {
         name: "Conv1D",
-        type: "Conv1D",
+        type: { name: "Conv1D", _class: "layers" },
         args: {
           filters: {
             value: "REQUIRED",
@@ -299,7 +299,7 @@ const layers = {
       },
       {
         name: "Conv2D",
-        type: "Conv2D",
+        type: { name: "Conv2D", _class: "layers" },
         args: {
           filters: {
             value: "REQUIRED",
@@ -384,7 +384,7 @@ const layers = {
       },
       {
         name: "Conv3D",
-        type: "Conv3D",
+        type: { name: "Conv3D", _class: "layers" },
         args: {
           filters: {
             value: "REQUIRED",
@@ -469,7 +469,7 @@ const layers = {
       },
       {
         name: "SeparableConv1D",
-        type: "SeparableConv1D",
+        type: { name: "SeparableConv1D", _class: "layers" },
         args: {
           filters: {
             value: "REQUIRED",
@@ -567,7 +567,7 @@ const layers = {
       },
       {
         name: "SeparableConv2D",
-        type: "SeparableConv2D",
+        type: { name: "SeparableConv2D", _class: "layers" },
         args: {
           filters: {
             value: "REQUIRED",
@@ -665,7 +665,7 @@ const layers = {
       },
       {
         name: "DepthwiseConv2D",
-        type: "DepthwiseConv2D",
+        type: { name: "DepthwiseConv2D", _class: "layers" },
         args: {
           kernel_size: {
             value: "REQUIRED",
@@ -745,7 +745,7 @@ const layers = {
       },
       {
         name: "Conv2DTranspose",
-        type: "Conv2DTranspose",
+        type: { name: "Conv2DTranspose", _class: "layers" },
         args: {
           filters: {
             value: "REQUIRED",
@@ -831,7 +831,7 @@ const layers = {
       },
       {
         name: "Conv3DTranspose",
-        type: "Conv3DTranspose",
+        type: { name: "Conv3DTranspose", _class: "layers" },
         args: {
           filters: {
             value: "REQUIRED",
@@ -923,7 +923,7 @@ const layers = {
     layers: [
       {
         name: "MaxPooling1D",
-        type: "MaxPooling1D",
+        type: { name: "MaxPooling1D", _class: "layers" },
         args: {
           pool_size: {
             value: "2, stride",
@@ -942,7 +942,7 @@ const layers = {
       },
       {
         name: "MaxPooling2D",
-        type: "MaxPooling2D",
+        type: { name: "MaxPooling2D", _class: "layers" },
         args: {
           pool_size: {
             value: "(2, 2), stride",
@@ -957,7 +957,7 @@ const layers = {
             options: "None",
           },
           data_format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -967,7 +967,7 @@ const layers = {
       },
       {
         name: "MaxPooling3D",
-        type: "MaxPooling3D",
+        type: { name: "MaxPooling3D", _class: "layers" },
         args: {
           pool_size: {
             value: "(2, 2, 2), stride",
@@ -982,7 +982,7 @@ const layers = {
             options: "None",
           },
           data_format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -992,7 +992,7 @@ const layers = {
       },
       {
         name: "AveragePooling1D",
-        type: "AveragePooling1D",
+        type: { name: "AveragePooling1D", _class: "layers" },
         args: {
           pool_size: {
             value: "2, stride",
@@ -1011,7 +1011,7 @@ const layers = {
       },
       {
         name: "AveragePooling2D",
-        type: "AveragePooling2D",
+        type: { name: "AveragePooling2D", _class: "layers" },
         args: {
           pool_size: {
             value: "(2, 2), stride",
@@ -1026,7 +1026,7 @@ const layers = {
             options: "None",
           },
           data_format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -1036,7 +1036,7 @@ const layers = {
       },
       {
         name: "AveragePooling3D",
-        type: "AveragePooling3D",
+        type: { name: "AveragePooling3D", _class: "layers" },
         args: {
           pool_size: {
             value: "(2, 2, 2), stride",
@@ -1051,7 +1051,7 @@ const layers = {
             options: "None",
           },
           data_format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -1061,16 +1061,16 @@ const layers = {
       },
       {
         name: "GlobalMaxPooling1D",
-        type: "GlobalMaxPooling1D",
+        type: { name: "GlobalMaxPooling1D", _class: "layers" },
         args: {},
         doc: "https://keras.io/api/layers/pooling_layers/global_max_pooling1d",
       },
       {
         name: "GlobalMaxPooling2D",
-        type: "GlobalMaxPooling2D",
+        type: { name: "GlobalMaxPooling2D", _class: "layers" },
         args: {
           data_format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -1080,10 +1080,10 @@ const layers = {
       },
       {
         name: "GlobalMaxPooling3D",
-        type: "GlobalMaxPooling3D",
+        type: { name: "GlobalMaxPooling3D", _class: "layers" },
         args: {
           data_format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -1093,17 +1093,17 @@ const layers = {
       },
       {
         name: "GlobalAveragePooling1D",
-        type: "GlobalAveragePooling1D",
+        type: { name: "GlobalAveragePooling1D", _class: "layers" },
         args: {},
         doc:
           "https://keras.io/api/layers/pooling_layers/global_average_pooling1d",
       },
       {
         name: "GlobalAveragePooling2D",
-        type: "GlobalAveragePooling2D",
+        type: { name: "GlobalAveragePooling2D", _class: "layers" },
         args: {
           data_format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -1114,10 +1114,10 @@ const layers = {
       },
       {
         name: "GlobalAveragePooling3D",
-        type: "GlobalAveragePooling3D",
+        type: { name: "GlobalAveragePooling3D", _class: "layers" },
         args: {
           data_format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -1134,7 +1134,7 @@ const layers = {
     layers: [
       {
         name: "LSTM",
-        type: "LSTM",
+        type: { name: "LSTM", _class: "layers" },
         args: {
           units: {
             value: "REQUIRED",
@@ -1249,7 +1249,7 @@ const layers = {
       },
       {
         name: "GRU",
-        type: "GRU",
+        type: { name: "GRU", _class: "layers" },
         args: {
           units: {
             value: "REQUIRED",
@@ -1364,7 +1364,7 @@ const layers = {
       },
       {
         name: "SimpleRNN",
-        type: "SimpleRNN",
+        type: { name: "SimpleRNN", _class: "layers" },
         args: {
           units: {
             value: "REQUIRED",
@@ -1467,7 +1467,7 @@ const layers = {
       },
       {
         name: "TimeDistributed",
-        type: "TimeDistributed",
+        type: { name: "TimeDistributed", _class: "layers" },
         args: {
           layer: {
             value: "REQUIRED",
@@ -1480,7 +1480,7 @@ const layers = {
       },
       {
         name: "Bidirectional",
-        type: "Bidirectional",
+        type: { name: "Bidirectional", _class: "layers" },
         args: {
           layer: {
             value: "REQUIRED",
@@ -1489,13 +1489,13 @@ const layers = {
             options: "layer",
           },
           weights: {
-            value: "None, backwar",
+            value: "None backwar",
             type: "str",
             render: "text",
             options: "weights",
           },
           _layer: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "layer",
@@ -1505,7 +1505,7 @@ const layers = {
       },
       {
         name: "ConvLSTM2D",
-        type: "ConvLSTM2D",
+        type: { name: "ConvLSTM2D", _class: "layers" },
         args: {
           filters: {
             value: "REQUIRED",
@@ -1632,7 +1632,7 @@ const layers = {
       },
       {
         name: "Base RNN",
-        type: "Base RNN",
+        type: { name: "Base RNN", _class: "layers" },
         args: {
           cell: {
             value: "REQUIRED",
@@ -1687,7 +1687,7 @@ const layers = {
     layers: [
       {
         name: "TextVectorization",
-        type: "TextVectorization",
+        type: { name: "TextVectorization", _class: "layers" },
         args: {
           max_tokens: {
             value: "None",
@@ -1725,11 +1725,11 @@ const layers = {
       },
       {
         name: "Normalization",
-        type: "Normalization",
+        type: { name: "Normalization", _class: "layers" },
         args: {
-          
+          1: { value: "REQUIRED", type: "str", render: "text", options: "1" },
           dtype: {
-            value: "None, mea",
+            value: "None mea",
             type: "str",
             render: "text",
             options: "dtype",
@@ -1741,7 +1741,7 @@ const layers = {
             options: "None",
           },
           variance: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "variance",
@@ -1758,9 +1758,9 @@ const layers = {
     layers: [
       {
         name: "BatchNormalization",
-        type: "BatchNormalization",
+        type: { name: "BatchNormalization", _class: "layers" },
         args: {
-          
+          1: { value: "REQUIRED", type: "str", render: "text", options: "1" },
           momentum: {
             value: "0.99",
             type: "str",
@@ -1858,9 +1858,9 @@ const layers = {
       },
       {
         name: "LayerNormalization",
-        type: "LayerNormalization",
+        type: { name: "LayerNormalization", _class: "layers" },
         args: {
-          
+          1: { value: "REQUIRED", type: "str", render: "text", options: "1" },
           epsilon: {
             value: "0.001",
             type: "str",
@@ -1922,7 +1922,7 @@ const layers = {
     layers: [
       {
         name: "Dropout",
-        type: "Dropout",
+        type: { name: "Dropout", _class: "layers" },
         args: {
           rate: {
             value: "REQUIRED",
@@ -1931,7 +1931,7 @@ const layers = {
             options: "rate",
           },
           noise_shape: {
-            value: "None, see",
+            value: "None see",
             type: "str",
             render: "text",
             options: "shape",
@@ -1947,7 +1947,7 @@ const layers = {
       },
       {
         name: "SpatialDropout1D",
-        type: "SpatialDropout1D",
+        type: { name: "SpatialDropout1D", _class: "layers" },
         args: {
           rate: {
             value: "REQUIRED",
@@ -1961,7 +1961,7 @@ const layers = {
       },
       {
         name: "SpatialDropout2D",
-        type: "SpatialDropout2D",
+        type: { name: "SpatialDropout2D", _class: "layers" },
         args: {
           rate: {
             value: "REQUIRED",
@@ -1970,7 +1970,7 @@ const layers = {
             options: "rate",
           },
           data_format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -1981,7 +1981,7 @@ const layers = {
       },
       {
         name: "SpatialDropout3D",
-        type: "SpatialDropout3D",
+        type: { name: "SpatialDropout3D", _class: "layers" },
         args: {
           rate: {
             value: "REQUIRED",
@@ -1990,7 +1990,7 @@ const layers = {
             options: "rate",
           },
           data_format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -2001,7 +2001,7 @@ const layers = {
       },
       {
         name: "GaussianDropout",
-        type: "GaussianDropout",
+        type: { name: "GaussianDropout", _class: "layers" },
         args: {
           rate: {
             value: "REQUIRED",
@@ -2015,7 +2015,7 @@ const layers = {
       },
       {
         name: "GaussianNoise",
-        type: "GaussianNoise",
+        type: { name: "GaussianNoise", _class: "layers" },
         args: {
           stddev: {
             value: "REQUIRED",
@@ -2028,16 +2028,17 @@ const layers = {
       },
       {
         name: "ActivityRegularization",
-        type: "ActivityRegularization",
+        type: { name: "ActivityRegularization", _class: "layers" },
         args: {
           l1: { value: "0.0, l", type: "str", render: "text", options: "l1" },
+          0: { value: "REQUIRED", type: "str", render: "text", options: "0" },
         },
         doc:
           "https://keras.io/api/layers/regularization_layers/activity_regularization",
       },
       {
         name: "AlphaDropout",
-        type: "AlphaDropout",
+        type: { name: "AlphaDropout", _class: "layers" },
         args: {
           rate: {
             value: "REQUIRED",
@@ -2046,7 +2047,7 @@ const layers = {
             options: "rate",
           },
           noise_shape: {
-            value: "None, see",
+            value: "None see",
             type: "str",
             render: "text",
             options: "shape",
@@ -2068,7 +2069,7 @@ const layers = {
     layers: [
       {
         name: "MultiHeadAttention",
-        type: "MultiHeadAttention",
+        type: { name: "MultiHeadAttention", _class: "layers" },
         args: {
           num_heads: {
             value: "REQUIRED",
@@ -2148,7 +2149,7 @@ const layers = {
       },
       {
         name: "Attention",
-        type: "Attention",
+        type: { name: "Attention", _class: "layers" },
         args: {
           use_scale: {
             value: "False,",
@@ -2161,7 +2162,7 @@ const layers = {
       },
       {
         name: "AdditiveAttention",
-        type: "AdditiveAttention",
+        type: { name: "AdditiveAttention", _class: "layers" },
         args: {
           use_scale: {
             value: "True,",
@@ -2180,7 +2181,7 @@ const layers = {
     layers: [
       {
         name: "Reshape",
-        type: "Reshape",
+        type: { name: "Reshape", _class: "layers" },
         args: {
           target_shape: {
             value: "REQUIRED",
@@ -2193,10 +2194,10 @@ const layers = {
       },
       {
         name: "Flatten",
-        type: "Flatten",
+        type: { name: "Flatten", _class: "layers" },
         args: {
           data_format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -2206,7 +2207,7 @@ const layers = {
       },
       {
         name: "RepeatVector",
-        type: "RepeatVector",
+        type: { name: "RepeatVector", _class: "layers" },
         args: {
           n: { value: "REQUIRED", type: "str", render: "text", options: "n" },
         },
@@ -2214,7 +2215,7 @@ const layers = {
       },
       {
         name: "Permute",
-        type: "Permute",
+        type: { name: "Permute", _class: "layers" },
         args: {
           dims: {
             value: "REQUIRED",
@@ -2227,7 +2228,7 @@ const layers = {
       },
       {
         name: "Cropping1D",
-        type: "Cropping1D",
+        type: { name: "Cropping1D", _class: "layers" },
         args: {
           cropping: {
             value: "(1, 1),",
@@ -2240,7 +2241,7 @@ const layers = {
       },
       {
         name: "Cropping2D",
-        type: "Cropping2D",
+        type: { name: "Cropping2D", _class: "layers" },
         args: {
           cropping: {
             value: "((0, 0), (0, 0)), dat",
@@ -2249,7 +2250,7 @@ const layers = {
             options: "cropping",
           },
           _format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -2259,7 +2260,7 @@ const layers = {
       },
       {
         name: "Cropping3D",
-        type: "Cropping3D",
+        type: { name: "Cropping3D", _class: "layers" },
         args: {
           cropping: {
             value: "((1, 1), (1, 1), (1, 1)), dat",
@@ -2268,7 +2269,7 @@ const layers = {
             options: "cropping",
           },
           _format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -2278,7 +2279,7 @@ const layers = {
       },
       {
         name: "UpSampling1D",
-        type: "UpSampling1D",
+        type: { name: "UpSampling1D", _class: "layers" },
         args: {
           size: { value: "2,", type: "str", render: "text", options: "size" },
         },
@@ -2286,7 +2287,7 @@ const layers = {
       },
       {
         name: "UpSampling2D",
-        type: "UpSampling2D",
+        type: { name: "UpSampling2D", _class: "layers" },
         args: {
           size: {
             value: "(2, 2), dat",
@@ -2295,7 +2296,7 @@ const layers = {
             options: "size",
           },
           _format: {
-            value: "None, interpolatio",
+            value: "None interpolatio",
             type: "str",
             render: "text",
             options: "format",
@@ -2305,7 +2306,7 @@ const layers = {
       },
       {
         name: "UpSampling3D",
-        type: "UpSampling3D",
+        type: { name: "UpSampling3D", _class: "layers" },
         args: {
           size: {
             value: "(2, 2, 2), dat",
@@ -2314,7 +2315,7 @@ const layers = {
             options: "size",
           },
           _format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -2324,7 +2325,7 @@ const layers = {
       },
       {
         name: "ZeroPadding1D",
-        type: "ZeroPadding1D",
+        type: { name: "ZeroPadding1D", _class: "layers" },
         args: {
           padding: {
             value: "1,",
@@ -2337,7 +2338,7 @@ const layers = {
       },
       {
         name: "ZeroPadding2D",
-        type: "ZeroPadding2D",
+        type: { name: "ZeroPadding2D", _class: "layers" },
         args: {
           padding: {
             value: "(1, 1), dat",
@@ -2346,7 +2347,7 @@ const layers = {
             options: "padding",
           },
           _format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -2356,7 +2357,7 @@ const layers = {
       },
       {
         name: "ZeroPadding3D",
-        type: "ZeroPadding3D",
+        type: { name: "ZeroPadding3D", _class: "layers" },
         args: {
           padding: {
             value: "(1, 1, 1), dat",
@@ -2365,7 +2366,7 @@ const layers = {
             options: "padding",
           },
           _format: {
-            value: "None,",
+            value: "None",
             type: "str",
             render: "text",
             options: "format",
@@ -2381,51 +2382,51 @@ const layers = {
     layers: [
       {
         name: "Concatenate",
-        type: "Concatenate",
+        type: { name: "Concatenate", _class: "layers" },
         args: {
-          
+          1: { value: "REQUIRED", type: "str", render: "text", options: "1" },
         },
         doc: "https://keras.io/api/layers/merging_layers/concatenate",
       },
       {
         name: "Average",
-        type: "Average",
+        type: { name: "Average", _class: "layers" },
         args: {},
         doc: "https://keras.io/api/layers/merging_layers/average",
       },
       {
         name: "Maximum",
-        type: "Maximum",
+        type: { name: "Maximum", _class: "layers" },
         args: {},
         doc: "https://keras.io/api/layers/merging_layers/maximum",
       },
       {
         name: "Minimum",
-        type: "Minimum",
+        type: { name: "Minimum", _class: "layers" },
         args: {},
         doc: "https://keras.io/api/layers/merging_layers/minimum",
       },
       {
         name: "Add",
-        type: "Add",
+        type: { name: "Add", _class: "layers" },
         args: {},
         doc: "https://keras.io/api/layers/merging_layers/add",
       },
       {
         name: "Subtract",
-        type: "Subtract",
+        type: { name: "Subtract", _class: "layers" },
         args: {},
         doc: "https://keras.io/api/layers/merging_layers/subtract",
       },
       {
         name: "Multiply",
-        type: "Multiply",
+        type: { name: "Multiply", _class: "layers" },
         args: {},
         doc: "https://keras.io/api/layers/merging_layers/multiply",
       },
       {
         name: "Dot",
-        type: "Dot",
+        type: { name: "Dot", _class: "layers" },
         args: {
           axes: {
             value: "REQUIRED",
@@ -2450,7 +2451,7 @@ const layers = {
     layers: [
       {
         name: "LocallyConnected1D",
-        type: "LocallyConnected1D",
+        type: { name: "LocallyConnected1D", _class: "layers" },
         args: {
           filters: {
             value: "REQUIRED",
@@ -2530,7 +2531,7 @@ const layers = {
       },
       {
         name: "LocallyConnected2D",
-        type: "LocallyConnected2D",
+        type: { name: "LocallyConnected2D", _class: "layers" },
         args: {
           filters: {
             value: "REQUIRED",
@@ -2616,10 +2617,10 @@ const layers = {
     layers: [
       {
         name: "ReLU",
-        type: "ReLU",
+        type: { name: "ReLU", _class: "layers" },
         args: {
           max_value: {
-            value: "None, negativ",
+            value: "None negativ",
             type: "str",
             render: "text",
             options: "value",
@@ -2630,21 +2631,21 @@ const layers = {
             render: "text",
             options: "slope",
           },
-          
+          0: { value: "REQUIRED", type: "str", render: "text", options: "0" },
         },
         doc: "https://keras.io/api/layers/activation_layers/relu",
       },
       {
         name: "Softmax",
-        type: "Softmax",
+        type: { name: "Softmax", _class: "layers" },
         args: {
-          
+          1: { value: "REQUIRED", type: "str", render: "text", options: "1" },
         },
         doc: "https://keras.io/api/layers/activation_layers/softmax",
       },
       {
         name: "LeakyReLU",
-        type: "LeakyReLU",
+        type: { name: "LeakyReLU", _class: "layers" },
         args: {
           alpha: {
             value: "0.3,",
@@ -2657,7 +2658,7 @@ const layers = {
       },
       {
         name: "PReLU",
-        type: "PReLU",
+        type: { name: "PReLU", _class: "layers" },
         args: {
           alpha_regularizer: {
             value: "None",
@@ -2682,7 +2683,7 @@ const layers = {
       },
       {
         name: "ELU",
-        type: "ELU",
+        type: { name: "ELU", _class: "layers" },
         args: {
           alpha: {
             value: "1.0,",
@@ -2695,7 +2696,7 @@ const layers = {
       },
       {
         name: "ThresholdedReLU",
-        type: "ThresholdedReLU",
+        type: { name: "ThresholdedReLU", _class: "layers" },
         args: {
           theta: {
             value: "1.0,",
@@ -2712,28 +2713,29 @@ const layers = {
   "build-layers": {
     name: "Build Tools",
     layers: [
-      { name: "Model", type: "Model", args: {} },
+      { name: "Model", type: { name: "Model", _class: "models" }, args: {} },
       {
         name: "Compile",
-        type: "Compile",
+        type: { name: "Compile", _class: "models" },
         args: {
           optmizer: {
             value: "rmsprop",
-            type: "list",
+            type: "str",
             render: "list",
             options: "optimizer",
           },
-          loss: {
-            value: "None",
-            type: "list",
-            render: "list",
-            options: "loss",
-          },
+          loss: { value: "None", type: "str", render: "list", options: "loss" },
+          "metrics":{
+            "value":[],
+            "type":"str",
+            "render":"checkbox",
+            "options": "metrics"
+          }
         },
       },
       {
         name: "Train",
-        type: "Train",
+        type: { name: "Train", _class: "models" },
         args: {
           batch_size: {
             value: "8",
@@ -2751,8 +2753,8 @@ const layers = {
       },
     ],
   },
-  "callbacks":callbacks,
-  "optimizers":optimizers
+  optimizers:optimizers,
+  callbaacks:callbaacks
 };
 
 export default layers;

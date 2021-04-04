@@ -3,7 +3,7 @@ const callbacks = {
   layers: [
     {
       name: "ModelCheckpoint",
-      type: "Callback",
+      type: { name: "ModelCheckpoint", _class: "callbacks" },
       args: {
         filepath: {
           value: "REQUIRED",
@@ -52,7 +52,7 @@ const callbacks = {
     },
     {
       name: "TensorBoard",
-      type: "Callback",
+      type: { name: "TensorBoard", _class: "callbacks" },
       args: {
         log_dir: { value: "logs", type: "str", render: "text", options: "dir" },
         histogram_freq: {
@@ -101,7 +101,7 @@ const callbacks = {
     },
     {
       name: "EarlyStopping",
-      type: "Callback",
+      type: { name: "EarlyStopping", _class: "callbacks" },
       args: {
         monitor: {
           value: "val_loss",
@@ -144,7 +144,7 @@ const callbacks = {
     },
     {
       name: "LearningRateScheduler",
-      type: "Callback",
+      type: { name: "LearningRateScheduler", _class: "callbacks" },
       args: {
         schedule: {
           value: "REQUIRED",
@@ -162,7 +162,7 @@ const callbacks = {
     },
     {
       name: "ReduceLROnPlateau",
-      type: "Callback",
+      type: { name: "ReduceLROnPlateau", _class: "callbacks" },
       args: {
         monitor: {
           value: "val_loss",
@@ -175,14 +175,14 @@ const callbacks = {
     },
     {
       name: "RemoteMonitor",
-      type: "Callback",
+      type: { name: "RemoteMonitor", _class: "callbacks" },
       args: {
         root: { value: "http:", type: "str", render: "text", options: "root" },
       },
     },
     {
       name: "LambdaCallback",
-      type: "Callback",
+      type: { name: "LambdaCallback", _class: "callbacks" },
       args: {
         on_epoch_begin: {
           value: "None",
@@ -224,7 +224,7 @@ const callbacks = {
     },
     {
       name: "CSVLogger",
-      type: "Callback",
+      type: { name: "CSVLogger", _class: "callbacks" },
       args: {
         filename: {
           value: "REQUIRED",
@@ -248,7 +248,7 @@ const callbacks = {
     },
     {
       name: "ProgbarLogger",
-      type: "Callback",
+      type: { name: "ProgbarLogger", _class: "callbacks" },
       args: {
         count_mode: {
           value: "samples",

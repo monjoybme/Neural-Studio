@@ -1,38 +1,6 @@
 import React from "react";
 import './training.css';
 
-//   let ex = [
-//     { type: "notif", data: { message: "Copiling Code" } },
-//     { type: "notif", data: { message: "Performing imports" } },
-//     { type: "notif", data: { message: "Building Model" } },
-//     { type: "notif", data: { message: "Compiling Model" } },
-//     { type: "notif", data: { message: "Training Started" } },
-//     {
-//       type: "epoch",
-//       data: {
-//         epoch: 0,
-//         log: { batch: 174, output: { loss: 0.7051395177841187 } },
-//         train: { epochs: 3, batches: 1875 },
-//       },
-//     },
-//     {
-//       type: "epoch",
-//       data: {
-//         epoch: 1,
-//         log: { batch: 874, output: { loss: 0.49694427847862244 } },
-//         train: { epochs: 3, batches: 1875 },
-//       },
-//     },
-//     {
-//       type: "epoch",
-//       data: {
-//         epoch: 2,
-//         log: { batch: 1874, output: { loss: 0.44203028082847595 } },
-//         train: { epochs: 3, batches: 1875 },
-//       },
-//     },
-//   ];
-
 const Training = (props = { trainingStatus: [] }) => {
     const [status,statusState] = React.useState({
         data:[]
@@ -100,7 +68,7 @@ const Training = (props = { trainingStatus: [] }) => {
                         <div className="outputs">
                             { Object.keys(props.data.log.output).map((output,i)=>{
                                     return (
-                                        <div className="output">
+                                        <div className="output" key={i}>
                                             <div className="name">
                                                 {output}
                                             </div>
