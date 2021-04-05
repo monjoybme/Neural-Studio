@@ -37,13 +37,14 @@ def build_compile(layer,build_config,*args,**kwargs)->str:
     build_config['train_config']['compile'] = layer
     model,*_ = [node for node in layer['connections']['inbound'] if "model" in node]
     metrics = layer['arguments']['metrics']['value']
+    metrics = "[\"" + '", "'.join(metrics) + "\"]" if len(metrics) else 'None'
     
     train_config = build_config['train_config']
     return f"""{train_config['optimizer']['value'] if train_config['optimizer'] else ''}
 {model}.compile(
     optimizer={train_config['optimizer']['id'] if train_config['optimizer'] else "'"+layer['arguments']['optmizer']['value']+"'"},
     loss='{layer['arguments']['loss']['value']}',
-    metrics=[ {', '.join(metrics)}, ]
+    metrics={metrics}
 ) #end-{layer['id']}
 """
 

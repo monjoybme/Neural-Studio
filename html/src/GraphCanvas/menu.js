@@ -9,7 +9,7 @@ const TextProperty = (props) =>{
     let property = props.layers[props.layer_id].arguments[props.name];
     return (
       <div className="property" >
-        <div> {props.name} </div>
+        <div className="name" > {props.name} </div>
         <input 
           name={props.layer_id+props.name}
           id = {props.layer_id+props.name}
@@ -32,7 +32,7 @@ const ListProperty = (props) => {
 
   return (
     <div className="property" >
-      <div> {props.name} </div>
+      <div className="name"> {props.name} </div>
       <select 
         name={props.layer_id+props.name}
         id = {props.layer_id+props.name}
@@ -72,7 +72,6 @@ const CheckboxProperty = (props) => {
     else{
       props.layers[props.layer_id].arguments[props.name].value.push(e.target.name)
     }
-    // console.log(props.layers[props.layer_id].arguments[props.name].value)
 
     props.layersState({
       ...props.layers
@@ -80,7 +79,7 @@ const CheckboxProperty = (props) => {
   }
   return (
     <div className="property" style={{height:"auto"}}>
-      <div> {props.name} </div>
+      <div className="name"> {props.name} </div>
       <div className="checkboxes">
         {
           options.map((option,i)=>{
@@ -176,7 +175,7 @@ const Menu = (props) => {
           <div className="properties">
             
             <div className="property" >
-              <div> {props.layer.name} </div>
+              <div className="name"> {props.layer.name} </div>
               <input
                 name="id"
                 defaultValue={props.layer.name}
@@ -190,7 +189,7 @@ const Menu = (props) => {
             </div>
 
             <div className="property">
-              <div> {props.layer.id} </div>
+              <div className="name"> {props.layer.id} </div>
               <input
                 name="id"
                 defaultValue={props.layer.id}

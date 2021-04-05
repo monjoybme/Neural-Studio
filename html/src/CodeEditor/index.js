@@ -10,10 +10,15 @@ const CodeEditor = (props) => {
     state:true
   })
 
+  let [ halt,haltState ] = React.useState({
+    state:true,
+    name:"Pause",
+  })
+
     async function trainModel(e) {
       window.__TRAIN__ = true;
       await fetch(
-        "http://localhost/train",
+        "http://localhost/train/start",
         {
           method:"POST",
           headers: { 'Content-Type': 'application/json' },
@@ -29,14 +34,67 @@ const CodeEditor = (props) => {
       })
     }
 
+    async function haltModel(e) {
+      await fetch(
+        "http://localhost/train/halt",
+        {
+          method:"POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...halt })
+        }
+      )
+      .then(response=>response.json())
+      .then(data=>{
+
+      })
+      if (halt.state) {
+        halt.name = "Resume"
+        halt.state = false
+      }else{
+        halt.name = "Pause"
+        halt.state = true
+      }
+      haltState({
+        ...halt
+      })
+
+    }
+
+    async function stopModel(e) {
+      window.__TRAIN__ = true;
+      await fetch(
+        "http://localhost/train/stop",
+        {
+          method:"POST",
+        }
+      )
+      .then(response=>response.json())
+      .then(data=>{
+        console.log(data)
+      })
+    }
+
+    function downloadCode(e) {
+      let link = document.createElement("a");
+      link.href = `data:text/x-python,${encodeURIComponent(props.code.data)}`;
+      link.download = 'train.py'
+      link.click()
+    }
+
     return (
       <div className="tfcode">
         <div className="menubar">
-            <div className="btn">
+            <div className="btn" onClick={downloadCode}>
                 Download
             </div>
             <div className="btn" onClick={trainModel}>
                 Train
+            </div>
+            <div className="btn" onClick={haltModel}>
+                {halt.name}
+            </div>
+            <div className="btn" onClick={stopModel}>
+                Stop
             </div>
         </div>
         {

@@ -1727,7 +1727,7 @@ const layers = {
         name: "Normalization",
         type: { name: "Normalization", _class: "layers" },
         args: {
-          1: { value: "REQUIRED", type: "str", render: "text", options: "1" },
+          
           dtype: {
             value: "None mea",
             type: "str",
@@ -1760,7 +1760,7 @@ const layers = {
         name: "BatchNormalization",
         type: { name: "BatchNormalization", _class: "layers" },
         args: {
-          1: { value: "REQUIRED", type: "str", render: "text", options: "1" },
+          
           momentum: {
             value: "0.99",
             type: "str",
@@ -1860,7 +1860,7 @@ const layers = {
         name: "LayerNormalization",
         type: { name: "LayerNormalization", _class: "layers" },
         args: {
-          1: { value: "REQUIRED", type: "str", render: "text", options: "1" },
+          
           epsilon: {
             value: "0.001",
             type: "str",
@@ -2031,7 +2031,7 @@ const layers = {
         type: { name: "ActivityRegularization", _class: "layers" },
         args: {
           l1: { value: "0.0, l", type: "str", render: "text", options: "l1" },
-          0: { value: "REQUIRED", type: "str", render: "text", options: "0" },
+          
         },
         doc:
           "https://keras.io/api/layers/regularization_layers/activity_regularization",
@@ -2384,7 +2384,7 @@ const layers = {
         name: "Concatenate",
         type: { name: "Concatenate", _class: "layers" },
         args: {
-          1: { value: "REQUIRED", type: "str", render: "text", options: "1" },
+          
         },
         doc: "https://keras.io/api/layers/merging_layers/concatenate",
       },
@@ -2631,7 +2631,7 @@ const layers = {
             render: "text",
             options: "slope",
           },
-          0: { value: "REQUIRED", type: "str", render: "text", options: "0" },
+          
         },
         doc: "https://keras.io/api/layers/activation_layers/relu",
       },
@@ -2639,7 +2639,7 @@ const layers = {
         name: "Softmax",
         type: { name: "Softmax", _class: "layers" },
         args: {
-          1: { value: "REQUIRED", type: "str", render: "text", options: "1" },
+          
         },
         doc: "https://keras.io/api/layers/activation_layers/softmax",
       },

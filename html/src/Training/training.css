@@ -7,39 +7,56 @@
   }
   
   .training .title{
-    height: 50px;
+    height: 5vh;
+    min-height: 50px;
     display: flex;
     font-size: large;
     font-weight: 500;
     letter-spacing: 1px;
     align-items: center;
+    border: solid 1px rgba(51, 51, 51, 0.042);
+    padding-left: 5px;
   }
   
   .logs{
     display: grid;
     margin-top: 1vh;
     grid-gap: 1vh;
+    padding-right: 5px;
+    overflow-y: scroll;
+    max-height: 85vh;
   }
   
   .log{
     width: 100%;
     border: solid 1px rgba(51, 51, 51, 0.042);
     background: rgba(228, 228, 228, 0.207);
-    padding: 1vh;
+    padding: 7px 7px 7px 7px;
   }
   
   .notif {
       font-size: small;
       letter-spacing: 1px;
+      max-height: 35px;
   }
-
   .epoch {
-    display: grid;
-    grid-template-columns: 2fr 16fr 2fr;
+    display: flex;
+    flex-direction: column;
+    min-height: 80px;
+    max-height: 100px;
   }
 
-  .epoch .head{
+  .epoch .upper{
+    display: grid;
+    grid-template-columns: 2fr 18fr;
+    height: 45px;
+    padding-bottom: 3px;
+  }
 
+  .epoch .lower {
+      /* display: grid; */
+      border: solid 1px rgba(51, 51, 51, 0.1);
+      margin: 10px 3px 7px 3px;
   }
 
 .epoch .epochname {
@@ -75,12 +92,14 @@
 
 .outputs {
     display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 }
 
 .outputs .output {
     display: flex;
-    justify-content: center;
+    justify-content: left;
     align-items: center;
+    padding-left: 3px;
 }
 
 .output .name {
@@ -89,4 +108,28 @@
 
 .output .val {
     font-size: 12px;
+}
+
+.buttons {
+    display: grid;
+    grid-gap: 7px;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+}
+
+.buttons .btn{
+    border: solid 1px rgba(51, 51, 51, 0.042);
+    background: rgb(228, 228, 228);
+    cursor: pointer;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    height: 25px;
+    font-weight: 400;
+    font-size: small;
+    letter-spacing: 1px;
+    width: -webkit-fill-available;
+    
+    border-radius: 2px;
 }

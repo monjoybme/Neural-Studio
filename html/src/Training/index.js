@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useDebugValue } from "react";
 import './training.css';
 
 const Training = (props = { trainingStatus: [] }) => {
     const [status,statusState] = React.useState({
-        data:[]
+        data:[],
+        ended:false
     })
 
     async function getStatus() {
@@ -13,12 +14,22 @@ const Training = (props = { trainingStatus: [] }) => {
             .then((respomse) => respomse.json())
             .then((data) => {
                 statusState({
-                    data:data.logs
+                    data:data.logs,
+                    ended:data.logs[data.logs.length-1].data.ended,
                 })
-                getStatus()
+                if (data.logs[data.logs.length-1].data.ended){
+                    console.log("Training Ended")
+                    window.__TRAIN__ = false
+                    window.__UPDATE_RUNNING__ = false;
+                    clearTimeout(window.__UPDATE_INTERVAL)
+                }else{
+                    setTimeout(getStatus,10)
+                }
             })
             .catch((err) => {
+                console.log(err)
                 window.__TRAIN__ = false
+                window.__UPDATE_RUNNING__ = false;
                 clearTimeout(window.__UPDATE_INTERVAL)
             });
             
@@ -46,22 +57,24 @@ const Training = (props = { trainingStatus: [] }) => {
   const Epoch = (props) =>{
       return (
           <div className="log epoch">
-              <div className="head">
-                <div className="epochname">
-                    Epoch : {props.data.epoch+1} / {props.data.train.epochs}
-                </div>
-                <div className="batch">
-                    {props.data.log.batch} / {props.data.train.batches}
-                </div>
-              </div>
-              <div className="progress">
-                <div className="bar">
-                    <div className="done" style={{width:`${ Math.ceil((props.data.log.batch / props.data.train.batches)*100) }%`}}>
-
+            <div className="upper">
+                <div className="head">
+                    <div className="epochname">
+                        Epoch : {props.data.epoch+1} / {props.data.train.epochs}
+                    </div>
+                    <div className="batch">
+                        {props.data.log.batch} / {props.data.train.batches}
                     </div>
                 </div>
-              </div>
-              <div className="foot">
+                <div className="progress">
+                    <div className="bar">
+                        <div className="done" style={{width:`${ Math.ceil((props.data.log.batch / props.data.train.batches)*100) }%`}}>
+
+                        </div>
+                    </div>
+                </div>
+                </div>
+            <div className="lower">
                 {
                     props.data.log.output ? 
                     (
@@ -72,7 +85,7 @@ const Training = (props = { trainingStatus: [] }) => {
                                             <div className="name">
                                                 {output}
                                             </div>
-                                            :
+                                            &nbsp;:&nbsp;
                                             <div className="val">
                                                 { props.data.log.output[output].toString().slice(0,7) }
                                             </div>
@@ -89,10 +102,15 @@ const Training = (props = { trainingStatus: [] }) => {
       )
   }
 
+  React.useEffect(()=>{
+    var elem = document.getElementById('logs');
+    elem.scrollTop = elem.scrollHeight;
+  })
+
   return (
     <div className="training">
       <div className="title">Training</div>
-      <div className="logs">
+      <div className="logs" id="logs">
         {
             status.data.map((log,i)=>{
                 switch(log.type){
@@ -103,6 +121,23 @@ const Training = (props = { trainingStatus: [] }) => {
 
                }
             })
+        }
+        {
+            status.ended ? 
+            (
+                <div className="log buttons">
+                    <div className='btn'>    
+                        Download Model
+                    </div>
+                    <div className='btn'>    
+                        Download Inference
+                    </div>
+                </div>
+            ) 
+            :
+            (
+                undefined
+            )
         }
       </div>
     </div>

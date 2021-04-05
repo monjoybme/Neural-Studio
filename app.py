@@ -1,9 +1,10 @@
+from tensorflow.python.util.tf_decorator import _has_tf_decorator_attr
 from tf_gui.web import App, Request, text_response, json_response
 from tf_gui.web.headers import ResponseHeader
 from tf_gui.builder import build_code
 from tf_gui.trainer import  Trainer
 
-from json import dump,load
+from json import dump,load,JSONDecodeError
 
 app = App()
 trainer = Trainer()
@@ -37,20 +38,12 @@ async def status(request:Request):
         "logs":trainer.logs
     })
 
-@app.route("/graph")
+@app.route("/graph/save")
 async def status(request:Request):
-    if request.header.method == 'GET':
-        with open("./temp/build.json","r") as file:
-            graph = load(file)
-        return json_response({
-            "status":True,
-            "graph":graph
-        })
-
-    elif request.header.method == 'POST':
+    if request.header.method == 'POST':
         build_config = await request.get_json()
-        with open("./temp/build.json","w+") as file:
-            dump(build_config,file,)
+        with open(f"./temp/{build_config['name']}.json","w+") as file:
+            dump(build_config['graph'],file,)
         return json_response({
             "status":True,
         })
@@ -59,17 +52,61 @@ async def status(request:Request):
         "status":True,
     })
 
+@app.route("/train/start",)
+async def train_start(request:Request):
+    if request.header.method == 'POST':
+        try:
+            data = await request.get_json()
+            build_config,code = build_code(data,)
+            trainer.logs = []
+            trainer.start(build_config,code)
+            return json_response({
+                "status":"Training Started"
+            })
+        except JSONDecodeError:
+            return json_response(
+            data={"message":"Can't read graph !"},
+            status_code=200,
+            message="Method Not Allowed !"
+        )
 
-@app.route("/train",)
-async def train(request:Request):
+    else:
+        return json_response(
+            data={"message":"Method Not Allowed"},
+            status_code=401,
+            message="Method Not Allowed !"
+        )
+
+@app.route("/train/halt",)
+async def train_halt(request:Request):
     if request.header.method == 'POST':
         data = await request.get_json()
-        build_config,code = build_code(data,)
-        trainer.logs = []
-        trainer.start(build_config,code)
+        trainer.halt(state=data['state'])
         return json_response({
             "status":"Training Started"
         })
+
+    else:
+        return json_response(
+            data={"message":"Method Not Allowed"},
+            status_code=401,
+            message="Method Not Allowed !"
+        )
+
+@app.route("/train/stop",)
+async def train_stop(request:Request):
+    if request.header.method == 'POST':
+        try:
+            trainer.stop()
+            return json_response({
+                "status":200,
+                "message":"Training Stopped"
+            })
+        except AttributeError:
+            return json_response({
+                "status":200,
+                "message":"Training hasn't statrted yet."
+            }) 
 
     else:
         return json_response(

@@ -20,7 +20,7 @@ numpy as np
 from sklearn.model_selection , train_test_split
 """
 
-#dataset id=mnist_2
+#dataset id=boston_housing_2
 class Dataset:
     """
     Dataset will be used in training 
@@ -49,36 +49,33 @@ class Dataset:
         """
         Load dataset and set required variables.
         """
+        
+        (X,Y),(x,y)  = keras.datasets.boston_housing.load_data()
+        
+        self.train_x = X 
+        self.train_y = Y
+        self.test_x = x 
+        self.test_y = y
+        
+        self.x_shape = (13,)
 
-        (X,Y),(x,y) = keras.datasets.mnist.load_data()
-
-        self.train_x = X.reshape(-1,28, 28, 1) / 255
-        self.train_y = keras.utils.to_categorical(Y)
-        self.test_x = X.reshape(-1,28, 28, 1) / 255
-        self.test_y = keras.utils.to_categorical(Y)
-    
 # Do not change the anything.
-mnist_2 = Dataset()
-#end-dataset id=mnist_2
+boston_housing_2 = Dataset()
+#end-dataset id=boston_housing_2
                     
-input_3 = layers.Input(
-    shape=(28, 28, 1),
+input_1 = layers.Input(
+    shape=(13,),
     batch_size=None,
     name=None,
     dtype=None,
     sparse=False,
     tensor=None,
     ragged=False,
-) #end-input_3
+) #end-input_1
 
 
-conv2d_4 = layers.Conv2D(
-    filters=32,
-    kernel_size=3,
-    strides=2,
-    data_format=None,
-    dilation_rate=(1, 1),
-    groups=1,
+dense_1 = layers.Dense(
+    units=4,
     activation='relu',
     use_bias=True,
     kernel_regularizer=None,
@@ -86,92 +83,41 @@ conv2d_4 = layers.Conv2D(
     activity_regularizer=None,
     kernel_constraint=None,
     bias_constraint=None,
-)(input_3) #end-conv2d_4
-
-
-conv2d_3 = layers.Conv2D(
-    filters=64,
-    kernel_size=3,
-    strides=2,
-    data_format=None,
-    dilation_rate=(1, 1),
-    groups=1,
-    activation='relu',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(conv2d_4) #end-conv2d_3
-
-
-globalaveragepooling2d_2 = layers.GlobalAveragePooling2D(
-    data_format=None,
-)(conv2d_3) #end-globalaveragepooling2d_2
+)(input_1) #end-dense_1
 
 
 dense_2 = layers.Dense(
-    units=10,
-    activation='softmax',
+    units=1,
+    activation='relu',
     use_bias=True,
     kernel_regularizer=None,
     bias_regularizer=None,
     activity_regularizer=None,
     kernel_constraint=None,
     bias_constraint=None,
-)(globalaveragepooling2d_2) #end-dense_2
+)(dense_1) #end-dense_2
 
 
 model_1 = keras.Model(
-    [ input_3, ],
+    [ input_1, ],
     [ dense_2, ]
 ) #end-model_1
 
 
-adam_1 = optimizers.Adam(
-    learning_rate=0.001,
-    beta_1=0.9,
-    beta_2=0.999,
-    epsilon=1e-07,
-    amsgrad=False,
-    name='Adam',
-) #end-adam_1
-
 
 model_1.compile(
-    optimizer=adam_1,
-    loss='None',
-    metrics=[ categorical_accuracy, categorical_crossentropy ]
-) #end-compile_2
+    optimizer='rmsprop',
+    loss='mean_absolute_error',
+    metrics=None
+) #end-compile_1
 
 
-modelcheckpoint_1 = callbacks.ModelCheckpoint(
-    filepath='./temp/model',
-    monitor='val_loss',
-    verbose=0,
-    save_best_only=False,
-    save_weights_only=False,
-    mode='auto',
-    save_freq='epoch',
-    options=None,
-) #end-modelcheckpoint_1
-tensorboard_1 = callbacks.TensorBoard(
-    log_dir='./temp/logs',
-    histogram_freq=0,
-    write_graph=True,
-    write_images=False,
-    update_freq='epoch',
-    profile_batch=2,
-    embeddings_freq=0,
-    embeddings_metadata=None,
-) #end-tensorboard_1
 
 model_1.fit(
-    x=mnist_2.train_x,
-    y=mnist_2.train_y,
+    x=boston_housing_2.train_x,
+    y=boston_housing_2.train_y,
     batch_size=8,
     epochs=1,
-    callbacks=[ tfgui, modelcheckpoint_1, tensorboard_1 ]
-) #end-train_2
+    callbacks=[ tfgui,  ]
+) #end-train_1
 

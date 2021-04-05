@@ -79,9 +79,9 @@ const App = (props) => {
   function downLayer(e) {
     e.preventDefault();
     let name = window.__ACTIVE_LAYER__.name;
-    let id = layerIdGenerator(name);
-    window.layers[name.toLowerCase() + "_" + id] = {
-      id: name.toLowerCase() + "_" + id,
+    let id =  layerIdGenerator(name);
+    window.layers[name.toLowerCase().replaceAll(" ","_") + "_" + id] = {
+      id: name.toLowerCase().replaceAll(" ","_") + "_" + id,
       name: name + " " + id,
       type: window.__ACTIVE_LAYER__.type,
       pos: {
@@ -258,23 +258,6 @@ const App = (props) => {
     ),
   });
 
-  async function loadCode(e) {
-    await fetch("http://localhost/build", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...window.layers }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        codeState({
-          data:data.code,
-        })
-        compState({
-          state:false
-        })
-      });
-  }
-
   async function trainModel(e) {
     window.__TRAIN__ = true;
     await fetch(
@@ -294,34 +277,17 @@ const App = (props) => {
     })
   }
 
-  async function getStatus() {
-    if (window.__TRAIN__) {
-      window.__UPDATE_RUNNING__ = true;
-      await fetch("http://localhost/status", {
-        method: "GET",
-      })
-        .then((respomse) => respomse.json())
-        .then((data) => {
-          if (data.update_id !== trainingStatus.update_id) {
-            trainingStatusState({
-              ...data,
-            });
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-    setTimeout(getStatus, 10);
-  }
-
   async function saveGraph(e) {
+    let name = prompt("Enter Graph Name : ","graph");
     await fetch(
-      "http://localhost/graph",
+      "http://localhost/graph/save",
       {
         method:"POST",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...window.layers })
+        body: JSON.stringify({
+            graph:{ ...window.layers },
+            name:name,
+        })
       }
     )
     .then(response=>response.json())
@@ -331,17 +297,17 @@ const App = (props) => {
   }
 
   async function loadGraph(e) {
-    await fetch(
-      "http://localhost/graph",
-      {
-        method:"GET"
+    let input = document.createElement("input");
+    input.type = 'file';
+    input.onchange = function(e){
+      var reader = new FileReader();
+      reader.onload = function(){
+          layersState({...JSON.parse(reader.result)})
       }
-    )
-    .then(response=>response.json())
-    .then(data=>{
-      console.log(data)
-      layersState({...data.graph})
-    })
+              
+      reader.readAsText(e.target.files[0]);
+    }
+    input.click()
   }
 
 

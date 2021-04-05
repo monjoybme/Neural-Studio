@@ -9,6 +9,7 @@ from tensorflow.keras import layers,optimizers,losses,metrics,callbacks
 
 from typing import List
 from json import load,dump
+from time import sleep, time
 from threading import Thread
 
 def execute_code(_code:str)->None:
@@ -28,6 +29,7 @@ class TfGui(keras.callbacks.Callback):
     epochs = 1
     
     trainer = None
+    halt = False
     
     def __repr__(self,):
         return f"""TfGui(
@@ -38,16 +40,20 @@ class TfGui(keras.callbacks.Callback):
 )
 """
     
+    
+    def __init__(self,trainer):
+        self.trainer = trainer
+    
     @property
     def status(self,):
         return {
             "epochs":self.epochs,
             "batchs":self.batches
         }
-    
-    def __init__(self,trainer):
-        self.trainer = trainer
-    
+
+    def stop(self,):
+        self.model.stop_training = True
+
     def on_train_begin(self,epoch,logs=None):
         pass
     
@@ -57,6 +63,8 @@ class TfGui(keras.callbacks.Callback):
             "batch":batch,
             "output":logs
         }
+        while self.halt:
+            sleep(0.5)
         
     def on_epoch_begin(self,epoch,logs=None):
         self.epoch = epoch
@@ -76,6 +84,14 @@ class TfGui(keras.callbacks.Callback):
             log_type = "epoch",
             log=self._epoch
         )
+
+    def on_epoch_end(self, epoch, logs=None):
+        self._epoch['log'] = {
+            "batch":self.batch,
+            "output":logs
+        }
+        while self.halt:
+            sleep(0.5)
 
     def on_train_end(self, logs):
         self.trainer.update_log(log_type="notif",log={
@@ -100,7 +116,7 @@ class Trainer(object):
             "data":log
         })
         
-    def start(self,build_config:dict,code:str)->None:
+    def _start(self,build_config:dict,code:str)->None:
         
         self.update_log("notif",{"message":"Copiling Code"})
         charset = 'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\"'
@@ -134,11 +150,24 @@ class Trainer(object):
         
         self.tfgui.epochs = int(build_config['train_config']['train']['arguments']['epochs']['value'])
         self.tfgui.batch_size = int(build_config['train_config']['train']['arguments']['batch_size']['value'])
-        self.tfgui.batches = int(np.ceil(globals()[build_config['train_config']['dataset']['id']].train_x.__len__() / tfgui.batch_size))
+        self.tfgui.batches = int(np.ceil(globals()[build_config['train_config']['dataset']['id']].train_x.__len__() / self.tfgui.batch_size)) - 1
         
         train_code, = re.findall(f"""{model}.fit\([a-z\n\t =_0-9.,\[\]\)]+#end-train_\d+""",code)
-        train_thread = Thread(target=execute_code,args=(train_code,))
+        execute_code(train_code)        
+    
+    def halt(self,state):
+        self.tfgui.halt = state
+        if state:
+            self.update_log("notif",{"message":"Training Paused"})
+        else:
+            self.update_log("notif",{"message":"Training Resumed"})
+
+    def start(self,build_config:dict,code:str)->None:
+        train_thread = Thread(target=self._start,args=(build_config,code,))
         train_thread.start()
-        self.update_log("notif",{"message":"Training Started"})
-        
-        return train_thread
+        return 0
+
+    def stop(self,):
+        self.tfgui.halt = False
+        self.tfgui.stop()
+        self.update_log("notif",{"message":"Stopped Training"})

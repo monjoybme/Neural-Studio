@@ -24,10 +24,21 @@ select:focus{
 
 *{ 
   box-sizing: border-box;
-  /* overflow: hidden; */
 }
 
+html{
+  overflow: hidden;
+}
 
+body{
+  overflow: hidden;
+}
+
+.app {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
 
 .canvas{
   height: 100vh;
@@ -84,6 +95,7 @@ select:focus{
 .nav {
   height: 100vh;
   width:  15vw;
+  min-width: 200px;
   position: fixed;
   z-index: 9999;
   
