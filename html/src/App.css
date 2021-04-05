@@ -10,6 +10,7 @@ select:focus{
   width: 7px;
   border-radius: 3px;
   padding-left: 10px;
+  height: 7px;
 }
  
 ::-webkit-scrollbar-track {
@@ -40,57 +41,6 @@ body{
   overflow: hidden;
 }
 
-.canvas{
-  height: 100vh;
-  width: 100vw;
-  display: block;
-
-  overflow: scroll;
-}
-
-
-.node {
-  height: 60px;
-  width: 180px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-
-}
-
-.node .name{
-  
-  height: 50px;
-  width: 170px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
-  border: solid 1px rgba(51, 51, 51, 0.042);
-  background: rgb(228, 228, 228);
-  border-radius: 5px;
-
-  color: #333;
-  font-weight: 500;
-  font-size: medium;
-  letter-spacing: 1px;
-}
-
-.edgeGroup{
-  height: 5px;
-  width: 4px;
-  position: relative;
-
-  border: solid 3px #333;
-  border-radius: 50%;
-
-  background: #333;
-  visibility: hidden;
-}
 
 .nav {
   height: 100vh;

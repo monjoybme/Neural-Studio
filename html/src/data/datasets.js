@@ -258,7 +258,7 @@ class Dataset:
         self.test_x = x.reshape(-1, 32, 32, 3) / 255
         self.test_y = keras.utils.to_categorical(y)
         
-        self.x_shape = (32, 32, 1)
+        self.x_shape = (32, 32, 3)
     
 # Do not change the anything.
 __id__ = Dataset()
@@ -323,7 +323,7 @@ class Dataset:
         self.test_x = x.reshape(-1, 32, 32, 3) / 255
         self.test_y = keras.utils.to_categorical(y)
         
-        self.x_shape = (32, 32, 1)
+        self.x_shape = (32, 32, 3)
     
 # Do not change the anything.
 __id__ = Dataset()

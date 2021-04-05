@@ -10,6 +10,172 @@ window.copy = function(object){
   return JSON.parse(JSON.stringify(object))
 }
 
+setInterval(function(){
+  window.offsetX = Math.floor(window.innerWidth * 0.1525)
+},1000)
+
+let example = {
+  "mnist_2": {
+    "id": "mnist_2",
+    "name": "MNIST 2",
+    "type": {
+        "_class": "datasets",
+        "name": "Dataset"
+    },
+    "pos": {
+        "x": 368,
+        "y": 37
+    },
+    "connections": {
+        "inbound": [],
+        "outbound": [
+            "input_1"
+        ]
+    },
+    "arguments": {
+        "dataset": {
+            "value": "\"\"\"\nNote : Don't change dataset id.\nAll the required packages have been imported with their standard namespaces.\n\ntensorflow as tf\nkeras as keras\npandas as pd\nnumpy as np\n\nfrom sklearn.model_selection , train_test_split\n\"\"\"\n\n#dataset id=mnist_2\nclass Dataset:\n    \"\"\"\n    Dataset will be used in training \n\n    The dataset object needs to have following attributes\n\n    train_x : np.ndarray -> Training features\n    train_y : np.ndarray -> Training labels \n    test_x : np.ndarray -> Testing features\n    test_y : np.ndarray -> Testing labels\n\n    validate : bool -> Weather use validation data or not\n\n    batch_size : int -> Batch size\n    epochs : int -> Number of epochs\n    batches : int -> Number of batches ( Will be calculated automatically )\n    \"\"\"\n    train_x = None\n    test_x = None\n    train_y = None\n    test_y = None\n\n    validate = True\n\n    def __init__(self) -> None:\n        \"\"\"\n        Load dataset and set required variables.\n        \"\"\"\n\n        (X,Y),(x,y) = keras.datasets.mnist.load_data()\n\n        self.train_x = X.reshape(-1,784) / 255\n        self.train_y = keras.utils.to_categorical(Y)\n        self.test_x = X.reshape(-1,784) / 255\n        self.test_y = keras.utils.to_categorical(Y)\n    \n# Do not change the anything.\nmnist_2 = Dataset()\n#end-dataset id=mnist_2\n                    ",
+            "type": "dataset",
+            "render": "dataset"
+        }
+    }
+},
+"input_1": {
+    "id": "input_1",
+    "name": "Input 1",
+    "type": {
+        "name": "Input",
+        "_class": "layers"
+    },
+    "pos": {
+        "x": 365,
+        "y": 157
+    },
+    "connections": {
+        "inbound": [
+            "mnist_2"
+        ],
+        "outbound": [
+            "dense_1"
+        ]
+    },
+    "arguments": {
+        "shape": {
+            "value": "( 784, )",
+            "type": "str",
+            "render": "text",
+            "options": "shape"
+        },
+        "batch_size": {
+            "value": "None",
+            "type": "str",
+            "render": "text",
+            "options": "size"
+        },
+        "name": {
+            "value": "None",
+            "type": "str",
+            "render": "text",
+            "options": "name"
+        },
+        "dtype": {
+            "value": "None",
+            "type": "str",
+            "render": "text",
+            "options": "dtype"
+        },
+        "sparse": {
+            "value": "False",
+            "type": "str",
+            "render": "list",
+            "options": "bool"
+        },
+        "tensor": {
+            "value": "None",
+            "type": "str",
+            "render": "text",
+            "options": "tensor"
+        },
+        "ragged": {
+            "value": "False",
+            "type": "str",
+            "render": "list",
+            "options": "bool"
+        }
+    }
+},
+"dense_1": {
+    "id": "dense_1",
+    "name": "Dense 1",
+    "type": {
+        "name": "Dense",
+        "_class": "layers"
+    },
+    "pos": {
+        "x": 381,
+        "y": 278
+    },
+    "connections": {
+        "inbound": [
+            "input_1"
+        ],
+        "outbound": [
+          
+        ]
+    },
+    "arguments": {
+        "units": {
+            "value": "10",
+            "type": "str",
+            "render": "text",
+            "options": "units"
+        },
+        "activation": {
+            "value": "None",
+            "type": "str",
+            "render": "list",
+            "options": "activation"
+        },
+        "use_bias": {
+            "value": "True",
+            "type": "str",
+            "render": "list",
+            "options": "bool"
+        },
+        "kernel_regularizer": {
+            "value": "None",
+            "type": "str",
+            "render": "list",
+            "options": "regularizer"
+        },
+        "bias_regularizer": {
+            "value": "None",
+            "type": "str",
+            "render": "list",
+            "options": "regularizer"
+        },
+        "activity_regularizer": {
+            "value": "None",
+            "type": "str",
+            "render": "list",
+            "options": "regularizer"
+        },
+        "kernel_constraint": {
+            "value": "None",
+            "type": "str",
+            "render": "list",
+            "options": "constraint"
+        },
+        "bias_constraint": {
+            "value": "None",
+            "type": "str",
+            "render": "list",
+            "options": "constraint"
+        }
+    }
+},
+}
+
 let cursors = {
   line: "crosshair",
   delete: "no-drop",
@@ -28,9 +194,7 @@ const App = (props) => {
     ...window.copy(_lg),
   });
 
-  // let [layers, layersState] = React.useState({"mnist_1": {"id": "mnist_1", "name": "MNIST 1", "type": "Dataset", "pos": {"x": 263, "y": 15}, "connections": {"inbound": [], "outbound": ["input_1"]}, "arguments": {"dataset": {"value": "\"\"\"\nNote : Don't change dataset id.\nAll the required packages have been imported with their standard namespaces.\n\ntensorflow as tf\nkeras as keras\npandas as pd\nnumpy as np\n\nfrom sklearn.model_selection , train_test_split\n\"\"\"\n\n#dataset id=mnist_1\nclass Dataset:\n    \"\"\"\n    Dataset will be used in training \n\n    The dataset object needs to have following attributes\n\n    train_x : np.ndarray -> Training features\n    train_y : np.ndarray -> Training labels \n    test_x : np.ndarray -> Testing features\n    test_y : np.ndarray -> Testing labels\n\n    validate : bool -> Weather use validation data or not\n\n    batch_size : int -> Batch size\n    epochs : int -> Number of epochs\n    batches : int -> Number of batches ( Will be calculated automatically )\n    \"\"\"\n    train_x = None\n    test_x = None\n    train_y = None\n    test_y = None\n\n    validate = True\n\n    def __init__(self) -> None:\n        \"\"\"\n        Load dataset and set required variables.\n        \"\"\"\n\n        (X,Y),(x,y) = keras.datasets.mnist.load_data()\n\n        self.train_x = X.reshape(-1,784) / 255\n        self.train_y = keras.utils.to_categorical(Y)\n        self.test_x = X.reshape(-1,784) / 255\n        self.test_y = keras.utils.to_categorical(Y)\n    \n# Do not change the anything.\nmnist_1 = Dataset()\n#end-dataset id=mnist_1\n                    ", "type": "dataset", "render": "dataset"}}}, "input_1": {"id": "input_1", "name": "Input 1", "type": "Input", "pos": {"x": 307, "y": 118}, "connections": {"inbound": ["mnist_1"], "outbound": ["dense_1"]}, "arguments": {"shape": {"value": "( 784, )", "type": "str", "render": "text", "options": "shape"}, "batch_size": {"value": "None", "type": "str", "render": "text", "options": "size"}, "name": {"value": "None", "type": "str", "render": "text", "options": "name"}, "dtype": {"value": "None", "type": "str", "render": "text", "options": "dtype"}, "sparse": {"value": "False", "type": "str", "render": "list", "options": "bool"}, "tensor": {"value": "None", "type": "str", "render": "text", "options": "tensor"}, "ragged": {"value": "False", "type": "str", "render": "list", "options": "bool"}}}, "dense_1": {"id": "dense_1", "name": "Dense 1", "type": "Dense", "pos": {"x": 313, "y": 219}, "connections": {"inbound": ["input_1"], "outbound": ["batchnormalization_1"]}, "arguments": {"units": {"value": "10", "type": "str", "render": "text", "options": "units"}, "activation": {"value": "None", "type": "str", "render": "list", "options": "activation"}, "use_bias": {"value": "True", "type": "str", "render": "list", "options": "bool"}, "kernel_regularizer": {"value": "None", "type": "str", "render": "list", "options": "regularizer"}, "bias_regularizer": {"value": "None", "type": "str", "render": "list", "options": "regularizer"}, "activity_regularizer": {"value": "None", "type": "str", "render": "list", "options": "regularizer"}, "kernel_constraint": {"value": "None", "type": "str", "render": "list", "options": "constraint"}, "bias_constraint": {"value": "None", "type": "str", "render": "list", "options": "constraint"}}}, "activation_1": {"id": "activation_1", "name": "Activation 1", "type": "Activation", "pos": {"x": 322, "y": 428}, "connections": {"inbound": ["batchnormalization_1"], "outbound": ["model_1"]}, "arguments": {"activation": {"value": "softmax", "type": "str", "render": "list", "options": "activation"}}}, "batchnormalization_1": {"id": "batchnormalization_1", "name": "BatchNormalization 1", "type": "BatchNormalization", "pos": {"x": 273, "y": 323}, "connections": {"inbound": ["dense_1"], "outbound": ["activation_1"]}, "arguments": {"momentum": {"value": "0.99", "type": "str", "render": "text", "options": "momentum"}, "epsilon": {"value": "0.001", "type": "str", "render": "text", "options": "epsilon"}, "center": {"value": "True", "type": "str", "render": "list", "options": "bool"}, "scale": {"value": "True", "type": "str", "render": "list", "options": "bool"}, "beta_regularizer": {"value": "None", "type": "str", "render": "list", "options": "regularizer"}, "gamma_regularizer": {"value": "None", "type": "str", "render": "list", "options": "regularizer"}, "beta_constraint": {"value": "None", "type": "str", "render": "list", "options": "constraint"}, "gamma_constraint": {"value": "None", "type": "str", "render": "list", "options": "constraint"}, "renorm": {"value": "False", "type": "str", "render": "list", "options": "bool"}, "renorm_clipping": {"value": "None", "type": "str", "render": "text", "options": "clipping"}, "renorm_momentum": {"value": "0.99", "type": "str", "render": "text", "options": "momentum"}, "fused": {"value": "None", "type": "str", "render": "text", "options": "fused"}, "trainable": {"value": "True", "type": "str", "render": "list", "options": "bool"}, "virtual_batch_size": {"value": "None", "type": "str", "render": "text", "options": "size"}, "adjustment": {"value": "None", "type": "str", "render": "text", "options": "adjustment"}, "name": {"value": "None", "type": "str", "render": "text", "options": "name"}}}, "adam_1": {"id": "adam_1", "name": "Adam 1", "type": "Optimizer", "pos": {"x": 573, "y": 552}, "connections": {"inbound": [], "outbound": ["compile_1"]}, "arguments": {"learning_rate": {"value": "0.001", "type": "str", "render": "text", "options": "rate"}, "beta_1": {"value": "0.9", "type": "str", "render": "text", "options": "1"}, "beta_2": {"value": "0.999", "type": "str", "render": "text", "options": "2"}, "epsilon": {"value": "1e-07", "type": "str", "render": "text", "options": "epsilon"}, "amsgrad": {"value": "False", "type": "str", "render": "list", "options": "bool"}, "name": {"value": "Adam", "type": "str", "render": "text", "options": "name"}}}, "modelcheckpoint_1": {"id": "modelcheckpoint_1", "name": "ModelCheckpoint 1", "type": "Callback", "pos": {"x": 622, "y": 714}, "connections": {"inbound": [], "outbound": ["train_1"]}, "arguments": {"filepath": {"value": "./temp/model", "type": "str", "render": "text", "options": "filepath"}, "monitor": {"value": "val_loss", "type": "str", "render": "text", "options": "monitor"}, "verbose": {"value": "0", "type": "str", "render": "text", "options": "verbose"}, "save_best_only": {"value": "False", "type": "str", "render": "list", "options": "bool"}, "save_weights_only": {"value": "False", "type": "str", "render": "list", "options": "bool"}, "mode": {"value": "auto", "type": "str", "render": "text", "options": "mode"}, "save_freq": {"value": "epoch", "type": "str", "render": "text", "options": "freq"}, "options": {"value": "None", "type": "str", "render": "text", "options": "options"}}}, "model_1": {"id": "model_1", "name": "Model 1", "type": "Model", "pos": {"x": 326, "y": 537}, "connections": {"inbound": ["activation_1"], "outbound": ["compile_1"]}, "arguments": {}}, "compile_1": {"id": "compile_1", "name": "Compile 1", "type": "Compile", "pos": {"x": 389, "y": 669}, "connections": {"inbound": ["model_1", "adam_1"], "outbound": ["train_1"]}, "arguments": {"optmizer": {"value": "None", "type": "list", "render": "list", "options": "optimizer"}, "loss": {"value": "categorical_crossentropy", "type": "list", "render": "list", "options": "loss"}}}, "train_1": {"id": "train_1", "name": "Train 1", "type": "Train", "pos": {"x": 457, "y": 821}, "connections": {"inbound": ["compile_1", "modelcheckpoint_1"], "outbound": []}, "arguments": {"batch_size": {"value": "32", "type": "int", "render": "text", "options": "batch_size"}, "epochs": {"value": "3", "type": "int", "render": "text", "options": "batch_size"}}}});
-
-  let [layers, layersState] = React.useState({});
+  let [layers, layersState] = React.useState({ });
 
   let [trainingStatus, trainingStatusState] = React.useState({
     status: [],
@@ -53,21 +217,27 @@ const App = (props) => {
     return window.__LAYER_COUNT[name];
   }
   
+
   // Toolbar Functions
   function downLine(e) {
     e.preventDefault();
-    document.getElementById("svg-canvas").innerHTML =
-      document.getElementById("svg-canvas").innerHTML +
-      `<line 
-          id='${"line-" + window.__LINE_COUNTER}' 
-          x1="${e.pageX}" y1="${e.pageY}" 
-          x2="${e.pageX + 1}" y2="${e.pageY + 1}" 
-          stroke="#333" 
-          stroke-width="2"
-          marker-end="url(#arrow)"
-        />`;
+    let scroll = document.getElementById("canvasTop");
+    let pos = {
+      x: e.clientX-window.offsetX + scroll.scrollLeft,
+      y:e.clientY + scroll.scrollTop 
+    } 
+    let id = "line-" + window.__LINE_COUNTER;
+    let line = document.getElementById("dummy");
+    line.id = id;
+    line.style.strokeWidth = 2;
+    
+    line.x1.baseVal.value = pos.x;
+    line.y1.baseVal.value = pos.y;
+    line.x2.baseVal.value = pos.x+1;
+    line.y2.baseVal.value = pos.y+1;
+    
     window.__ACTIVE_LINE__ = {
-      line: document.getElementById("line-" + window.__LINE_COUNTER),
+      line: line,
     };
     window.__LINE_COUNTER++;
   }
@@ -79,48 +249,67 @@ const App = (props) => {
   function downLayer(e) {
     e.preventDefault();
     let name = window.__ACTIVE_LAYER__.name;
-    let id =  layerIdGenerator(name);
-    window.layers[name.toLowerCase().replaceAll(" ","_") + "_" + id] = {
-      id: name.toLowerCase().replaceAll(" ","_") + "_" + id,
-      name: name + " " + id,
+    let n =  layerIdGenerator(name);
+    let id = name.toLowerCase().replaceAll(" ","_") + "_" + n; 
+
+    layers[id] = {
+      id: id,
+      name: name + " " + n,
       type: window.__ACTIVE_LAYER__.type,
       pos: {
-        x: e.pageX - 90,
-        y: e.pageY - 30,
+        x:0,y:0
       },
       connections: {
         inbound: [],
         outbound: [],
       },
+      width: 0,
       arguments: { ...window.__ACTIVE_LAYER__.args },
     };
+
+    let scroll = document.getElementById("canvasTop");
+
+    layers[id].width = layers[id].name.length * 12;
+
+    layers[id].pos = {
+      x: e.clientX-window.offsetX + scroll.scrollLeft - layers[id].width / 2,
+      y:e.clientY + scroll.scrollTop - 20,
+      offsetX : layers[id].name.length * 6,
+      offsetY : 20
+    }
+
     layersState({
       ...layers,
     });
+
     window.__LINE_COUNTER++;
     window.__ACTIVE_LAYER__ = undefined;
+    
     setMode("normal");
   }
-  
-  function moveNode(e) {
-    e.preventDefault();
-    if (window.__ACTIVE_ELEMENT__) {
-      document.getElementById("canvas").style.height =
-        Math.max(window.innerHeight, e.pageY + 50) + "px";
-      window.__ACTIVE_ELEMENT__.target.style.left = e.pageX - 80 + "px";
-      window.__ACTIVE_ELEMENT__.target.style.top = e.pageY - 30 + "px";
-      window.__POS__ = {
-        x: e.pageX - 80,
-        y: e.pageY - 30,
-      };
+
+  function moveNode(e) {      
+    if (window.__ACTIVE_ELEMENT__){
+      let scroll = document.getElementById("canvasTop");
+      let pos = layers[window.__ACTIVE_ELEMENT__].pos;
+      layers[window.__ACTIVE_ELEMENT__].pos = {
+        x: e.clientX-window.offsetX + scroll.scrollLeft - pos.offsetX,
+        y:e.clientY + scroll.scrollTop - 20,
+        offsetX:pos.offsetX,
+        offsetY:pos.offsetY
+      }
+      layersState({
+        ...layers
+      })
     }
   }
   
   function moveEdgeEnd(e) {
     e.preventDefault();
     if (window.__ACTIVE_LINE__) {
-      window.__ACTIVE_LINE__.line.x2.baseVal.value = e.pageX;
-      window.__ACTIVE_LINE__.line.y2.baseVal.value = e.pageY;
+      let scroll = document.getElementById("canvasTop"); 
+      window.__ACTIVE_LINE__.line.x2.baseVal.value = e.clientX-window.offsetX + scroll.scrollLeft;
+      window.__ACTIVE_LINE__.line.y2.baseVal.value = e.clientY + scroll.scrollTop;
     }
   }
   
@@ -203,6 +392,9 @@ const App = (props) => {
     });
   }
   
+
+
+
   const LayerGroupCollapsed = (props) => {
     return (
       <div className="layers" key={props.i} style={{ height: "45px" }}>
@@ -309,8 +501,6 @@ const App = (props) => {
     }
     input.click()
   }
-
-
 
   React.useEffect(() => {
     window.layers = layers;
@@ -457,24 +647,27 @@ const App = (props) => {
           })}
         </div>
       </div>
-      {comp.state ? (
-        <Canvas
-          layers={layers}
-          layersState={layersState}
-          menu={menu}
-          menuState={menuState}
-          layerGroups={layerGroups}
-          layerGroupsState={layerGroupsState}
-        />
-      ) : (
-        <CodeEditor 
-          code={code} 
-          codeState={codeState} 
+   
+      {
+        comp.state ? (
+          <Canvas
+            layers={layers}
+            layersState={layersState}
+            menu={menu}
+            menuState={menuState}
+            layerGroups={layerGroups}
+            layerGroupsState={layerGroupsState}
+          />
+        ) : (
+          <CodeEditor 
+            code={code} 
+            codeState={codeState} 
 
-          layers={layers}
-          layersState={layersState}
-        />
-      )}
+            layers={layers}
+            layersState={layersState}
+          />
+        )
+      }
     </div>
   );
 };

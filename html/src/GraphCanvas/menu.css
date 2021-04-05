@@ -1,12 +1,11 @@
 .menu{
-    position: fixed;
-    z-index: 999;
+    z-index: 10;  
+    position: absolute;  
+    right: 0;  
+    top: 0;
     height: 100vh;
-    width: 15vw;
+    width: 300px;
     padding: 5px;
-  
-    top: 0px;
-    left: 85vw;
   
     display: flex;
     flex-direction: column;
@@ -28,14 +27,15 @@
   }
   
   .menu .properties{
-    width: 13vw;
+    width: 98%;
     display: grid;
     grid-gap: 10px;
     margin-top: 5px;
+    max-height: 80vh;
   }
   
   .menu .property{
-    height: 60px;
+    height: 70px;
     border: rgba(51, 51, 51, 0.241) 1px solid;
     border-radius: 2px;
   
@@ -48,6 +48,8 @@
 
   .property .name{
     font-size: small;
+    margin-left: 3px;
+    font-weight: 400;
   }
   
   .property .btn{
@@ -72,6 +74,7 @@
   
     border: rgba(51, 51, 51, 0.186) solid 1px;
     border-radius: 3px;
+    width: 98%;
   }
   
   .menu input{
@@ -80,11 +83,18 @@
   
     background: whitesmoke;
     
-    height: 25px;
+    font-weight: 400;
+    font-size: smaller;
+    letter-spacing: 1px;
+
+    height: 30px;
     padding-left: 10px;
     margin-top: 5px;
+    width: 98%;
   }
   
+
+
   line{
     stroke-width: 1.5px;
     stroke : rgb(51, 51, 51);
@@ -167,4 +177,9 @@
   display: flex;
   align-items: center;
   font-size: small;
+}
+
+.menu input[type='checkbox'] {
+  height: 15px;
+  width: 15px;
 }

@@ -192,13 +192,13 @@ const layers = {
             options: "function",
           },
           output_shape: {
-            value: "None mas",
+            value: "None",
             type: "str",
             render: "text",
             options: "shape",
           },
-          None: {
-            value: "REQUIRED",
+          mask: {
+            value: "None",
             type: "str",
             render: "text",
             options: "None",
@@ -926,13 +926,13 @@ const layers = {
         type: { name: "MaxPooling1D", _class: "layers" },
         args: {
           pool_size: {
-            value: "2, stride",
+            value: "2" ,
             type: "str",
             render: "text",
             options: "size",
           },
-          None: {
-            value: "REQUIRED",
+          strides: {
+            value: "None",
             type: "str",
             render: "text",
             options: "None",
@@ -945,13 +945,13 @@ const layers = {
         type: { name: "MaxPooling2D", _class: "layers" },
         args: {
           pool_size: {
-            value: "(2, 2), stride",
+            value: "(2, 2)",
             type: "str",
             render: "text",
             options: "size",
           },
-          None: {
-            value: "REQUIRED",
+          strides: {
+            value: "None",
             type: "str",
             render: "text",
             options: "None",
@@ -970,13 +970,13 @@ const layers = {
         type: { name: "MaxPooling3D", _class: "layers" },
         args: {
           pool_size: {
-            value: "(2, 2, 2), stride",
+            value: "(2, 2, 2)",
             type: "str",
             render: "text",
             options: "size",
           },
-          None: {
-            value: "REQUIRED",
+          strides: {
+            value: "None",
             type: "str",
             render: "text",
             options: "None",
@@ -995,13 +995,13 @@ const layers = {
         type: { name: "AveragePooling1D", _class: "layers" },
         args: {
           pool_size: {
-            value: "2, stride",
+            value: "2",
             type: "str",
             render: "text",
             options: "size",
           },
-          None: {
-            value: "REQUIRED",
+          strides: {
+            value: "None",
             type: "str",
             render: "text",
             options: "None",
@@ -1014,13 +1014,13 @@ const layers = {
         type: { name: "AveragePooling2D", _class: "layers" },
         args: {
           pool_size: {
-            value: "(2, 2), stride",
+            value: "(2, 2)",
             type: "str",
             render: "text",
             options: "size",
           },
-          None: {
-            value: "REQUIRED",
+          strides: {
+            value: "None",
             type: "str",
             render: "text",
             options: "None",
@@ -1039,13 +1039,13 @@ const layers = {
         type: { name: "AveragePooling3D", _class: "layers" },
         args: {
           pool_size: {
-            value: "(2, 2, 2), stride",
+            value: "(2, 2, 2)",
             type: "str",
             render: "text",
             options: "size",
           },
-          None: {
-            value: "REQUIRED",
+          strides: {
+            value: "None",
             type: "str",
             render: "text",
             options: "None",
@@ -1729,13 +1729,13 @@ const layers = {
         args: {
           
           dtype: {
-            value: "None mea",
+            value: "None",
             type: "str",
             render: "text",
             options: "dtype",
           },
-          None: {
-            value: "REQUIRED",
+          mean: {
+            value: "None",
             type: "str",
             render: "text",
             options: "None",
@@ -1931,13 +1931,13 @@ const layers = {
             options: "rate",
           },
           noise_shape: {
-            value: "None see",
+            value: "None",
             type: "str",
             render: "text",
             options: "shape",
           },
-          None: {
-            value: "REQUIRED",
+          seed: {
+            value: "None",
             type: "str",
             render: "text",
             options: "None",
@@ -2047,13 +2047,13 @@ const layers = {
             options: "rate",
           },
           noise_shape: {
-            value: "None see",
+            value: "None",
             type: "str",
             render: "text",
             options: "shape",
           },
-          None: {
-            value: "REQUIRED",
+          seed: {
+            value: "None",
             type: "str",
             render: "text",
             options: "None",

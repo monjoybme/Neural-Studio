@@ -1,0 +1,36 @@
+.canvas-top{
+    position: absolute;
+    top: 0px;
+    left: 15vw;
+    min-width: 85vw;
+    min-height: 100vh;
+    overflow: scroll;
+    padding: 5px;
+
+}
+
+.canvas {
+    position: absolute;
+    top: 0px;
+    min-width: 85vw;
+    min-height: 100vh;
+
+    height: 110vh;
+    width: 130vw;
+}
+
+.canvas rect {
+    height: 40px;
+    fill: #ddd;
+    stroke-width:1 ;
+    stroke:rgb(97, 96, 96);
+}
+
+.canvas text{
+    position: relative;
+    top: 50%;
+    font-size: 13px;
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+
