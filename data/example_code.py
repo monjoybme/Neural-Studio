@@ -20,7 +20,7 @@ numpy as np
 from sklearn.model_selection , train_test_split
 """
 
-#dataset id=boston_housing_2
+#dataset id=cifar10_1
 class Dataset:
     """
     Dataset will be used in training 
@@ -50,21 +50,21 @@ class Dataset:
         Load dataset and set required variables.
         """
         
-        (X,Y),(x,y)  = keras.datasets.boston_housing.load_data()
+        (X,Y),(x,y)  = keras.datasets.cifar10.load_data()
         
-        self.train_x = X 
-        self.train_y = Y
-        self.test_x = x 
-        self.test_y = y
+        self.train_x = X.reshape(-1, 32, 32, 3) / 255
+        self.train_y = keras.utils.to_categorical(Y)
+        self.test_x = x.reshape(-1, 32, 32, 3) / 255
+        self.test_y = keras.utils.to_categorical(y)
         
-        self.x_shape = (13,)
-
+        self.x_shape = (32, 32, 3)
+    
 # Do not change the anything.
-boston_housing_2 = Dataset()
-#end-dataset id=boston_housing_2
+cifar10_1 = Dataset()
+#end-dataset id=cifar10_1
                     
 input_1 = layers.Input(
-    shape=(13,),
+    shape=(32, 32, 3),
     batch_size=None,
     name=None,
     dtype=None,
@@ -74,8 +74,13 @@ input_1 = layers.Input(
 ) #end-input_1
 
 
-dense_1 = layers.Dense(
-    units=4,
+conv2d_1 = layers.Conv2D(
+    filters=200,
+    kernel_size=3,
+    strides=(1, 1),
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
     activation='relu',
     use_bias=True,
     kernel_regularizer=None,
@@ -83,11 +88,127 @@ dense_1 = layers.Dense(
     activity_regularizer=None,
     kernel_constraint=None,
     bias_constraint=None,
-)(input_1) #end-dense_1
+)(input_1) #end-conv2d_1
+
+
+conv2d_2 = layers.Conv2D(
+    filters=180,
+    kernel_size=3,
+    strides=(1, 1),
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
+    activation='relu',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(conv2d_1) #end-conv2d_2
+
+
+maxpooling2d_1 = layers.MaxPooling2D(
+    pool_size=(2, 2),
+    strides=None,
+    data_format=None,
+)(conv2d_2) #end-maxpooling2d_1
+
+
+conv2d_3 = layers.Conv2D(
+    filters=180,
+    kernel_size=3,
+    strides=(1, 1),
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
+    activation='relu',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(maxpooling2d_1) #end-conv2d_3
+
+
+conv2d_4 = layers.Conv2D(
+    filters=140,
+    kernel_size=3,
+    strides=(1, 1),
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
+    activation='relu',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(conv2d_3) #end-conv2d_4
+
+
+conv2d_5 = layers.Conv2D(
+    filters=100,
+    kernel_size=3,
+    strides=(1, 1),
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
+    activation='relu',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(conv2d_4) #end-conv2d_5
+
+
+conv2d_6 = layers.Conv2D(
+    filters=50,
+    kernel_size=3,
+    strides=(1, 1),
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
+    activation='relu',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(conv2d_5) #end-conv2d_6
+
+
+maxpooling2d_2 = layers.MaxPooling2D(
+    pool_size=(2, 2),
+    strides=None,
+    data_format=None,
+)(conv2d_6) #end-maxpooling2d_2
+
+
+flatten_1 = layers.Flatten(
+    data_format=None,
+)(maxpooling2d_2) #end-flatten_1
+
+
+dense_1 = layers.Dense(
+    units=180,
+    activation='relu',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(flatten_1) #end-dense_1
 
 
 dense_2 = layers.Dense(
-    units=1,
+    units=100,
     activation='relu',
     use_bias=True,
     kernel_regularizer=None,
@@ -98,26 +219,66 @@ dense_2 = layers.Dense(
 )(dense_1) #end-dense_2
 
 
-model_1 = keras.Model(
-    [ input_1, ],
-    [ dense_2, ]
-) #end-model_1
+dense_3 = layers.Dense(
+    units=50,
+    activation='relu',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(dense_2) #end-dense_3
 
+
+dropout_1 = layers.Dropout(
+    rate=0.5,
+    noise_shape=None,
+    seed=None,
+)(dense_3) #end-dropout_1
+
+
+dense_6 = layers.Dense(
+    units='REQUIRED',
+    activation=None,
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(dropout_1) #end-dense_6
+
+
+model_2 = keras.Model(
+    [ input_1, ],
+    [ dense_6, ]
+) #end-model_2
+
+
+adam_1 = optimizers.Adam(
+    learning_rate=0.001,
+    beta_1=0.9,
+    beta_2=0.999,
+    epsilon=1e-07,
+    amsgrad=False,
+    name='Adam',
+) #end-adam_1
 
 
 model_1.compile(
-    optimizer='rmsprop',
-    loss='mean_absolute_error',
-    metrics=None
+    optimizer=adam_1,
+    loss='categorical_crossentropy',
+    metrics=["categorical_accuracy"]
 ) #end-compile_1
 
 
 
-model_1.fit(
-    x=boston_housing_2.train_x,
-    y=boston_housing_2.train_y,
-    batch_size=8,
-    epochs=1,
+model_2.fit(
+    x=cifar10_1.train_x,
+    y=cifar10_1.train_y,
+    batch_size=32,
+    epochs=3,
     callbacks=[ tfgui,  ]
 ) #end-train_1
 

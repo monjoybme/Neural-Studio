@@ -16,22 +16,22 @@ const CodeEditor = (props) => {
   })
 
     async function trainModel(e) {
-      window.__TRAIN__ = true;
-      await fetch(
-        "http://localhost/train/start",
-        {
-          method:"POST",
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...props.layers })
-        }
-      )
-      .then(response=>response.json())
-      .then(data=>{
-        window.__TRAIN__ = true
-        compState({
-          state:false
-        })
-      })
+      // window.__TRAIN__ = true;
+      // await fetch(
+      //   "http://localhost/train/start",
+      //   {
+      //     method:"POST",
+      //     headers: { 'Content-Type': 'application/json' },
+      //     body: JSON.stringify({ ...props.layers })
+      //   }
+      // )
+      // .then(response=>response.json())
+      // .then(data=>{
+      //   window.__TRAIN__ = true
+      //   compState({
+      //     state:false
+      //   })
+      // })
     }
 
     async function haltModel(e) {
