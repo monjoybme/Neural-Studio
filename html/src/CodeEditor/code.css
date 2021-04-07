@@ -1,36 +1,10 @@
 .tfcode {
-    width: 85vw;
-    height: 97vh;
+    width: 100vw;
+    height: 95vh;
     position: absolute;
-    left: 15vw;
     padding: 7px;
 }
 
 .tfcode .menubar{
-    height: 5vh;
-    display: flex;
-    margin-bottom: 10px;
 
-    display: flex;
-    align-items: center;
-}
-
-.tfcode .menubar .btn{ 
-    border: solid 1px rgba(51, 51, 51, 0.042);
-    background: rgb(228, 228, 228);
-    cursor: pointer;
-    
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-    height: 30px;
-    margin-left: 10px;
-    width: 100px;
-
-    font-weight: 500;
-    font-size: small;
-    letter-spacing: 1px;
-    
-    border-radius: 2px;
 }

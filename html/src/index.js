@@ -4,6 +4,9 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+
+window.layers = {}
+
 window.__ACTIVE_LAYER__ = { name:undefined }
 window.__MOUSE_ACTION__ = undefined;
 window.__ACTIVE_ELEMENT__ = undefined;

@@ -1,3 +1,113 @@
+.app {
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+  }
+
+.tools {
+    min-width: 150px;
+    width: 15vw;
+    height: -webkit-fill-available;
+    background: rgb(242, 245, 244);
+}
+
+.tools .head{
+    height: 40px;
+  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  
+    margin-top: 5px;
+  }
+
+.tools .toolbar {
+  display: grid;
+  grid-gap: 5px;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+
+  padding: 7px;
+}
+
+.tools .toolbar .btn {
+    border: solid 1px rgba(51, 51, 51, 0.042);
+    background: rgb(228, 228, 228);
+    cursor: pointer;
+  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 30px;
+  
+    font-weight: 500;
+    font-size: small;
+    letter-spacing: 1px;
+}
+
+.tools .layergroups{
+    overflow-y: scroll;
+    overflow-x: hidden;
+    border: solid 1px rgba(51, 51, 51, 0.042);
+    
+    height: 70%;
+    padding : 10px 0vh 0vh 7px;
+  
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+.tools .layergroups .layers {
+    width: 100%;
+    margin:0px 0px 1vh 0px;
+    border: solid 1px rgba(51, 51, 51, 0.042);
+    background: rgb(228, 228, 228);
+  }
+  
+.tools .layergroups  .layers .name{
+    height: 45px;
+    width: 100%;
+  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  
+    font-weight: 500;
+    font-size: small;
+    letter-spacing: 1px;
+  
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  
+.tools .layergroups  .layers .grid {
+  
+    width: 100%;
+    display: grid;
+    grid-gap: 5px;
+    padding: 0px 7px 7px 7px;
+  }
+
+  .tools .layergroups  .layers  .grid .btn{ 
+    border: solid 1px rgba(51, 51, 51, 0.042);
+    background: rgba(255, 255, 255, 0.645);
+    cursor: pointer;
+  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  
+    height: 30px;
+    
+    font-weight: 500;
+    font-size: small;
+    letter-spacing: 1px;
+  
+    border-radius: 2px;
+  
+  }
+
 .canvas-top{
     position: absolute;
     top: 0px;
