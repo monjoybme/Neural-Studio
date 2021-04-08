@@ -45,10 +45,10 @@ const Node = (props) => {
     switch (window.__MODE__) {
       case "delete":
         layer.connections.inbound.forEach((lid) => {
-          props.window.layers[lid].connections.outbound.pop(layer.id);
+          window.layers[lid].connections.outbound.pop(layer.id);
         });
         layer.connections.outbound.forEach((lid) => {
-          props.window.layers[lid].connections.inbound.pop(layer.id);
+          window.layers[lid].connections.inbound.pop(layer.id);
         });
         delete window.layers[layer.id];
         window.layersState({ ...window.layers });
@@ -60,6 +60,9 @@ const Node = (props) => {
               layer={props.layer}
               menu={props.menu}
               menuState={props.menuState}
+
+              layers={window.layers}
+              layersState={window.layersState}
             />
           ),
         });
@@ -98,7 +101,7 @@ const Edge = (props) => {
   return (
     <g>
       {props.layer.connections.outbound.map((layer, i) => {
-        let pos_in = props.window.layers[layer];
+        let pos_in = window.layers[layer];
         if (pos_in) {
           return (
             <line
@@ -249,10 +252,12 @@ const LayerGroups = (props) => {
   );
 };
 
-const Canvas = (props) => {
+const Canvas = (props={layers:{},layersState:undefined}) => {
   let [menu, menuState] = React.useState({
     comp: <div />,
   });
+
+  let { layers, layersState } = props;
 
   function layerIdGenerator(name = "") {
     name = name.toLowerCase();
@@ -491,6 +496,11 @@ const Canvas = (props) => {
     onMouseUp: onMouseUp,
   };
 
+  React.useEffect(()=>{
+    window.layers = layers;
+    window.layersState = layersState;
+  })
+
   return (
     <div
       className="app"
@@ -542,8 +552,8 @@ const Canvas = (props) => {
             return (
               <Node
                 layer={window.layers[layer]}
-                menu={props.menu}
-                menuState={props.menuState}
+                menu={menu}
+                menuState={menuState}
                 key={i}
               />
             );

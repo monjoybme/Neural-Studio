@@ -9,6 +9,10 @@
 .nav .title {
     height: 60px;
 
+    color: white;
+    font-weight: 600;
+    letter-spacing: 1px;
+
     display: flex;
     justify-content: center;
     align-items: center;
@@ -34,6 +38,7 @@
     letter-spacing: 1px;
     font-weight: 400;
 
+    cursor: pointer;
 }
 
 .nav .navigation .selected {

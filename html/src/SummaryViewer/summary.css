@@ -1,0 +1,13 @@
+.sum-col {
+    width: 100%;
+    display: grid;
+
+    grid-template-columns: 3fr 2fr 1fr 0fr;
+
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sum-col .col {
+    width: 100%;
+}

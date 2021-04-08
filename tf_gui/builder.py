@@ -24,6 +24,15 @@ def build_default(layer,build_config,*args,**kwargs)->str:
 {arguments}
 ){inbound} #end-{layer['id']}
 """
+def build_application(layer,build_config,*args,**kwargs)->str:
+    arguments =  build_arguments(layer['arguments'])
+    inbound = build_inbound(layer['connections']['inbound']) if layer['type']['name'] != 'Input' else '' 
+    return f"""{layer['id']} = applications.{layer['type']['_class']}(
+    input_tensor={layer['connections']['inbound'][0]},
+{arguments}
+    include_top=False
+).output #end-{layer['id']}
+"""
 
 def build_model(layer,build_config,*args,**kwargs)->str:
     build_config['train_config']['model'] = layer
@@ -67,7 +76,8 @@ build_functions = {
     "default":build_default,
     "Model":build_model,
     "Compile":build_compile,
-    "Train":build_train
+    "Train":build_train,
+    "Application":build_application
 }
 
 def build_code(build_config:dict)->Tuple[str,dict]:
@@ -83,9 +93,7 @@ def build_code(build_config:dict)->Tuple[str,dict]:
         "train":None
     }
 
-
     for _id,config in build_config.items():
-        # print (config['type']['name'])
         if config['type']['name'] == 'Input':
             inputs.append(_id)
             

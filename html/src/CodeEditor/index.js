@@ -4,15 +4,13 @@ import Editor from "@monaco-editor/react";
 
 import "./code.css"
 
-const CodeEditor = (props) => {
+const CodeEditor = (props={layers:{}}) => {
 
-  let [ halt,haltState ] = React.useState({
-    state:true,
-    name:"Pause",
+  let [code,codeState] = React.useState({
+    data:"",
+    fetched:true
   })
-  let { code, codeState } = props;
 
-  
   async function buildCode(e) {
     await fetch(
       "http://localhost/build",
@@ -24,25 +22,30 @@ const CodeEditor = (props) => {
     )
     .then(response=>response.json())
     .then(data=>{
-      if (data.code !== code.data){
-        codeState({
-          data:data.code
-        })
-      }
+      codeState({
+        data:data.code,
+        fetched:false
+      })
     })
   }
 
   React.useEffect(()=>{
-    buildCode()
-    window.__TRAIN__ = false;
-  },[code,codeState])
+    if ( code.data.length === 0 ){
+      buildCode()
+    }
+  },[])
 
     return (
       <div className="tfcode">
-        <Editor
-          defaultLanguage="python"
-          defaultValue={code.data}
-        />
+      {
+        code.fetched ?
+          undefined
+        :
+          <Editor
+            defaultLanguage="python"
+            defaultValue={code.data}
+          />         
+      }
       </div>
     );
   };

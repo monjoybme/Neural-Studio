@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 
 from tensorflow import keras
-from tensorflow.keras import layers,optimizers,losses,metrics,callbacks
+from tensorflow.keras import layers,optimizers,losses,metrics,callbacks,applications
 
 from typing import List
 from json import load,dump
@@ -17,7 +17,7 @@ def execute_code(_code:str)->None:
         exec(_code)
         globals().update(locals())
     except:
-        # print (_code)
+        print (_code)
         pass
 
 class TfGui(keras.callbacks.Callback):
@@ -99,6 +99,47 @@ class TfGui(keras.callbacks.Callback):
             "ended":True
         })
 
+class Summary(object):
+    def __init__(self):
+        pass
+    
+    
+    def get(self,build_config:dict,code:str)->None:
+        
+        charset = 'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\"'
+        imports, = re.findall("""#import[a-zA-Z\n .,_\-]+#end-import""",code)
+        execute_code(imports)
+        execute_code(build_config['train_config']['dataset']['value'])
+        
+        for level in build_config['levels']:
+            for layer in level:
+                _code = re.findall(f"""{layer} =[{charset}]+#end-{layer}""",code)
+                if len(_code):
+                    execute_code(_code[0])
+
+        if build_config['train_config']['optimizer']:
+            execute_code(build_config['train_config']['optimizer']['value'])
+
+        if build_config['train_config']['callbacks']:
+            for callback in build_config['train_config']['callbacks']:
+                execute_code(callback['value'])    
+        
+        if build_config['train_config']['loss']:
+            execute_code(build_config['train_config']['loss']['value'])
+            
+        comp = build_config['train_config']['compile']['id']
+        model = build_config['train_config']['model']['id']
+        execute_code(re.findall(f"""{model}.compile[{charset}]+#end-{comp}""",code)[0])
+
+        summary = []
+        def print_fn(word,*arg,**kwargs):
+            summary.append(word,)
+            
+        model = globals()[model]
+        model.summary(line_length=512,print_fn=print_fn)
+
+        return summary[::2]
+    
 class Trainer(object):
     build_config = {}
     model = keras.Model

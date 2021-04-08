@@ -70,6 +70,8 @@ const Training = (props = { trainingStatus: [] }) => {
         state:true
     })   
     
+    let { layers, layersState } = props;
+
     async function getStatus() {
         await fetch("http://localhost/status", {
             method: "GET",
@@ -82,7 +84,7 @@ const Training = (props = { trainingStatus: [] }) => {
                 })
                 if (data.logs[data.logs.length-1].data.ended){
                     console.log("Training Ended")
-                    window.__TRAIN__ = false
+                    window.__TRAINING__ = false;
                     window.__UPDATE_RUNNING__ = false;
                     clearTimeout(window.__UPDATE_INTERVAL)
                 }else{
@@ -94,23 +96,27 @@ const Training = (props = { trainingStatus: [] }) => {
                 window.__TRAIN__ = false
                 window.__UPDATE_RUNNING__ = false;
                 clearTimeout(window.__UPDATE_INTERVAL)
-            });
-            
+            });    
     }
 
     async function trainModel(e) {
-      window.__TRAIN__ = true;
+      window.__TRAINING__ = true;
       await fetch(
         "http://localhost/train/start",
         {
           method:"POST",
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...props.layers })
+          body: JSON.stringify({ ...layers })
         }
       )
       .then(response=>response.json())
       .then(data=>{
-        console.log(data);
+        if (window.__UPDATE_RUNNING__){
+
+        }
+        else{
+            getStatus()
+        }
       })
     }
 
@@ -151,6 +157,7 @@ const Training = (props = { trainingStatus: [] }) => {
       .then(response=>response.json())
       .then(data=>{
         console.log(data)
+        window.__TRAIN__ = false
       })
     }
 
@@ -160,7 +167,6 @@ const Training = (props = { trainingStatus: [] }) => {
       link.download = 'train.py'
       link.click()
     }
-
 
     React.useEffect(()=>{
         if (window.__UPDATE_RUNNING__ !== true && window.__TRAIN__){
@@ -175,6 +181,14 @@ const Training = (props = { trainingStatus: [] }) => {
   React.useEffect(()=>{
     var elem = document.getElementById('logs');
     elem.scrollTop = elem.scrollHeight;
+    if (window.__TRAINING__){
+        if (window.__UPDATE_RUNNING__){
+
+        }else{
+            window.__UPDATE_RUNNING__ = true
+            getStatus()
+        }
+    }
   })
 
   return (

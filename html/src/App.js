@@ -1,9 +1,11 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 import Canvas from "./GraphCanvas";
 import CodeEditor from "./CodeEditor";
 import Train from "./Training";
+import SummaryViewer from './SummaryViewer';
+
+import { ReactComponent as Logo } from './data/images/logo.svg';
 
 import "./App.css";
 import "./nav.css";
@@ -21,7 +23,9 @@ const App = (props) => {
   let [menu, menuState] = React.useState({
     comp: <div />,
   });
-  let [layers, layersState] = React.useState({});
+  let [layers, layersState] = React.useState({
+
+  });
   let [trainingStatus, trainingStatusState] = React.useState({
     status: [],
     update_id: 0,
@@ -29,6 +33,7 @@ const App = (props) => {
   let [code, codeState] = React.useState({
     data: "",
   });
+
 
   let [buttons, buttonsState] = React.useState([
     { name: "Graph", path: "/", selected: window.location.pathname === "/" },
@@ -38,12 +43,16 @@ const App = (props) => {
       selected: window.location.pathname === "/code",
     },
     {
+      name: "Summary",
+      path: "/summary",
+      selected: window.location.pathname === "/summary",
+    },
+    {
       name: "Train",
       path: "/train",
       selected: window.location.pathname === "/train",
     },
   ]);
-
   let [files, filesState] = React.useState({
     display: false,
     buttons: [
@@ -52,9 +61,12 @@ const App = (props) => {
       { name: "Save as", shortcut: "Ctrl + Shift + s", func: saveGraph },
     ],
   });
+  let [render, renderState] = React.useState({ name:"Graph"});
+
+  
 
   window.getLayers =  function (){
-    return layers
+    return window.layers
   }
 
   async function saveGraph(e) {
@@ -62,21 +74,19 @@ const App = (props) => {
       display: false,
       buttons: files.buttons,
     });
-    setTimeout(async function(){
-      let name = prompt("Enter Graph Name : ", "graph");
-      await fetch("http://localhost/graph/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          graph: { ...window.layers },
-          name: name,
-        }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data);
-      });
-    },100)
+    let name = prompt("Enter Graph Name : ", "graph");
+    await fetch("http://localhost/graph/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        graph: { ...window.getLayers() },
+        name: name,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data,);
+    });
   }
 
   async function loadGraph(e) {
@@ -90,40 +100,61 @@ const App = (props) => {
       input.onchange = function (e) {
         var reader = new FileReader();
         reader.onload = function () {
-          document.body.style.cursor = 'loading';
-          window.layersState({ ...JSON.parse(reader.result) });
+          layersState({ ...JSON.parse(reader.result) });
+          document.body.style.cursor = 'default'
         };
         reader.readAsText(e.target.files[0]);
       };
       input.click();
+      document.body.style.cursor = 'loading';
     },10)
   }
 
-  React.useEffect(() => {
+  function getRenderComp(){
+    switch(render.name) {
+      case "Graph":
+        return <Canvas layers={layers} layersState={layersState} />
+      case "Code":
+        return <CodeEditor layers={layers} />
+      case "Train":
+        return <Train layers={layers} layersState={layersState} />
+      case "Summary":
+        return <SummaryViewer layers={layers} />
+      default:
+        return <Canvas />
+    }
+  }
 
-  }, []);
-
+  React.useEffect(()=>{
+    
+  })
+  
   return (
-    <Router className="app">
+    <div>
       <div className="nav">
-        <div className="title">Tf Build</div>
+        <div className="title"> Tf Builder </div>
         <div className="navigation">
           {buttons.map((button, i) => {
             return (
-              <Link
+              <a
                 key={i}
                 to={button.path}
                 className={button.selected ? "btn selected" : "btn"}
                 onClick={(e) => {
                   buttons = buttons.map((_button) => {
                     _button.selected = _button.name === button.name;
+                    if (_button.selected){
+                      renderState({
+                        ..._button
+                      })
+                    }
                     return _button;
                   });
                   buttonsState([...buttons]);
                 }}
               >
                 {button.name}
-              </Link>
+              </a>
             );
           })}
         </div>
@@ -156,31 +187,10 @@ const App = (props) => {
           ) : undefined}
         </div>
       </div>
-      <Route
-        path="/"
-        exact
-        render={(props) => (
-          <Canvas {...props}  />
-        )}
-      />
-      <Route
-        path="/code"
-        exact
-        render={(props) => (
-          <CodeEditor
-            {...props}
-          />
-        )}
-      />
-      <Route
-        path="/train"
-        exact
-        render={(props) => (
-          <Train {...props} />
-        )}
-      />
-    </Router>
+      {getRenderComp()}
+    </div>
   );
+
 };
 
 export default App;

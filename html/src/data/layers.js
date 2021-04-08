@@ -1,6 +1,7 @@
 import datasets from "./datasets";
 import optimizers from "./optimizers";
 import callbaacks from "./callbacks";
+import applications from './applications';
 
 const layers = {
   "datasets":datasets,
@@ -2753,8 +2754,9 @@ const layers = {
       },
     ],
   },
+  applications:applications,
   optimizers:optimizers,
-  callbaacks:callbaacks
+  callbaacks:callbaacks,
 };
 
 export default layers;
