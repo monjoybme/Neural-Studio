@@ -1,5 +1,4 @@
 import React from "react";
-import Training from '../Training';
 import Editor from "@monaco-editor/react";
 
 import "./code.css"
@@ -44,6 +43,8 @@ const CodeEditor = (props={layers:{}}) => {
           <Editor
             defaultLanguage="python"
             defaultValue={code.data}
+            onValidate={e=>console.log(e)}
+            theme={"vs-light"}
           />         
       }
       </div>

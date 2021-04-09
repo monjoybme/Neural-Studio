@@ -6,7 +6,6 @@ import tensorflow as tf
 
 from tensorflow import keras
 from tensorflow.keras import layers,optimizers,losses,metrics,callbacks,applications
-
 #end-import
 
 """
@@ -119,7 +118,5 @@ model_1.fit(
     y=dataset_1.train_y,
     batch_size=32,
     epochs=3,
-    validation_data=( dataset_1.test_x, dataset_1.test_y ),
-    callbacks=[ tfgui,  ]
 ) #end-train_1
 

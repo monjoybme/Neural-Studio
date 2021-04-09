@@ -89,12 +89,7 @@ const CheckboxProperty = (props) => {
                   type="checkbox" 
                   name={option} 
                   key={i}  
-                  defaultChecked={ 
-                    props.
-                    layers[props.layer_id].
-                    arguments[props.name].
-                    value.
-                    lastIndexOf(option) > -1 }
+                  defaultChecked={ props.layers[props.layer_id].arguments[props.name].value.lastIndexOf(option) > -1 }
                   onChange={selectBox}
                  /> 
                 {option}
@@ -196,7 +191,6 @@ const Menu = (props) => {
               />
             </div>
             {Object.keys(props.layer.arguments).map((property, i) => {
-              let comp;
               switch (props.layer.arguments[property].render) {
                 case "text":
                   return (
@@ -237,6 +231,8 @@ const Menu = (props) => {
                       menuState={props.menuState}
                     />
                   );
+                default:
+                  return <div></div>
               }
             })}
           </div>

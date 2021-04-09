@@ -5,8 +5,6 @@ import CodeEditor from "./CodeEditor";
 import Train from "./Training";
 import SummaryViewer from './SummaryViewer';
 
-import { ReactComponent as Logo } from './data/images/logo.svg';
-
 import "./App.css";
 import "./nav.css";
 
@@ -19,21 +17,18 @@ setInterval(function () {
   window.offsetY = 75;
 }, 1000);
 
+// function downloadCode(e) {
+//   let link = document.createElement("a");
+//   link.href = `data:text/x-python,${encodeURIComponent(props.code.data)}`;
+//   link.download = 'train.py'
+//   link.click()
+// }
+
 const App = (props) => {
-  let [menu, menuState] = React.useState({
-    comp: <div />,
-  });
+
   let [layers, layersState] = React.useState({
 
   });
-  let [trainingStatus, trainingStatusState] = React.useState({
-    status: [],
-    update_id: 0,
-  });
-  let [code, codeState] = React.useState({
-    data: "",
-  });
-
 
   let [buttons, buttonsState] = React.useState([
     { name: "Graph", path: "/", selected: window.location.pathname === "/" },
@@ -136,7 +131,7 @@ const App = (props) => {
         <div className="navigation">
           {buttons.map((button, i) => {
             return (
-              <a
+              <div
                 key={i}
                 to={button.path}
                 className={button.selected ? "btn selected" : "btn"}
@@ -154,7 +149,7 @@ const App = (props) => {
                 }}
               >
                 {button.name}
-              </a>
+              </div>
             );
           })}
         </div>

@@ -90,9 +90,8 @@ async def train_start(request:Request):
     if request.header.method == 'POST':
         try:
             data = await request.get_json()
-            build_config,code = build_code(data,)
             trainer.logs = []
-            trainer.start(build_config,code)
+            trainer.start(data)
             return json_response({
                 "status":"Training Started"
             })

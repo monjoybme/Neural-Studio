@@ -68,6 +68,7 @@ def build_train(layer,build_config,*args,**kwargs)->str:
     y={build_config['train_config']['dataset']['id']}.train_y,
     batch_size={layer['arguments']['batch_size']['value']},
     epochs={layer['arguments']['epochs']['value']},
+    validation_data=( {build_config['train_config']['dataset']['id']}.test_x, {build_config['train_config']['dataset']['id']}.test_y ),
     callbacks=[ tfgui, {', '.join(callback_ids)} ]
 ) #end-{layer['id']}
 """
@@ -80,7 +81,7 @@ build_functions = {
     "Application":build_application
 }
 
-def build_code(build_config:dict)->Tuple[str,dict]:
+def build_code(build_config:dict)->Tuple[dict,str]:
     inputs = []
     train_config = {
         "dataset":None,
@@ -112,6 +113,8 @@ def build_code(build_config:dict)->Tuple[str,dict]:
         elif config['type']['_class'] == 'callbacks':
             train_config['callbacks'].append(_id)
     
+    if not len(inputs):
+        return False,"Please add Input node."
 
     build_config['train_config'] = train_config
     build_config['input_nodes'] = inputs
@@ -166,7 +169,7 @@ import numpy as np
 import tensorflow as tf
 
 from tensorflow import keras
-from tensorflow.keras import layers,optimizers,losses,metrics,callbacks
+from tensorflow.keras import layers,optimizers,losses,metrics,callbacks, applications
 #end-import
 
 {dataset}
@@ -176,3 +179,4 @@ dataset=train_config['dataset']['value'],
 build=build
 )
     return build_config,code
+

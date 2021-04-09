@@ -134,6 +134,7 @@
     fill: #ddd;
     stroke-width:1 ;
     stroke:rgb(97, 96, 96);
+    opacity: 0.99;
 }
 
 .canvas text{
@@ -144,3 +145,7 @@
     font-weight: 500;
 }
 
+/* .canvas line {
+  stroke: #333;
+  stroke-width: 2px;
+} */

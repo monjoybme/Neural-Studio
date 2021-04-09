@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import Menu from "./menu";
 
 import _lg from "../data/layers";
@@ -26,6 +26,8 @@ const Node = (props) => {
       case "line":
         window.__NEW_EDGE__ = { from: layer.id };
         break;
+      default:
+        break
     }
   }
 
@@ -38,6 +40,8 @@ const Node = (props) => {
       case "line":
         window.__NEW_EDGE__.to = layer.id;
         break;
+      default:
+        break
     }
   }
 
@@ -67,6 +71,8 @@ const Node = (props) => {
           ),
         });
         break;
+      default:
+        break
     }
   }
 
@@ -109,20 +115,39 @@ const Edge = (props) => {
               y1={pos_out.y + 20}
               x2={pos_in.pos.x + pos_in.pos.offsetX}
               y2={pos_in.pos.y + 20}
-              markerEnd="url(#triangle)"
-              stroke="black"
-              strokeWidth="2"
+              markerMid="url(#triangle)"
+              stroke="rgba( 100, 100, 100, 0.2)"
+              strokeWidth="4"
               key={i}
             />
           );
         }
+        return undefined
+      })}
+      {props.layer.connections.outbound.map((layer, i) => {
+        let pos_in = window.layers[layer];
+        if (pos_in) {
+          return (
+            <line
+              x1={pos_out.x + pos_out.offsetX}
+              y1={pos_out.y + 20}
+              x2={pos_in.pos.x + pos_in.pos.offsetX}
+              y2={pos_in.pos.y + 20}
+              markerMid="url(#triangle)"
+              stroke="#222"
+              strokeWidth="1"
+              key={i}
+            />
+          );
+        }
+        return undefined
       })}
     </g>
   );
 };
 
 const Toolbar = (props) => {
-  let [buttons, buttonsState] = React.useState([
+  let buttons = [
     {
       name: "Normal",
       func: function () {
@@ -153,7 +178,7 @@ const Toolbar = (props) => {
         window.layersState({});
       },
     },
-  ]);
+  ];
 
   return (
     <div className="toolbar">
@@ -532,6 +557,7 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
             markerWidth="4"
             markerHeight="3"
             orient="auto"
+            
           >
             <path d="M 0 0 L 10 5 L 0 10 z" />
           </marker>
@@ -539,8 +565,8 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
             id="dummy"
             x1="0"
             y1="0"
-            x2="1"
-            y2="1"
+            x2="0"
+            y2="0"
             stroke="#333"
             strokeWidth="0"
             markerEnd="url(#triangle)"

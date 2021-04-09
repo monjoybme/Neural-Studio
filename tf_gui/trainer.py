@@ -1,5 +1,8 @@
 import re
 
+from numpy.core.fromnumeric import _var_dispatcher
+from tf_gui.builder import build_code
+
 import pandas as pd
 import numpy as np
 import tensorflow as tf
@@ -12,13 +15,15 @@ from json import load,dump
 from time import sleep, time
 from threading import Thread
 
-def execute_code(_code:str)->None:
+def execute_code(_code:str,logs=lambda log_type,log:None)->None:
     try:
         exec(_code)
         globals().update(locals())
-    except:
-        print (_code)
-        pass
+        return True
+    except ValueError as e:
+        logs("error",{ "error":str(e), "code":_code })
+        logs("notif",{ "message": "Training stopped", "ended":True })
+        return False
 
 class TfGui(keras.callbacks.Callback):
     batch = None 
@@ -157,44 +162,76 @@ class Trainer(object):
             "data":log
         })
         
-    def _start(self,build_config:dict,code:str)->None:
-        
+    def _start(self,build_config:dict)->None:
+        build_config,code = build_code(build_config=build_config,)
+
+        if not build_config:
+            self.update_log("notif",{ "message": code })
+            self.update_log("notif",{ "message": "Training stopped", "ended":True })
+            return False
+
         self.update_log("notif",{"message":"Copiling Code"})
         charset = 'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\"'
         self.update_log("notif",{"message":"Performing imports"})
         imports, = re.findall("""#import[a-zA-Z\n .,_\-]+#end-import""",code)
-        execute_code(imports)
-        execute_code(build_config['train_config']['dataset']['value'])
+        if not execute_code(imports,self.update_log):
+            return False
+        if not execute_code(build_config['train_config']['dataset']['value'],self.update_log):
+            return False
         
         self.update_log("notif",{"message":"Building Model"})
         for level in build_config['levels']:
             for layer in level:
                 _code = re.findall(f"""{layer} =[{charset}]+#end-{layer}""",code)
                 if len(_code):
-                    execute_code(_code[0])
+                    if not execute_code(_code[0],self.update_log):
+                        return False
 
         self.update_log("notif",{"message":"Compiling Model"})
 
         if build_config['train_config']['optimizer']:
-            execute_code(build_config['train_config']['optimizer']['value'])
+            if not execute_code(build_config['train_config']['optimizer']['value'],self.update_log):
+                return False
 
         if build_config['train_config']['callbacks']:
             for callback in build_config['train_config']['callbacks']:
-                execute_code(callback['value'])    
+                if not execute_code(callback['value'],self.update_log):
+                    return False    
         
         if build_config['train_config']['loss']:
-            execute_code(build_config['train_config']['loss']['value'])
+            if not execute_code(build_config['train_config']['loss']['value'],self.update_log):
+                return False
 
-        comp = build_config['train_config']['compile']['id']
-        model = build_config['train_config']['model']['id']
-        execute_code(re.findall(f"""{model}.compile[{charset}]+#end-{comp}""",code)[0])
-        
-        self.tfgui.epochs = int(build_config['train_config']['train']['arguments']['epochs']['value'])
-        self.tfgui.batch_size = int(build_config['train_config']['train']['arguments']['batch_size']['value'])
-        self.tfgui.batches = int(np.ceil(globals()[build_config['train_config']['dataset']['id']].train_x.__len__() / self.tfgui.batch_size)) - 1
-        
-        train_code, = re.findall(f"""{model}.fit\([a-z\n\t =_0-9.,\[\]\)]+#end-train_\d+""",code)
-        execute_code(train_code)        
+        if build_config['train_config']['compile']:
+            comp = build_config['train_config']['compile']['id']
+            model = build_config['train_config']['model']['id']
+            if not execute_code(re.findall(f"""{model}.compile[{charset}]+#end-{comp}""",code)[0],self.update_log):
+                return False
+        else:
+            self.update_log("notif",{ "message": "Please provide compiler." })
+            self.update_log("notif",{ "message": "Training stopped", "ended":True })
+            return False
+
+        if build_config['train_config']['train']:
+            self.tfgui.epochs = int(build_config['train_config']['train']['arguments']['epochs']['value'])
+            self.tfgui.batch_size = int(build_config['train_config']['train']['arguments']['batch_size']['value'])
+            
+            try:
+                self.tfgui.batches = int(np.ceil(globals()[build_config['train_config']['dataset']['id']].train_x.__len__() / self.tfgui.batch_size)) - 1
+            except KeyError:
+                self.update_log("notif",{ "message": "Please configure dataset." })
+                self.update_log("notif",{ "message": "Training stopped", "ended":True })
+                return False
+
+            train_code, = re.findall(f"""{model}.fit\([a-z\n\t =_0-9.,\[\]\(\)]+#end-train_\d+""",code)
+            if not execute_code(train_code,self.update_log):
+                return False        
+            return True
+        else:
+            self.update_log("notif",{ "message": "Please add Train node" })
+            self.update_log("notif",{ "message": "Training stopped", "ended":True })
+            return False
+
     
     def halt(self,state):
         self.tfgui.halt = state
@@ -203,8 +240,8 @@ class Trainer(object):
         else:
             self.update_log("notif",{"message":"Training Resumed"})
 
-    def start(self,build_config:dict,code:str)->None:
-        train_thread = Thread(target=self._start,args=(build_config,code,))
+    def start(self,build_config:dict,)->None:
+        train_thread = Thread(target=self._start,args=(build_config,))
         train_thread.start()
         return 0
 

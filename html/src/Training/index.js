@@ -1,4 +1,4 @@
-import React, { useDebugValue } from "react";
+import React from "react";
 import './training.css';
 
 const Notification = (props) =>{
@@ -59,6 +59,22 @@ const Epoch = (props) =>{
     )
 }
 
+const Error = (props) =>{
+    console.log(props)
+    return (
+        <div className="log error">
+            <div className="message">
+                {props.data.error}
+            </div>
+            <pre>
+                <code>
+                    {props.data.code}
+                </code>
+            </pre>
+        </div>
+    )
+}
+
 const Training = (props = { trainingStatus: [] }) => {
     let [status,statusState] = React.useState({
         data:[],
@@ -70,7 +86,7 @@ const Training = (props = { trainingStatus: [] }) => {
         state:true
     })   
     
-    let { layers, layersState } = props;
+    let { layers } = props;
 
     async function getStatus() {
         await fetch("http://localhost/status", {
@@ -161,12 +177,7 @@ const Training = (props = { trainingStatus: [] }) => {
       })
     }
 
-    function downloadCode(e) {
-      let link = document.createElement("a");
-      link.href = `data:text/x-python,${encodeURIComponent(props.code.data)}`;
-      link.download = 'train.py'
-      link.click()
-    }
+    
 
     React.useEffect(()=>{
         if (window.__UPDATE_RUNNING__ !== true && window.__TRAIN__){
@@ -215,6 +226,10 @@ const Training = (props = { trainingStatus: [] }) => {
                         return <Notification data={log.data} key={i} />
                     case "epoch":
                         return <Epoch data={log.data} key={i} />
+                    case "error":
+                        return <Error data={log.data} key={i} />
+                    default:
+                        return <div />
 
                }
             })
