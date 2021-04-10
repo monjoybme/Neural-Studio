@@ -115,6 +115,7 @@ const options = {
     "sgd",
   ],
   bool: ["None", "True", "False"],
+  padding:["None","same","valid"]
 };
 
 export default options;

@@ -24,6 +24,11 @@ def execute_code(_code:str,logs=lambda log_type,log:None)->None:
         logs("error",{ "error":str(e), "code":_code })
         logs("notif",{ "message": "Training stopped", "ended":True })
         return False
+    except NameError as e:
+        logs("error",{ "error":str(e), "code":_code })
+        logs("notif",{ "message": "Training stopped", "ended":True })
+        return False
+    
 
 class TfGui(keras.callbacks.Callback):
     batch = None 
@@ -112,7 +117,7 @@ class Summary(object):
     def get(self,build_config:dict,code:str)->None:
         
         charset = 'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\"'
-        imports, = re.findall("""#import[a-zA-Z\n .,_\-]+#end-import""",code)
+        imports, = re.findall("""#import[a-zA-Z0-9\n .,_\-]+#end-import""",code)
         execute_code(imports)
         execute_code(build_config['train_config']['dataset']['value'])
         
@@ -173,7 +178,7 @@ class Trainer(object):
         self.update_log("notif",{"message":"Copiling Code"})
         charset = 'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\"'
         self.update_log("notif",{"message":"Performing imports"})
-        imports, = re.findall("""#import[a-zA-Z\n .,_\-]+#end-import""",code)
+        imports, = re.findall("""#import[a-zA-Z0-9\n .,_\-]+#end-import""",code)
         if not execute_code(imports,self.update_log):
             return False
         if not execute_code(build_config['train_config']['dataset']['value'],self.update_log):

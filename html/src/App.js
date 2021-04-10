@@ -29,7 +29,6 @@ const App = (props) => {
   let [layers, layersState] = React.useState({
 
   });
-
   let [buttons, buttonsState] = React.useState([
     { name: "Graph", path: "/", selected: window.location.pathname === "/" },
     {
@@ -57,8 +56,6 @@ const App = (props) => {
     ],
   });
   let [render, renderState] = React.useState({ name:"Graph"});
-
-  
 
   window.getLayers =  function (){
     return window.layers
@@ -121,7 +118,16 @@ const App = (props) => {
   }
 
   React.useEffect(()=>{
-    
+    document.getElementById("root").onmouseup = function(){
+      if (files.display){
+        setTimeout(function(){
+          filesState({
+            display:false,
+            buttons:files.buttons
+          })
+        }, 500)
+      }
+    }
   })
   
   return (
@@ -171,7 +177,6 @@ const App = (props) => {
                 return (
                   <div className="btn" key={i} onClick={button.func}>
                     <div className="name">
-                      <span>⚫</span>
                       {button.name}
                     </div>
                     <div className="shortcut">{button.shortcut}</div>

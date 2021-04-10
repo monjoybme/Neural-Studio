@@ -235,6 +235,12 @@ const layers = {
             render: "text",
             options: "size",
           },
+          padding:{
+            value:"same",
+            type:"str",
+            render:"list",
+            options:"padding"
+          },
           strides: {
             value: "1",
             type: "str",
@@ -313,6 +319,12 @@ const layers = {
             type: "str",
             render: "text",
             options: "size",
+          },
+          padding:{
+            value:"same",
+            type:"str",
+            render:"list",
+            options:"padding"
           },
           strides: {
             value: "(1, 1)",
@@ -399,6 +411,12 @@ const layers = {
             render: "text",
             options: "size",
           },
+          padding:{
+            value:"same",
+            type:"str",
+            render:"list",
+            options:"padding"
+          },
           strides: {
             value: "(1, 1, 1)",
             type: "str",
@@ -483,6 +501,12 @@ const layers = {
             type: "str",
             render: "text",
             options: "size",
+          },
+          padding:{
+            value:"same",
+            type:"str",
+            render:"list",
+            options:"padding"
           },
           strides: {
             value: "1",
@@ -582,6 +606,12 @@ const layers = {
             render: "text",
             options: "size",
           },
+          padding:{
+            value:"same",
+            type:"str",
+            render:"list",
+            options:"padding"
+          },
           strides: {
             value: "(1, 1)",
             type: "str",
@@ -680,6 +710,12 @@ const layers = {
             render: "text",
             options: "strides",
           },
+          padding:{
+            value:"same",
+            type:"str",
+            render:"list",
+            options:"padding"
+          },
           depth_multiplier: {
             value: "1",
             type: "str",
@@ -759,6 +795,12 @@ const layers = {
             type: "str",
             render: "text",
             options: "size",
+          },
+          padding:{
+            value:"same",
+            type:"str",
+            render:"list",
+            options:"padding"
           },
           strides: {
             value: "(1, 1)",
@@ -845,6 +887,12 @@ const layers = {
             type: "str",
             render: "text",
             options: "size",
+          },
+          padding:{
+            value:"same",
+            type:"str",
+            render:"list",
+            options:"padding"
           },
           strides: {
             value: "(1, 1, 1)",

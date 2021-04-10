@@ -30,7 +30,7 @@ const Epoch = (props) =>{
                       </div>
                   </div>
               </div>
-              </div>
+              </div> 
           <div className="lower">
               {
                   props.data.log.output ? 

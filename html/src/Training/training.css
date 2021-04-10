@@ -100,8 +100,9 @@
 
   .epoch .lower {
       /* display: grid; */
-      border: solid 1px rgba(51, 51, 51, 0.1);
+      border-top: solid 1px rgba(51, 51, 51, 0.1);
       margin: 10px 3px 7px 3px;
+      padding-top: 5px;
   }
 
 .epoch .epochname {
@@ -136,15 +137,19 @@
 }
 
 .outputs {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    /* display: grid; */
+    /* grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); */
+    display: flex;
 }
 
 .outputs .output {
     display: flex;
     justify-content: left;
     align-items: center;
-    padding-left: 3px;
+    padding: 0px 10px 0px 3px;
+    margin-right: 3px;
+
+    /* border-right: solid 1px rgba(51, 51, 51, 0.1); */
 }
 
 .output .name {

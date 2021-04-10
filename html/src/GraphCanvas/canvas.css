@@ -109,11 +109,11 @@
   }
 
 .canvas-top{
-    position: absolute;
-    top: 0px;
-    left: 15vw;
-    min-width: 85vw;
-    min-height: 100vh;
+    position: fixed;
+    top: 65px;
+    left: 14.7vw;
+    width: 85vw;
+    height: 92.5vh;
     overflow: scroll;
     padding: 5px;
 
@@ -122,11 +122,8 @@
 .canvas {
     position: absolute;
     top: 0px;
-    min-width: 85vw;
-    min-height: 100vh;
-
-    height: 110vh;
-    width: 130vw;
+    min-width: 150vw;
+    min-height: 200vh;
 }
 
 .canvas rect {

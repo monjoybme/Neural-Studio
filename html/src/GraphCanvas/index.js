@@ -355,11 +355,17 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
       offsetY: 20,
     };
 
+    window.__LINE_COUNTER++;
+
+    if (window.__ACTIVE_LAYER__.name === 'Model'){
+      window.__ACTIVE_LAYER__ = window.copy( _lg["build-layers"].layers[1] )
+    }else if (window.__ACTIVE_LAYER__.name === 'Compile'){
+      window.__ACTIVE_LAYER__ = window.copy( _lg["build-layers"].layers[2] )
+    }
+
     window.layersState({
       ...window.layers,
     });
-
-    window.__LINE_COUNTER++;
   }
 
   function moveNode(e) {
@@ -526,6 +532,19 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
     window.layersState = layersState;
   })
 
+  function scroll(e){
+    let canv = e.target;
+    let svg = canv.children[0];
+
+    if ( canv.scrollTop > canv.scrollHeight - window.innerHeight ){
+      svg.height.baseVal.value = Math.max(4000, Math.floor( svg.height.baseVal.value * ( 1.1 ) ))
+    }
+    if ( canv.scrollLeft > canv.scrollWidth - window.innerWidth + 150 ){
+      svg.width.baseVal.value = Math.floor( svg.width.baseVal.value * ( 1.1 ) )
+    }
+    
+  }
+
   return (
     <div
       className="app"
@@ -540,7 +559,7 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
         <Toolbar tools={tools} />
         <LayerGroups tools={tools} />
       </div>
-      <div className="canvas-top" id="canvasTop">
+      <div className="canvas-top" id="canvasTop" onScroll={scroll}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="canvas"
