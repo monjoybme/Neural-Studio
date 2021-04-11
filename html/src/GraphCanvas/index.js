@@ -16,6 +16,8 @@ let cursors = {
 const Node = (props) => {
   let layer = props.layer;
   let width = layer.width;
+  let height = 30;
+  let pos_out = props.layer.pos;
 
   function onMouseDown(e) {
     e.preventDefault();
@@ -83,56 +85,30 @@ const Node = (props) => {
         y={layer.pos.y}
         rx={3}
         ry={3}
-        height={40}
+        height={height}
         width={width}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
         onClick={onClick}
       ></rect>
       <text
-        x={layer.pos.x + Math.floor(width / 4.75)}
-        y={layer.pos.y + 25}
+        x={layer.pos.x + Math.floor(width * 0.19)}
+        y={layer.pos.y + 18.5}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
         onClick={onClick}
       >
         {layer.name}
       </text>
-    </g>
-  );
-};
-
-const Edge = (props) => {
-  let pos_out = props.layer.pos;
-  return (
-    <g>
       {props.layer.connections.outbound.map((layer, i) => {
         let pos_in = window.layers[layer];
         if (pos_in) {
           return (
             <line
-              x1={pos_out.x + pos_out.offsetX}
-              y1={pos_out.y + 20}
-              x2={pos_in.pos.x + pos_in.pos.offsetX}
-              y2={pos_in.pos.y + 20}
-              markerMid="url(#triangle)"
-              stroke="rgba( 100, 100, 100, 0.2)"
-              strokeWidth="4"
-              key={i}
-            />
-          );
-        }
-        return undefined
-      })}
-      {props.layer.connections.outbound.map((layer, i) => {
-        let pos_in = window.layers[layer];
-        if (pos_in) {
-          return (
-            <line
-              x1={pos_out.x + pos_out.offsetX}
-              y1={pos_out.y + 20}
-              x2={pos_in.pos.x + pos_in.pos.offsetX}
-              y2={pos_in.pos.y + 20}
+              x1={pos_out.x + pos_out.offsetX - 5}
+              y1={pos_out.y + 30}
+              x2={pos_in.pos.x + pos_in.pos.offsetX - 5}
+              y2={pos_in.pos.y + 15}
               markerMid="url(#triangle)"
               stroke="#222"
               strokeWidth="1"
@@ -142,6 +118,32 @@ const Edge = (props) => {
         }
         return undefined
       })}
+    </g>
+  );
+};
+
+const Edge = (props) => {
+  let pos_out = props.layer.pos;
+  return (
+    <g>
+      {/* {props.layer.connections.outbound.map((layer, i) => {
+        let pos_in = window.layers[layer];
+        if (pos_in) {
+          return (
+            <line
+              x1={pos_out.x + pos_out.offsetX - 5}
+              y1={pos_out.y + 15}
+              x2={pos_in.pos.x + pos_in.pos.offsetX - 5}
+              y2={pos_in.pos.y + 15}
+              markerMid="url(#triangle)"
+              stroke="#222"
+              strokeWidth="1"
+              key={i}
+            />
+          );
+        }
+        return undefined
+      })} */}
     </g>
   );
 };
@@ -347,12 +349,12 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
     };
 
     let scroll = document.getElementById("canvasTop");
-    window.layers[id].width = window.layers[id].name.length * 12;
+    window.layers[id].width = window.layers[id].name.length * 10;
     window.layers[id].pos = {
-      x: e.clientX - window.offsetX + scroll.scrollLeft - window.layers[id].width / 2,
+      x: e.clientX - window.offsetX + scroll.scrollLeft - window.layers[id].width / 1.85,
       y: e.clientY - window.offsetY + scroll.scrollTop - 5,
-      offsetX: window.layers[id].name.length * 6,
-      offsetY: 20,
+      offsetX: window.layers[id].name.length * 5.8,
+      offsetY: 5,
     };
 
     window.__LINE_COUNTER++;
@@ -374,7 +376,7 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
       let pos = window.layers[window.__ACTIVE_ELEMENT__].pos;
       window.layers[window.__ACTIVE_ELEMENT__].pos = {
         x: e.clientX - window.offsetX + scroll.scrollLeft - pos.offsetX,
-        y: e.clientY - window.offsetY + scroll.scrollTop - 20,
+        y: e.clientY - window.offsetY + scroll.scrollTop - pos.offsetY,
         offsetX: pos.offsetX,
         offsetY: pos.offsetY,
       };
@@ -537,23 +539,18 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
     let svg = canv.children[0];
 
     if ( canv.scrollTop > canv.scrollHeight - window.innerHeight ){
-      svg.height.baseVal.value = Math.max(4000, Math.floor( svg.height.baseVal.value * ( 1.1 ) ))
+      svg.height.baseVal.value = Math.max(4400, Math.floor( svg.height.baseVal.value * ( 1.01 ) ))
+      // console.log(svg.height.baseVal.value)
     }
-    if ( canv.scrollLeft > canv.scrollWidth - window.innerWidth + 150 ){
-      svg.width.baseVal.value = Math.floor( svg.width.baseVal.value * ( 1.1 ) )
+    if ( canv.scrollLeft > canv.scrollWidth -  window.innerWidth + 230 ){
+      svg.width.baseVal.value = Math.max(4400, Math.floor( svg.width.baseVal.value * ( 1.005 ) ))
+      // console.log(svg.width.baseVal.value)
     }
     
   }
 
   return (
-    <div
-      className="app"
-      onKeyDown={(e) => {
-        if (e.key === "Tab") {
-          e.preventDefault();
-        }
-      }}
-    >
+    <div className="app" >
       {menu.comp}
       <div className="tools">
         <Toolbar tools={tools} />

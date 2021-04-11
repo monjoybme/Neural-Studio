@@ -111,8 +111,8 @@
 .canvas-top{
     position: fixed;
     top: 65px;
-    left: 14.7vw;
-    width: 85vw;
+    left: 15.3vw;
+    width: 84.5vw;
     height: 92.5vh;
     overflow: scroll;
     padding: 5px;
@@ -127,7 +127,7 @@
 }
 
 .canvas rect {
-    height: 40px;
+    height: 30px;
     fill: #ddd;
     stroke-width:1 ;
     stroke:rgb(97, 96, 96);
@@ -136,9 +136,8 @@
 
 .canvas text{
     position: relative;
-    top: 50%;
-    font-size: 13px;
-    letter-spacing: 1px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
     font-weight: 500;
 }
 

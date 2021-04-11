@@ -24,6 +24,27 @@ setInterval(function () {
 //   link.click()
 // }
 
+const SaveDialogue = (props={layers:{}, saveFunction:function(){}, popupState:function(){} }) =>{
+  return (
+    <div className="save-dialogue">
+      <div className="title">
+        Save
+      </div>    
+      <input defaultValue="graph" />
+      <div className='btns'> 
+        <div onClick={(e)=>{
+          props.saveFunction({name: e.target.parentElement.previousElementSibling.value})
+        }}>
+          save
+        </div>
+        <div>
+          cancel
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const App = (props) => {
 
   let [layers, layersState] = React.useState({
@@ -47,37 +68,61 @@ const App = (props) => {
       selected: window.location.pathname === "/train",
     },
   ]);
+  let [render, renderState] = React.useState({ name:"Graph"});
+
+  let [ project, projectState ] = React.useState({
+    "file":{
+      "name":"graph",
+      "updated":false
+    }
+  })
+  let [ popup,popupState ] = React.useState(
+    <div></div>
+  )
+
   let [files, filesState] = React.useState({
     display: false,
     buttons: [
-      { name: "Save", shortcut: "Ctrl + s", func: saveGraph },
+      { 
+        name: "Save", 
+        shortcut: "Ctrl + s", 
+        func: function(){ 
+          popupState( 
+            <SaveDialogue layers={layers} saveFunction={saveGraph} popupState={popupState} /> 
+          ) 
+          document.getElementById("popups").style.visibility = 'visible'
+        } 
+      },
       { name: "Load", shortcut: "Ctrl + o", func: loadGraph },
       { name: "Save as", shortcut: "Ctrl + Shift + s", func: saveGraph },
     ],
   });
-  let [render, renderState] = React.useState({ name:"Graph"});
+ 
 
   window.getLayers =  function (){
     return window.layers
   }
 
-  async function saveGraph(e) {
+  async function saveGraph(project={ name:"graph" }) {
     filesState({
       display: false,
       buttons: files.buttons,
     });
-    let name = prompt("Enter Graph Name : ", "graph");
+    
+    // console.log(project)
     await fetch("http://localhost/graph/save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         graph: { ...window.getLayers() },
-        name: name,
+        name: project.name,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
         console.log(data,);
+        document.getElementById("popups").style.visibility = 'hidden'
+        popupState(<div></div>)
     });
   }
 
@@ -125,13 +170,31 @@ const App = (props) => {
             display:false,
             buttons:files.buttons
           })
-        }, 500)
+        }, 100)
+      }
+    }
+
+
+    document.getElementsByTagName("html")[0].onkeydown = function (e){
+      e.preventDefault()
+      switch(e.key){
+        case "Control":
+          window.__SHORTCUT__ = true;
+          break
+        case "s":
+          if (window.__SHORTCUT__){
+            window.__SHORTCUT__ = false;
+          } 
       }
     }
   })
   
+
   return (
-    <div>
+    <div >
+      <div className="popups" id="popups" >
+        { popup }    
+      </div>
       <div className="nav">
         <div className="title"> Tf Builder </div>
         <div className="navigation">

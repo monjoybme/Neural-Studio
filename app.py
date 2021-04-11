@@ -77,6 +77,11 @@ async def train_start(request:Request):
             status_code=200,
             message="Method Not Allowed !"
         )
+        except:
+            return json_response({
+                "status":200,
+                "summary":[ 'Error building model' ]
+            })
 
     else:
         return json_response(

@@ -1,3 +1,10 @@
+:root {
+  --broder : rgba(51, 51, 51, 0.042);
+  --broder-dark : rgba(51, 51, 51, 0.15);
+  --broder-darker : rgba(51, 51, 51, 0.25);
+  --broder-darkest : rgba(51, 51, 51, 0.35);
+}
+
 input:focus{
   outline: none;
 }
@@ -38,3 +45,84 @@ body{
 
 
 
+.popups {
+  position: absolute;
+  z-index: 99999999;
+
+  height: 100vh;
+  width: 100vw;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  visibility: hidden;
+}
+
+.save-dialogue {
+  height: 150px;
+  width: 300px;
+
+  border: solid 1px var(--broder-darker);
+  border-radius: 3px;
+  padding: 5px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: space-around;
+
+  box-shadow: 0px 0px 3px 3px rgba(51, 51, 51, 0.042);
+}
+
+.save-dialogue .title {
+  font-size: medium;
+  font-weight: 500;
+  letter-spacing: 1px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 20px;
+}
+
+.save-dialogue input {
+  border: 1px solid var(--broder-darkest);
+  width: 70%;
+
+  height: 25px;
+
+  padding-left: 7px;
+  border-radius: 2px;
+}
+
+.btns {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.btns div {
+  font-size: 13px;
+  padding: 3px;
+  width: 50px;
+
+  cursor: pointer;
+
+  color: white;
+  border-radius: 2px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btns div:first-child {
+  background-color: rgb(88, 170, 88);
+}
+
+.btns div:last-child {
+  background-color: rgb(226, 71, 71);
+}
