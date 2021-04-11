@@ -53,18 +53,39 @@ class Dataset:
         Load dataset and set required variables.
         """
 
-        self.train_x = None
-        self.train_y = None
-        self.test_x = None
-        self.test_y = None
+        images = glob("C:\\workspace\\tensorflow-gui\\data\\datasets\\bfsiw\\leedsbutterfly\\images\\*")
+        labels = glob("C:\\workspace\\tensorflow-gui\\data\\datasets\\bfsiw\\leedsbutterfly\\segmentations\\*")
 
-        self.x_shape = ( 224, 224, 3)
+    
+        self.train_x = np.zeros((len(images),224,224,3)).astype(np.float32)
+        self.train_y = np.zeros((len(labels),224,224,3)).astype(np.float32)
 
+        def get_image(args):
+            index,path,array = args
+            im = cv2.imread(path,)[:,:,::-1]
+            im = cv2.resize(im,(224,224),interpolation=cv2.INTER_AREA)
+            array[index] = im
+            return 1
+
+
+        with ThreadPoolExecutor(max_workers=32) as executor:
+            res = executor.map(get_image,[ ( i,path,self.train_x ) for i,path in enumerate(images)])
+            
+        with ThreadPoolExecutor(max_workers=32) as executor:
+            res = executor.map(get_image,[ ( i,path,self.train_y ) for i,path in enumerate(labels)])
+
+        self.train_y = self.train_y.mean(axis=-1) / 255
+        test_idx = np.random.randint(0,len(self.train_x),size=32)
+        
+        self.test_x = self.train_x[test_idx]
+        self.test_y = self.train_y[test_idx]
+
+        collect()
+        
 # Do not change the anything.
 dataset_1 = Dataset()
 #end-dataset id=dataset_1
-
-input_1 = layers.Input(
+input_2 = layers.Input(
     shape=(224, 224, 3),
     batch_size=None,
     name=None,
@@ -72,35 +93,448 @@ input_1 = layers.Input(
     sparse=False,
     tensor=None,
     ragged=False,
-) #end-input_1
+) #end-input_2
 
 
-mobilenet_1 = applications.MobileNet(
-    input_tensor=input_1,
-    weights='imagenet',
-    include_top=False
-).output #end-mobilenet_1
-
-
-globalmaxpooling2d_1 = layers.GlobalMaxPooling2D(
+conv2d_6 = layers.Conv2D(
+    filters=8,
+    kernel_size=3,
+    padding='same',
+    strides=(1, 1),
     data_format=None,
-)(mobilenet_1) #end-globalmaxpooling2d_1
-
-
-dense_1 = layers.Dense(
-    units=1000,
-    activation='softmax',
+    dilation_rate=(1, 1),
+    groups=1,
+    activation='swish',
     use_bias=True,
     kernel_regularizer=None,
     bias_regularizer=None,
     activity_regularizer=None,
     kernel_constraint=None,
     bias_constraint=None,
-)(globalmaxpooling2d_1) #end-dense_1
+)(input_2) #end-conv2d_6
+
+
+conv2d_7 = layers.Conv2D(
+    filters=8,
+    kernel_size=3,
+    padding='same',
+    strides=2,
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(conv2d_6) #end-conv2d_7
+
+
+dropout_1 = layers.Dropout(
+    rate=0.1,
+    noise_shape=None,
+    seed=None,
+)(conv2d_7) #end-dropout_1
+
+
+conv2d_8 = layers.Conv2D(
+    filters=16,
+    kernel_size=3,
+    padding='same',
+    strides=(1, 1),
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(dropout_1) #end-conv2d_8
+
+
+conv2d_9 = layers.Conv2D(
+    filters=16,
+    kernel_size=3,
+    padding='same',
+    strides=2,
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(conv2d_8) #end-conv2d_9
+
+
+dropout_2 = layers.Dropout(
+    rate=0.1,
+    noise_shape=None,
+    seed=None,
+)(conv2d_9) #end-dropout_2
+
+
+conv2d_10 = layers.Conv2D(
+    filters=32,
+    kernel_size=3,
+    padding='same',
+    strides=(1, 1),
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(dropout_2) #end-conv2d_10
+
+
+conv2d_11 = layers.Conv2D(
+    filters=32,
+    kernel_size=3,
+    padding='same',
+    strides=2,
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(conv2d_10) #end-conv2d_11
+
+
+dropout_3 = layers.Dropout(
+    rate=0.1,
+    noise_shape=None,
+    seed=None,
+)(conv2d_11) #end-dropout_3
+
+
+conv2d_12 = layers.Conv2D(
+    filters=64,
+    kernel_size=3,
+    padding='same',
+    strides=(1, 1),
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(dropout_3) #end-conv2d_12
+
+
+conv2d_13 = layers.Conv2D(
+    filters=64,
+    kernel_size=3,
+    padding='same',
+    strides=2,
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(conv2d_12) #end-conv2d_13
+
+
+dropout_4 = layers.Dropout(
+    rate=0.1,
+    noise_shape=None,
+    seed=None,
+)(conv2d_13) #end-dropout_4
+
+
+conv2d_14 = layers.Conv2D(
+    filters=128,
+    kernel_size=3,
+    padding='same',
+    strides=(1, 1),
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(dropout_4) #end-conv2d_14
+
+
+conv2d_15 = layers.Conv2D(
+    filters=128,
+    kernel_size=3,
+    padding='same',
+    strides=2,
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(conv2d_14) #end-conv2d_15
+
+
+dropout_5 = layers.Dropout(
+    rate=0.1,
+    noise_shape=None,
+    seed=None,
+)(conv2d_15) #end-dropout_5
+
+
+conv2dtranspose_1 = layers.Conv2DTranspose(
+    filters=64,
+    kernel_size=3,
+    padding='same',
+    strides=2,
+    output_padding=None,
+    data_format=None,
+    dilation_rate=(1, 1),
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(dropout_5) #end-conv2dtranspose_1
+
+
+concatenate_3 = layers.Concatenate(
+
+)([conv2dtranspose_1, dropout_4]) #end-concatenate_3
+
+
+conv2dtranspose_2 = layers.Conv2DTranspose(
+    filters=64,
+    kernel_size=3,
+    padding='same',
+    strides=(1, 1),
+    output_padding=None,
+    data_format=None,
+    dilation_rate=(1, 1),
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(concatenate_3) #end-conv2dtranspose_2
+
+
+conv2dtranspose_3 = layers.Conv2DTranspose(
+    filters=32,
+    kernel_size=3,
+    padding='same',
+    strides=2,
+    output_padding=None,
+    data_format=None,
+    dilation_rate=(1, 1),
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(conv2dtranspose_2) #end-conv2dtranspose_3
+
+
+dropout_6 = layers.Dropout(
+    rate=0.1,
+    noise_shape=None,
+    seed=None,
+)(conv2dtranspose_3) #end-dropout_6
+
+
+concatenate_4 = layers.Concatenate(
+
+)([dropout_6, dropout_3]) #end-concatenate_4
+
+
+conv2dtranspose_4 = layers.Conv2DTranspose(
+    filters=32,
+    kernel_size=3,
+    padding='same',
+    strides=(1, 1),
+    output_padding=None,
+    data_format=None,
+    dilation_rate=(1, 1),
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(concatenate_4) #end-conv2dtranspose_4
+
+
+conv2dtranspose_5 = layers.Conv2DTranspose(
+    filters=16,
+    kernel_size=3,
+    padding='same',
+    strides=2,
+    output_padding=None,
+    data_format=None,
+    dilation_rate=(1, 1),
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(conv2dtranspose_4) #end-conv2dtranspose_5
+
+
+dropout_7 = layers.Dropout(
+    rate=0.1,
+    noise_shape=None,
+    seed=None,
+)(conv2dtranspose_5) #end-dropout_7
+
+
+concatenate_5 = layers.Concatenate(
+
+)([dropout_7, dropout_2]) #end-concatenate_5
+
+
+conv2dtranspose_6 = layers.Conv2DTranspose(
+    filters=16,
+    kernel_size=3,
+    padding='same',
+    strides=(1, 1),
+    output_padding=None,
+    data_format=None,
+    dilation_rate=(1, 1),
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(concatenate_5) #end-conv2dtranspose_6
+
+
+conv2dtranspose_7 = layers.Conv2DTranspose(
+    filters=8,
+    kernel_size=3,
+    padding='same',
+    strides=2,
+    output_padding=None,
+    data_format=None,
+    dilation_rate=(1, 1),
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(conv2dtranspose_6) #end-conv2dtranspose_7
+
+
+dropout_8 = layers.Dropout(
+    rate=0.1,
+    noise_shape=None,
+    seed=None,
+)(conv2dtranspose_7) #end-dropout_8
+
+
+concatenate_6 = layers.Concatenate(
+
+)([dropout_8, dropout_1]) #end-concatenate_6
+
+
+conv2dtranspose_8 = layers.Conv2DTranspose(
+    filters=8,
+    kernel_size=3,
+    padding='same',
+    strides=(1, 1),
+    output_padding=None,
+    data_format=None,
+    dilation_rate=(1, 1),
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(concatenate_6) #end-conv2dtranspose_8
+
+
+conv2dtranspose_9 = layers.Conv2DTranspose(
+    filters=3,
+    kernel_size=3,
+    padding='same',
+    strides=2,
+    output_padding=None,
+    data_format=None,
+    dilation_rate=(1, 1),
+    activation='swish',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(conv2dtranspose_8) #end-conv2dtranspose_9
+
+
+dropout_9 = layers.Dropout(
+    rate=0.1,
+    noise_shape=None,
+    seed=None,
+)(conv2dtranspose_9) #end-dropout_9
+
+
+dense_1 = layers.Dense(
+    units=1,
+    activation='sigmoid',
+    use_bias=True,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(dropout_9) #end-dense_1
 
 
 model_1 = keras.Model(
-    [ input_1, ],
+    [ input_2, ],
     [ dense_1, ]
 ) #end-model_1
 
@@ -108,8 +542,8 @@ model_1 = keras.Model(
 
 model_1.compile(
     optimizer='adam',
-    loss='categorical_crossentropy',
-    metrics=["categorical_accuracy"]
+    loss='mean_squared_error',
+    metrics=["binary_crossentropy", "mean_absolute_error", "mean_squared_error"]
 ) #end-compile_1
 
 
@@ -117,8 +551,8 @@ model_1.compile(
 model_1.fit(
     x=dataset_1.train_x,
     y=dataset_1.train_y,
-    batch_size=32,
-    epochs=3,
+    batch_size=8,
+    epochs=10,
     validation_data=( dataset_1.test_x, dataset_1.test_y ),
     callbacks=[ tfgui,  ]
 ) #end-train_1

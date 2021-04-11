@@ -30,7 +30,7 @@ const SaveDialogue = (props={layers:{}, saveFunction:function(){}, popupState:fu
       <div className="title">
         Save
       </div>    
-      <input defaultValue="graph" />
+      <input  />
       <div className='btns'> 
         <div onClick={(e)=>{
           props.saveFunction({name: e.target.parentElement.previousElementSibling.value})
@@ -176,13 +176,13 @@ const App = (props) => {
 
 
     document.getElementsByTagName("html")[0].onkeydown = function (e){
-      e.preventDefault()
       switch(e.key){
         case "Control":
           window.__SHORTCUT__ = true;
           break
         case "s":
           if (window.__SHORTCUT__){
+            e.preventDefault()
             window.__SHORTCUT__ = false;
           } 
       }

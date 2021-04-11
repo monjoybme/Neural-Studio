@@ -7,7 +7,7 @@ from tf_gui.trainer import  Trainer,Summary
 from json import dump,load,JSONDecodeError
 
 app = App()
-trainer = Trainer()
+trainer = Trainer(save_epoch=True,epoch_output='segmentation')
 summary = Summary()
 
 @app.route("/")
@@ -80,7 +80,7 @@ async def train_start(request:Request):
         except:
             return json_response({
                 "status":200,
-                "summary":[ 'Error building model' ]
+                "summary":[ [ 'Error building model', ], ]
             })
 
     else:

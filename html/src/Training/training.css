@@ -40,7 +40,7 @@
   .logs{
     display: grid;
     margin-top: 1vh;
-    grid-gap: 1vh;
+    grid-gap: 1.1vh;
     padding-right: 5px;
     overflow-y: scroll;
     max-height: 85vh;
@@ -48,7 +48,7 @@
   
   .log{
     width: 100%;
-    border: solid 1px rgba(51, 51, 51, 0.042);
+    border: solid 1px rgba(51, 51, 51, 0.15);
     background: rgba(228, 228, 228, 0.207);
     padding: 7px 7px 7px 7px;
   }
@@ -182,4 +182,19 @@
     width: -webkit-fill-available;
     
     border-radius: 2px;
+}
+
+.outvis {
+    display: flex;
+    flex-direction: column;
+}
+
+.outvis div{
+    height: 25px;
+    font-size: small;
+    letter-spacing: 1px;
+}
+
+.outvis img{
+    border: solid 1px rgba(51, 51, 51, 0.15);
 }

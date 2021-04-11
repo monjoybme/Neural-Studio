@@ -118,9 +118,15 @@ def build_code(build_config:dict)->Tuple[dict,str]:
 
     build_config['train_config'] = train_config
     build_config['input_nodes'] = inputs
+    
+    skip = []
     levels = [ set() for i in range(len(build_config))]
+
     def setLevel(node,config,di=0):
-        levels[di].add(node)
+        if node not in skip:
+            levels[di].add(node)
+            skip.append(node)
+        
         if build_config[node]['connections']['outbound']:
             for next_node in build_config[node]['connections']['outbound']: 
                 setLevel(next_node,build_config,di+1)
@@ -128,7 +134,15 @@ def build_code(build_config:dict)->Tuple[dict,str]:
     for inp in inputs:
         setLevel(inp,build_config,0)
         
+    levels = [list(level) for level in levels if len(level)]    
+    for level in levels:
+        for idx,layer in enumerate(level):
+            for jdx,conn in enumerate(level[idx+1:]):
+                if conn in build_config[layer]['connections']['inbound']:
+                    level[jdx+idx+1],level[idx] = layer,conn
+                
     build_config['levels'] = levels
+
     levels = [list(level) for level in levels if len(level)]
     for key,val in train_config.items():
         if val != None:

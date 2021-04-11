@@ -1,19 +1,27 @@
 import re
+import base64
 
-from numpy.core.fromnumeric import _var_dispatcher
-from tf_gui.builder import build_code
-
+import cv2
 import pandas as pd
 import numpy as np
 import tensorflow as tf
 
+
 from tensorflow import keras
-from tensorflow.keras import layers,optimizers,losses,metrics,callbacks,applications
+from tensorflow.keras import layers,optimizers,losses,metrics,callbacks
+
+from glob import glob
+from concurrent.futures import ThreadPoolExecutor
+
 
 from typing import List
 from json import load,dump
 from time import sleep, time
 from threading import Thread
+from gc import collect
+
+
+from tf_gui.builder import build_code
 
 def execute_code(_code:str,logs=lambda log_type,log:None)->None:
     try:
@@ -29,7 +37,6 @@ def execute_code(_code:str,logs=lambda log_type,log:None)->None:
         logs("notif",{ "message": "Training stopped", "ended":True })
         return False
     
-
 class TfGui(keras.callbacks.Callback):
     batch = None 
     epoch = 0
@@ -40,19 +47,21 @@ class TfGui(keras.callbacks.Callback):
     
     trainer = None
     halt = False
+    output= []
     
     def __repr__(self,):
         return f"""TfGui(
     batch={self.batch},
-    logs={self.logs},
     batch_size={self.batch_size},
     epochs={self.epochs},
 )
 """
     
     
-    def __init__(self,trainer):
+    def __init__(self,trainer,save_epoch = False, epoch_output = None):
         self.trainer = trainer
+        self.save_epoch = save_epoch
+        self.epoch_output = epoch_output
     
     @property
     def status(self,):
@@ -100,6 +109,22 @@ class TfGui(keras.callbacks.Callback):
             "batch":self.batch,
             "output":logs
         }
+        
+        if self.save_epoch:
+            if self.epoch_output == 'segmentation':
+                dataset = globals()[self.trainer.build_config['train_config']['dataset']['id']]
+                sample = dataset.train_x[np.random.randint(0,len(dataset.train_x),5)]
+                output = (self.model.predict(sample) * 255 ).astype(np.uint8)
+                _,buffer = cv2.imencode(".jpg",np.concatenate(output,axis=1))
+                out = "data:image/jpg;base64," + base64.b64encode(buffer).decode()
+                self.trainer.update_log(
+                    log_type="output",
+                    log={
+                        "type":"segmenatation",
+                        "value":out
+                    }
+                )
+            
         while self.halt:
             sleep(0.5)
 
@@ -110,6 +135,12 @@ class TfGui(keras.callbacks.Callback):
         })
 
 class Summary(object):
+    def on_train_end(self, logs):
+        self.trainer.update_log(log_type="notif",log={
+            "message":"Training Ended",
+            "ended":True
+        })
+
     def __init__(self):
         pass
     
@@ -146,10 +177,21 @@ class Summary(object):
             summary.append(word,)
             
         model = globals()[model]
-        model.summary(line_length=512,print_fn=print_fn)
+        model.summary(line_length=128,print_fn=print_fn)
 
-        return summary[::2]
-    
+        col = "[a-zA-Z0-9 ,\[\]\(\)#_]+ +"
+        summ = re.findall(f"{col}{col}{col}{col}",'\n'.join(summary))
+        summ = [ re.split("  +",i)[:-1] for i in summ ]
+        summary = []
+
+        for i in summ:
+            if len(i) > 2:
+                summary.append(i)
+            else:
+                summary[-1][-1] += ', ' + ''.join(i)
+                
+        return summary
+
 class Trainer(object):
     build_config = {}
     model = keras.Model
@@ -157,8 +199,8 @@ class Trainer(object):
     
     logs = []
 
-    def __init__(self):
-        globals()['tfgui'] = TfGui(self,)
+    def __init__(self,save_epoch=False,epoch_output=None):
+        globals()['tfgui'] = TfGui(self,save_epoch=save_epoch,epoch_output=epoch_output)
         self.tfgui = globals()['tfgui']
     
     def update_log(self,log_type:str,log):
@@ -169,6 +211,7 @@ class Trainer(object):
         
     def _start(self,build_config:dict)->None:
         build_config,code = build_code(build_config=build_config,)
+        self.build_config = build_config
 
         if not build_config:
             self.update_log("notif",{ "message": code })
@@ -181,6 +224,8 @@ class Trainer(object):
         imports, = re.findall("""#import[a-zA-Z0-9\n .,_\-]+#end-import""",code)
         if not execute_code(imports,self.update_log):
             return False
+        
+        self.update_log("notif",{"message":"Reading Dataset."})
         if not execute_code(build_config['train_config']['dataset']['value'],self.update_log):
             return False
         

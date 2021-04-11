@@ -17,7 +17,7 @@ const Node = (props) => {
   let layer = props.layer;
   let width = layer.width;
   let height = 30;
-  let pos_out = props.layer.pos;
+  let pos_in = props.layer.pos;
 
   function onMouseDown(e) {
     e.preventDefault();
@@ -78,8 +78,50 @@ const Node = (props) => {
     }
   }
 
+  function lineOut(e){
+    e.target.style.strokeWidth = 2;
+  }
+
+  function lineOver(e){
+    e.target.style.strokeWidth = 4;
+  }
+
+  function lineOnClick(e){
+    switch(window.__MODE__){
+      case "delete":
+        layer.connections.outbound.forEach((layerId,i)=>{
+          props.layers[layerId].connections.outbound.pop(layer.id);
+          props.layers[layer.id].connections.inbound.pop(layerId);
+        })
+        props.layersState({ ...props.layers })
+        break
+    }
+  }
+
   return (
     <g x={layer.pos.x} y={layer.pos.y}>
+      {props.layer.connections.inbound.map((layer, i) => {
+        let pos_out = window.layers[layer];
+        if (pos_out) {
+          return (
+            <line
+              x1={pos_in.x + pos_in.offsetX - 5}
+              y1={pos_in.y + 15}
+              x2={pos_out.pos.x + pos_out.pos.offsetX - 6}
+              y2={pos_out.pos.y + 31}
+              markerMid="url(#triangle)"
+              stroke="#555"
+              strokeWidth="2"
+              key={i}
+
+              onClick={lineOnClick}
+              onMouseOver={lineOver}
+              onMouseOut={lineOut}
+            />
+          );
+        }
+        return undefined
+      })}
       <rect
         x={layer.pos.x}
         y={layer.pos.y}
@@ -100,53 +142,35 @@ const Node = (props) => {
       >
         {layer.name}
       </text>
-      {props.layer.connections.outbound.map((layer, i) => {
-        let pos_in = window.layers[layer];
-        if (pos_in) {
-          return (
-            <line
-              x1={pos_out.x + pos_out.offsetX - 5}
-              y1={pos_out.y + 30}
-              x2={pos_in.pos.x + pos_in.pos.offsetX - 5}
-              y2={pos_in.pos.y + 15}
-              markerMid="url(#triangle)"
-              stroke="#222"
-              strokeWidth="1"
-              key={i}
-            />
-          );
-        }
-        return undefined
-      })}
     </g>
   );
 };
 
-const Edge = (props) => {
-  let pos_out = props.layer.pos;
-  return (
-    <g>
-      {/* {props.layer.connections.outbound.map((layer, i) => {
-        let pos_in = window.layers[layer];
-        if (pos_in) {
-          return (
-            <line
-              x1={pos_out.x + pos_out.offsetX - 5}
-              y1={pos_out.y + 15}
-              x2={pos_in.pos.x + pos_in.pos.offsetX - 5}
-              y2={pos_in.pos.y + 15}
-              markerMid="url(#triangle)"
-              stroke="#222"
-              strokeWidth="1"
-              key={i}
-            />
-          );
-        }
-        return undefined
-      })} */}
-    </g>
-  );
-};
+// const Edge = (props) => {
+//   let pos_out = props.layer.pos;
+//   return (
+//     <g>
+//       {props.layer.connections.outbound.map((layer, i) => {
+//         let pos_in = window.layers[layer];
+//         if (pos_in) {
+//           return (
+//             <line
+//               x1={pos_out.x + pos_out.offsetX - 5}
+//               y1={pos_out.y + 15}
+//               x2={pos_in.pos.x + pos_in.pos.offsetX - 5}
+//               y2={pos_in.pos.y + 15}
+//               markerMid="url(#triangle)"
+//               stroke="#222"
+//               strokeWidth="1"
+//               key={i}
+//             />
+//           );
+//         }
+//         return undefined
+//       })}
+//     </g>
+//   );
+// };
 
 const Toolbar = (props) => {
   let buttons = [
@@ -532,6 +556,8 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
   React.useEffect(()=>{
     window.layers = layers;
     window.layersState = layersState;
+
+    clearTimeout(window.__UPDATE_TIMEOUT__)
   })
 
   function scroll(e){
@@ -546,7 +572,11 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
       svg.width.baseVal.value = Math.max(4400, Math.floor( svg.width.baseVal.value * ( 1.005 ) ))
       // console.log(svg.width.baseVal.value)
     }
-    
+  }
+
+  function zoomControl(e){
+    console.log(e)
+    e.preventDefault()
   }
 
   return (
@@ -562,6 +592,9 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
           className="canvas"
           id="canvas"
           onMouseUp={onMouseUp}
+
+          // viewBox={`${viewBox.x0} ${viewBox.y0} ${viewBox.x1} ${viewBox.y1}`}
+
         >
           <marker
             xmlns="http://www.w3.org/2000/svg"
@@ -587,9 +620,9 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
             strokeWidth="0"
             markerEnd="url(#triangle)"
           />
-          {Object.keys(window.layers).map((layer, i) => {
+          {/* {Object.keys(window.layers).map((layer, i) => {
             return <Edge layers={window.layers} layer={window.layers[layer]} key={i} />;
-          })}
+          })} */}
           {Object.keys(window.layers).map((layer, i) => {
             return (
               <Node
@@ -597,6 +630,9 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
                 menu={menu}
                 menuState={menuState}
                 key={i}
+
+                layers={layers}
+                layersState={layersState}
               />
             );
           })}

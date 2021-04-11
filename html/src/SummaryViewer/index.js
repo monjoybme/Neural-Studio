@@ -32,6 +32,7 @@ const SummaryViewer = (props={layers:{},}) =>{
         if (! summary.fetched){
             getModel()
         }
+        clearTimeout(window.__UPDATE_TIMEOUT__)
     })
 
     return (
@@ -41,7 +42,7 @@ const SummaryViewer = (props={layers:{},}) =>{
                     return (
                         <div key={i} className="log notif sum-col">
                             { 
-                                line.split(/  +/g).map((col,i)=>{
+                                line.map((col,i)=>{
                                     return (
                                         <div className="col" key={i}> 
                                             {col}

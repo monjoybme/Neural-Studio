@@ -32,6 +32,7 @@ const CodeEditor = (props={layers:{}}) => {
     if ( code.data.length === 0 ){
       buildCode()
     }
+    clearTimeout(window.__UPDATE_TIMEOUT__)
   },[])
 
     return (

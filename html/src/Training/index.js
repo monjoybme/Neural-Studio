@@ -60,7 +60,7 @@ const Epoch = (props) =>{
 }
 
 const Error = (props) =>{
-    console.log(props)
+    // console.log(props)
     return (
         <div className="log error">
             <div className="message">
@@ -71,6 +71,17 @@ const Error = (props) =>{
                     {props.data.code}
                 </code>
             </pre>
+        </div>
+    )
+}
+
+const Output = (props) =>{
+    return (
+        <div className="log outvis">
+            <div>
+                Epoch Output | Type : {props.data.type}
+            </div>
+            <img src={props.data.value} />
         </div>
     )
 }
@@ -102,16 +113,14 @@ const Training = (props = { trainingStatus: [] }) => {
                     console.log("Training Ended")
                     window.__TRAINING__ = false;
                     window.__UPDATE_RUNNING__ = false;
-                    clearTimeout(window.__UPDATE_INTERVAL)
                 }else{
-                    setTimeout(getStatus,10)
+                    window.__UPDATE_TIMEOUT__ =  setTimeout(getStatus,10)
                 }
             })
             .catch((err) => {
                 console.log(err)
                 window.__TRAIN__ = false
                 window.__UPDATE_RUNNING__ = false;
-                clearTimeout(window.__UPDATE_INTERVAL)
             });    
     }
 
@@ -182,7 +191,7 @@ const Training = (props = { trainingStatus: [] }) => {
     React.useEffect(()=>{
         if (window.__UPDATE_RUNNING__ !== true && window.__TRAIN__){
             console.log("Starting Update")
-            window.__UPDATE_INTERVAL =  setTimeout(getStatus,10)
+            window.__UPDATE_TIMEOUT__ =  setTimeout(getStatus,10)
             window.__UPDATE_RUNNING__ = true;
         }
     })
@@ -228,6 +237,8 @@ const Training = (props = { trainingStatus: [] }) => {
                         return <Epoch data={log.data} key={i} />
                     case "error":
                         return <Error data={log.data} key={i} />
+                    case "output":
+                        return <Output data={log.data} key={i} />
                     default:
                         return <div />
 
