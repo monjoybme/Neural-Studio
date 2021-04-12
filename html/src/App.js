@@ -17,27 +17,24 @@ setInterval(function () {
   window.offsetY = 75;
 }, 1000);
 
-// function downloadCode(e) {
-//   let link = document.createElement("a");
-//   link.href = `data:text/x-python,${encodeURIComponent(props.code.data)}`;
-//   link.download = 'train.py'
-//   link.click()
-// }
 
-const SaveDialogue = (props={layers:{}, saveFunction:function(){}, popupState:function(){} }) =>{
+const SaveDialogue = (props={layers:{}, saveFunction:function(){}, popupState:function(){}, project:{ name:"graph",updated:false } }) =>{
   return (
     <div className="save-dialogue">
       <div className="title">
         Save
       </div>    
-      <input  />
+      <input value={props.project.name} />
       <div className='btns'> 
         <div onClick={(e)=>{
-          props.saveFunction({name: e.target.parentElement.previousElementSibling.value})
+          props.saveFunction({file: e.target.parentElement.previousElementSibling.value})
         }}>
           save
         </div>
-        <div>
+        <div onClick={(e)=>{
+          document.getElementById("popups").style.visibility = 'hidden'
+          props.popupState(<div></div>)
+        }}>
           cancel
         </div>
       </div>
@@ -48,7 +45,6 @@ const SaveDialogue = (props={layers:{}, saveFunction:function(){}, popupState:fu
 const App = (props) => {
 
   let [layers, layersState] = React.useState({
-
   });
   let [buttons, buttonsState] = React.useState([
     { name: "Graph", path: "/", selected: window.location.pathname === "/" },
@@ -79,22 +75,22 @@ const App = (props) => {
   let [ popup,popupState ] = React.useState(
     <div></div>
   )
-
   let [files, filesState] = React.useState({
     display: false,
     buttons: [
       { 
         name: "Save", 
-        shortcut: "Ctrl + s", 
+        shortcut: "Ctrl + S", 
         func: function(){ 
           popupState( 
-            <SaveDialogue layers={layers} saveFunction={saveGraph} popupState={popupState} /> 
+            <SaveDialogue layers={layers} saveFunction={saveGraph} popupState={popupState} project={project} /> 
           ) 
           document.getElementById("popups").style.visibility = 'visible'
         } 
       },
-      { name: "Load", shortcut: "Ctrl + o", func: loadGraph },
-      { name: "Save as", shortcut: "Ctrl + Shift + s", func: saveGraph },
+      { name: "Load", shortcut: "Ctrl + O", func: loadGraph },
+      { name: "Save as", shortcut: "Ctrl + Shift + S", func: saveGraph },
+      { name: "Download Code", shortcut: "Ctrl + D", func: downloadCode },
     ],
   });
  
@@ -103,24 +99,28 @@ const App = (props) => {
     return window.layers
   }
 
-  async function saveGraph(project={ name:"graph" }) {
+  async function saveGraph(project={ file:"graph" }) {
     filesState({
       display: false,
       buttons: files.buttons,
     });
-    
-    // console.log(project)
+
     await fetch("http://localhost/graph/save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         graph: { ...window.getLayers() },
-        name: project.name,
+        file: project.file,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data,);
+        console.log(data,project);
+        projectState({
+          file:project.file,
+          updated:true
+        })
+
         document.getElementById("popups").style.visibility = 'hidden'
         popupState(<div></div>)
     });
@@ -134,10 +134,22 @@ const App = (props) => {
     setTimeout(async function(){
       let input = document.createElement("input");
       input.type = "file";
+      input.id = "fileopen"
       input.onchange = function (e) {
         var reader = new FileReader();
         reader.onload = function () {
-          layersState({ ...JSON.parse(reader.result) });
+          let graph = JSON.parse(reader.result);
+          layersState({ ...graph });
+          layersState({ ...graph });
+
+          projectState({
+            file:input.files[0].name.split(".")[0],
+            updated:true
+          })
+          projectState({
+            file:input.files[0].name.split(".")[0],
+            updated:true
+          })
           document.body.style.cursor = 'default'
         };
         reader.readAsText(e.target.files[0]);
@@ -145,6 +157,24 @@ const App = (props) => {
       input.click();
       document.body.style.cursor = 'loading';
     },10)
+  }
+
+  async function downloadCode(e) {
+    await fetch(
+      "http://localhost/build",
+      {
+        method:"POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...layers })
+      }
+    )
+    .then(response=>response.json())
+    .then(data=>{
+        let link = document.createElement("a");
+        link.href = `data:text/x-python,${encodeURIComponent(data.code)}`;
+        link.download = 'train.py'
+        link.click()
+    })
   }
 
   function getRenderComp(){
@@ -174,19 +204,67 @@ const App = (props) => {
       }
     }
 
-
     document.getElementsByTagName("html")[0].onkeydown = function (e){
-      switch(e.key){
-        case "Control":
-          window.__SHORTCUT__ = true;
-          break
-        case "s":
-          if (window.__SHORTCUT__){
-            e.preventDefault()
-            window.__SHORTCUT__ = false;
-          } 
+      if (window.__SHORTCUT__){
+        switch(e.key){
+          case "s":
+            e.preventDefault();
+            if ( project.updated ){
+              saveGraph(project)
+            }else{
+              files.buttons[0].func(project)
+            }
+            break 
+          case "o":
+            e.preventDefault();
+            loadGraph();
+            break
+          case "d":
+            e.preventDefault();
+            downloadCode();
+            break
+          case "1":
+            e.preventDefault();
+            window.toolbarHandler({ mode: "normal" })
+            break
+          case "2":
+            e.preventDefault();
+            window.toolbarHandler({ mode: "line" })
+            break
+          case "3":
+            e.preventDefault();
+            window.toolbarHandler({ mode: "move" })
+            break
+          case "4":
+            e.preventDefault();
+            window.toolbarHandler({ mode: "delete" })
+            break
+          case "5":
+            e.preventDefault();
+            layersState({})
+            layersState({})
+            break
+          default:
+            break
+        } 
+      }else{
+        switch(e.key){
+          case "Control":
+            window.__SHORTCUT__ = true;
+            break
+          case "Escape":
+            popupState(<div></div>)
+            document.getElementById("popups").style.visibility = 'hidden'
+            break
+          default:
+            break
+        } 
       }
     }
+    document.getElementsByTagName("html")[0].onkeyup = function (e){
+      window.__SHORTCUT__ = false;
+    }
+    
   })
   
 
@@ -251,6 +329,9 @@ const App = (props) => {
         </div>
       </div>
       {getRenderComp()}
+      <div style={{position:"absolute",visibility:"hidden", height:"0px",width:"0px",zIndex:"-1000"}}>
+        { JSON.stringify(layers).slice(0,1) }
+      </div>
     </div>
   );
 

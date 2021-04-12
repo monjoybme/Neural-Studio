@@ -146,31 +146,7 @@ const Node = (props) => {
   );
 };
 
-// const Edge = (props) => {
-//   let pos_out = props.layer.pos;
-//   return (
-//     <g>
-//       {props.layer.connections.outbound.map((layer, i) => {
-//         let pos_in = window.layers[layer];
-//         if (pos_in) {
-//           return (
-//             <line
-//               x1={pos_out.x + pos_out.offsetX - 5}
-//               y1={pos_out.y + 15}
-//               x2={pos_in.pos.x + pos_in.pos.offsetX - 5}
-//               y2={pos_in.pos.y + 15}
-//               markerMid="url(#triangle)"
-//               stroke="#222"
-//               strokeWidth="1"
-//               key={i}
-//             />
-//           );
-//         }
-//         return undefined
-//       })}
-//     </g>
-//   );
-// };
+
 
 const Toolbar = (props) => {
   let buttons = [
@@ -540,26 +516,6 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
     });
   }
 
-  let tools = {
-    layerIdGenerator: layerIdGenerator,
-    downLine: downLine,
-    downDelete: downDelete,
-    downLayer: downLayer,
-    moveNode: moveNode,
-    moveEdgeEnd: moveEdgeEnd,
-    modeFunctions: modeFunctions,
-    setMode: setMode,
-    toolbarHandler: toolbarHandler,
-    onMouseUp: onMouseUp,
-  };
-
-  React.useEffect(()=>{
-    window.layers = layers;
-    window.layersState = layersState;
-
-    clearTimeout(window.__UPDATE_TIMEOUT__)
-  })
-
   function scroll(e){
     let canv = e.target;
     let svg = canv.children[0];
@@ -579,8 +535,33 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
     e.preventDefault()
   }
 
+  let tools = {
+    layerIdGenerator: layerIdGenerator,
+    downLine: downLine,
+    downDelete: downDelete,
+    downLayer: downLayer,
+    moveNode: moveNode,
+    moveEdgeEnd: moveEdgeEnd,
+    modeFunctions: modeFunctions,
+    setMode: setMode,
+    toolbarHandler: toolbarHandler,
+    onMouseUp: onMouseUp,
+  };
+
+  React.useEffect(()=>{
+    window.layers = layers;
+    window.layersState = layersState;
+    window.toolbarHandler = toolbarHandler;
+
+    clearTimeout(window.__UPDATE_TIMEOUT__)
+
+    document.getElementById("app").onkeyup = function (e){
+      console.log(e.key,window.__SHORTCUT__)
+    }
+  })
+
   return (
-    <div className="app" >
+    <div className="app" id="app" >
       {menu.comp}
       <div className="tools">
         <Toolbar tools={tools} />

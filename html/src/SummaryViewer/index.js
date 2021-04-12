@@ -1,4 +1,5 @@
 import React from 'react';
+import Loading from '../Utils';
 
 import "./summary.css"
 
@@ -35,7 +36,14 @@ const SummaryViewer = (props={layers:{},}) =>{
         clearTimeout(window.__UPDATE_TIMEOUT__)
     })
 
-    return (
+    return summary.data.length < 1 ?
+    (
+        <div className="load" style={{ width:"100%", height:"95vh", display:"flex", justifyContent:"center", alignItems:"center" }}>
+            <Loading />
+        </div>
+    )
+    :
+    (
         <div className="logs">
             {
                 summary.data.map((line,i)=>{

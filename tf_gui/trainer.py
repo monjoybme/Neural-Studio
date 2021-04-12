@@ -150,28 +150,13 @@ class Summary(object):
         charset = 'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\"'
         imports, = re.findall("""#import[a-zA-Z0-9\n .,_\-]+#end-import""",code)
         execute_code(imports)
-        execute_code(build_config['train_config']['dataset']['value'])
-        
         for level in build_config['levels']:
             for layer in level:
                 _code = re.findall(f"""{layer} =[{charset}]+#end-{layer}""",code)
                 if len(_code):
                     execute_code(_code[0])
 
-        if build_config['train_config']['optimizer']:
-            execute_code(build_config['train_config']['optimizer']['value'])
-
-        if build_config['train_config']['callbacks']:
-            for callback in build_config['train_config']['callbacks']:
-                execute_code(callback['value'])    
-        
-        if build_config['train_config']['loss']:
-            execute_code(build_config['train_config']['loss']['value'])
-            
-        comp = build_config['train_config']['compile']['id']
         model = build_config['train_config']['model']['id']
-        execute_code(re.findall(f"""{model}.compile[{charset}]+#end-{comp}""",code)[0])
-
         summary = []
         def print_fn(word,*arg,**kwargs):
             summary.append(word,)
@@ -189,7 +174,8 @@ class Summary(object):
                 summary.append(i)
             else:
                 summary[-1][-1] += ', ' + ''.join(i)
-                
+
+        del model                
         return summary
 
 class Trainer(object):

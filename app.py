@@ -7,8 +7,10 @@ from tf_gui.trainer import  Trainer,Summary
 from json import dump,load,JSONDecodeError
 
 app = App()
-trainer = Trainer(save_epoch=True,epoch_output='segmentation')
+trainer = Trainer()
 summary = Summary()
+
+# trainer = Trainer(save_epoch=True,epoch_output='segmentation')
 
 @app.route("/")
 async def index(request:Request):
@@ -49,7 +51,7 @@ async def status(request:Request):
 async def status(request:Request):
     if request.header.method == 'POST':
         build_config = await request.get_json()
-        with open(f"./temp/{build_config['name']}.json","w+") as file:
+        with open(f"./temp/{build_config['file']}.json","w+") as file:
             dump(build_config['graph'],file,)
         return json_response({
             "status":True,
