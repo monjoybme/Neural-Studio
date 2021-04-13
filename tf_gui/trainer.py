@@ -23,7 +23,7 @@ from gc import collect
 
 from tf_gui.builder import build_code
 
-def execute_code(_code:str,logs=lambda log_type,log:None)->None:
+def execute_code(_code:str,logs=lambda log_type,log:None)->bool:
     try:
         exec(_code)
         globals().update(locals())
