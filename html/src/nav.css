@@ -1,34 +1,46 @@
 .nav { 
-    height: 60px;
-    background: linear-gradient(to right, #f15f11,#f18e0e, #f59d19);
-    
-    display: grid;
-    grid-template-columns: 2fr 17fr 1fr;
+    height: 100vh;
+    width: var(--sidebar-width) ;
+    /* background: linear-gradient( #f15f11,#f15f11, #f15f11,#f18e0e); */
+    background: white;
+    border-right: 1px solid #f18f0e72;
+    box-shadow: none;
 }
 
 .nav .title {
-    height: 60px;
-
     color: white;
     font-weight: 600;
     letter-spacing: 1px;
 
+    height: calc(var(--topbar-height) - 1px);
+    width: var(--sidebar-width);
+
+    background: white;
+
     display: flex;
     justify-content: center;
     align-items: center;
+
+    
+}
+
+.nav .title svg{
+    height: 30px;
+
 }
 
 .nav .navigation {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: flex-start;
+
+    width: 60px;
 }
 
 .nav .navigation .btn {
-    text-decoration: none;
-    color: rgba(245, 245, 245, 0.6);
-    width: 70px;
-    height: 100%;
+    width: 60px;
+    height: 60px;
     
     display: flex;
     align-items: center;
@@ -37,22 +49,24 @@
     font-size: small;
     letter-spacing: 1px;
     font-weight: 400;
-
     cursor: pointer;
 }
 
-.nav .navigation .selected {
-    text-decoration: none;
-    color: whitesmoke;
-    width: 70px;
-    height: 100%;
-    font-weight: 600;
-    
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(225, 209, 209, 0.049);
+.nav .navigation .btn svg{
+    fill: #f18f0e72;
+}
 
+.nav .navigation .selected {
+    color: whitesmoke;
+    font-weight: 600;
+    background: white;
+
+    border-top: 1px solid #f18f0e72;
+    border-bottom: 1px solid #f18f0e72;
+}
+
+.nav .navigation .selected svg{
+    fill: #f15f11;
 }
 
 .files {
@@ -156,5 +170,33 @@
 
 .files .dropdown .btn .shortcut {
     font-size: smaller;
+    letter-spacing: 1px;
+}
+
+
+.context-menu{
+    height: var(--topbar-height);
+    width: calc( 100% - var(--sidebar-width) ) ;
+
+    top: 0px;
+    left: var(--sidebar-width);
+
+    position: absolute;
+    z-index: 9999;
+    background:  white;
+
+    border-bottom: 1px solid #f18f0e72;
+    /* border: 1px solid rgba(228, 228, 228, 0.3); */
+    /* box-shadow: rgba(228, 228, 228, 0.3) 1px 1px 1px 0px; */
+}
+
+.context-menu .title{
+    height: var(--topbar-height);
+    width: 100px;
+
+    display: flex;
+    align-items: center;
+    padding-left: 5px;
+    font-weight: 500;
     letter-spacing: 1px;
 }

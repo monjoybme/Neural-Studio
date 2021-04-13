@@ -4,6 +4,14 @@
   --broder-darker : rgba(51, 51, 51, 0.25);
   --broder-darkest : rgba(51, 51, 51, 0.35);
 
+  --sidebar-width: 60px;
+  --topbar-height: 60px;
+
+  --orange0 : #f15f11;
+  --orange1 : #f18f0e9a;
+  --orange2 : #f18e0e;
+  --orange3 : #f18f0e67;
+
   scrollbar-color: rgb(210,210,210) rgba(162, 162, 162, 0);
   scrollbar-width: 13px;
 }
@@ -17,20 +25,15 @@ select:focus{
 }
 
 ::-webkit-scrollbar {
-  width: 7px;
+  width: 5px;
   border-radius: 3px;
   padding-left: 10px;
-  height: 7px;
-}
- 
-::-webkit-scrollbar-track {
-  /* box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
-  /* background: white; */
+  height: 5px;
 }
  
 ::-webkit-scrollbar-thumb {
-  background-color: #bbb;
-  border-radius: 5px;
+  background-color: var(--orange2);
+  border-radius: 3px;
 }
 
 *{ 
@@ -45,7 +48,16 @@ body{
   overflow: hidden;
 }
 
+.container {
+  position: absolute;
+  height: calc( 100vh - var(--topbar-height) ) ;
+  width: calc( 100vw - var(--sidebar-width) );
 
+  overflow: hidden;
+
+  top: var(--topbar-height);
+  left: var(--sidebar-width);
+}
 
 
 .popups {

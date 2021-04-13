@@ -1,3 +1,4 @@
+from tensorflow.python.keras.engine import training
 from tf_gui.web import App, Request, text_response, json_response
 from tf_gui.builder import build_code
 from tf_gui.trainer import  Trainer,Summary
@@ -96,6 +97,11 @@ async def train_start(request:Request):
         try:
             data = await request.get_json()
             trainer.logs = []
+            # if trainer.training:
+            #     trainer.update_log(log_type="notif",log={ "message":"Stopping Previous Training Session" })
+            #     trainer.stop(end=False)
+            #     trainer.logs = []
+            trainer.training = True
             trainer.start(data)
             return json_response({
                 "status":"Training Started"

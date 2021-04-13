@@ -182,6 +182,7 @@ class Trainer(object):
     build_config = {}
     model = keras.Model
     update_id = 0
+    training = False
     
     logs = []
 

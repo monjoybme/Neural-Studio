@@ -1,4 +1,5 @@
 import React from "react";
+import { icons } from '../data/icons';
 import './training.css';
 
 const Notification = (props) =>{
@@ -86,17 +87,17 @@ const Output = (props) =>{
     )
 }
 
-const Training = (props = { trainingStatus: [] }) => {
+const Training = (props = { train:{ training:false, hist:[], }, trainState:undefined ,layers:{}, layerState:undefined, }) => {
+    
     let [status,statusState] = React.useState({
-        data:[],
-        ended:false
+        data:props.train.hist !== undefined ? props.train.hist : [] ,
+        ended:false,
+        updating:false
     })
-
     let [halt,haltState] = React.useState({
         name:"Pause",
         state:true
     })   
-    
     let { layers } = props;
 
     async function getStatus() {
@@ -107,25 +108,27 @@ const Training = (props = { trainingStatus: [] }) => {
             .then((data) => {
                 statusState({
                     data:data.logs,
-                    ended:data.logs[data.logs.length-1].data.ended,
+                    ended:data.logs[data.logs.length-1].data.ended || false,
+                    updating:true
                 })
                 if (data.logs[data.logs.length-1].data.ended){
                     console.log("Training Ended")
-                    window.__TRAINING__ = false;
-                    window.__UPDATE_RUNNING__ = false;
+                    props.trainState({
+                        training:false,
+                        hist:data.logs,
+                    })
                 }else{
-                    window.__UPDATE_TIMEOUT__ =  setTimeout(getStatus,10)
+                    if (document.getElementById("check")){
+                        setTimeout(getStatus,10)
+                    }
                 }
             })
             .catch((err) => {
                 console.log(err)
-                window.__TRAIN__ = false
-                window.__UPDATE_RUNNING__ = false;
             });    
     }
 
     async function trainModel(e) {
-      window.__TRAINING__ = true;
       await fetch(
         "http://localhost/train/start",
         {
@@ -136,12 +139,15 @@ const Training = (props = { trainingStatus: [] }) => {
       )
       .then(response=>response.json())
       .then(data=>{
-        if (window.__UPDATE_RUNNING__){
-
-        }
-        else{
-            getStatus()
-        }
+        props.trainState({
+            training:true,
+        })
+        // getStatus()
+        statusState({
+            data:[],
+            ended:false,
+            updating:false
+        })
       })
     }
 
@@ -186,45 +192,64 @@ const Training = (props = { trainingStatus: [] }) => {
       })
     }
 
-    
+    const TrainEnd = (props) =>{
+        return (
+            <div className="log buttons">
+                <div className='btn'>    
+                    Download Model
+                </div>
+                <div className='btn'>    
+                    Download Inference
+                </div>
+            </div>
+        )
+    }
 
     React.useEffect(()=>{
-        if (window.__UPDATE_RUNNING__ !== true && window.__TRAIN__){
-            console.log("Starting Update")
-            window.__UPDATE_TIMEOUT__ =  setTimeout(getStatus,10)
-            window.__UPDATE_RUNNING__ = true;
+        var elem = document.getElementById('logs');
+        elem.scrollTop = elem.scrollHeight;
+        if (props.train.training){
+            if ( status.updating === false ){
+                if ( status.ended === false && status.ended !== undefined ){
+                    console.log("Starting Update")
+                    getStatus()
+                }
+            }
         }
     })
 
-//   ex = props.trainingStatus;
-
-  React.useEffect(()=>{
-    var elem = document.getElementById('logs');
-    elem.scrollTop = elem.scrollHeight;
-    if (window.__TRAINING__){
-        if (window.__UPDATE_RUNNING__){
-
-        }else{
-            window.__UPDATE_RUNNING__ = true
-            getStatus()
+    let buttons = [
+        {
+            name: "Start",
+            func: trainModel,
+            icon: icons.Play
+        },
+        {
+            name: "Pause",
+            func: haltModel,
+            icon: halt.state ? icons.Pause : icons.Resume ,
+        },
+        {
+            name: "Stop",
+            func: stopModel,
+            icon: icons.Stop,
         }
-    }
-  })
+    ]
 
   return (
-    <div className="training">
+    <div className="training container">
         <div className="menu">
-            <div className="title">Training</div>
             <div className="buttons">
-                <div className="btn" onClick={trainModel}>
-                    Start
-                </div>
-                <div className="btn" onClick={haltModel}>
-                    {halt.name}
-                </div>
-                <div className="btn" onClick={stopModel}>
-                    Stop
-                </div>
+                {
+                    buttons.map((button,i)=>{
+                        let Icon = button.icon;
+                        return(
+                            <div className="btn" key={i} onClick={button.func}>
+                                <Icon />
+                            </div>            
+                        )
+                    })
+                }
             </div>
         </div>
       <div className="logs" id="logs">
@@ -245,26 +270,21 @@ const Training = (props = { trainingStatus: [] }) => {
                }
             })
         }
-        {
+        {/* {
             status.ended ? 
             (
-                <div className="log buttons">
-                    <div className='btn'>    
-                        Download Model
-                    </div>
-                    <div className='btn'>    
-                        Download Inference
-                    </div>
-                </div>
+                <TrainEnd />
             ) 
             :
             (
                 undefined
             )
-        }
+        } */}
       </div>
+      <div id="check">  </div>
     </div>
   );
 };
 
 export default Training;
+

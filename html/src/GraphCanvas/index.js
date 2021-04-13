@@ -1,5 +1,6 @@
 import React from "react";
 import Menu from "./menu";
+import { Icon, icons } from "../data/icons";
 
 import _lg from "../data/layers";
 
@@ -146,36 +147,32 @@ const Node = (props) => {
   );
 };
 
-
-
 const Toolbar = (props) => {
   let buttons = [
     {
-      name: "Normal",
-      func: function () {
-        props.tools.toolbarHandler({ mode: "normal" });
-      },
-    },
-    {
       name: "Edge",
+      icon:icons.ArrowRight,
       func: function () {
-        props.tools.toolbarHandler({ mode: "line" });
+        props.tools.toolbarHandler({ mode: "line" , name:"Edge"});
       },
     },
     {
       name: "Move",
+      icon:icons.Pan,
       func: function () {
-        props.tools.toolbarHandler({ mode: "move" });
+        props.tools.toolbarHandler({ mode: "move" , name:"Move"});
       },
     },
     {
       name: "Delete",
+      icon:icons.Delete,
       func: function () {
-        props.tools.toolbarHandler({ mode: "delete" });
+        props.tools.toolbarHandler({ mode: "delete" ,name:"Delete"});
       },
     },
     {
       name: "Clean",
+      icon:icons.DeleteAll,
       func: function () {
         window.layersState({});
       },
@@ -183,11 +180,11 @@ const Toolbar = (props) => {
   ];
 
   return (
-    <div className="toolbar">
+    <div className="toolbar" id="toolbar">
       {buttons.map((button, i) => {
         return (
-          <div className="btn" onClick={button.func} key={i}>
-            {button.name}
+          <div className="btn" onClick={button.func} id={button.name} key={i}>
+            <Icon icon={button.icon} style={{height:"20px"}} />
           </div>
         );
       })}
@@ -197,7 +194,7 @@ const Toolbar = (props) => {
 
 const LayerGroupCollapsed = (props) => {
   return (
-    <div className="layers" key={props.i} style={{ height: "45px" }}>
+    <div className="layers" key={props.i} >
       <div
         className="name"
         id={props.id}
@@ -302,8 +299,8 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
     e.preventDefault();
     let scroll = document.getElementById("canvasTop");
     let pos = {
-      x: e.clientX - window.offsetX + scroll.scrollLeft - 5,
-      y: e.clientY - window.offsetY + scroll.scrollTop + 10,
+      x: e.clientX - window.offsetX + scroll.scrollLeft ,
+      y: e.clientY - window.offsetY + scroll.scrollTop ,
     };
     let id = "line-" + window.__LINE_COUNTER;
     let _line = document.getElementById("dummy");
@@ -351,10 +348,10 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
     let scroll = document.getElementById("canvasTop");
     window.layers[id].width = window.layers[id].name.length * 10;
     window.layers[id].pos = {
-      x: e.clientX - window.offsetX + scroll.scrollLeft - window.layers[id].width / 1.85,
-      y: e.clientY - window.offsetY + scroll.scrollTop - 5,
-      offsetX: window.layers[id].name.length * 5.8,
-      offsetY: 5,
+      x: e.clientX - window.offsetX + scroll.scrollLeft - window.layers[id].width / 2,
+      y: e.clientY - window.offsetY + scroll.scrollTop - 10,
+      offsetX: window.layers[id].name.length * 5 - 2,
+      offsetY: 23,
     };
 
     window.__LINE_COUNTER++;
@@ -391,9 +388,9 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
     if (window.__ACTIVE_LINE__) {
       let scroll = document.getElementById("canvasTop");
       window.__ACTIVE_LINE__.line.x2.baseVal.value =
-        e.clientX - window.offsetX + scroll.scrollLeft - 5;
+        e.clientX - window.offsetX + scroll.scrollLeft ;
       window.__ACTIVE_LINE__.line.y2.baseVal.value =
-        e.clientY - window.offsetY + scroll.scrollTop + 10;
+        e.clientY - window.offsetY + scroll.scrollTop ;
     }
   }
 
@@ -430,24 +427,36 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
     },
   };
 
-  function setMode(mode) {
+  function setMode(mode,name) {
     if (window.__MODE__ !== mode) {
       window.__MODE__ = mode;
       document.getElementById("canvas").style.cursor = cursors[window.__MODE__];
+      Array(...document.getElementById("toolbar").children).forEach((child,)=>{
+        if (child.id === name){ 
+          child.firstChild.firstChild.style.fill = '#f15f11'
+        }else{
+          child.firstChild.firstChild.style.fill = '#333'
+        }
+      })
+
       if (modeFunctions[mode]) {
         modeFunctions[mode]();
       }
     } else {
       window.__MODE__ = "normal";
       document.getElementById("canvas").style.cursor = "default";
-
       document.getElementById("canvas").onmousemove = undefined;
       document.getElementById("canvas").onmousedown = undefined;
+
+      Array(...document.getElementById("toolbar").children).forEach((child,)=>{
+          child.firstChild.firstChild.style.fill = '#333'
+      })
     }
+   
   }
 
   function toolbarHandler(
-    data = { mode: undefined, layer: { name: "__LAYER__", args: {} } }
+    data = { mode: undefined,name:"normal", layer: { name: "__LAYER__", args: {} } }
   ) {
     if (data.mode === "layer") {
       if (window.__MODE__ !== "layer") {
@@ -466,7 +475,7 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
         }
       }
     } else {
-      setMode(data.mode);
+      setMode(data.mode,data.name);
     }
   }
 
@@ -505,6 +514,7 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
           ...window.layers,
         });
       }
+      // console.log(window.__ACTIVE_ELEMENT__)
     }
 
     window.__POS__ = undefined;
@@ -553,15 +563,13 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
     window.layersState = layersState;
     window.toolbarHandler = toolbarHandler;
 
-    clearTimeout(window.__UPDATE_TIMEOUT__)
-
-    document.getElementById("app").onkeyup = function (e){
-      console.log(e.key,window.__SHORTCUT__)
-    }
+    // document.getElementById("app").onkeyup = function (e){
+    //   console.log(e.key,window.__SHORTCUT__)
+    // }
   })
 
   return (
-    <div className="app" id="app" >
+    <div className="container" id="app" >
       {menu.comp}
       <div className="tools">
         <Toolbar tools={tools} />

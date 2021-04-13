@@ -12,3 +12,7 @@
 .sum-col .col {
     width: 100%;
 }
+
+.summary{
+    width: calc( 100vw - var(--sidebar-width) ) !important;
+}

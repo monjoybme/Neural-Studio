@@ -11,7 +11,6 @@ const SummaryViewer = (props={layers:{},}) =>{
     })
 
     async function getModel(e) {
-        window.__TRAINING__ = true;
         await fetch(
           "http://localhost/summary",
           {
@@ -36,31 +35,37 @@ const SummaryViewer = (props={layers:{},}) =>{
         clearTimeout(window.__UPDATE_TIMEOUT__)
     })
 
-    return summary.data.length < 1 ?
-    (
-        <div className="load" style={{ width:"100%", height:"95vh", display:"flex", justifyContent:"center", alignItems:"center" }}>
-            <Loading />
-        </div>
-    )
-    :
-    (
-        <div className="logs">
+    return (
+        <div className="container summary">
             {
-                summary.data.map((line,i)=>{
-                    return (
-                        <div key={i} className="log notif sum-col">
-                            { 
-                                line.map((col,i)=>{
-                                    return (
-                                        <div className="col" key={i}> 
-                                            {col}
-                                        </div>
-                                    )
-                                }) 
-                            }
-                        </div>
-                    )
-                })
+                summary.data.length < 1 ?
+                (
+                    <div className="load" style={{ width:"100%", height:"95vh", display:"flex", justifyContent:"center", alignItems:"center" }}>
+                        <Loading />
+                    </div>
+                )
+                :
+                (
+                    <div className="logs summary">
+                        {
+                            summary.data.map((line,i)=>{
+                                return (
+                                    <div key={i} className="log notif sum-col">
+                                        { 
+                                            line.map((col,i)=>{
+                                                return (
+                                                    <div className="col" key={i}> 
+                                                        {col}
+                                                    </div>
+                                                )
+                                            }) 
+                                        }
+                                    </div>
+                                )
+                            })
+                        }
+                    </div>
+                )
             }
         </div>
     )

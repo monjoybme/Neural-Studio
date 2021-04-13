@@ -3,7 +3,9 @@ import React from "react";
 import Canvas from "./GraphCanvas";
 import CodeEditor from "./CodeEditor";
 import Train from "./Training";
-import SummaryViewer from './SummaryViewer';
+import SummaryViewer from "./SummaryViewer";
+import { Icon, icons } from "./data/icons";
+import { appConfig } from './data/appconfig.js'
 
 import "./App.css";
 import "./nav.css";
@@ -13,93 +15,110 @@ window.copy = function (object) {
 };
 
 setInterval(function () {
-  window.offsetX = Math.floor(window.innerWidth * 0.1525);
-  window.offsetY = 75;
+  window.offsetX = appConfig.canvas.toolbar.width + appConfig.geometry.sideBar.width;
+  window.offsetY = appConfig.geometry.topBar.height;
 }, 1000);
 
-
-const SaveDialogue = (props={layers:{}, saveFunction:function(){}, popupState:function(){}, project:{ name:"graph",updated:false } }) =>{
+const SaveDialogue = (
+  props = {
+    layers: {},
+    saveFunction: function () {},
+    popupState: function () {},
+    project: { name: "graph", updated: false },
+  }
+) => {
   return (
     <div className="save-dialogue">
-      <div className="title">
-        Save
-      </div>    
+      <div className="title">Save</div>
       <input value={props.project.name} />
-      <div className='btns'> 
-        <div onClick={(e)=>{
-          props.saveFunction({file: e.target.parentElement.previousElementSibling.value})
-        }}>
+      <div className="btns">
+        <div
+          onClick={(e) => {
+            props.saveFunction({
+              file: e.target.parentElement.previousElementSibling.value,
+            });
+          }}
+        >
           save
         </div>
-        <div onClick={(e)=>{
-          document.getElementById("popups").style.visibility = 'hidden'
-          props.popupState(<div></div>)
-        }}>
+        <div
+          onClick={(e) => {
+            document.getElementById("popups").style.visibility = "hidden";
+            props.popupState(<div></div>);
+          }}
+        >
           cancel
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const App = (props) => {
-
-  let [layers, layersState] = React.useState({
-  });
+  let Logo = icons.Logo;
+  let [layers, layersState] = React.useState({});
   let [buttons, buttonsState] = React.useState([
-    { name: "Graph", path: "/", selected: window.location.pathname === "/" },
+    { name: "Graph", path: "/", selected: window.location.pathname === "/", icon:icons.Graph },
     {
       name: "Code",
       path: "/code",
       selected: window.location.pathname === "/code",
+      icon:icons.Code
     },
     {
       name: "Summary",
       path: "/summary",
       selected: window.location.pathname === "/summary",
+      icon:icons.Summary
     },
     {
       name: "Train",
       path: "/train",
       selected: window.location.pathname === "/train",
+      icon:icons.Train
     },
   ]);
-  let [render, renderState] = React.useState({ name:"Graph"});
-
-  let [ project, projectState ] = React.useState({
-    "file":{
-      "name":"graph",
-      "updated":false
-    }
+  let [render, renderState] = React.useState({ name: "Graph" });
+  let [project, projectState] = React.useState({
+    file: {
+      name: "graph",
+      updated: false,
+    },
+  });
+  let [ train, trainState ] = React.useState({
+    training:false,
+    hist:[],
   })
-  let [ popup,popupState ] = React.useState(
-    <div></div>
-  )
+  let [popup, popupState] = React.useState(<div></div>);
   let [files, filesState] = React.useState({
     display: false,
     buttons: [
-      { 
-        name: "Save", 
-        shortcut: "Ctrl + S", 
-        func: function(){ 
-          popupState( 
-            <SaveDialogue layers={layers} saveFunction={saveGraph} popupState={popupState} project={project} /> 
-          ) 
-          document.getElementById("popups").style.visibility = 'visible'
-        } 
+      {
+        name: "Save",
+        shortcut: "Ctrl + S",
+        func: function () {
+          popupState(
+            <SaveDialogue
+              layers={layers}
+              saveFunction={saveGraph}
+              popupState={popupState}
+              project={project}
+            />
+          );
+          document.getElementById("popups").style.visibility = "visible";
+        },
       },
       { name: "Load", shortcut: "Ctrl + O", func: loadGraph },
       { name: "Save as", shortcut: "Ctrl + Shift + S", func: saveGraph },
       { name: "Download Code", shortcut: "Ctrl + D", func: downloadCode },
     ],
   });
- 
 
-  window.getLayers =  function (){
-    return window.layers
-  }
+  window.getLayers = function () {
+    return window.layers;
+  };
 
-  async function saveGraph(project={ file:"graph" }) {
+  async function saveGraph(project = { file: "graph" }) {
     filesState({
       display: false,
       buttons: files.buttons,
@@ -115,15 +134,15 @@ const App = (props) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data,project);
+        console.log(data, project);
         projectState({
-          file:project.file,
-          updated:true
-        })
+          file: project.file,
+          updated: true,
+        });
 
-        document.getElementById("popups").style.visibility = 'hidden'
-        popupState(<div></div>)
-    });
+        document.getElementById("popups").style.visibility = "hidden";
+        popupState(<div></div>);
+      });
   }
 
   async function loadGraph(e) {
@@ -131,10 +150,10 @@ const App = (props) => {
       display: false,
       buttons: files.buttons,
     });
-    setTimeout(async function(){
+    setTimeout(async function () {
       let input = document.createElement("input");
       input.type = "file";
-      input.id = "fileopen"
+      input.id = "fileopen";
       input.onchange = function (e) {
         var reader = new FileReader();
         reader.onload = function () {
@@ -143,140 +162,136 @@ const App = (props) => {
           layersState({ ...graph });
 
           projectState({
-            file:input.files[0].name.split(".")[0],
-            updated:true
-          })
+            file: input.files[0].name.split(".")[0],
+            updated: true,
+          });
           projectState({
-            file:input.files[0].name.split(".")[0],
-            updated:true
-          })
-          document.body.style.cursor = 'default'
+            file: input.files[0].name.split(".")[0],
+            updated: true,
+          });
+          document.body.style.cursor = "default";
         };
         reader.readAsText(e.target.files[0]);
       };
       input.click();
-      document.body.style.cursor = 'loading';
-    },10)
+      document.body.style.cursor = "loading";
+    }, 10);
   }
 
   async function downloadCode(e) {
-    await fetch(
-      "http://localhost/build",
-      {
-        method:"POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...layers })
-      }
-    )
-    .then(response=>response.json())
-    .then(data=>{
+    await fetch("http://localhost/build", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...layers }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
         let link = document.createElement("a");
         link.href = `data:text/x-python,${encodeURIComponent(data.code)}`;
-        link.download = 'train.py'
-        link.click()
-    })
+        link.download = "train.py";
+        link.click();
+      });
   }
 
-  function getRenderComp(){
-    switch(render.name) {
+  function getRenderComp() {
+    switch (render.name) {
       case "Graph":
-        return <Canvas layers={layers} layersState={layersState} />
+        return <Canvas layers={layers} layersState={layersState} />;
       case "Code":
-        return <CodeEditor layers={layers} />
+        return <CodeEditor layers={layers} />;
       case "Train":
-        return <Train layers={layers} layersState={layersState} />
+        return <Train layers={layers} layersState={layersState} train={train} trainState={trainState} />;
       case "Summary":
-        return <SummaryViewer layers={layers} />
+        return <SummaryViewer layers={layers} />;
       default:
-        return <Canvas />
+        return <Canvas />;
     }
   }
 
-  React.useEffect(()=>{
-    document.getElementById("root").onmouseup = function(){
-      if (files.display){
-        setTimeout(function(){
+  React.useEffect(() => {
+    document.getElementById("root").onmouseup = function () {
+      if (files.display) {
+        setTimeout(function () {
           filesState({
-            display:false,
-            buttons:files.buttons
-          })
-        }, 100)
+            display: false,
+            buttons: files.buttons,
+          });
+        }, 100);
       }
-    }
+    };
 
-    document.getElementsByTagName("html")[0].onkeydown = function (e){
-      if (window.__SHORTCUT__){
-        switch(e.key){
+    document.getElementsByTagName("html")[0].onkeydown = function (e) {
+      if (window.__SHORTCUT__) {
+        switch (e.key) {
           case "s":
             e.preventDefault();
-            if ( project.updated ){
-              saveGraph(project)
-            }else{
-              files.buttons[0].func(project)
+            if (project.updated) {
+              saveGraph(project);
+            } else {
+              files.buttons[0].func(project);
             }
-            break 
+            break;
           case "o":
             e.preventDefault();
             loadGraph();
-            break
+            break;
           case "d":
             e.preventDefault();
             downloadCode();
-            break
+            break;
           case "1":
             e.preventDefault();
-            window.toolbarHandler({ mode: "normal" })
-            break
+            window.toolbarHandler({ mode: "normal", name:"Normal" });
+            break;
           case "2":
             e.preventDefault();
-            window.toolbarHandler({ mode: "line" })
-            break
+            window.toolbarHandler({ mode: "line", name:"Edge" });
+            break;
           case "3":
             e.preventDefault();
-            window.toolbarHandler({ mode: "move" })
-            break
+            window.toolbarHandler({ mode: "move",name:"Move" });
+            break;
           case "4":
             e.preventDefault();
-            window.toolbarHandler({ mode: "delete" })
-            break
+            window.toolbarHandler({ mode: "delete", name:"Delete" });
+            break;
           case "5":
             e.preventDefault();
-            layersState({})
-            layersState({})
-            break
+            layersState({});
+            layersState({});
+            break;
           default:
-            break
-        } 
-      }else{
-        switch(e.key){
+            break;
+        }
+      } else {
+        switch (e.key) {
           case "Control":
             window.__SHORTCUT__ = true;
-            break
+            break;
           case "Escape":
-            popupState(<div></div>)
-            document.getElementById("popups").style.visibility = 'hidden'
-            break
+            popupState(<div></div>);
+            document.getElementById("popups").style.visibility = "hidden";
+            break;
           default:
-            break
-        } 
+            break;
+        }
       }
-    }
-    document.getElementsByTagName("html")[0].onkeyup = function (e){
+    };
+    document.getElementsByTagName("html")[0].onkeyup = function (e) {
       window.__SHORTCUT__ = false;
-    }
-    
-  })
-  
+    };
+  });
 
   return (
-    <div >
-      <div className="popups" id="popups" >
-        { popup }    
+    <div className="_app">
+      <div className="popups" id="popups">
+        {popup}
       </div>
       <div className="nav">
-        <div className="title"> Tf Builder </div>
+        <div className="title"> <Logo />  </div>
         <div className="navigation">
           {buttons.map((button, i) => {
+            let Icon = button.icon;
             return (
               <div
                 key={i}
@@ -285,22 +300,34 @@ const App = (props) => {
                 onClick={(e) => {
                   buttons = buttons.map((_button) => {
                     _button.selected = _button.name === button.name;
-                    if (_button.selected){
+                    if (_button.selected) {
+                      document.getElementById("context-title").innerText = button.name;
                       renderState({
-                        ..._button
-                      })
+                        ..._button,
+                      });
                     }
                     return _button;
                   });
                   buttonsState([...buttons]);
                 }}
               >
-                {button.name}
+                <Icon fill={ button.selected ? "white" : "rgba(255,255,255,0.3)" } />
               </div>
             );
           })}
         </div>
-        <div className="files">
+       
+      </div>
+      <div className="context-menu"> <div className="title" id="context-title"> Graph </div> </div>
+      {getRenderComp()}
+    </div>
+  );
+};
+
+export default App;
+
+
+ {/* <div className="files">
           <div
             className="icon"
             onClick={(e) =>
@@ -317,24 +344,11 @@ const App = (props) => {
               {files.buttons.map((button, i) => {
                 return (
                   <div className="btn" key={i} onClick={button.func}>
-                    <div className="name">
-                      {button.name}
-                    </div>
+                    <div className="name">{button.name}</div>
                     <div className="shortcut">{button.shortcut}</div>
                   </div>
                 );
               })}
             </div>
           ) : undefined}
-        </div>
-      </div>
-      {getRenderComp()}
-      <div style={{position:"absolute",visibility:"hidden", height:"0px",width:"0px",zIndex:"-1000"}}>
-        { JSON.stringify(layers).slice(0,1) }
-      </div>
-    </div>
-  );
-
-};
-
-export default App;
+        </div> */}

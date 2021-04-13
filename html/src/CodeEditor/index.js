@@ -36,7 +36,7 @@ const CodeEditor = (props={layers:{}}) => {
   },[])
 
     return (
-      <div className="tfcode">
+      <div className="container">
       {
         code.fetched ?
           undefined
