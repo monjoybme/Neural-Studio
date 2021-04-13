@@ -1,6 +1,4 @@
-from tensorflow.python.util.tf_decorator import _has_tf_decorator_attr
 from tf_gui.web import App, Request, text_response, json_response
-from tf_gui.web.headers import ResponseHeader
 from tf_gui.builder import build_code
 from tf_gui.trainer import  Trainer,Summary
 
