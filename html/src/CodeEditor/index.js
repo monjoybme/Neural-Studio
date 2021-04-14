@@ -5,6 +5,7 @@ import "./code.css"
 
 const CodeEditor = (props={layers:{}}) => {
 
+  let { appconfig,appconfigState } = props;
   let [code,codeState] = React.useState({
     data:"",
     fetched:true
@@ -45,7 +46,7 @@ const CodeEditor = (props={layers:{}}) => {
             defaultLanguage="python"
             defaultValue={code.data}
             onValidate={e=>console.log(e)}
-            theme={"vs-light"}
+            theme={"vs-"+appconfig.theme}
           />         
       }
       </div>

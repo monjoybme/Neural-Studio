@@ -1,4 +1,5 @@
 let appConfig = {
+    theme:"light",
     geometry:{
         sideBar:{
             width:70

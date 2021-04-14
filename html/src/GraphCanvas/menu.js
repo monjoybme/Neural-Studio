@@ -144,6 +144,7 @@ const Dataset = (props) =>{
               config.arguments.dataset.value 
           }
           onChange={updateCode}
+          theme={"vs-"+props.theme}
       />
     </div>
   )
@@ -151,12 +152,12 @@ const Dataset = (props) =>{
 
 
 const Menu = (props) => {
-  // console.log(props.layer.arguments)
+  let { appconfig,appconfigState } = props;
   return props.layer.type.name === 'Dataset' ?
       (
         <Dataset 
           config={props.layer}
-
+          theme = { appconfig.theme }
           layers={props.layers}
           layersState={props.layersState}
           menu={props.menu}

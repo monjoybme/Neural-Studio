@@ -20,11 +20,23 @@ const Node = (props) => {
   let height = 30;
   let pos_in = props.layer.pos;
 
+  let { appconfig,appconfigState } = props;
+
   function onMouseDown(e) {
     e.preventDefault();
     switch (window.__MODE__) {
       case "move":
-        window.__ACTIVE_ELEMENT__ = layer.id;
+        window.__ACTIVE_ELEMENT__ = {
+         layer:layer,
+         text:document.getElementById(`${layer.id}-text`),
+         rect:document.getElementById(`${layer.id}-rect`),
+         edges_in: props.layer.connections.inbound.map((layer,i)=>{
+           return document.getElementById(`${layer}-${props.layer.id}`)
+         }),
+         edges_out: props.layer.connections.outbound.map((layer,i)=>{
+          return document.getElementById(`${props.layer.id}-${layer}`)
+        })
+        };
         break;
       case "line":
         window.__NEW_EDGE__ = { from: layer.id };
@@ -38,7 +50,6 @@ const Node = (props) => {
     e.preventDefault();
     switch (window.__MODE__) {
       case "move":
-        window.__ACTIVE_ELEMENT__ = undefined;
         break;
       case "line":
         window.__NEW_EDGE__.to = layer.id;
@@ -68,6 +79,8 @@ const Node = (props) => {
               menu={props.menu}
               menuState={props.menuState}
 
+              appconfig={appconfig}
+              appconfigState={appconfigState}
               layers={window.layers}
               layersState={window.layersState}
             />
@@ -106,9 +119,9 @@ const Node = (props) => {
         if (pos_out) {
           return (
             <line
-              x1={pos_in.x + pos_in.offsetX - 5}
+              x1={pos_in.x + pos_in.offsetX }
               y1={pos_in.y + 15}
-              x2={pos_out.pos.x + pos_out.pos.offsetX - 6}
+              x2={pos_out.pos.x + pos_out.pos.offsetX }
               y2={pos_out.pos.y + 31}
               markerMid="url(#triangle)"
               stroke="#555"
@@ -118,6 +131,8 @@ const Node = (props) => {
               onClick={lineOnClick}
               onMouseOver={lineOver}
               onMouseOut={lineOut}
+
+              id={`${pos_out.id}-${props.layer.id}`}
             />
           );
         }
@@ -133,6 +148,8 @@ const Node = (props) => {
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
         onClick={onClick}
+
+        id={`${layer.id}-rect`}
       ></rect>
       <text
         x={layer.pos.x + Math.floor(width * 0.19)}
@@ -140,6 +157,8 @@ const Node = (props) => {
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
         onClick={onClick}
+
+        id={`${layer.id}-text`}
       >
         {layer.name}
       </text>
@@ -276,12 +295,32 @@ const LayerGroups = (props) => {
   );
 };
 
-const Canvas = (props={layers:{},layersState:undefined}) => {
+const Canvas = (
+  props={
+    layers:{},
+    layersState:undefined,
+    canvasConfig:{
+      activeLayer: {
+        name: "Layer",
+        type: { name: "Layer", _class: "layer" },
+        args: {
+          
+        },
+        doc: "https://keras.io/",
+      },
+    },
+    canvasConfigState:function( {
+      
+    } ){}
+  }) => {
+
+
   let [menu, menuState] = React.useState({
     comp: <div />,
   });
 
   let { layers, layersState } = props;
+  let { appconfig,appconfigState } = props;
 
   function layerIdGenerator(name = "") {
     name = name.toLowerCase();
@@ -324,6 +363,7 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
 
   function downLayer(e) {
     e.preventDefault();
+
     let layer = window.copy(window.__ACTIVE_LAYER__);
     let name = layer.name;
     let n = layerIdGenerator(name);
@@ -349,7 +389,7 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
     window.layers[id].width = window.layers[id].name.length * 10;
     window.layers[id].pos = {
       x: e.clientX - window.offsetX + scroll.scrollLeft - window.layers[id].width / 2,
-      y: e.clientY - window.offsetY + scroll.scrollTop - 10,
+      y: e.clientY - window.offsetY + scroll.scrollTop - 25,
       offsetX: window.layers[id].name.length * 5 - 2,
       offsetY: 23,
     };
@@ -368,18 +408,32 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
   }
 
   function moveNode(e) {
-    if (window.__ACTIVE_ELEMENT__) {
+    try{
       let scroll = document.getElementById("canvasTop");
-      let pos = window.layers[window.__ACTIVE_ELEMENT__].pos;
-      window.layers[window.__ACTIVE_ELEMENT__].pos = {
-        x: e.clientX - window.offsetX + scroll.scrollLeft - pos.offsetX,
-        y: e.clientY - window.offsetY + scroll.scrollTop - pos.offsetY,
-        offsetX: pos.offsetX,
-        offsetY: pos.offsetY,
-      };
-      window.layersState({
-        ...window.layers,
-      });
+      
+      window.__POS__ = {
+          x: e.clientX - window.offsetX + scroll.scrollLeft - window.__ACTIVE_ELEMENT__.layer.pos.offsetX,
+          y: e.clientY - window.offsetY + scroll.scrollTop - window.__ACTIVE_ELEMENT__.layer.pos.offsetY,
+          offsetX: window.__ACTIVE_ELEMENT__.layer.pos.offsetX,
+          offsetY: window.__ACTIVE_ELEMENT__.layer.pos.offsetY,
+        };
+        
+      window.__ACTIVE_ELEMENT__.rect.x.baseVal.value = window.__POS__.x
+      window.__ACTIVE_ELEMENT__.rect.y.baseVal.value = window.__POS__.y
+      window.__ACTIVE_ELEMENT__.text.x.baseVal[0].value = window.__POS__.x + ( window.__ACTIVE_ELEMENT__.layer.width / 6 )
+      window.__ACTIVE_ELEMENT__.text.y.baseVal[0].value = window.__POS__.y + 20
+
+      window.__ACTIVE_ELEMENT__.edges_in.forEach((edge,)=>{
+        edge.x1.baseVal.value = window.__POS__.x + window.__ACTIVE_ELEMENT__.layer.width / 2
+        edge.y1.baseVal.value = window.__POS__.y + 15
+      })
+      window.__ACTIVE_ELEMENT__.edges_out.forEach((edge,)=>{
+        edge.x2.baseVal.value = window.__POS__.x + window.__ACTIVE_ELEMENT__.layer.width / 2
+        edge.y2.baseVal.value = window.__POS__.y + 30
+      })
+    }
+    catch( TypeError ){
+
     }
   }
 
@@ -388,9 +442,9 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
     if (window.__ACTIVE_LINE__) {
       let scroll = document.getElementById("canvasTop");
       window.__ACTIVE_LINE__.line.x2.baseVal.value =
-        e.clientX - window.offsetX + scroll.scrollLeft ;
+        e.clientX - window.offsetX + scroll.scrollLeft - 3;
       window.__ACTIVE_LINE__.line.y2.baseVal.value =
-        e.clientY - window.offsetY + scroll.scrollTop ;
+        e.clientY - window.offsetY + scroll.scrollTop - 10;
     }
   }
 
@@ -433,9 +487,9 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
       document.getElementById("canvas").style.cursor = cursors[window.__MODE__];
       Array(...document.getElementById("toolbar").children).forEach((child,)=>{
         if (child.id === name){ 
-          child.firstChild.firstChild.style.fill = '#f15f11'
+          child.firstChild.className = 'icon selected'
         }else{
-          child.firstChild.firstChild.style.fill = '#333'
+          child.firstChild.className = 'icon'
         }
       })
 
@@ -449,7 +503,7 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
       document.getElementById("canvas").onmousedown = undefined;
 
       Array(...document.getElementById("toolbar").children).forEach((child,)=>{
-          child.firstChild.firstChild.style.fill = '#333'
+          child.firstChild.className = 'icon'
       })
     }
    
@@ -507,14 +561,12 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
       window.__ACTIVE_LINE__.line.id = "dummy";
       window.__NEW_EDGE__ = undefined;
     } else if (window.__ACTIVE_ELEMENT__) {
-      if (window.__POS__) {
-        let layer = window.__ACTIVE_ELEMENT__.target.id.split("-")[1];
-        window.window.layers[layer].pos = window.__POS__;
+      if (window.__POS__){
+        window.layers[window.__ACTIVE_ELEMENT__.layer.id].pos = window.__POS__
         window.layersState({
-          ...window.layers,
-        });
+          ...window.layers
+        })
       }
-      // console.log(window.__ACTIVE_ELEMENT__)
     }
 
     window.__POS__ = undefined;
@@ -563,9 +615,7 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
     window.layersState = layersState;
     window.toolbarHandler = toolbarHandler;
 
-    // document.getElementById("app").onkeyup = function (e){
-    //   console.log(e.key,window.__SHORTCUT__)
-    // }
+    // setMode("noraml","Normal")
   })
 
   return (
@@ -581,8 +631,6 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
           className="canvas"
           id="canvas"
           onMouseUp={onMouseUp}
-
-          // viewBox={`${viewBox.x0} ${viewBox.y0} ${viewBox.x1} ${viewBox.y1}`}
 
         >
           <marker
@@ -605,13 +653,10 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
             y1="0"
             x2="0"
             y2="0"
-            stroke="#333"
+
             strokeWidth="0"
             markerEnd="url(#triangle)"
           />
-          {/* {Object.keys(window.layers).map((layer, i) => {
-            return <Edge layers={window.layers} layer={window.layers[layer]} key={i} />;
-          })} */}
           {Object.keys(window.layers).map((layer, i) => {
             return (
               <Node
@@ -622,6 +667,9 @@ const Canvas = (props={layers:{},layersState:undefined}) => {
 
                 layers={layers}
                 layersState={layersState}
+                appconfig={appconfig}
+                appconfigState={appconfigState}
+
               />
             );
           })}

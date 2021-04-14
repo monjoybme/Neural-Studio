@@ -12,8 +12,25 @@
   --orange2 : #f18e0e;
   --orange3 : #f18f0e67;
 
+  --bg-light : white;
+  --bg-dark : #333;
+
+  --color-dark : #333;
+  --color-light : white;
+
+  --bgs-light : white;
+  --bgs-dark : #555;
+
+  --svg-active : #f15f11;
+  --svg-dark : #ddd;
+  --svg-light : #333;
+
+  --broder-dark : rgba(221, 221, 221, 0.193);
+  --border-light : rgba(51, 51, 51, 0.248);
+
   scrollbar-color: rgb(210,210,210) rgba(162, 162, 162, 0);
   scrollbar-width: 13px;
+
 }
 
 input:focus{
@@ -48,6 +65,8 @@ body{
   overflow: hidden;
 }
 
+/* Top Level Blocks */
+
 .container {
   position: absolute;
   height: calc( 100vh - var(--topbar-height) ) ;
@@ -59,86 +78,182 @@ body{
   left: var(--sidebar-width);
 }
 
-
-.popups {
-  position: absolute;
-  z-index: 99999999;
-
-  height: 100vh;
-  width: 100vw;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  visibility: hidden;
+.light .container{
+  background: var(--bg-light);
 }
 
-.save-dialogue {
-  height: 150px;
-  width: 300px;
+.dark .container{
+  background: var(--bg-dark);
+}
 
-  border: solid 1px var(--broder-darker);
-  border-radius: 3px;
-  padding: 5px;
 
+.nav { 
+  height: 100vh;
+  width: var(--sidebar-width) ;
+  border-right: 1px solid #f18f0e72;
+  box-shadow: none;
+}
+
+.light .nav {
+  background: var(--bg-light);
+}
+
+.dark .nav {
+  background: var(--bg-dark);
+}
+
+.nav .title {
+  height: calc(var(--topbar-height) - 1px);
+  width: var(--sidebar-width);
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;  
+}
+
+.light .nav .title {
+  border-right: 1px solid white;
+}
+
+.dark .nav .title {
+  border-right: 1px solid #333;
+}
+
+.nav .title svg{
+  height: 30px;
+}
+
+.nav .navigation {
   display: flex;
   flex-direction: column;
-
   align-items: center;
-  justify-content: space-around;
-
-  background: white;
-  box-shadow: 0px 0px 3px 3px rgba(51, 51, 51, 0.042);
+  justify-content: flex-start;
+  
+  width: var(--sidebar-width);
 }
 
-.save-dialogue .title {
-  font-size: medium;
+.nav .navigation .btn {
+  width: var(--sidebar-width);
+  height: var(--topbar-height);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.nav .navigation .btn svg{
+  fill: #f18f0e72;
+}
+
+.nav .navigation .selected {
+  border-top: 1px solid #f18f0e72;
+  border-bottom: 1px solid #f18f0e72;
+}
+
+.light .nav .navigation .selected {
+  border-right: 1px solid white;
+}
+
+.dark .nav .navigation .selected {
+  border-right: 1px solid #555;
+  background: #555;
+}
+
+.nav .navigation .selected svg{
+  fill: #f15f11;
+}
+
+
+.context-menu{
+  height: var(--topbar-height);
+  width: calc( 100% - var(--sidebar-width) ) ;
+
+  top: 0px;
+  left: var(--sidebar-width);
+
+  position: absolute;
+  z-index: 9999;
+  border-bottom: 1px solid #f18f0e72;
+
+  display: grid;
+  grid-template-columns: 19fr 1fr;
+}
+
+.light .context-menu {
+  background: var(--bg-light);
+  color: var(--color-dark);
+}
+
+.dark .context-menu {
+  background: var(--bg-dark);
+  color: var(--color-light);
+}
+
+.context-menu .title{
+  height: var(--topbar-height);
+  width: 100px;
+
+  display: flex;
+  align-items: center;
+  padding-left: 5px;
   font-weight: 500;
   letter-spacing: 1px;
+}
+
+.dark .context-menu .title{
+  color: var(--color-light);
+}
+
+.context-menu .switch {
+  height: 100%;
+  width: 100%;
 
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 20px;
+
 }
 
-.save-dialogue input {
-  border: 1px solid var(--broder-darkest);
-  width: 70%;
-
-  height: 25px;
-
-  padding-left: 7px;
-  border-radius: 2px;
-}
-
-.btns {
-  width: 100%;
+.context-menu .holder{
+  height: 23px;
+  width: 42px;
+  border-radius: 15px;
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
-}
-
-.btns div {
-  font-size: 13px;
-  padding: 3px;
-  width: 50px;
+  padding-left: 5px;
+  padding-right: 5px;
 
   cursor: pointer;
 
-  color: white;
-  border-radius: 2px;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  transition-property: all;
+  transition-duration: 200ms;
 }
 
-.btns div:first-child {
-  background-color: rgb(88, 170, 88);
+.light .context-menu .holder{
+  background: skyblue;  
+  justify-content: flex-start;
 }
 
-.btns div:last-child {
-  background-color: rgb(226, 71, 71);
+.dark .context-menu .holder{
+  background: #582d58;  
+}
+
+.context-menu .button{
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  transition-property: all;
+  transition-duration: 500ms;
+}
+
+.light .context-menu .button{
+  background: yellow;  
+  transform: translateX(0px);
+}
+
+.dark .context-menu .button{
+  background: rgb(226, 164, 6);
+  transform: translateX(18px);  
 }

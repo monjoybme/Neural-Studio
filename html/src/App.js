@@ -8,7 +8,6 @@ import { Icon, icons } from "./data/icons";
 import { appConfig } from './data/appconfig.js'
 
 import "./App.css";
-import "./nav.css";
 
 window.copy = function (object) {
   return JSON.parse(JSON.stringify(object));
@@ -57,6 +56,16 @@ const SaveDialogue = (
 const App = (props) => {
   let Logo = icons.Logo;
   let [layers, layersState] = React.useState({});
+  let [ canvasConfig,canvasConfigState ] = React.useState({
+    activeLayer: {
+      name: "Layer",
+      type: { name: "Layer", _class: "layer" },
+      args: {
+        
+      },
+      doc: "https://keras.io/",
+    },
+  });
   let [buttons, buttonsState] = React.useState([
     { name: "Graph", path: "/", selected: window.location.pathname === "/", icon:icons.Graph },
     {
@@ -113,6 +122,9 @@ const App = (props) => {
       { name: "Download Code", shortcut: "Ctrl + D", func: downloadCode },
     ],
   });
+  let [appconfig,appconfigState] = React.useState({
+    ...appConfig
+  })
 
   window.getLayers = function () {
     return window.layers;
@@ -196,13 +208,13 @@ const App = (props) => {
   function getRenderComp() {
     switch (render.name) {
       case "Graph":
-        return <Canvas layers={layers} layersState={layersState} />;
+        return <Canvas appconfig={appconfig} appconfigState={appconfigState} layers={layers} layersState={layersState} canvasConfig={canvasConfig} canvasConfigState={canvasConfigState} />;
       case "Code":
-        return <CodeEditor layers={layers} />;
+        return <CodeEditor layers={layers} appconfig={appconfig} appconfigState={appconfigState} />;
       case "Train":
-        return <Train layers={layers} layersState={layersState} train={train} trainState={trainState} />;
+        return <Train layers={layers} layersState={layersState} train={train} trainState={trainState} appconfig={appconfig} appconfigState={appconfigState} />;
       case "Summary":
-        return <SummaryViewer layers={layers} />;
+        return <SummaryViewer layers={layers} appconfig={appconfig} appconfigState={appconfigState} />;
       default:
         return <Canvas />;
     }
@@ -271,6 +283,7 @@ const App = (props) => {
           case "Escape":
             popupState(<div></div>);
             document.getElementById("popups").style.visibility = "hidden";
+            window.toolbarHandler({ mode : "normal",name:"Normal"})
             break;
           default:
             break;
@@ -283,7 +296,7 @@ const App = (props) => {
   });
 
   return (
-    <div className="_app">
+    <div className="_app" className={appconfig.theme}>
       <div className="popups" id="popups">
         {popup}
       </div>
@@ -318,7 +331,24 @@ const App = (props) => {
         </div>
        
       </div>
-      <div className="context-menu"> <div className="title" id="context-title"> Graph </div> </div>
+      <div className="context-menu"> 
+        <div className="title" id="context-title"> Graph </div>
+
+        <div className="switch" onClick={()=>{ 
+          if (appconfig.theme === 'light'){
+            appconfig.theme = 'dark'
+          }else{
+            appconfig.theme = 'light'
+          }
+          appconfigState({...appconfig})
+         }}>
+            <div className="holder">
+              <div className="button">
+
+              </div>
+            </div>
+        </div> 
+      </div>
       {getRenderComp()}
     </div>
   );

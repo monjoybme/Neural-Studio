@@ -1,149 +1,165 @@
-.menu{
-    z-index: 10;  
-    position: absolute;  
-    right: 0;  
-    top: 0;
-    height: 100vh;
-    width: 300px;
-    padding: 5px;
-  
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  
-    background: white;
-    border: rgba(51, 51, 51, 0.241) 1px solid;
-    box-shadow: rgba(51, 51, 51, 0.35) -2px 0px 10px -5px;
-    overflow-y: scroll;
-
-    border-top: none;
-  }
-  
-  .menu .name{
-    font-size: small;
-    font-weight: 500;
-    letter-spacing: 1px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .menu .properties{
-    width: 98%;
-    display: grid;
-    grid-gap: 10px;
-    margin-top: 5px;
-    max-height: 85vh;
-  }
-  
-  .menu .property{
-    height: 70px;
-    border: rgba(51, 51, 51, 0.241) 1px solid;
-    border-radius: 2px;
-  
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 5px;
-  }
-
-  .property .name{
-    font-size: small;
-    margin-left: 3px;
-    font-weight: 400;
-  }
-  
-  .property .btn{
-    border: rgba(51, 51, 51, 0.186) solid 1px;
-    border-radius: 3px;
-  
-    background: whitesmoke;
-    
-    height: 25px;
-    padding-left: 10px;
-    margin-top: 5px;
-    width: 94%;
-  
-    font-size: small;
-    cursor: pointer;
-  }
-  
-  .menu select{
-    width: 11.5vw;
-    margin-top: 6px;
-    height: 25px;
-  
-    border: rgba(51, 51, 51, 0.186) solid 1px;
-    border-radius: 3px;
-    width: 98%;
-  }
-  
-  .menu input{
-    border: rgba(51, 51, 51, 0.186) solid 1px;
-    border-radius: 3px;
-  
-    background: whitesmoke;
-    
-    font-weight: 400;
-    font-size: smaller;
-    letter-spacing: 1px;
-
-    height: 30px;
-    padding-left: 10px;
-    margin-top: 5px;
-    width: 98%;
-  }
-  
-
-.dataset {
+.menu {
+  z-index: 10;
   position: absolute;
-  z-index: 99999;
-  top: 1vh;
-  left: calc( var(--sidebar-width) + 190px );
-  height: calc( 100vh - var(--topbar-height) - 60px) ;
-  width: calc( 100vw - var(--sidebar-width) - 260px );
+  right: 0;
+  top: 0;
+  height: 100vh;
+  width: 300px;
+  padding: 5px;
 
-  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
   border: rgba(51, 51, 51, 0.241) 1px solid;
   box-shadow: rgba(51, 51, 51, 0.35) -2px 0px 10px -5px;
+  overflow-y: scroll;
+  border-top: none;
 }
 
-.dataset .upload{
+.light .menu {
+  background: var(--bgs-light);
+}
+
+.dark .menu {
+  background: var(--bgs-dark);
+  color: var(--color-light);
+}
+
+.menu .name {
+  font-size: small;
+  font-weight: 500;
+  letter-spacing: 1px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.menu .properties {
+  width: 98%;
+  display: grid;
+  grid-gap: 10px;
+  margin-top: 5px;
+  max-height: 85vh;
+}
+
+.menu .property {
+  height: 70px;
+  border-radius: 2px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 5px;
+}
+
+.light .property {
+  border: rgba(51, 51, 51, 0.241) 1px solid;
+}
+
+.dark .property {
+  border: 1px solid rgba( 228, 228, 228, 0.4);
+}
+
+.property .name {
+  font-size: small;
+  margin-left: 3px;
+  font-weight: 400;
+}
+
+.property .btn {
   border: rgba(51, 51, 51, 0.186) solid 1px;
   border-radius: 3px;
 
   background: whitesmoke;
-  
+
   height: 25px;
   padding-left: 10px;
   margin-top: 5px;
+  width: 94%;
+
+  font-size: small;
+  cursor: pointer;
 }
 
+.menu select {
+  width: 11.5vw;
+  margin-top: 6px;
+  height: 25px;
 
-.dataset .head{
+  border: rgba(51, 51, 51, 0.186) solid 1px;
+  border-radius: 3px;
+  width: 98%;
+}
+
+.menu input {
+  border: rgba(51, 51, 51, 0.186) solid 1px;
+  border-radius: 3px;
+
+  background: whitesmoke;
+
+  font-weight: 400;
+  font-size: smaller;
+  letter-spacing: 1px;
+
+  height: 30px;
+  padding-left: 10px;
+  margin-top: 5px;
+  width: 98%;
+}
+
+.dataset {
+  position: absolute;
+  z-index: 99999;
+  left: calc(var(--sidebar-width) + 180px);
+  height: calc(100vh - var(--topbar-height) - 60px);
+  width: calc(100vw - var(--sidebar-width) - 240px);
+
+  background: white;
+  /* border: rgba(51, 51, 51, 0.241) 1px solid; */
+  /* box-shadow: rgba(51, 51, 51, 0.35) -2px 0px 10px -5px; */
+}
+
+.dataset .head {
   width: 100%;
   padding: 7px 10px;
   height: 40px;
-  border: rgba(51, 51, 51, 0.241) 1px solid;
+  border-bottom: rgba(51, 51, 51, 0.241) 1px solid;
 
   display: flex;
   justify-content: space-between;
 }
 
-.dataset .head input{
-  border: none;
+.light .dataset .head {
+  background: white;
 }
 
-.dataset .head .btn{
+.dark .dataset .head {
+  background: var(--bgs-dark);
+  color: var(--color-light);
+}
+
+.dataset .head input {
+  border: none;
+  background: none;
+}
+
+.dark .dataset .head input {
+  border: none;
+  background: none;
+  color: var(--color-light);
+}
+
+.dataset .head .btn {
   border: rgba(51, 51, 51, 0.186) solid 1px;
   border-radius: 3px;
 
-  background: whitesmoke;
-  
   height: 25px;
   width: 70px;
+
+  background: rgba(255, 255, 255, 0.364);
 
   display: flex;
   justify-content: center;
@@ -166,13 +182,13 @@
   padding: 3px;
 }
 
-.checkboxes .checkbox{
+.checkboxes .checkbox {
   display: flex;
   align-items: center;
   font-size: small;
 }
 
-.menu input[type='checkbox'] {
+.menu input[type="checkbox"] {
   height: 15px;
   width: 15px;
 }

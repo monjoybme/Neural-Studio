@@ -1,142 +1,221 @@
-
-
 .tools {
-    width: 240px;
-    border-right: 1px solid var(--orange1);
-    height: calc( 100vh - var(--topbar-height) );
-    padding-right: 3px;
+  width: 240px;
+  border-right: 1px solid var(--orange1);
+  height: calc(100vh - var(--topbar-height));
+  padding-right: 3px;
+}
+
+.light .tools {
+  background: var(--bg-light);
+}
+
+.dark .tools {
+  background: var(--bgs-dark);
 }
 
 .tools .toolbar {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
   height: 59px;
-  width: calc(100% + 4px);
-  border-bottom: 1px solid var(--orange1);
+  width: calc(100% + 2px);
+}
+
+.light .toolbar {
+  border-bottom: solid 0.001rem var(--border-light);
+}
+
+.dark .toolbar {
+  border-bottom: solid 0.001rem var(--broder-dark);
 }
 
 .tools .toolbar .btn {
-    cursor: pointer;
-  
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: var(--topbar-height);
-
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: var(--topbar-height);
 }
 
-.tools .toolbar .btn svg{
+.dark .tools .toolbar .btn svg {
+  fill: #eee;
+}
+
+.light .tools .toolbar .btn svg {
   fill: #333;
 }
 
-.tools .toolbar .btn svg:hover{
-  fill: var(--orange0)
+.tools .toolbar .btn svg:hover {
+  fill: var(--orange0);
 }
 
-.tools .layergroups{
-    overflow-y: scroll;
-    overflow-x: hidden;
+.light .tools .toolbar .btn .selected svg {
+  fill: var(--orange0);
+}
 
-    margin-top: 7px;
-    padding : 0px 0px 0px 0px;
+.dark .tools .toolbar .btn .selected svg {
+  fill: var(--orange0);
+}
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.tools .layergroups {
+  overflow-y: scroll;
+  overflow-x: hidden;
 
-    height: calc( 100% - var(--topbar-height) - 60px );
-    min-width: 240px;
-  }
+  padding: 0px 0px 0px 0px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  height: calc(100% - var(--topbar-height) - 60px);
+  min-width: 240px;
+}
 
 .tools .layergroups .layers {
-    width: 100%;
-    margin:0px 0px 3px 0px;
-    border-bottom: solid 0.001rem rgba(51, 51, 51, 0.1);
-    /* box-shadow: 0px 1px 2px 0px rgba(228, 228, 228, 0.35); */
-  }
-  
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.light .tools .layergroups .layers {
+  border-bottom: solid 0.001rem var(--border-light);
+}
+
+.dark .tools .layergroups .layers {
+  border-bottom: solid 0.001rem var(--broder-dark);
+}
+
 .layergroups::-webkit-scrollbar {
   width: 0px;
-
 }
 
-.layergroups:hover::-webkit-scrollbar {
-  width: 5px;
+.tools .layergroups .layers .name {
+  height: 45px;
+  width: 100%;
 
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 1px;
+
+  padding-left: 10px;
+  cursor: pointer;
+  border-radius: 2px;
 }
- 
-.tools .layergroups  .layers .name{
-    height: 45px;
-    width: 100%;
-  
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  
-    font-weight: 500;
-    font-size: small;
-    letter-spacing: 1px;
-  
-    cursor: pointer;
-    border-radius: 2px;
-  }
-  
-.tools .layergroups  .layers .grid {
-    width: 100%;
-    display: grid;
-    grid-gap: 5px;
-    padding: 0px 7px 7px 7px;
-  }
 
-  .tools .layergroups  .layers  .grid .btn{ 
-    border: solid 1px rgba(51, 51, 51, 0.15);
-    background: rgba(228, 228, 228, 0.15);
-    cursor: pointer;
-  
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  
-    height: 30px;
-    
-    font-weight: 400;
-    font-size: 11px;
-    letter-spacing: 1px;
-  
-    border-radius: 2px;
-  
-  }
+.light .tools .layergroups .layers .name {
+  color: var(--color-dark);
+}
 
-.canvas-top{
-    position: fixed;
-    left: calc( var(--sidebar-width) + 244px);
-    top: var(--topbar-height);
-    margin-top: 3px;
-    width: calc( 100% - var(--sidebar-width) - 246px ) ;
-    height: calc( 100% - var(--topbar-height) - 6px ) ;
-    overflow: scroll;
-    padding: 5px;
+.dark .tools .layergroups .layers .name {
+  color: var(--color-light);
+}
+
+.tools .layergroups .layers .grid {
+  width: 100%;
+  display: grid;
+  grid-gap: 5px;
+  padding: 0px 7px 7px 7px;
+}
+
+.tools .layergroups .layers .grid .btn {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 1px;
+  
+  height: 30px;
+  border-radius: 2px;
+}
+
+
+.light .tools .layergroups .layers .grid .btn {
+  color: var(--color-dark);
+  border: solid 1px rgba(51, 51, 51, 0.15);
+  background: rgba(228, 228, 228, 0.15);
+}
+
+.dark .tools .layergroups .layers .grid .btn {
+  color: var(--color-light);
+  border: solid 0.001rem var(--broder-dark);
+  background: rgba(228, 228, 228, 0.15);
+}
+
+.canvas-top {
+  position: fixed;
+  left: calc(var(--sidebar-width) + 244px);
+  top: var(--topbar-height);
+  margin-top: 3px;
+  width: calc(100% - var(--sidebar-width) - 246px);
+  height: calc(100% - var(--topbar-height) - 6px);
+  overflow: scroll;
+  padding: 5px;
 }
 
 .canvas {
-    min-width: 150vw;
-    min-height: 200vh;
+  min-width: 150vw;
+  min-height: 200vh;
 }
+
 
 .canvas rect {
-    height: 30px;
-    fill: #ddd;
-    stroke-width:1 ;
-    stroke:rgb(97, 96, 96);
-    opacity: 0.99;
+  height: 30px;
+  fill: #ddd;
+  stroke-width: 1;
+  stroke: rgb(97, 96, 96);
+  opacity: 0.99;
 }
 
-.canvas text{
-    position: relative;
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    font-weight: 500;
+.canvas text {
+  position: relative;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  font-weight: 500;
 }
+
+.light text {
+  fill: #333;
+}
+
+.dark text {
+  fill: #ddd;
+}
+
+.light .canvas rect {
+  stroke: var(--border-light);
+  stroke-width: 0.03rem;
+  fill: rgb(250, 250, 250);
+}
+
+.dark .canvas rect {
+  stroke: var(--broder-dark);
+  stroke-width: 1px;
+  fill: #4d4d4d;
+}
+
+.light line {
+  stroke: #333;
+}
+
+.dark line {
+  stroke: #ddd;
+}
+
+.light marker {
+  stroke: rgba(51, 51, 51, 0.72);
+}
+
+.dark marker {
+  stroke: rgba(221, 221, 221, 0.446);
+}
+
 
 /* .canvas line {
   stroke: #333;
