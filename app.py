@@ -1,15 +1,16 @@
-from tensorflow.python.keras.engine import training
+from tf_gui import web
+from tf_gui.web.utils import send_file
+from tf_gui.web.headers import Header
 from tf_gui.web import App, Request, text_response, json_response
 from tf_gui.builder import build_code
 from tf_gui.trainer import  Trainer,Summary
 
-from json import dump,load,JSONDecodeError
+from json import dump,JSONDecodeError,dumps
 
 app = App()
 trainer = Trainer()
 summary = Summary()
 
-# trainer = Trainer(save_epoch=True,epoch_output='segmentation')
 
 @app.route("/")
 async def index(request:Request):
@@ -61,8 +62,8 @@ async def status(request:Request):
     })
 
 
-@app.route("/summary",)
-async def train_start(request:Request):
+@app.route("/model/summary",)
+async def summary_viewer(request:Request):
     if request.header.method == 'POST':
         try:
             data = await request.get_json()
@@ -126,7 +127,7 @@ async def train_halt(request:Request):
         data = await request.get_json()
         trainer.halt(state=data['state'])
         return json_response({
-            "status":"Training Started"
+            "status":"Training Halt"
         })
 
     else:
@@ -143,7 +144,7 @@ async def train_stop(request:Request):
             trainer.stop()
             return json_response({
                 "status":200,
-                "message":"Training Stopped"
+                "message":"Interrupting Training"
             })
         except AttributeError:
             return json_response({

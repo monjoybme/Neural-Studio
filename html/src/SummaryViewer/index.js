@@ -11,8 +11,9 @@ const SummaryViewer = (props={layers:{},}) =>{
     })
 
     async function getModel(e) {
+        console.log("Getting Model Summary !")
         await fetch(
-          "http://localhost/summary",
+          "http://localhost/model/summary",
           {
             method:"POST",
             headers: { 'Content-Type': 'application/json' },

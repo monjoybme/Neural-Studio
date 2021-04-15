@@ -1,5 +1,5 @@
-
 # from .utils import Response
+from websockets.framing import prepare_data
 from .headers import Header,RequestHeader
 from .utils import text_response,json_response
 from .__imports__ import (
@@ -130,16 +130,16 @@ class App(object):
         else:
             header += await reader.readuntil(separator=b'\r\n\r\n')
             header = RequestHeader().parse(str(header[self.__rnrn],encoding='utf-8'))
-                
+
             if header.method == "OPTIONS":
-                response = CORS_RESPONSE.format(origin=header.origin).encode()
+                response = CORS_RESPONSE.format(origin=header.origin).encode()                
             else:
                 func,var,query = self.__router.get(header.path)
                 if func:
                     response = await func(Request(header,reader,writer,self.loop),**var)
                 else:
                     response = text_response(f'{header.path} not found !',404,'Not Found !')
-                
+            
             if response:
                 writer.write( response )
                 await writer.drain()
@@ -147,11 +147,17 @@ class App(object):
             # print (f'[{header.method}] {header.path}')
 
     def serve(self,host:str='localhost',port:int=8080):
+        self.loop.create_task(
+            asyncio.start_server(
+                self.handle_request,
+                host,
+                port,
+            )
+        )
         print (
             f"* Started App\n"
             f"* Host : {host}\n"
             f"* Port : {port}\n"
             f"* URL  : http://{host}:{port}"
         )
-        self.loop.create_task(asyncio.start_server(self.handle_request,host,port))
         self.loop.run_forever()

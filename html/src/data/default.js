@@ -23,3 +23,27 @@
 //     </g>
 //   );
 // };
+
+function _getStatus(){
+    let socket = new WebSocket("ws://localhost/update");
+    socket.onopen = function(e) {
+        console.log("Started Update");
+    };
+
+    socket.onmessage = async function(event) {
+        let response = await event.data.text();
+        let data = JSON.parse(response);
+    };
+
+    socket.onclose = function(event) {
+    if (event.wasClean) {
+        alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+    } else {
+
+    }
+    };
+
+    socket.onerror = function(error) {
+        console.log(error);
+    };
+}
