@@ -23,7 +23,7 @@
 }
 
 .light .training .menu {
-  background: var(--bg-light);
+  background: var(--bgs-light);
 }
 
 .dark .training .menu {
@@ -44,7 +44,7 @@
   justify-content: center;
 
   width: var(--sidebar-width);
-  height: var(--sidebar-width);
+  height: calc( var(--sidebar-width) - 7px );
 
   margin: 0px;
   padding: 0px;
@@ -70,7 +70,7 @@
   overflow-y: scroll;
   height: auto;
   max-height: calc(100vh - var(--topbar-height) - 10px);
-  width: calc(100vw - var(--topbar-height) - var(--topbar-height));
+  width: calc(100vw - var(--topbar-height) - var(--topbar-height) -  var(--monitor-width));
   padding: 10px;
 }
 
@@ -129,13 +129,12 @@
   display: flex;
   flex-direction: column;
   min-height: 80px;
-  max-height: 100px;
 }
 
 .epoch .upper {
   display: grid;
   grid-template-columns: 2fr 18fr;
-  height: 45px;
+  height: 30px;
   padding-bottom: 3px;
 }
 
@@ -148,8 +147,9 @@
 
 .epoch .epochname {
   font-size: 14px;
-  height: 50%;
-  margin: 0px 0px 10px 0px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .epoch .batch {
@@ -239,3 +239,79 @@
 .outvis img {
   border: solid 1px rgba(51, 51, 51, 0.15);
 }
+
+.monitor {
+  overflow-y: scroll;
+  height: auto;
+  max-height: calc(100vh - var(--topbar-height) - 10px);
+  width:   var(--monitor-width);
+  padding: 0px 10px 5px 10px;
+  border-left: 1px solid var(--orange1);
+}
+
+.histogram {
+  height: calc( var(--monitor-width) - 70px) ;
+
+  margin-top: 10px;
+  padding: 0px 5px 5px 5px;
+
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 0.85fr 9.15fr;
+}
+
+.light .histogram{
+  background: var(--bgs-light);
+  border: 0.001rem solid #3332;
+}
+
+.dark .histogram{
+  background: var(--bgs-dark);
+}
+
+.histogram .name{
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.light .name{
+  color: var(--color-dark);
+}
+
+.dark .name {
+  color: var(--color-light);
+}
+
+
+.dark .histogram .chart{
+  background: var(--bg-dark);
+}
+
+.light .histogram .chart{
+  background: var(--bg-light);
+  border: 0.001rem solid #3332;
+}
+
+.light .chart .axis {
+  stroke: #666;
+}
+
+.dark .chart .axis {
+  stroke: white;
+}
+
+.light .chart circle {
+  fill: #666;
+}
+
+.dark .chart circle {
+  fill: white;
+}
+
+.light .chart line{
+  stroke: #888;
+}
+
+

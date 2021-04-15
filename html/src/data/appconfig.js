@@ -1,5 +1,5 @@
 let appConfig = {
-    theme:"light",
+    theme:"dark",
     geometry:{
         sideBar:{
             width:70
@@ -11,6 +11,14 @@ let appConfig = {
     canvas:{
         toolbar:{
             width:240,
+        }
+    },
+    monitor:{
+        width:400,
+        padding:5,
+        graph:{
+            height:295,
+            width:365
         }
     }
 }

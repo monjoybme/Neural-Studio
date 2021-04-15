@@ -5,6 +5,18 @@
     padding: 7px;
 }
 
-.tfcode .menubar{
+.margin-view-overlays{
+    border-right: 1px solid var(--orange1);
+}
 
+.light .margin-view-overlays {
+    background: var(--bgs-light) !important;
+}
+
+.dark .margin-view-overlays {
+    background: var(--bgs-dark) !important;
+}
+
+.monaco-scrollable-element {
+    margin-left: 10px !important;
 }

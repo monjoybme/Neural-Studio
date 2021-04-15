@@ -6,7 +6,7 @@
 }
 
 .light .tools {
-  background: var(--bg-light);
+  background: var(--bgs-light);
 }
 
 .dark .tools {
@@ -189,7 +189,7 @@
 }
 
 .light .canvas rect {
-  stroke: var(--border-light);
+  stroke: #333;
   stroke-width: 0.03rem;
   fill: rgb(250, 250, 250);
 }
@@ -201,7 +201,7 @@
 }
 
 .light line {
-  stroke: #333;
+  stroke: #888;
 }
 
 .dark line {

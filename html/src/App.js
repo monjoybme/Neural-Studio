@@ -5,7 +5,7 @@ import CodeEditor from "./CodeEditor";
 import Train from "./Training";
 import SummaryViewer from "./SummaryViewer";
 import { Icon, icons } from "./data/icons";
-import { appConfig } from './data/appconfig.js'
+import { appConfig } from "./data/appconfig.js";
 
 import "./App.css";
 
@@ -14,7 +14,8 @@ window.copy = function (object) {
 };
 
 setInterval(function () {
-  window.offsetX = appConfig.canvas.toolbar.width + appConfig.geometry.sideBar.width;
+  window.offsetX =
+    appConfig.canvas.toolbar.width + appConfig.geometry.sideBar.width;
   window.offsetY = appConfig.geometry.topBar.height;
 }, 1000);
 
@@ -56,35 +57,38 @@ const SaveDialogue = (
 const App = (props) => {
   let Logo = icons.Logo;
   let [layers, layersState] = React.useState({});
-  let [ canvasConfig,canvasConfigState ] = React.useState({
+  let [canvasConfig, canvasConfigState] = React.useState({
     activeLayer: {
       name: "Layer",
       type: { name: "Layer", _class: "layer" },
-      args: {
-        
-      },
+      args: {},
       doc: "https://keras.io/",
     },
   });
   let [buttons, buttonsState] = React.useState([
-    { name: "Graph", path: "/", selected: window.location.pathname === "/", icon:icons.Graph },
+    {
+      name: "Graph",
+      path: "/",
+      selected: window.location.pathname === "/",
+      icon: icons.Graph,
+    },
     {
       name: "Code",
       path: "/code",
       selected: window.location.pathname === "/code",
-      icon:icons.Code
+      icon: icons.Code,
     },
     {
       name: "Summary",
       path: "/summary",
       selected: window.location.pathname === "/summary",
-      icon:icons.Summary
+      icon: icons.Summary,
     },
     {
       name: "Train",
       path: "/train",
       selected: window.location.pathname === "/train",
-      icon:icons.Train
+      icon: icons.Train,
     },
   ]);
   let [render, renderState] = React.useState({ name: "Graph" });
@@ -94,10 +98,10 @@ const App = (props) => {
       updated: false,
     },
   });
-  let [ train, trainState ] = React.useState({
-    training:false,
-    hist:[],
-  })
+  let [train, trainState] = React.useState({
+    training: false,
+    hist: [],
+  });
   let [popup, popupState] = React.useState(<div></div>);
   let [files, filesState] = React.useState({
     display: false,
@@ -122,9 +126,9 @@ const App = (props) => {
       { name: "Download Code", shortcut: "Ctrl + D", func: downloadCode },
     ],
   });
-  let [appconfig,appconfigState] = React.useState({
-    ...appConfig
-  })
+  let [appconfig, appconfigState] = React.useState({
+    ...appConfig,
+  });
 
   window.getLayers = function () {
     return window.layers;
@@ -208,13 +212,49 @@ const App = (props) => {
   function getRenderComp() {
     switch (render.name) {
       case "Graph":
-        return <Canvas appconfig={appconfig} appconfigState={appconfigState} layers={layers} layersState={layersState} canvasConfig={canvasConfig} canvasConfigState={canvasConfigState} />;
+        return (
+          <Canvas
+            appconfig={appconfig}
+            appconfigState={appconfigState}
+
+            layers={layers}
+            layersState={layersState}
+            
+            canvasConfig={canvasConfig}
+            canvasConfigState={canvasConfigState}
+          />
+        );
       case "Code":
-        return <CodeEditor layers={layers} appconfig={appconfig} appconfigState={appconfigState} />;
+        return (
+          <CodeEditor
+            layers={layers}
+            
+            appconfig={appconfig}
+            appconfigState={appconfigState}
+          />
+        );
       case "Train":
-        return <Train layers={layers} layersState={layersState} train={train} trainState={trainState} appconfig={appconfig} appconfigState={appconfigState} />;
+        return (
+          <Train
+            layers={layers}
+            layersState={layersState}
+            
+            train={train}
+            trainState={trainState}
+            
+            appconfig={appconfig}
+            appconfigState={appconfigState}
+          />
+        );
       case "Summary":
-        return <SummaryViewer layers={layers} appconfig={appconfig} appconfigState={appconfigState} />;
+        return (
+          <SummaryViewer
+            layers={layers}
+            
+            appconfig={appconfig}
+            appconfigState={appconfigState}
+          />
+        );
       default:
         return <Canvas />;
     }
@@ -253,19 +293,19 @@ const App = (props) => {
             break;
           case "1":
             e.preventDefault();
-            window.toolbarHandler({ mode: "normal", name:"Normal" });
+            window.toolbarHandler({ mode: "normal", name: "Normal" });
             break;
           case "2":
             e.preventDefault();
-            window.toolbarHandler({ mode: "line", name:"Edge" });
+            window.toolbarHandler({ mode: "line", name: "Edge" });
             break;
           case "3":
             e.preventDefault();
-            window.toolbarHandler({ mode: "move",name:"Move" });
+            window.toolbarHandler({ mode: "move", name: "Move" });
             break;
           case "4":
             e.preventDefault();
-            window.toolbarHandler({ mode: "delete", name:"Delete" });
+            window.toolbarHandler({ mode: "delete", name: "Delete" });
             break;
           case "5":
             e.preventDefault();
@@ -283,7 +323,7 @@ const App = (props) => {
           case "Escape":
             popupState(<div></div>);
             document.getElementById("popups").style.visibility = "hidden";
-            window.toolbarHandler({ mode : "normal",name:"Normal"})
+            window.toolbarHandler({ mode: "normal", name: "Normal" });
             break;
           default:
             break;
@@ -301,7 +341,10 @@ const App = (props) => {
         {popup}
       </div>
       <div className="nav">
-        <div className="title"> <Logo />  </div>
+        <div className="title">
+          {" "}
+          <Logo />{" "}
+        </div>
         <div className="navigation">
           {buttons.map((button, i) => {
             let Icon = button.icon;
@@ -314,7 +357,8 @@ const App = (props) => {
                   buttons = buttons.map((_button) => {
                     _button.selected = _button.name === button.name;
                     if (_button.selected) {
-                      document.getElementById("context-title").innerText = button.name;
+                      document.getElementById("context-title").innerText =
+                        button.name;
                       renderState({
                         ..._button,
                       });
@@ -324,30 +368,35 @@ const App = (props) => {
                   buttonsState([...buttons]);
                 }}
               >
-                <Icon fill={ button.selected ? "white" : "rgba(255,255,255,0.3)" } />
+                <Icon
+                  fill={button.selected ? "white" : "rgba(255,255,255,0.3)"}
+                />
               </div>
             );
           })}
         </div>
-       
       </div>
-      <div className="context-menu"> 
-        <div className="title" id="context-title"> Graph </div>
+      <div className="context-menu">
+        <div className="title" id="context-title">
+          {" "}
+          Graph{" "}
+        </div>
 
-        <div className="switch" onClick={()=>{ 
-          if (appconfig.theme === 'light'){
-            appconfig.theme = 'dark'
-          }else{
-            appconfig.theme = 'light'
-          }
-          appconfigState({...appconfig})
-         }}>
-            <div className="holder">
-              <div className="button">
-
-              </div>
-            </div>
-        </div> 
+        <div
+          className="switch"
+          onClick={() => {
+            if (appconfig.theme === "light") {
+              appconfig.theme = "dark";
+            } else {
+              appconfig.theme = "light";
+            }
+            appconfigState({ ...appconfig });
+          }}
+        >
+          <div className="holder">
+            <div className="button"></div>
+          </div>
+        </div>
       </div>
       {getRenderComp()}
     </div>
@@ -356,8 +405,8 @@ const App = (props) => {
 
 export default App;
 
-
- {/* <div className="files">
+{
+  /* <div className="files">
           <div
             className="icon"
             onClick={(e) =>
@@ -381,4 +430,5 @@ export default App;
               })}
             </div>
           ) : undefined}
-        </div> */}
+        </div> */
+}

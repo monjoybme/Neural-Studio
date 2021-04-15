@@ -7,6 +7,8 @@
   --sidebar-width: 60px;
   --topbar-height: 60px;
 
+  --monitor-width : 400px; /* Cahnge appconfig after changing */
+
   --orange0 : #f15f11;
   --orange1 : #f18f0e9a;
   --orange2 : #f18e0e;
@@ -18,7 +20,7 @@
   --color-dark : #333;
   --color-light : white;
 
-  --bgs-light : white;
+  --bgs-light : #fafafa;
   --bgs-dark : #555;
 
   --svg-active : #f15f11;
@@ -55,6 +57,7 @@ select:focus{
 
 *{ 
   box-sizing: border-box;
+  font-family: monospace;
 }
 
 html{
@@ -153,12 +156,13 @@ body{
 }
 
 .light .nav .navigation .selected {
-  border-right: 1px solid white;
+  border-right: 1px solid var(--bgs-light);
+  background: var(--bgs-light);
 }
 
 .dark .nav .navigation .selected {
-  border-right: 1px solid #555;
-  background: #555;
+  border-right: 1px solid var(--bgs-dark);
+  background: var(--bgs-dark);
 }
 
 .nav .navigation .selected svg{
