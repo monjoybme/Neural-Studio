@@ -4,7 +4,10 @@ import Canvas from "./GraphCanvas";
 import CodeEditor from "./CodeEditor";
 import Train from "./Training";
 import SummaryViewer from "./SummaryViewer";
-import { Icon, icons } from "./data/icons";
+
+import _layerGroups from './data/layers';
+
+import {  icons } from "./data/icons";
 import { appConfig } from "./data/appconfig.js";
 
 import "./App.css";
@@ -33,6 +36,7 @@ const SaveDialogue = (
       <input value={props.project.name} />
       <div className="btns">
         <div
+          style={{ background:"green" }}
           onClick={(e) => {
             props.saveFunction({
               file: e.target.parentElement.previousElementSibling.value,
@@ -42,6 +46,7 @@ const SaveDialogue = (
           save
         </div>
         <div
+        style={{ background:"red" }}
           onClick={(e) => {
             document.getElementById("popups").style.visibility = "hidden";
             props.popupState(<div></div>);
@@ -57,14 +62,8 @@ const SaveDialogue = (
 const App = (props) => {
   let Logo = icons.Logo;
   let [layers, layersState] = React.useState({});
-  let [canvasConfig, canvasConfigState] = React.useState({
-    activeLayer: {
-      name: "Layer",
-      type: { name: "Layer", _class: "layer" },
-      args: {},
-      doc: "https://keras.io/",
-    },
-  });
+  let [ layerGroups, layerGroupsState ] = React.useState({ ..._layerGroups})
+  
   let [buttons, buttonsState] = React.useState([
     {
       name: "Graph",
@@ -219,31 +218,41 @@ const App = (props) => {
 
             layers={layers}
             layersState={layersState}
-            
-            canvasConfig={canvasConfig}
-            canvasConfigState={canvasConfigState}
+
+            layerGroups={layerGroups}
+            layerGroupsState={layerGroupsState}
+
+            popup={popup}
+            popupState={popupState}
           />
         );
       case "Code":
         return (
           <CodeEditor
-            layers={layers}
-            
             appconfig={appconfig}
             appconfigState={appconfigState}
+
+            layers={layers}
+            layersState={layersState}
+            
+            layerGroups={layerGroups}
+            layerGroupsState={layerGroupsState}
           />
         );
       case "Train":
         return (
           <Train
-            layers={layers}
-            layersState={layersState}
-            
             train={train}
             trainState={trainState}
             
             appconfig={appconfig}
             appconfigState={appconfigState}
+
+            layers={layers}
+            layersState={layersState}
+            
+            layerGroups={layerGroups}
+            layerGroupsState={layerGroupsState}
           />
         );
       case "Summary":
@@ -342,8 +351,7 @@ const App = (props) => {
       </div>
       <div className="nav">
         <div className="title">
-          {" "}
-          <Logo />{" "}
+          <Logo />
         </div>
         <div className="navigation">
           {buttons.map((button, i) => {
@@ -404,31 +412,3 @@ const App = (props) => {
 };
 
 export default App;
-
-{
-  /* <div className="files">
-          <div
-            className="icon"
-            onClick={(e) =>
-              filesState({ display: true, buttons: files.buttons })
-            }
-          >
-            <div className="bar"></div>
-            <div className="bar"></div>
-            <div className="bar"></div>
-          </div>
-          {files.display ? (
-            <div className="dropdown">
-              <div className="title">Menu</div>
-              {files.buttons.map((button, i) => {
-                return (
-                  <div className="btn" key={i} onClick={button.func}>
-                    <div className="name">{button.name}</div>
-                    <div className="shortcut">{button.shortcut}</div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : undefined}
-        </div> */
-}

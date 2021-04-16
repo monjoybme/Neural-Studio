@@ -70,6 +70,7 @@ class Dataset:
 
         with ThreadPoolExecutor(max_workers=32) as executor:
             res = executor.map(get_image,[ ( i,path,self.train_x ) for i,path in enumerate(images)])
+            print (sum(list(res)))
             
         with ThreadPoolExecutor(max_workers=32) as executor:
             res = executor.map(get_image,[ ( i,path,self.train_y ) for i,path in enumerate(labels)])
@@ -85,7 +86,52 @@ class Dataset:
 # Do not change the anything.
 dataset_1 = Dataset()
 #end-dataset id=dataset_1
-input_2 = layers.Input(
+
+#node_0
+def conv_2d_block(
+    inbound:list=[],
+    filters:int=8,
+    activation:str="swish"
+  )->None:
+  
+  x = layers.Conv2D(filters,kernel_size=3, padding="same")(inbound)
+  x = layers.BatchNormalization()(x)
+  x = layers.Activation(activation)(x)
+
+  x = layers.Conv2D(filters,kernel_size=3,strides=2,padding="same")(x)
+  x = layers.BatchNormalization()(x)
+  x = layers.Activation(activation)(x)
+
+  x = layers.Dropout(0.1)(x)
+
+  return x  
+
+#end-node_0
+
+#node_1
+def convt_2d_block(
+    inbound:list=[],
+    filters:int=8,
+    activation:str="swish"
+  )->None:
+
+  x = layers.Concatenate()(inbound)  
+  x = layers.Conv2DTranspose(filters,kernel_size=3,padding="same")(x)
+  x = layers.BatchNormalization()(x)
+  x = layers.Activation(activation)(x)
+
+  x = layers.Conv2DTranspose(filters,kernel_size=3,strides=2,padding="same")(x)
+  x = layers.BatchNormalization()(x)
+  x = layers.Activation(activation)(x)
+
+  x = layers.Dropout(0.1)(x)
+
+  return x  
+
+#end-node_1
+
+
+input_1 = layers.Input(
     shape=(224, 224, 3),
     batch_size=None,
     name=None,
@@ -93,457 +139,140 @@ input_2 = layers.Input(
     sparse=False,
     tensor=None,
     ragged=False,
-) #end-input_2
+) #end-input_1
 
 
-conv2d_6 = layers.Conv2D(
+conv_block_1 = conv_2d_block(
+    inbound=input_1,
     filters=8,
-    kernel_size=3,
-    padding='same',
-    strides=(1, 1),
-    data_format=None,
-    dilation_rate=(1, 1),
-    groups=1,
     activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(input_2) #end-conv2d_6
+) #end-conv_block_1
 
 
-conv2d_7 = layers.Conv2D(
-    filters=8,
-    kernel_size=3,
-    padding='same',
-    strides=2,
-    data_format=None,
-    dilation_rate=(1, 1),
-    groups=1,
-    activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(conv2d_6) #end-conv2d_7
-
-
-dropout_1 = layers.Dropout(
-    rate=0.1,
-    noise_shape=None,
-    seed=None,
-)(conv2d_7) #end-dropout_1
-
-
-conv2d_8 = layers.Conv2D(
+conv_block_2 = conv_2d_block(
+    inbound=conv_block_1,
     filters=16,
-    kernel_size=3,
-    padding='same',
-    strides=(1, 1),
-    data_format=None,
-    dilation_rate=(1, 1),
-    groups=1,
     activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(dropout_1) #end-conv2d_8
+) #end-conv_block_2
 
 
-conv2d_9 = layers.Conv2D(
-    filters=16,
-    kernel_size=3,
-    padding='same',
-    strides=2,
-    data_format=None,
-    dilation_rate=(1, 1),
-    groups=1,
-    activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(conv2d_8) #end-conv2d_9
-
-
-dropout_2 = layers.Dropout(
-    rate=0.1,
-    noise_shape=None,
-    seed=None,
-)(conv2d_9) #end-dropout_2
-
-
-conv2d_10 = layers.Conv2D(
+conv_block_3 = conv_2d_block(
+    inbound=conv_block_2,
     filters=32,
-    kernel_size=3,
-    padding='same',
-    strides=(1, 1),
-    data_format=None,
-    dilation_rate=(1, 1),
-    groups=1,
     activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(dropout_2) #end-conv2d_10
+) #end-conv_block_3
 
 
-conv2d_11 = layers.Conv2D(
-    filters=32,
-    kernel_size=3,
-    padding='same',
-    strides=2,
-    data_format=None,
-    dilation_rate=(1, 1),
-    groups=1,
-    activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(conv2d_10) #end-conv2d_11
-
-
-dropout_3 = layers.Dropout(
-    rate=0.1,
-    noise_shape=None,
-    seed=None,
-)(conv2d_11) #end-dropout_3
-
-
-conv2d_12 = layers.Conv2D(
+conv_block_4 = conv_2d_block(
+    inbound=conv_block_3,
     filters=64,
-    kernel_size=3,
-    padding='same',
-    strides=(1, 1),
-    data_format=None,
-    dilation_rate=(1, 1),
-    groups=1,
     activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(dropout_3) #end-conv2d_12
-
-
-conv2d_13 = layers.Conv2D(
-    filters=64,
-    kernel_size=3,
-    padding='same',
-    strides=2,
-    data_format=None,
-    dilation_rate=(1, 1),
-    groups=1,
-    activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(conv2d_12) #end-conv2d_13
-
-
-dropout_4 = layers.Dropout(
-    rate=0.1,
-    noise_shape=None,
-    seed=None,
-)(conv2d_13) #end-dropout_4
-
-
-conv2d_14 = layers.Conv2D(
-    filters=128,
-    kernel_size=3,
-    padding='same',
-    strides=(1, 1),
-    data_format=None,
-    dilation_rate=(1, 1),
-    groups=1,
-    activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(dropout_4) #end-conv2d_14
-
-
-conv2d_15 = layers.Conv2D(
-    filters=128,
-    kernel_size=3,
-    padding='same',
-    strides=2,
-    data_format=None,
-    dilation_rate=(1, 1),
-    groups=1,
-    activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(conv2d_14) #end-conv2d_15
-
-
-dropout_5 = layers.Dropout(
-    rate=0.1,
-    noise_shape=None,
-    seed=None,
-)(conv2d_15) #end-dropout_5
-
-
-conv2dtranspose_1 = layers.Conv2DTranspose(
-    filters=64,
-    kernel_size=3,
-    padding='same',
-    strides=2,
-    output_padding=None,
-    data_format=None,
-    dilation_rate=(1, 1),
-    activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(dropout_5) #end-conv2dtranspose_1
-
-
-concatenate_3 = layers.Concatenate(
-
-)([conv2dtranspose_1, dropout_4]) #end-concatenate_3
-
-
-conv2dtranspose_2 = layers.Conv2DTranspose(
-    filters=64,
-    kernel_size=3,
-    padding='same',
-    strides=(1, 1),
-    output_padding=None,
-    data_format=None,
-    dilation_rate=(1, 1),
-    activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(concatenate_3) #end-conv2dtranspose_2
-
-
-conv2dtranspose_3 = layers.Conv2DTranspose(
-    filters=32,
-    kernel_size=3,
-    padding='same',
-    strides=2,
-    output_padding=None,
-    data_format=None,
-    dilation_rate=(1, 1),
-    activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(conv2dtranspose_2) #end-conv2dtranspose_3
-
-
-dropout_6 = layers.Dropout(
-    rate=0.1,
-    noise_shape=None,
-    seed=None,
-)(conv2dtranspose_3) #end-dropout_6
-
-
-concatenate_4 = layers.Concatenate(
-
-)([dropout_6, dropout_3]) #end-concatenate_4
-
-
-conv2dtranspose_4 = layers.Conv2DTranspose(
-    filters=32,
-    kernel_size=3,
-    padding='same',
-    strides=(1, 1),
-    output_padding=None,
-    data_format=None,
-    dilation_rate=(1, 1),
-    activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(concatenate_4) #end-conv2dtranspose_4
-
-
-conv2dtranspose_5 = layers.Conv2DTranspose(
-    filters=16,
-    kernel_size=3,
-    padding='same',
-    strides=2,
-    output_padding=None,
-    data_format=None,
-    dilation_rate=(1, 1),
-    activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(conv2dtranspose_4) #end-conv2dtranspose_5
-
-
-dropout_7 = layers.Dropout(
-    rate=0.1,
-    noise_shape=None,
-    seed=None,
-)(conv2dtranspose_5) #end-dropout_7
-
-
-concatenate_5 = layers.Concatenate(
-
-)([dropout_7, dropout_2]) #end-concatenate_5
-
-
-conv2dtranspose_6 = layers.Conv2DTranspose(
-    filters=16,
-    kernel_size=3,
-    padding='same',
-    strides=(1, 1),
-    output_padding=None,
-    data_format=None,
-    dilation_rate=(1, 1),
-    activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(concatenate_5) #end-conv2dtranspose_6
-
-
-conv2dtranspose_7 = layers.Conv2DTranspose(
-    filters=8,
-    kernel_size=3,
-    padding='same',
-    strides=2,
-    output_padding=None,
-    data_format=None,
-    dilation_rate=(1, 1),
-    activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(conv2dtranspose_6) #end-conv2dtranspose_7
-
-
-dropout_8 = layers.Dropout(
-    rate=0.1,
-    noise_shape=None,
-    seed=None,
-)(conv2dtranspose_7) #end-dropout_8
-
-
-concatenate_6 = layers.Concatenate(
-
-)([dropout_8, dropout_1]) #end-concatenate_6
-
-
-conv2dtranspose_8 = layers.Conv2DTranspose(
-    filters=8,
-    kernel_size=3,
-    padding='same',
-    strides=(1, 1),
-    output_padding=None,
-    data_format=None,
-    dilation_rate=(1, 1),
-    activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(concatenate_6) #end-conv2dtranspose_8
-
-
-conv2dtranspose_9 = layers.Conv2DTranspose(
-    filters=3,
-    kernel_size=3,
-    padding='same',
-    strides=2,
-    output_padding=None,
-    data_format=None,
-    dilation_rate=(1, 1),
-    activation='swish',
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(conv2dtranspose_8) #end-conv2dtranspose_9
-
-
-dropout_9 = layers.Dropout(
-    rate=0.1,
-    noise_shape=None,
-    seed=None,
-)(conv2dtranspose_9) #end-dropout_9
+) #end-conv_block_4
 
 
 dense_1 = layers.Dense(
-    units=1,
+    units=128,
     activation='sigmoid',
+    use_bias=False,
+    kernel_regularizer=None,
+    bias_regularizer=None,
+    activity_regularizer=None,
+    kernel_constraint=None,
+    bias_constraint=None,
+)(conv_block_4) #end-dense_1
+
+
+convtranspose_block_1 = convt_2d_block(
+    inbound=[ dense_1, conv_block_4 ],
+    filters=64,
+    activation='swish',
+) #end-convtranspose_block_1
+
+
+convtranspose_block_2 = convt_2d_block(
+    inbound=[ convtranspose_block_1, conv_block_3 ],
+    filters=32,
+    activation='swish',
+) #end-convtranspose_block_2
+
+
+convtranspose_block_3 = convt_2d_block(
+    inbound=[ conv_block_2, convtranspose_block_2 ],
+    filters=16,
+    activation='swish',
+) #end-convtranspose_block_3
+
+
+convtranspose_block_4 = convt_2d_block(
+    inbound=[ conv_block_1, convtranspose_block_3 ],
+    filters=8,
+    activation='swish',
+) #end-convtranspose_block_4
+
+
+conv2d_1 = layers.Conv2D(
+    filters=1,
+    kernel_size=3,
+    padding='same',
+    strides=(1, 1),
+    data_format=None,
+    dilation_rate=(1, 1),
+    groups=1,
+    activation=None,
     use_bias=True,
     kernel_regularizer=None,
     bias_regularizer=None,
     activity_regularizer=None,
     kernel_constraint=None,
     bias_constraint=None,
-)(dropout_9) #end-dense_1
+)(convtranspose_block_4) #end-conv2d_1
+
+
+batchnormalization_1 = layers.BatchNormalization(
+    momentum=0.99,
+    epsilon=0.001,
+    center=True,
+    scale=True,
+    beta_regularizer=None,
+    gamma_regularizer=None,
+    beta_constraint=None,
+    gamma_constraint=None,
+    renorm=False,
+    renorm_clipping=None,
+    renorm_momentum=0.99,
+    fused=None,
+    trainable=True,
+    virtual_batch_size=None,
+    adjustment=None,
+    name=None,
+)(conv2d_1) #end-batchnormalization_1
+
+
+activation_1 = layers.Activation(
+    activation='sigmoid',
+)(batchnormalization_1) #end-activation_1
 
 
 model_1 = keras.Model(
-    [ input_2, ],
-    [ dense_1, ]
+    [ input_1, ],
+    [ activation_1, ]
 ) #end-model_1
 
 
+adam_1 = optimizers.Adam(
+    learning_rate=9e-05,
+    beta_1=0.9,
+    beta_2=0.999,
+    epsilon=1e-07,
+    amsgrad=False,
+    name='Adam',
+) #end-adam_1
+
 
 model_1.compile(
-    optimizer='adam',
-    loss='mean_squared_error',
-    metrics=["binary_crossentropy", "mean_absolute_error", "mean_squared_error"]
+    optimizer=adam_1,
+    loss='mean_absolute_error',
+    metrics=None
 ) #end-compile_1
 
 
@@ -551,8 +280,8 @@ model_1.compile(
 model_1.fit(
     x=dataset_1.train_x,
     y=dataset_1.train_y,
-    batch_size=8,
-    epochs=10,
+    batch_size=16,
+    epochs=3,
     validation_data=( dataset_1.test_x, dataset_1.test_y ),
     callbacks=[ tfgui,  ]
 ) #end-train_1

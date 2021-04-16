@@ -261,3 +261,68 @@ body{
   background: rgb(226, 164, 6);
   transform: translateX(18px);  
 }
+
+.popups{
+  position: absolute;
+  z-index: 99999;
+
+  top: var(--topbar-height);
+  left: var(--sidebar-width);
+
+  height: calc( 100vh - var(--topbar-height) );
+  width: calc( 100vw - var(--sidebar-width) );
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  visibility: hidden;
+}
+
+.popups .save-dialogue{
+  height: 100px;
+  width: 200px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.light .save-dialogue{
+  background: var(--bgs-light);
+  border: 1px solid var(--orange0);
+  color: var(--color-dark);
+}
+
+.dark .save-dialogue{
+  background: var(--bgs-dark);
+  border: 1px solid var(--orange1);
+  color: var(--color-light);
+}
+
+.save-dialogue .btns {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 70%;
+}
+
+.save-dialogue .btns div{
+  width: 55px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 2px;
+  height: 20px;
+  color: white !important;
+  cursor: pointer;
+}
+
+.dark .save-dialogue .btns div{
+  border: 1px solid var(--border-light);
+}
+
+.light .save-dialogue .btns div{
+  border: 1px solid var(--broder-darker);
+}

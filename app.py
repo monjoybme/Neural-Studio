@@ -1,3 +1,6 @@
+import inspect
+import re
+
 from tf_gui import web
 from tf_gui.web.utils import send_file
 from tf_gui.web.headers import Header
@@ -11,6 +14,11 @@ app = App()
 trainer = Trainer()
 summary = Summary()
 
+def generate_args(code)->dict:
+    exec(code)
+    ret = locals()
+    ret.pop("code")
+    return ret
 
 @app.route("/")
 async def index(request:Request):
@@ -28,10 +36,10 @@ async def buiild(request:Request):
                 "status":200,
                 "code":code
             })
-        except:
+        except NameError as e:
             return json_response({
                 "status":200,
-                "code":"""Error Generating Code"""
+                "code":f"""Error : {str(e)}"""
             })
     else:
         return json_response(
@@ -61,7 +69,6 @@ async def status(request:Request):
         "status":True,
     })
 
-
 @app.route("/model/summary",)
 async def summary_viewer(request:Request):
     if request.header.method == 'POST':
@@ -79,11 +86,11 @@ async def summary_viewer(request:Request):
             status_code=200,
             message="Method Not Allowed !"
         )
-        except:
-            return json_response({
-                "status":200,
-                "summary":[ [ 'Error building model', ], ]
-            })
+        # except:
+        #     return json_response({
+        #         "status":200,
+        #         "summary":[ [ 'Error building model', ], ]
+        #     })
 
     else:
         return json_response(
@@ -159,7 +166,52 @@ async def train_stop(request:Request):
             message="Method Not Allowed !"
         )
 
+
+@app.route("/node/build")
+async def node_build(request:Request):
+    if request.header.method == "POST":
+        data = await request.get_json()
+        (function_id,function), = generate_args(data['code']).items()
+        fullspecs = inspect.getfullargspec(function)
+        arguments = { }
+
+        for arg, val in zip(fullspecs.args, fullspecs.defaults):
+            arguments[arg] = {
+                "value": val,
+                "type": re.sub("(<)|(>)|(')|(class)|( )","",str(fullspecs.annotations[arg])),
+                "render": "text",
+                "options": None,
+
+            }
+        return json_response({
+            "status":200,
+            "id":function_id,
+            "arguments":arguments
+        })
+
+    return json_response({
+        "message":"Method not allowed",
+    },status_code=400)
+
+
 if __name__ == "__main__":
     app.serve(
         port=80
     )
+
+
+# def conv_2d(
+#     inbound:list = [],
+#     kernel_size:int=3,
+#     filters:int=8,
+#     strides:int=1,
+#     padding:str="same",
+#     activation:str="swish"
+#   )->None:
+
+#     x = layers.Conv2D(filters, kernel_size, strides=strides, padding=padding)(inbound)
+#     x = layers.BatchNormalization()(x)
+#     x = layers.Activation(activation)(x)
+
+#     return x
+  

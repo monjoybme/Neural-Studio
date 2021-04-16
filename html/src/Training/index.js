@@ -11,9 +11,8 @@ const Epoch = (props) => {
   return (
     <div className="log epoch">
       <div className="upper">
-
         <div className="epochname">
-        Epoch : {props.data.epoch + 1}/{props.data.train.epochs}
+          Epoch : {props.data.epoch + 1}/{props.data.train.epochs}
         </div>
         <div className="progress">
           <div className="bar">
@@ -32,7 +31,7 @@ const Epoch = (props) => {
         {props.data.log.output ? (
           <div className="outputs">
             <div className="output">
-                {props.data.log.batch} / {props.data.train.batches}
+              {props.data.log.batch} / {props.data.train.batches}
             </div>
             {Object.keys(props.data.log.output).map((output, i) => {
               return (
@@ -129,7 +128,13 @@ const Histogram = (props = { name: "Histogram", values: [] }) => {
             return (
               <g key={i}>
                 <circle cx={cx} cy={cy} r="1.5" />
-                <line x1={_prev.x} y1={_prev.y} x2={cx} y2={cy} strokeWidth="1" />
+                <line
+                  x1={_prev.x}
+                  y1={_prev.y}
+                  x2={cx}
+                  y2={cy}
+                  strokeWidth="1"
+                />
                 <text x={cx} y={height - 5}>
                   {" "}
                   {i % render ? undefined : i}{" "}
@@ -319,6 +324,10 @@ const Training = (
       func: function () {
         status.data = [];
         statusState({ ...status });
+        props.trainState({
+          training: false,
+          hist: undefined,
+        });
       },
       icon: icons.Delete,
     },

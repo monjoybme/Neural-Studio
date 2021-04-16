@@ -4,7 +4,7 @@ const callbacks = {
     {
       name: "ModelCheckpoint",
       type: { name: "ModelCheckpoint", _class: "callbacks" },
-      args: {
+      arguments: {
         filepath: {
           value: "REQUIRED",
           type: "str",
@@ -53,7 +53,7 @@ const callbacks = {
     {
       name: "TensorBoard",
       type: { name: "TensorBoard", _class: "callbacks" },
-      args: {
+      arguments: {
         log_dir: { value: "logs", type: "str", render: "text", options: "dir" },
         histogram_freq: {
           value: "0",
@@ -102,7 +102,7 @@ const callbacks = {
     {
       name: "EarlyStopping",
       type: { name: "EarlyStopping", _class: "callbacks" },
-      args: {
+      arguments: {
         monitor: {
           value: "val_loss",
           type: "str",
@@ -145,7 +145,7 @@ const callbacks = {
     {
       name: "LearningRateScheduler",
       type: { name: "LearningRateScheduler", _class: "callbacks" },
-      args: {
+      arguments: {
         schedule: {
           value: "REQUIRED",
           type: "str",
@@ -163,7 +163,7 @@ const callbacks = {
     {
       name: "ReduceLROnPlateau",
       type: { name: "ReduceLROnPlateau", _class: "callbacks" },
-      args: {
+      arguments: {
         monitor: {
           value: "val_loss",
           type: "str",
@@ -176,14 +176,14 @@ const callbacks = {
     {
       name: "RemoteMonitor",
       type: { name: "RemoteMonitor", _class: "callbacks" },
-      args: {
+      arguments: {
         root: { value: "http:", type: "str", render: "text", options: "root" },
       },
     },
     {
       name: "LambdaCallback",
       type: { name: "LambdaCallback", _class: "callbacks" },
-      args: {
+      arguments: {
         on_epoch_begin: {
           value: "None",
           type: "str",
@@ -225,7 +225,7 @@ const callbacks = {
     {
       name: "CSVLogger",
       type: { name: "CSVLogger", _class: "callbacks" },
-      args: {
+      arguments: {
         filename: {
           value: "REQUIRED",
           type: "str",
@@ -249,7 +249,7 @@ const callbacks = {
     {
       name: "ProgbarLogger",
       type: { name: "ProgbarLogger", _class: "callbacks" },
-      args: {
+      arguments: {
         count_mode: {
           value: "samples",
           type: "str",

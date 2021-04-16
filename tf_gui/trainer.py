@@ -29,10 +29,12 @@ def execute_code(_code:str,logs=lambda log_type,log:None)->bool:
         globals().update(locals())
         return True
     except ValueError as e:
+        print (e)
         logs("error",{ "error":str(e), "code":_code })
         logs("notif",{ "message": "Training stopped", "ended":True })
         return False
     except NameError as e:
+        print (e)
         logs("error",{ "error":str(e), "code":_code })
         logs("notif",{ "message": "Training stopped", "ended":True })
         return False
@@ -135,28 +137,33 @@ class TfGui(keras.callbacks.Callback):
         })
 
 class Summary(object):
-    def on_train_end(self, logs):
-        self.trainer.update_log(log_type="notif",log={
-            "message":"Training Ended",
-            "ended":True
-        })
-
+    re_charset =  'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\:-\<\>"'
     def __init__(self):
         pass
-    
-    
+        
     def get(self,build_config:dict,code:str)->None:
         
-        charset = 'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\"'
-        imports, = re.findall("""#import[a-zA-Z0-9\n .,_\-]+#end-import""",code)
+        error = []
+        def set_log(_,_error):
+            error.append(_error)
+            
+        imports, = re.findall(f"""#import[{self.re_charset}]+#end-import""",code)
         execute_code(imports)
+        
+        for i in range(len(build_config['custom_nodes'])):
+            _code, = re.findall(f"""#node_{i}[{self.re_charset}]+#end-node_{i}""",code)
+            if not execute_code(_code,set_log):
+                return [[error[-2]['error'],],]
+            
         for level in build_config['levels']:
             for layer in level:
-                _code = re.findall(f"""{layer} =[{charset}]+#end-{layer}""",code)
+                _code = re.findall(f"""{layer} =[{self.re_charset}]+#end-{layer}""",code)
                 if len(_code):
-                    execute_code(_code[0])
+                    if not execute_code(_code[0],set_log):
+                        return [[error[-2]['error'],],]
 
         model = build_config['train_config']['model']['id']
+
         summary = []
         def print_fn(word,*arg,**kwargs):
             summary.append(word,)
@@ -174,8 +181,7 @@ class Summary(object):
                 summary.append(i)
             else:
                 summary[-1][-1] += ', ' + ''.join(i)
-
-        del model                
+                
         return summary
 
 class Trainer(object):
@@ -183,6 +189,7 @@ class Trainer(object):
     model = keras.Model
     update_id = 0
     training = False
+    re_charset =  'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\:-\<\>"'
     
     logs = []
 
@@ -206,7 +213,6 @@ class Trainer(object):
             return False
 
         self.update_log("notif",{"message":"Copiling Code"})
-        charset = 'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\"'
         self.update_log("notif",{"message":"Performing imports"})
         imports, = re.findall("""#import[a-zA-Z0-9\n .,_\-]+#end-import""",code)
         if not execute_code(imports,self.update_log):
@@ -216,10 +222,17 @@ class Trainer(object):
         if not execute_code(build_config['train_config']['dataset']['value'],self.update_log):
             return False
         
+        self.update_log("notif",{"message":"Defining Custom Nodes"})
+        
+        for i in range(len(build_config['custom_nodes'])):
+            _code, = re.findall(f"""#node_{i}[{self.re_charset}]+#end-node_{i}""",code)
+            if not execute_code(_code,logs=self.update_log):
+                return False
+            
         self.update_log("notif",{"message":"Building Model"})
         for level in build_config['levels']:
             for layer in level:
-                _code = re.findall(f"""{layer} =[{charset}]+#end-{layer}""",code)
+                _code = re.findall(f"""{layer} =[{self.re_charset}]+#end-{layer}""",code)
                 if len(_code):
                     if not execute_code(_code[0],self.update_log):
                         return False
@@ -242,7 +255,7 @@ class Trainer(object):
         if build_config['train_config']['compile']:
             comp = build_config['train_config']['compile']['id']
             model = build_config['train_config']['model']['id']
-            if not execute_code(re.findall(f"""{model}.compile[{charset}]+#end-{comp}""",code)[0],self.update_log):
+            if not execute_code(re.findall(f"""{model}.compile[{self.re_charset}]+#end-{comp}""",code)[0],self.update_log):
                 return False
         else:
             self.update_log("notif",{ "message": "Please provide compiler." })

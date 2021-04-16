@@ -7,7 +7,7 @@ const datasets = {
                 _class:"datasets",
                 name:"Dataset",
             },
-            "args":{
+            "arguments":{
                 "dataset":{
                     value:`"""
 Note : Don't change dataset id.
@@ -73,7 +73,7 @@ __id__ = Dataset()
                 _class:"datasets",
                 name:"Dataset",
             },
-            "args":{
+            "arguments":{
                 "dataset":{
                     value:`"""
 Note : Don't change dataset id.
@@ -139,7 +139,7 @@ __id__ = Dataset()
                 _class:"datasets",
                 name:"Dataset",
             },
-            "args":{
+            "arguments":{
                 "dataset":{
                     value:`"""
 Note : Don't change dataset id.
@@ -207,7 +207,7 @@ __id__ = Dataset()
                 _class:"datasets",
                 name:"Dataset",
             },
-            "args":{
+            "arguments":{
                 "dataset":{
                     value:`"""
 Note : Don't change dataset id.
@@ -275,7 +275,7 @@ __id__ = Dataset()
                 _class:"datasets",
                 name:"Dataset",
             },
-            "args":{
+            "arguments":{
                 "dataset":{
                     value:`"""
 Note : Don't change dataset id.
@@ -340,7 +340,7 @@ __id__ = Dataset()
                 _class:"datasets",
                 name:"Dataset",
             },
-            "args":{
+            "arguments":{
                 "dataset":{
                     value:`"""
 Note : Don't change dataset id.
@@ -405,7 +405,7 @@ __id__ = Dataset()
                 _class:"datasets",
                 name:"Dataset",
             },
-            "args":{
+            "arguments":{
                 "dataset":{
                     value:`"""
 Note : Don't change dataset id.

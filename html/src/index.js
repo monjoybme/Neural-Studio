@@ -4,21 +4,16 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-
 window.layers = {}
-
-window.__ACTIVE_LAYER__ = { name:undefined }
-window.__MOUSE_ACTION__ = undefined;
-window.__ACTIVE_ELEMENT__ = undefined;
-window.__ACTIVE_LINE__ = undefined;
-window.__EDGE__ = undefined
-window.__NEW_EDGE__ = undefined
-window.__LINE_COUNTER = 0
-window.__LAYER_COUNT = {}
-window.__MODE__ = 'normal'
-window.__POS__ = undefined
-window.__ACTIVE_LAYER__ = undefined
-window.__UPDATE_RUNNING__ = false
+window.canvasConfig = {
+  activeLayer: undefined,
+  activeLine:undefined,
+  newEdge:undefined,
+  pos:undefined,
+  lineCount:0,
+  layerCount:{},
+  mode:"normal",
+}
 
 ReactDOM.render(
   <React.StrictMode>

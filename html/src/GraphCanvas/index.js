@@ -1,8 +1,8 @@
 import React from "react";
-import Menu from "./menu";
-import { Icon, icons } from "../data/icons";
 
-import _lg from "../data/layers";
+import Node from "./node";
+import Toolbar from './toolbar';
+import LayerGroups from './layergroups';
 
 import "./canvas.css";
 
@@ -14,347 +14,50 @@ let cursors = {
   move: "move",
 };
 
-const Node = (props) => {
-  let layer = props.layer;
-  let width = layer.width;
-  let height = 30;
-  let pos_in = props.layer.pos;
-
-  let { appconfig,appconfigState } = props;
-
-  function onMouseDown(e) {
-    e.preventDefault();
-    switch (window.__MODE__) {
-      case "move":
-        window.__ACTIVE_ELEMENT__ = {
-         layer:layer,
-         text:document.getElementById(`${layer.id}-text`),
-         rect:document.getElementById(`${layer.id}-rect`),
-         edges_in: props.layer.connections.inbound.map((layer,i)=>{
-           return document.getElementById(`${layer}-${props.layer.id}`)
-         }),
-         edges_out: props.layer.connections.outbound.map((layer,i)=>{
-          return document.getElementById(`${props.layer.id}-${layer}`)
-        })
-        };
-        break;
-      case "line":
-        window.__NEW_EDGE__ = { from: layer.id };
-        break;
-      default:
-        break
-    }
-  }
-
-  function onMouseUp(e) {
-    e.preventDefault();
-    switch (window.__MODE__) {
-      case "move":
-        break;
-      case "line":
-        window.__NEW_EDGE__.to = layer.id;
-        break;
-      default:
-        break
-    }
-  }
-
-  function onClick(e) {
-    switch (window.__MODE__) {
-      case "delete":
-        layer.connections.inbound.forEach((lid) => {
-          window.layers[lid].connections.outbound.pop(layer.id);
-        });
-        layer.connections.outbound.forEach((lid) => {
-          window.layers[lid].connections.inbound.pop(layer.id);
-        });
-        delete window.layers[layer.id];
-        window.layersState({ ...window.layers });
-        break;
-      case "normal":
-        props.menuState({
-          comp: (
-            <Menu
-              layer={props.layer}
-              menu={props.menu}
-              menuState={props.menuState}
-
-              appconfig={appconfig}
-              appconfigState={appconfigState}
-              layers={window.layers}
-              layersState={window.layersState}
-            />
-          ),
-        });
-        break;
-      default:
-        break
-    }
-  }
-
-  function lineOut(e){
-    e.target.style.strokeWidth = 2;
-  }
-
-  function lineOver(e){
-    e.target.style.strokeWidth = 4;
-  }
-
-  function lineOnClick(e){
-    switch(window.__MODE__){
-      case "delete":
-        layer.connections.outbound.forEach((layerId,i)=>{
-          props.layers[layerId].connections.outbound.pop(layer.id);
-          props.layers[layer.id].connections.inbound.pop(layerId);
-        })
-        props.layersState({ ...props.layers })
-        break
-    }
-  }
-
-  return (
-    <g x={layer.pos.x} y={layer.pos.y}>
-      {props.layer.connections.inbound.map((layer, i) => {
-        let pos_out = window.layers[layer];
-        if (pos_out) {
-          return (
-            <line
-              x1={pos_in.x + pos_in.offsetX }
-              y1={pos_in.y + 15}
-              x2={pos_out.pos.x + pos_out.pos.offsetX }
-              y2={pos_out.pos.y + 31}
-              markerMid="url(#triangle)"
-              stroke="#555"
-              strokeWidth="2"
-              key={i}
-
-              onClick={lineOnClick}
-              onMouseOver={lineOver}
-              onMouseOut={lineOut}
-
-              id={`${pos_out.id}-${props.layer.id}`}
-            />
-          );
-        }
-        return undefined
-      })}
-      <rect
-        x={layer.pos.x}
-        y={layer.pos.y}
-        rx={3}
-        ry={3}
-        height={height}
-        width={width}
-        onMouseDown={onMouseDown}
-        onMouseUp={onMouseUp}
-        onClick={onClick}
-
-        id={`${layer.id}-rect`}
-      ></rect>
-      <text
-        x={layer.pos.x + Math.floor(width * 0.19)}
-        y={layer.pos.y + 18.5}
-        onMouseDown={onMouseDown}
-        onMouseUp={onMouseUp}
-        onClick={onClick}
-
-        id={`${layer.id}-text`}
-      >
-        {layer.name}
-      </text>
-    </g>
-  );
-};
-
-const Toolbar = (props) => {
-  let buttons = [
-    {
-      name: "Edge",
-      icon:icons.ArrowRight,
-      func: function () {
-        props.tools.toolbarHandler({ mode: "line" , name:"Edge"});
-      },
-    },
-    {
-      name: "Move",
-      icon:icons.Pan,
-      func: function () {
-        props.tools.toolbarHandler({ mode: "move" , name:"Move"});
-      },
-    },
-    {
-      name: "Delete",
-      icon:icons.Delete,
-      func: function () {
-        props.tools.toolbarHandler({ mode: "delete" ,name:"Delete"});
-      },
-    },
-    {
-      name: "Clean",
-      icon:icons.DeleteAll,
-      func: function () {
-        window.layersState({});
-      },
-    },
-  ];
-
-  return (
-    <div className="toolbar" id="toolbar">
-      {buttons.map((button, i) => {
-        return (
-          <div className="btn" onClick={button.func} id={button.name} key={i}>
-            <Icon icon={button.icon} style={{height:"20px"}} />
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-const LayerGroupCollapsed = (props) => {
-  return (
-    <div className="layers" key={props.i} >
-      <div
-        className="name"
-        id={props.id}
-        style={{ height: "45px" }}
-        onClick={props.toggleSection}
-      >
-        {props.layerGroup.name}
-      </div>
-    </div>
-  );
-};
-
-const LayerGroupOpen = (props) => {
-  return (
-    <div className="layers" key={props.i}>
-      <div className="name" id={props.id} onClick={props.toggleSection}>
-        {props.layerGroup.name}
-      </div>
-      <div className="grid">
-        {props.layerGroup.layers.map((layer, j) => {
-          return (
-            <div
-              className="btn"
-              onClick={(e) => {
-                props.tools.toolbarHandler({
-                  mode: "layer",
-                  layer: { ...layer },
-                });
-              }}
-              id="btn-del"
-              key={j}
-            >
-              {layer.name}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-
-const LayerGroups = (props) => {
-  let [layerGroups, layerGroupsState] = React.useState({
-    layerGroups: Object.keys(_lg),
-    ...window.copy(_lg),
-  });
-
-  function toggleSection(e) {
-    layerGroups[e.target.id].visible = ~layerGroups[e.target.id].visible;
-    layerGroupsState({
-      ...layerGroups,
-    });
-  }
-
-  return (
-    <div className="layergroups">
-      {layerGroups.layerGroups.map((layerGroup, i) => {
-        return layerGroups[layerGroup].visible ? (
-          <LayerGroupOpen
-            key={i}
-            i={i}
-            id={layerGroup}
-            layerGroup={layerGroups[layerGroup]}
-            toggleSection={toggleSection}
-            tools={props.tools}
-          />
-        ) : (
-          <LayerGroupCollapsed
-            key={i}
-            i={i}
-            id={layerGroup}
-            layerGroup={layerGroups[layerGroup]}
-            toggleSection={toggleSection}
-            tools={props.tools}
-          />
-        );
-      })}
-    </div>
-  );
-};
-
 const Canvas = (
-  props={
-    layers:{},
-    layersState:undefined,
-    canvasConfig:{
-      activeLayer: {
-        name: "Layer",
-        type: { name: "Layer", _class: "layer" },
-        args: {
-          
-        },
-        doc: "https://keras.io/",
-      },
-    },
-    canvasConfigState:function( {
-      
-    } ){}
-  }) => {
-
-
+  props = {
+    layers: {},
+    layersState: undefined,
+  }
+) => {
+  
   let [menu, menuState] = React.useState({
     comp: <div />,
   });
-
   let { layers, layersState } = props;
-  let { appconfig,appconfigState } = props;
+  let { appconfig, appconfigState } = props;
+  let { layerGroups, layerGroupsState } = props;
+
 
   function layerIdGenerator(name = "") {
     name = name.toLowerCase();
-
-    if (window.__LAYER_COUNT[name]) {
-      window.__LAYER_COUNT[name] = window.__LAYER_COUNT[name] + 1;
+    if (window.canvasConfig.layerCount[name]) {
+      window.canvasConfig.layerCount[name] = window.canvasConfig.layerCount[name] + 1;
     } else {
-      window.__LAYER_COUNT[name] = 1;
+      window.canvasConfig.layerCount[name] = 1;
     }
 
-    return window.__LAYER_COUNT[name];
+    return window.canvasConfig.layerCount[name];
   }
 
   function downLine(e) {
     e.preventDefault();
     let scroll = document.getElementById("canvasTop");
-    let pos = {
-      x: e.clientX - window.offsetX + scroll.scrollLeft ,
-      y: e.clientY - window.offsetY + scroll.scrollTop ,
-    };
-    let id = "line-" + window.__LINE_COUNTER;
     let _line = document.getElementById("dummy");
-    _line.id = id;
+    let pos = {
+      x: e.clientX - window.offsetX + scroll.scrollLeft,
+      y: e.clientY - window.offsetY + scroll.scrollTop,
+    };
+    
     _line.style.strokeWidth = 2;
-
     _line.x1.baseVal.value = pos.x;
     _line.y1.baseVal.value = pos.y;
     _line.x2.baseVal.value = pos.x + 1;
     _line.y2.baseVal.value = pos.y + 1;
 
-    window.__ACTIVE_LINE__ = {
+    window.canvasConfig.activeLine = {
       line: _line,
     };
-    window.__LINE_COUNTER++;
   }
 
   function downDelete(e) {
@@ -363,16 +66,13 @@ const Canvas = (
 
   function downLayer(e) {
     e.preventDefault();
-
-    let layer = window.copy(window.__ACTIVE_LAYER__);
-    let name = layer.name;
-    let n = layerIdGenerator(name);
-    let id = name.toLowerCase().replaceAll(" ", "_") + "_" + n;
-
+    let layer = window.copy(window.canvasConfig.activeLayer);
+    let n = layerIdGenerator(layer.name);
+    let id = layer.name.toLowerCase().replaceAll(" ", "_") + "_" + n;
     window.layers[id] = {
+      ...layer,
+      name: layer.name + " " + n,
       id: id,
-      name: name + " " + n,
-      type: layer.type,
       pos: {
         x: 0,
         y: 0,
@@ -382,24 +82,33 @@ const Canvas = (
         outbound: [],
       },
       width: 0,
-      arguments: { ...layer.args },
     };
 
     let scroll = document.getElementById("canvasTop");
     window.layers[id].width = window.layers[id].name.length * 10;
     window.layers[id].pos = {
-      x: e.clientX - window.offsetX + scroll.scrollLeft - window.layers[id].width / 2,
+      x:
+        e.clientX -
+        window.offsetX +
+        scroll.scrollLeft -
+        window.layers[id].width / 2,
       y: e.clientY - window.offsetY + scroll.scrollTop - 25,
       offsetX: window.layers[id].name.length * 5 - 2,
       offsetY: 23,
     };
 
-    window.__LINE_COUNTER++;
+    switch (window.canvasConfig.activeLayer.name) {
+      case "Model":
+        window.canvasConfig.activeLayer = window.copy(layerGroups["build-layers"].layers[1]);
+        break
+      case "Compile":
+        window.canvasConfig.activeLayer = window.copy(layerGroups["build-layers"].layers[2]);
+        break
+      case "Node":
+        window.layers[id]._id = "Please Set Node ID"
+      default:
+        break
 
-    if (window.__ACTIVE_LAYER__.name === 'Model'){
-      window.__ACTIVE_LAYER__ = window.copy( _lg["build-layers"].layers[1] )
-    }else if (window.__ACTIVE_LAYER__.name === 'Compile'){
-      window.__ACTIVE_LAYER__ = window.copy( _lg["build-layers"].layers[2] )
     }
 
     window.layersState({
@@ -408,42 +117,49 @@ const Canvas = (
   }
 
   function moveNode(e) {
-    try{
+    try {
       let scroll = document.getElementById("canvasTop");
-      
-      window.__POS__ = {
-          x: e.clientX - window.offsetX + scroll.scrollLeft - window.__ACTIVE_ELEMENT__.layer.pos.offsetX,
-          y: e.clientY - window.offsetY + scroll.scrollTop - window.__ACTIVE_ELEMENT__.layer.pos.offsetY,
-          offsetX: window.__ACTIVE_ELEMENT__.layer.pos.offsetX,
-          offsetY: window.__ACTIVE_ELEMENT__.layer.pos.offsetY,
-        };
-        
-      window.__ACTIVE_ELEMENT__.rect.x.baseVal.value = window.__POS__.x
-      window.__ACTIVE_ELEMENT__.rect.y.baseVal.value = window.__POS__.y
-      window.__ACTIVE_ELEMENT__.text.x.baseVal[0].value = window.__POS__.x + ( window.__ACTIVE_ELEMENT__.layer.width / 6 )
-      window.__ACTIVE_ELEMENT__.text.y.baseVal[0].value = window.__POS__.y + 20
 
-      window.__ACTIVE_ELEMENT__.edges_in.forEach((edge,)=>{
-        edge.x1.baseVal.value = window.__POS__.x + window.__ACTIVE_ELEMENT__.layer.width / 2
-        edge.y1.baseVal.value = window.__POS__.y + 15
-      })
-      window.__ACTIVE_ELEMENT__.edges_out.forEach((edge,)=>{
-        edge.x2.baseVal.value = window.__POS__.x + window.__ACTIVE_ELEMENT__.layer.width / 2
-        edge.y2.baseVal.value = window.__POS__.y + 30
-      })
-    }
-    catch( TypeError ){
+      window.canvasConfig.pos = {
+        x:
+          e.clientX -
+          window.offsetX +
+          scroll.scrollLeft -
+          window.canvasConfig.activeElement.layer.pos.offsetX,
+        y:
+          e.clientY -
+          window.offsetY +
+          scroll.scrollTop -
+          window.canvasConfig.activeElement.layer.pos.offsetY,
+        offsetX: window.canvasConfig.activeElement.layer.pos.offsetX,
+        offsetY: window.canvasConfig.activeElement.layer.pos.offsetY,
+      };
 
-    }
+      window.canvasConfig.activeElement.rect.x.baseVal.value = window.canvasConfig.pos.x;
+      window.canvasConfig.activeElement.rect.y.baseVal.value = window.canvasConfig.pos.y;
+      window.canvasConfig.activeElement.text.x.baseVal[0].value = window.canvasConfig.pos.x + window.canvasConfig.activeElement.layer.width / 6.5;
+      window.canvasConfig.activeElement.text.y.baseVal[0].value = window.canvasConfig.pos.y + 19;
+
+      window.canvasConfig.activeElement.edges_in.forEach((edge) => {
+        edge.x1.baseVal.value =
+          window.canvasConfig.pos.x + window.canvasConfig.activeElement.layer.width / 2;
+        edge.y1.baseVal.value = window.canvasConfig.pos.y + 15;
+      });
+      window.canvasConfig.activeElement.edges_out.forEach((edge) => {
+        edge.x2.baseVal.value =
+          window.canvasConfig.pos.x + window.canvasConfig.activeElement.layer.width / 2;
+        edge.y2.baseVal.value = window.canvasConfig.pos.y + 30;
+      });
+    } catch (TypeError) {}
   }
 
   function moveEdgeEnd(e) {
     e.preventDefault();
-    if (window.__ACTIVE_LINE__) {
+    if (window.canvasConfig.activeLine) {
       let scroll = document.getElementById("canvasTop");
-      window.__ACTIVE_LINE__.line.x2.baseVal.value =
+      window.canvasConfig.activeLine.line.x2.baseVal.value =
         e.clientX - window.offsetX + scroll.scrollLeft - 3;
-      window.__ACTIVE_LINE__.line.y2.baseVal.value =
+      window.canvasConfig.activeLine.line.y2.baseVal.value =
         e.clientY - window.offsetY + scroll.scrollTop - 10;
     }
   }
@@ -481,120 +197,128 @@ const Canvas = (
     },
   };
 
-  function setMode(mode,name) {
-    if (window.__MODE__ !== mode) {
-      window.__MODE__ = mode;
-      document.getElementById("canvas").style.cursor = cursors[window.__MODE__];
-      Array(...document.getElementById("toolbar").children).forEach((child,)=>{
-        if (child.id === name){ 
-          child.firstChild.className = 'icon selected'
-        }else{
-          child.firstChild.className = 'icon'
+  function setMode(mode, name) {
+    if (window.canvasConfig.mode !== mode) {
+      window.canvasConfig.mode = mode;
+      document.getElementById("canvas").style.cursor = cursors[window.canvasConfig.mode];
+      Array(...document.getElementById("toolbar").children).forEach((child) => {
+        if (child.id === name) {
+          child.firstChild.className = "icon selected";
+        } else {
+          child.firstChild.className = "icon";
         }
-      })
+      });
 
       if (modeFunctions[mode]) {
         modeFunctions[mode]();
       }
     } else {
-      window.__MODE__ = "normal";
+      window.canvasConfig.mode = "normal";
       document.getElementById("canvas").style.cursor = "default";
       document.getElementById("canvas").onmousemove = undefined;
       document.getElementById("canvas").onmousedown = undefined;
 
-      Array(...document.getElementById("toolbar").children).forEach((child,)=>{
-          child.firstChild.className = 'icon'
-      })
+      Array(...document.getElementById("toolbar").children).forEach((child) => {
+        child.firstChild.className = "icon";
+      });
     }
-   
   }
 
   function toolbarHandler(
-    data = { mode: undefined,name:"normal", layer: { name: "__LAYER__", args: {} } }
+    data = {
+      mode: undefined,
+      name: "normal",
+      layer: { name: "__LAYER__", args: {} },
+    }
   ) {
     if (data.mode === "layer") {
-      if (window.__MODE__ !== "layer") {
-        window.__MODE__ = "layer";
-        document.getElementById("canvas").style.cursor =
-          cursors[window.__MODE__];
-        window.__ACTIVE_LAYER__ = window.copy(data.layer);
+      if (window.canvasConfig.mode !== "layer") {        
+        window.canvasConfig.mode = "layer";
+        document.getElementById("canvas").style.cursor = cursors[window.canvasConfig.mode];
+        window.canvasConfig.activeLayer = window.copy(data.layer);
         modeFunctions.layer();
       } else {
-        if (window.__ACTIVE_LAYER__.name === data.layer.name) {
-          window.__MODE__ = "normal";
+        if (window.canvasConfig.activeLayer.name === data.layer.name) {
+          window.canvasConfig.mode = "normal";
           document.getElementById("canvas").style.cursor = "default";
-          window.__ACTIVE_LAYER__ = undefined;
+          window.canvasConfig.activeLayer = undefined;
         } else {
-          window.__ACTIVE_LAYER__ = window.copy(data.layer);
+          window.canvasConfig.activeLayer = window.copy(data.layer);
         }
       }
     } else {
-      setMode(data.mode,data.name);
+      setMode(data.mode, data.name);
     }
   }
 
   function onMouseUp(e) {
-    if (window.__ACTIVE_LINE__) {
-      if (window.__NEW_EDGE__) {
-        let edge = window.__NEW_EDGE__;
-        if (edge.from && edge.to && edge.from !== edge.to) {
+    if (window.canvasConfig.newEdge) {
+        let { from, to } = window.canvasConfig.newEdge;
+        if ( from && to && from !==to){
           if (
-            window.layers[edge.from].connections.outbound.lastIndexOf(edge.to) === -1
+            window.layers[from].connections.outbound.lastIndexOf(
+              to
+            ) === -1
           ) {
-            window.layers[edge.from].connections.outbound.push(edge.to);
+            window.layers[from].connections.outbound.push(to);
           }
           if (
-            window.layers[edge.to].connections.inbound.lastIndexOf(edge.from) === -1
+            window.layers[to].connections.inbound.lastIndexOf(
+              from
+            ) === -1
           ) {
-            window.layers[edge.to].connections.inbound.push(edge.from);
+            window.layers[to].connections.inbound.push(from);
           }
           window.layersState({
             ...window.layers,
           });
         }
-      }
-      window.__ACTIVE_LINE__.line.style.strokeWidth = 0;
-      window.__ACTIVE_LINE__.line.x1.baseVal.value = 0;
-      window.__ACTIVE_LINE__.line.y1.baseVal.value = 0;
-      window.__ACTIVE_LINE__.line.x2.baseVal.value = 1;
-      window.__ACTIVE_LINE__.line.y2.baseVal.value = 1;
-      window.__ACTIVE_LINE__.line.id = "dummy";
-      window.__NEW_EDGE__ = undefined;
-    } else if (window.__ACTIVE_ELEMENT__) {
-      if (window.__POS__){
-        window.layers[window.__ACTIVE_ELEMENT__.layer.id].pos = window.__POS__
+
+      window.canvasConfig.newEdge = undefined
+      
+    } else if (window.canvasConfig.activeElement) {
+      if (window.canvasConfig.pos) {
+        window.layers[window.canvasConfig.activeElement.layer.id].pos = window.canvasConfig.pos;
         window.layersState({
-          ...window.layers
-        })
+          ...window.layers,
+        });
       }
     }
 
-    window.__POS__ = undefined;
-    window.__ACTIVE_ELEMENT__ = undefined;
-    window.__ACTIVE_LINE__ = undefined;
+    window.canvasConfig.pos = undefined;
+    window.canvasConfig.activeElement = undefined;
+    window.canvasConfig.activeLine = undefined;
+
+    let line = document.getElementById("dummy");
+    line.style.strokeWidth = 0;
+    line.x1.baseVal.value = 0;
+    line.y1.baseVal.value = 0;
+    line.x2.baseVal.value = 1;
+    line.y2.baseVal.value = 1;
 
     menuState({
       comp: <div />,
     });
   }
 
-  function scroll(e){
+  function scroll(e) {
     let canv = e.target;
     let svg = canv.children[0];
 
-    if ( canv.scrollTop > canv.scrollHeight - window.innerHeight ){
-      svg.height.baseVal.value = Math.max(4400, Math.floor( svg.height.baseVal.value * ( 1.01 ) ))
+    if (canv.scrollTop > canv.scrollHeight - window.innerHeight) {
+      svg.height.baseVal.value = Math.max(
+        4400,
+        Math.floor(svg.height.baseVal.value * 1.01)
+      );
       // console.log(svg.height.baseVal.value)
     }
-    if ( canv.scrollLeft > canv.scrollWidth -  window.innerWidth + 230 ){
-      svg.width.baseVal.value = Math.max(4400, Math.floor( svg.width.baseVal.value * ( 1.005 ) ))
+    if (canv.scrollLeft > canv.scrollWidth - window.innerWidth + 230) {
+      svg.width.baseVal.value = Math.max(
+        4400,
+        Math.floor(svg.width.baseVal.value * 1.005)
+      );
       // console.log(svg.width.baseVal.value)
     }
-  }
-
-  function zoomControl(e){
-    console.log(e)
-    e.preventDefault()
   }
 
   let tools = {
@@ -610,69 +334,39 @@ const Canvas = (
     onMouseUp: onMouseUp,
   };
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     window.layers = layers;
     window.layersState = layersState;
     window.toolbarHandler = toolbarHandler;
-
-    // setMode("noraml","Normal")
-  })
+  });
 
   return (
-    <div className="container" id="app" >
+    <div className="container" id="app">
       {menu.comp}
       <div className="tools">
         <Toolbar tools={tools} />
-        <LayerGroups tools={tools} />
+        <LayerGroups tools={tools} layerGroups = { layerGroups } layerGroupsState={layerGroupsState} />
       </div>
       <div className="canvas-top" id="canvasTop" onScroll={scroll}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="canvas"
-          id="canvas"
-          onMouseUp={onMouseUp}
-
-        >
-          <marker
-            xmlns="http://www.w3.org/2000/svg"
-            id="triangle"
-            viewBox="0 0 10 10"
-            refX="0"
-            refY="5"
-            markerUnits="strokeWidth"
-            markerWidth="4"
-            markerHeight="3"
-            orient="auto"
-            
-          >
+        <svg xmlns="http://www.w3.org/2000/svg" className="canvas" id="canvas" onMouseUp={onMouseUp} >
+          <marker xmlns="http://www.w3.org/2000/svg" id="triangle" viewBox="0 0 10 10" refX="0" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="auto" >
             <path d="M 0 0 L 10 5 L 0 10 z" />
           </marker>
-          <line
-            id="dummy"
-            x1="0"
-            y1="0"
-            x2="0"
-            y2="0"
+          <line id="dummy" x1="0" y1="0" x2="0" y2="0" strokeWidth="0" markerEnd="url(#triangle)" />
+          {
+            Object.keys(layers).map((layer, i) => {
+              return (
+                <Node
+                  {...layers[layer]}
+                  {...props}
 
-            strokeWidth="0"
-            markerEnd="url(#triangle)"
-          />
-          {Object.keys(window.layers).map((layer, i) => {
-            return (
-              <Node
-                layer={window.layers[layer]}
-                menu={menu}
-                menuState={menuState}
-                key={i}
-
-                layers={layers}
-                layersState={layersState}
-                appconfig={appconfig}
-                appconfigState={appconfigState}
-
-              />
-            );
-          })}
+                  menu={menu}
+                  menuState={menuState}
+                  key={i}
+                />
+              );
+            })
+          }
         </svg>
       </div>
     </div>
