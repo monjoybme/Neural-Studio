@@ -1,8 +1,8 @@
 import React from "react";
 
 import Node from "./node";
-import Toolbar from './toolbar';
-import LayerGroups from './layergroups';
+import Toolbar from "./toolbar";
+import LayerGroups from "./layergroups";
 
 import "./canvas.css";
 
@@ -20,7 +20,6 @@ const Canvas = (
     layersState: undefined,
   }
 ) => {
-  
   let [menu, menuState] = React.useState({
     comp: <div />,
   });
@@ -28,11 +27,11 @@ const Canvas = (
   let { appconfig, appconfigState } = props;
   let { layerGroups, layerGroupsState } = props;
 
-
   function layerIdGenerator(name = "") {
     name = name.toLowerCase();
     if (window.canvasConfig.layerCount[name]) {
-      window.canvasConfig.layerCount[name] = window.canvasConfig.layerCount[name] + 1;
+      window.canvasConfig.layerCount[name] =
+        window.canvasConfig.layerCount[name] + 1;
     } else {
       window.canvasConfig.layerCount[name] = 1;
     }
@@ -41,6 +40,7 @@ const Canvas = (
   }
 
   function downLine(e) {
+    console.log(e);
     e.preventDefault();
     let scroll = document.getElementById("canvasTop");
     let _line = document.getElementById("dummy");
@@ -48,7 +48,7 @@ const Canvas = (
       x: e.clientX - window.offsetX + scroll.scrollLeft,
       y: e.clientY - window.offsetY + scroll.scrollTop,
     };
-    
+
     _line.style.strokeWidth = 2;
     _line.x1.baseVal.value = pos.x;
     _line.y1.baseVal.value = pos.y;
@@ -66,54 +66,61 @@ const Canvas = (
 
   function downLayer(e) {
     e.preventDefault();
-    let layer = window.copy(window.canvasConfig.activeLayer);
-    let n = layerIdGenerator(layer.name);
-    let id = layer.name.toLowerCase().replaceAll(" ", "_") + "_" + n;
-    window.layers[id] = {
-      ...layer,
-      name: layer.name + " " + n,
-      id: id,
-      pos: {
-        x: 0,
-        y: 0,
-      },
-      connections: {
-        inbound: [],
-        outbound: [],
-      },
-      width: 0,
-    };
+    if (e.button) {
+      
+    } else {
+      let layer = window.copy(window.canvasConfig.activeLayer);
+      let n = layerIdGenerator(layer.name);
+      let id = layer.name.toLowerCase().replaceAll(" ", "_") + "_" + n;
+      window.layers[id] = {
+        ...layer,
+        name: layer.name + " " + n,
+        id: id,
+        pos: {
+          x: 0,
+          y: 0,
+        },
+        connections: {
+          inbound: [],
+          outbound: [],
+        },
+        width: 0,
+      };
 
-    let scroll = document.getElementById("canvasTop");
-    window.layers[id].width = window.layers[id].name.length * 10;
-    window.layers[id].pos = {
-      x:
-        e.clientX -
-        window.offsetX +
-        scroll.scrollLeft -
-        window.layers[id].width / 2,
-      y: e.clientY - window.offsetY + scroll.scrollTop - 25,
-      offsetX: window.layers[id].name.length * 5 - 2,
-      offsetY: 23,
-    };
+      let scroll = document.getElementById("canvasTop");
+      window.layers[id].width = window.layers[id].name.length * 10;
+      window.layers[id].pos = {
+        x:
+          e.clientX -
+          window.offsetX +
+          scroll.scrollLeft -
+          window.layers[id].width / 2,
+        y: e.clientY - window.offsetY + scroll.scrollTop - 25,
+        offsetX: window.layers[id].name.length * 5 - 2,
+        offsetY: 23,
+      };
 
-    switch (window.canvasConfig.activeLayer.name) {
-      case "Model":
-        window.canvasConfig.activeLayer = window.copy(layerGroups["build-layers"].layers[1]);
-        break
-      case "Compile":
-        window.canvasConfig.activeLayer = window.copy(layerGroups["build-layers"].layers[2]);
-        break
-      case "Node":
-        window.layers[id]._id = "Please Set Node ID"
-      default:
-        break
+      switch (window.canvasConfig.activeLayer.name) {
+        case "Model":
+          window.canvasConfig.activeLayer = window.copy(
+            layerGroups["build-layers"].layers[1]
+          );
+          break;
+        case "Compile":
+          window.canvasConfig.activeLayer = window.copy(
+            layerGroups["build-layers"].layers[2]
+          );
+          break;
+        case "Node":
+          window.layers[id]._id = "Please Set Node ID";
+        default:
+          break;
+      }
 
+      window.layersState({
+        ...window.layers,
+      });
     }
-
-    window.layersState({
-      ...window.layers,
-    });
   }
 
   function moveNode(e) {
@@ -135,19 +142,26 @@ const Canvas = (
         offsetY: window.canvasConfig.activeElement.layer.pos.offsetY,
       };
 
-      window.canvasConfig.activeElement.rect.x.baseVal.value = window.canvasConfig.pos.x;
-      window.canvasConfig.activeElement.rect.y.baseVal.value = window.canvasConfig.pos.y;
-      window.canvasConfig.activeElement.text.x.baseVal[0].value = window.canvasConfig.pos.x + window.canvasConfig.activeElement.layer.width / 6.5;
-      window.canvasConfig.activeElement.text.y.baseVal[0].value = window.canvasConfig.pos.y + 19;
+      window.canvasConfig.activeElement.rect.x.baseVal.value =
+        window.canvasConfig.pos.x;
+      window.canvasConfig.activeElement.rect.y.baseVal.value =
+        window.canvasConfig.pos.y;
+      window.canvasConfig.activeElement.text.x.baseVal[0].value =
+        window.canvasConfig.pos.x +
+        window.canvasConfig.activeElement.layer.width / 6.5;
+      window.canvasConfig.activeElement.text.y.baseVal[0].value =
+        window.canvasConfig.pos.y + 19;
 
       window.canvasConfig.activeElement.edges_in.forEach((edge) => {
         edge.x1.baseVal.value =
-          window.canvasConfig.pos.x + window.canvasConfig.activeElement.layer.width / 2;
+          window.canvasConfig.pos.x +
+          window.canvasConfig.activeElement.layer.width / 2;
         edge.y1.baseVal.value = window.canvasConfig.pos.y + 15;
       });
       window.canvasConfig.activeElement.edges_out.forEach((edge) => {
         edge.x2.baseVal.value =
-          window.canvasConfig.pos.x + window.canvasConfig.activeElement.layer.width / 2;
+          window.canvasConfig.pos.x +
+          window.canvasConfig.activeElement.layer.width / 2;
         edge.y2.baseVal.value = window.canvasConfig.pos.y + 30;
       });
     } catch (TypeError) {}
@@ -200,7 +214,8 @@ const Canvas = (
   function setMode(mode, name) {
     if (window.canvasConfig.mode !== mode) {
       window.canvasConfig.mode = mode;
-      document.getElementById("canvas").style.cursor = cursors[window.canvasConfig.mode];
+      document.getElementById("canvas").style.cursor =
+        cursors[window.canvasConfig.mode];
       Array(...document.getElementById("toolbar").children).forEach((child) => {
         if (child.id === name) {
           child.firstChild.className = "icon selected";
@@ -232,9 +247,10 @@ const Canvas = (
     }
   ) {
     if (data.mode === "layer") {
-      if (window.canvasConfig.mode !== "layer") {        
+      if (window.canvasConfig.mode !== "layer") {
         window.canvasConfig.mode = "layer";
-        document.getElementById("canvas").style.cursor = cursors[window.canvasConfig.mode];
+        document.getElementById("canvas").style.cursor =
+          cursors[window.canvasConfig.mode];
         window.canvasConfig.activeLayer = window.copy(data.layer);
         modeFunctions.layer();
       } else {
@@ -252,33 +268,26 @@ const Canvas = (
   }
 
   function onMouseUp(e) {
+    e.preventDefault();
     if (window.canvasConfig.newEdge) {
-        let { from, to } = window.canvasConfig.newEdge;
-        if ( from && to && from !==to){
-          if (
-            window.layers[from].connections.outbound.lastIndexOf(
-              to
-            ) === -1
-          ) {
-            window.layers[from].connections.outbound.push(to);
-          }
-          if (
-            window.layers[to].connections.inbound.lastIndexOf(
-              from
-            ) === -1
-          ) {
-            window.layers[to].connections.inbound.push(from);
-          }
-          window.layersState({
-            ...window.layers,
-          });
+      let { from, to } = window.canvasConfig.newEdge;
+      if (from && to && from !== to) {
+        if (window.layers[from].connections.outbound.lastIndexOf(to) === -1) {
+          window.layers[from].connections.outbound.push(to);
         }
+        if (window.layers[to].connections.inbound.lastIndexOf(from) === -1) {
+          window.layers[to].connections.inbound.push(from);
+        }
+        window.layersState({
+          ...window.layers,
+        });
+      }
 
-      window.canvasConfig.newEdge = undefined
-      
+      window.canvasConfig.newEdge = undefined;
     } else if (window.canvasConfig.activeElement) {
       if (window.canvasConfig.pos) {
-        window.layers[window.canvasConfig.activeElement.layer.id].pos = window.canvasConfig.pos;
+        window.layers[window.canvasConfig.activeElement.layer.id].pos =
+          window.canvasConfig.pos;
         window.layersState({
           ...window.layers,
         });
@@ -345,28 +354,52 @@ const Canvas = (
       {menu.comp}
       <div className="tools">
         <Toolbar tools={tools} />
-        <LayerGroups tools={tools} layerGroups = { layerGroups } layerGroupsState={layerGroupsState} />
+        <LayerGroups
+          tools={tools}
+          layerGroups={layerGroups}
+          layerGroupsState={layerGroupsState}
+        />
       </div>
       <div className="canvas-top" id="canvasTop" onScroll={scroll}>
-        <svg xmlns="http://www.w3.org/2000/svg" className="canvas" id="canvas" onMouseUp={onMouseUp} >
-          <marker xmlns="http://www.w3.org/2000/svg" id="triangle" viewBox="0 0 10 10" refX="0" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="auto" >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="canvas"
+          id="canvas"
+          onMouseUp={onMouseUp}
+        >
+          <marker
+            xmlns="http://www.w3.org/2000/svg"
+            id="triangle"
+            viewBox="0 0 10 10"
+            refX="0"
+            refY="5"
+            markerUnits="strokeWidth"
+            markerWidth="4"
+            markerHeight="3"
+            orient="auto"
+          >
             <path d="M 0 0 L 10 5 L 0 10 z" />
           </marker>
-          <line id="dummy" x1="0" y1="0" x2="0" y2="0" strokeWidth="0" markerEnd="url(#triangle)" />
-          {
-            Object.keys(layers).map((layer, i) => {
-              return (
-                <Node
-                  {...layers[layer]}
-                  {...props}
-
-                  menu={menu}
-                  menuState={menuState}
-                  key={i}
-                />
-              );
-            })
-          }
+          <line
+            id="dummy"
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="0"
+            strokeWidth="0"
+            markerEnd="url(#triangle)"
+          />
+          {Object.keys(layers).map((layer, i) => {
+            return (
+              <Node
+                {...layers[layer]}
+                {...props}
+                menu={menu}
+                menuState={menuState}
+                key={i}
+              />
+            );
+          })}
         </svg>
       </div>
     </div>

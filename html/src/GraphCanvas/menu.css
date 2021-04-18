@@ -15,6 +15,8 @@
   box-shadow: rgba(51, 51, 51, 0.35) -2px 0px 10px -5px;
   overflow-y: scroll;
   border-top: none;
+
+  border-left: 1px solid var(--orange1);
 }
 
 .light .menu {
@@ -219,28 +221,3 @@
   width: 100%;
   margin-bottom: 10px;
 }
-
-/* 
-"""
-#function-config
-
-index:0
-
-#end-function-config
-"""
-
-def conv_2d(
-        inbound:list=[],
-        filters:int=8,
-        kernel_size:int=3,
-        padding:str="same",
-        strides:int=1,
-        activation:str="swish"
-    ):
-
-    x = Conv2D(filters, kernel_size,)(x)
-    x = BatchNormalization()(x)
-    x = Activation(activation)(x)
-
-    return x
- */

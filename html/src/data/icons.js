@@ -23,6 +23,7 @@ import { ReactComponent as Play } from "./images/play.svg";
 import { ReactComponent as Pause } from "./images/pause.svg";
 import { ReactComponent as Resume } from "./images/resume.svg";
 import { ReactComponent as Stop } from "./images/stop.svg";
+import { ReactComponent as Menu } from "./images/menu.svg";
 
 // import { ReactComponent as  } from "./images/.svg";
 
@@ -51,6 +52,7 @@ const icons = {
     "Pause":Pause,
     "Resume":Resume,
     "Stop":Stop,
+    "Menu":Menu
 }
 
 const Icon = (props={icon:React.Component,style:{}}) =>{

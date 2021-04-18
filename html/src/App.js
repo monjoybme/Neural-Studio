@@ -5,12 +5,13 @@ import CodeEditor from "./CodeEditor";
 import Train from "./Training";
 import SummaryViewer from "./SummaryViewer";
 
-import _layerGroups from './data/layers';
-
-import {  icons } from "./data/icons";
+import {  Icon, icons } from "./data/icons";
 import { appConfig } from "./data/appconfig.js";
+import { GET, Loading, POST} from "./Utils";
 
+import _layerGroups from './data/layers';
 import "./App.css";
+
 
 window.copy = function (object) {
   return JSON.parse(JSON.stringify(object));
@@ -36,7 +37,7 @@ const SaveDialogue = (
       <input value={props.project.name} />
       <div className="btns">
         <div
-          style={{ background:"green" }}
+          style={{ background:"#517551" }}
           onClick={(e) => {
             props.saveFunction({
               file: e.target.parentElement.previousElementSibling.value,
@@ -46,7 +47,7 @@ const SaveDialogue = (
           save
         </div>
         <div
-        style={{ background:"red" }}
+        style={{ background:"#bd5252" }}
           onClick={(e) => {
             document.getElementById("popups").style.visibility = "hidden";
             props.popupState(<div></div>);
@@ -59,11 +60,65 @@ const SaveDialogue = (
   );
 };
 
+const DownloadModel = (props={ popup:{},popupState:function(){} }) =>{
+
+  let [load, loadState] = React.useState(false);
+
+  async function download(e){
+    loadState(true)
+    let { value } = document.getElementById("select_")
+    POST({
+      path:"model/download/"+ value,
+    }).then(response=>response.json()).then(data=>{
+      console.log(data);
+      window. link = document.createElement("a");
+      window.link.href = "http://localhost/model/download/_" 
+      window.link.download = "model." + ( value === "pb" ? "zip" : value)
+      document.getElementById("popups").style.visibility = "hidden"
+      props.popupState(<div></div>)
+    })
+  }
+
+  return load ? <Loading /> 
+          : 
+        (
+          <div className="download-model">
+            <div className="title">
+              Download Model
+            </div>
+            <div className="select">
+              Output Format
+              <select id="select_" defaultValue="pb">
+                <option value="pb" > pb </option>
+                <option value="hdf5" > hdf5 </option>
+                <option value="json" > json </option>
+              </select>
+            </div>
+            <button onClick={download}> Download </button>
+          </div>
+        )
+}
+
+async function downloadCode(e) {
+  await fetch("http://localhost/build", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...window.layers }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      let link = document.createElement("a");
+      link.href = `data:text/x-python,${encodeURIComponent(data.code)}`;
+      link.download = "train.py";
+      link.click();
+    });
+}
+
+
 const App = (props) => {
   let Logo = icons.Logo;
   let [layers, layersState] = React.useState({});
   let [ layerGroups, layerGroupsState ] = React.useState({ ..._layerGroups})
-  
   let [buttons, buttonsState] = React.useState([
     {
       name: "Graph",
@@ -123,11 +178,22 @@ const App = (props) => {
       { name: "Load", shortcut: "Ctrl + O", func: loadGraph },
       { name: "Save as", shortcut: "Ctrl + Shift + S", func: saveGraph },
       { name: "Download Code", shortcut: "Ctrl + D", func: downloadCode },
+      { name: "Download Model", shortcut: "Ctrl + M", func: saveModel },
+      { name: "Load Model", shortcut: "Ctrl + M", func: loadModel },
     ],
   });
   let [appconfig, appconfigState] = React.useState({
     ...appConfig,
   });
+
+  function saveModel(e){
+    document.getElementById("popups").style.visibility = "visible";
+    popupState(<DownloadModel popup={popup} popupState={popupState}  />) 
+  }
+  
+  function loadModel(e){
+      
+  }
 
   window.getLayers = function () {
     return window.layers;
@@ -191,21 +257,6 @@ const App = (props) => {
       input.click();
       document.body.style.cursor = "loading";
     }, 10);
-  }
-
-  async function downloadCode(e) {
-    await fetch("http://localhost/build", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...layers }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        let link = document.createElement("a");
-        link.href = `data:text/x-python,${encodeURIComponent(data.code)}`;
-        link.download = "train.py";
-        link.click();
-      });
   }
 
   function getRenderComp() {
@@ -292,6 +343,10 @@ const App = (props) => {
               files.buttons[0].func(project);
             }
             break;
+          case "e":
+            e.preventDefault();
+            files.buttons[0].func(project);
+            break;
           case "o":
             e.preventDefault();
             loadGraph();
@@ -319,7 +374,10 @@ const App = (props) => {
           case "5":
             e.preventDefault();
             layersState({});
-            layersState({});
+            break;
+          case "Shift":
+            e.preventDefault();
+            window.__SHORTCUT__SHIFT__ = true
             break;
           default:
             break;
@@ -332,7 +390,9 @@ const App = (props) => {
           case "Escape":
             popupState(<div></div>);
             document.getElementById("popups").style.visibility = "hidden";
-            window.toolbarHandler({ mode: "normal", name: "Normal" });
+            if (render.name === "Graph"){
+              window.toolbarHandler({ mode: "normal", name: "Normal" });
+            }
             break;
           default:
             break;
@@ -342,6 +402,9 @@ const App = (props) => {
     document.getElementsByTagName("html")[0].onkeyup = function (e) {
       window.__SHORTCUT__ = false;
     };
+    document.getElementsByTagName("html")[0].onclick = function(e){
+      e.preventDefault();
+    }
   });
 
   return (
@@ -384,12 +447,10 @@ const App = (props) => {
           })}
         </div>
       </div>
-      <div className="context-menu">
+      <div className="topbar">
         <div className="title" id="context-title">
-          {" "}
-          Graph{" "}
+          Graph
         </div>
-
         <div
           className="switch"
           onClick={() => {
@@ -404,6 +465,30 @@ const App = (props) => {
           <div className="holder">
             <div className="button"></div>
           </div>
+        </div>
+        <div className={ files.display ? "cmenupar open" :  "cmenupar" } onClick={(e)=>{ files.display = true; filesState({...files}) }}>
+          <Icon icon={icons.Menu} />
+          {
+            files.display ? (
+              <div className="cmenu">
+                {
+                  files.buttons.map((button,i)=>{
+                    return (
+                      <div className="btn" key={i} onClick={button.func}>
+                        <div className="name">
+                          { button.name }
+                        </div>
+                        <div className="shortcut">
+                          { button.shortcut }
+                        </div>
+                      </div>
+                    )
+                  })
+                }
+              </div>
+            ):
+            null
+          }
         </div>
       </div>
       {getRenderComp()}

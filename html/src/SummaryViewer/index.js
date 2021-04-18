@@ -22,7 +22,6 @@ const SummaryViewer = (props={layers:{},}) =>{
         )
         .then(response=>response.json())
         .then(data=>{
-            console.log(data.summary)
             summaryState({
                 data:data.summary,
                 fetched:true

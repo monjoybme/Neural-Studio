@@ -35,12 +35,16 @@
 
 }
 
-input:focus{
+*:focus{
   outline: none;
+  border: none;
 }
 
-select:focus{
-  outline: none;
+
+.center{
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 ::-webkit-scrollbar {
@@ -170,7 +174,7 @@ body{
 }
 
 
-.context-menu{
+.topbar{
   height: var(--topbar-height);
   width: calc( 100% - var(--sidebar-width) ) ;
 
@@ -182,21 +186,21 @@ body{
   border-bottom: 1px solid #f18f0e72;
 
   display: grid;
-  grid-template-columns: 19fr 1fr;
+  grid-template-columns: 18fr 1fr 1fr;
 }
 
-.light .context-menu {
+.light .topbar {
   background: var(--bg-light);
   color: var(--color-dark);
 }
 
-.dark .context-menu {
+.dark .topbar {
   background: var(--bg-dark);
   color: var(--color-light);
 }
 
-.context-menu .title{
-  height: var(--topbar-height);
+.topbar .title{
+  height: calc(var(--topbar-height) - 1px );
   width: 100px;
 
   display: flex;
@@ -206,11 +210,104 @@ body{
   letter-spacing: 1px;
 }
 
-.dark .context-menu .title{
+.dark .topbar .title{
   color: var(--color-light);
 }
+ 
+/* Cmenu */
 
-.context-menu .switch {
+
+.topbar .cmenupar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.light .topbar .cmenupar svg{
+  fill: var(--bg-dark);
+}
+
+.dark .topbar .cmenupar svg{
+  fill: var(--bg-light);
+}
+
+.light .topbar .open{
+  background: var(--bgs-light);
+  border: 1px solid var(--orange1);
+  border-bottom: none;
+}
+
+.dark .topbar .open{
+  background: var(--bgs-dark);
+  border: 1px solid var(--orange1);
+  border-bottom: none;
+  border-top: none;
+}
+
+.topbar .open::after{
+  content: "";
+  width: calc( ((100vw - var(--sidebar-width)) * 0.05) - 1px );
+  height: 3px;
+
+  position: absolute;
+  top: calc(var(--topbar-height) - 1px);
+}
+
+.dark .topbar .open::after{
+  background: var(--bgs-dark);
+}
+
+.light .topbar .open::after{
+  background: var(--bgs-light);
+}
+
+.cmenu {
+  position: absolute;
+  top: calc(var(--topbar-height) - 1px);
+  width: 250px;
+  left: calc(100vw - 310px);
+
+  padding: 5px 10px;
+  border: 1px solid var(--orange1);
+}
+
+
+
+.light .cmenu {
+  background: var(--bgs-light);
+}
+
+.dark .cmenu {
+  background: var(--bgs-dark);
+}
+
+.topbar .cmenu .btn {
+  height: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+}
+
+.topbar .cmenu .name {
+  height: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topbar .cmenu .btn .shortcut {
+  font-size: 10px;
+  display: flex;
+  align-items: flex-end;
+}
+
+
+/* Switch */
+
+
+.topbar .switch {
   height: 100%;
   width: 100%;
 
@@ -220,7 +317,7 @@ body{
 
 }
 
-.context-menu .holder{
+.topbar .holder{
   height: 23px;
   width: 42px;
   border-radius: 15px;
@@ -235,16 +332,16 @@ body{
   transition-duration: 200ms;
 }
 
-.light .context-menu .holder{
+.light .topbar .holder{
   background: skyblue;  
   justify-content: flex-start;
 }
 
-.dark .context-menu .holder{
+.dark .topbar .holder{
   background: #582d58;  
 }
 
-.context-menu .button{
+.topbar .button{
   height: 15px;
   width: 15px;
   border-radius: 50%;
@@ -252,12 +349,12 @@ body{
   transition-duration: 500ms;
 }
 
-.light .context-menu .button{
+.light .topbar .button{
   background: yellow;  
   transform: translateX(0px);
 }
 
-.dark .context-menu .button{
+.dark .topbar .button{
   background: rgb(226, 164, 6);
   transform: translateX(18px);  
 }
@@ -325,4 +422,61 @@ body{
 
 .light .save-dialogue .btns div{
   border: 1px solid var(--broder-darker);
+}
+
+
+/* DownloadCode */
+
+.download-model{
+  height: 150px;
+  width: 300px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+.light .download-model{
+  background: var(--bgs-light);
+  border: 1px solid var(--orange0);
+  color: var(--color-dark);
+}
+
+.dark .download-model{
+  background: var(--bgs-dark);
+  border: 1px solid var(--orange1);
+  color: var(--color-light);
+}
+
+.download-model .title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+  width: 100%;
+}
+
+/* .light .title {
+  background: var(--bg-light);
+}
+
+.dark .title {
+  background: var(--bg-dark);
+} */
+
+.download-model .select {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  background: #777;
+  height: 60px;
+}
+
+.download-model button {
+  border: none;
+  cursor: pointer;
 }

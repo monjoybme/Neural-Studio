@@ -1,18 +1,23 @@
 import inspect
 import re
+from sys import path
+import zipfile
 
-from tf_gui import web
+from tf_gui.web import App, Request, text_response, json_response
 from tf_gui.web.utils import send_file
 from tf_gui.web.headers import Header
-from tf_gui.web import App, Request, text_response, json_response
 from tf_gui.builder import build_code
 from tf_gui.trainer import  Trainer,Summary
 
-from json import dump,JSONDecodeError,dumps
+from json import dump,JSONDecodeError
+from os import chdir, path as pathlib
+from glob import glob
 
 app = App()
 trainer = Trainer()
 summary = Summary()
+
+model_download_name = ""
 
 def generate_args(code)->dict:
     exec(code)
@@ -69,6 +74,49 @@ async def status(request:Request):
         "status":True,
     })
 
+
+@app.route("/model/download/<string:form>")
+async def model_download_format(request:Request,form:str):
+    if request.header.method == "GET":
+        return await send_file(pathlib.abspath(globals()['model_download_name'],),request)
+
+    elif request.header.method == "POST":
+        model = trainer.get_model();
+        if model:
+            if form == "pb":
+                model.save("./models/model/")
+                with zipfile.ZipFile("./models/model.zip","w") as zfile:
+                    chdir("./models/model/")
+                    zfile.write("./saved_model.pb")
+                    for f in glob("./assets/*"):
+                        zfile.write(f)
+                    for f in glob("./variables/*"):
+                        zfile.write(f)    
+                globals()['model_download_name'] = './models/model.zip'
+
+            elif form == "hdf5":
+                model.save("./models/model.hdf5")
+                globals()['model_download_name'] = './models/model.hdf5'
+
+            elif form == "json":
+                with open("./models/model.json","w+") as file:
+                    file.write(model.to_json())    
+                globals()['model_download_name'] = './models/model.json'
+                
+            return json_response({
+                "status":True,
+                "message":"Download Will Begin Shortly !"
+            })
+
+        return json_response({
+            "status":False,
+            "message":"Please build and train model before downloading."
+        })
+
+    return json_response({
+        "message":"Method Not Allowed !"
+    },status_code=200)
+
 @app.route("/model/summary",)
 async def summary_viewer(request:Request):
     if request.header.method == 'POST':
@@ -86,11 +134,6 @@ async def summary_viewer(request:Request):
             status_code=200,
             message="Method Not Allowed !"
         )
-        # except:
-        #     return json_response({
-        #         "status":200,
-        #         "summary":[ [ 'Error building model', ], ]
-        #     })
 
     else:
         return json_response(

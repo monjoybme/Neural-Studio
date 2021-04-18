@@ -1,5 +1,6 @@
 data/datasets
 temp/
+models/
 
 *__pycache__
 notebooks
