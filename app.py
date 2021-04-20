@@ -26,7 +26,7 @@ workspace_mamager = WorkspaceManager()
 async def workspace(request:Request,):
     if request.header.method == "GET":
         return json_response({
-            "data":workspace_mamager.active_workspace.json(),
+            "data":workspace_mamager.active_workspace.get(),
         }, )
 
     return json_response({
@@ -74,9 +74,9 @@ async def workspace(request:Request,):
 async def workspace(request:Request,):
     if request.header.method == "POST":
         data = await request.get_json()
-        workspace_mamager.new_workspace(**data)
+        print (workspace_mamager.new_workspace(**data))
         return json_response({
-            "data":workspace_mamager.active_workspace.json(),
+            "data":workspace_mamager.active_workspace.get(),
         },)
 
     return json_response({

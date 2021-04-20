@@ -1,6 +1,7 @@
 from os import path as pathlib, mkdir, chdir, listdir
 from json import dump, load
-from typing import List, Set
+
+from typing import List
 from shutil import rmtree
 
 class Cache(object):
@@ -83,6 +84,7 @@ class Workspace(object):
             mkdir(self.path)
         *_, self.name = pathlib.split(path)
         
+        self.required_vars[0][1]['name'] = self.name
         for var, val in self.required_vars:
             file = pathlib.join(self.path,f"{var}.json")
             if pathlib.isfile(file,):
@@ -100,6 +102,12 @@ class Workspace(object):
     path={self.path}
 )"""
     
+    def __bool__(self,):
+        return True
+
+    def __len__(self,):
+        return len(self.required_vars)
+
     def __getitem__(self,key:str):
         return self.__dict__[f"var_{key}"]
     
@@ -114,12 +122,12 @@ class Workspace(object):
         for key, val in kwargs.items():
             self.__dict__[f"var_{key}"] = val
     
-    def json(self,)->dict:
+    def get(self,)->dict:
         return dict([ (key.replace("var_",""), val) for key, val in self.__dict__.items() if key.startswith("var") ])
         
 class WorkspaceManager(object):
     
-    workspaces:Set[Workspace] = set()
+    workspaces:List[Workspace] = []
         
     def __init__(self,root='.tfstudio'):
         self.root =  pathlib.abspath(root)
@@ -134,7 +142,7 @@ class WorkspaceManager(object):
         for w in listdir(pathlib.join(self.root, "workspace")):
             w = pathlib.join(self.root, "workspace", w)
             if pathlib.isdir(w):
-                self.workspaces.add(
+                self.workspaces.append(
                     Workspace(
                         path=w
                     )
@@ -144,10 +152,10 @@ class WorkspaceManager(object):
         for w in self.workspaces:
             if w.name == self.cache.last:
                 self.active_workspace = w
-                
+        
         if not self.active_workspace:
             self.active_workspace = Workspace(pathlib.join(self.root, "workspace", "model"))
-            self.workspaces.add(self.active_workspace)
+            self.workspaces.append(self.active_workspace)
             self.cache >> self.active_workspace.name
         
     def __repr__(self,):
@@ -161,11 +169,10 @@ class WorkspaceManager(object):
         workspace = Workspace(
             path = pathlib.join(self.root, "workspace", name) 
         )
-        self.workspaces.add(workspace)
-        self.active_workspace = workspace
+        self.workspaces.append(workspace)
         self.cache >> workspace.name
         return workspace
-        
+    
     def open_workspace(self,name:str)->Workspace:
         workspace = False
         for w in self.workspaces:
@@ -187,9 +194,7 @@ class WorkspaceManager(object):
             return True,rmtree(path,)
         return False
     
-    def autosave(self,)->bool:
-        print (self.active_workspace)
-        return False
-    
+
     def get(self,):
         return [ { "name":w.name } for w in self.workspaces ]
+

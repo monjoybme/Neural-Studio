@@ -5,6 +5,8 @@ import CodeEditor from "./CodeEditor";
 import Train from "./Training";
 import SummaryViewer from "./SummaryViewer";
 
+
+import { Store, StoreContext } from './Store';
 import { icons } from "./data/icons";
 import { appConfig } from "./data/appconfig.js";
 import { GET, POST } from "./Utils";
@@ -121,8 +123,6 @@ const Home = (
         active: active.data,
       });
 
-      console.log(all.data, active.data)
-
       props.graphdefState({
         ...active.data.graphdef,
       });
@@ -220,7 +220,7 @@ const App = (props) => {
   let [popup, popupState] = React.useState(<div></div>);
 
   let [appconfig, appconfigState] = React.useState({
-    ...appConfig,
+
   });
   let [workspace, workspaceState] = React.useState({
     ntbf: true,
@@ -388,66 +388,68 @@ const App = (props) => {
   });
 
   return (
-    <div className={`_app ${appconfig.theme}`}>
-      <div className="nav">
-        <div className="title">
-          <Logo />
-        </div>
-        <div className="navigation">
-          {buttons.map((button, i) => {
-            let Icon = button.icon;
-            return (
-              <div
-                key={i}
-                to={button.path}
-                className={button.selected ? "btn selected" : "btn"}
-                onClick={(e) => {
-                  buttons = buttons.map((_button) => {
-                    _button.selected = _button.name === button.name;
-                    if (_button.selected) {
-                      document.getElementById("context-title").innerText =
-                        button.name;
-                      renderState({
-                        ..._button,
-                      });
-                    }
-                    return _button;
-                  });
-                  buttonsState([...buttons]);
-                }}
-              >
-                <Icon
-                  fill={button.selected ? "white" : "rgba(255,255,255,0.3)"}
-                />
-              </div>
-            );
-          })}
-        </div>
-      </div>
-      <div className="topbar">
-        <div className="title" id="context-title">
-          Graph
-        </div>
-        <div className="cmenupar">{/* <Icon icon={icons.Menu} /> */}</div>
-        <div
-          className="switch"
-          onClick={() => {
-            if (appconfig.theme === "light") {
-              appconfig.theme = "dark";
-            } else {
-              appconfig.theme = "light";
-            }
-            appconfigState({ ...appconfig });
-          }}
-        >
-          <div className="holder">
-            <div className="button"></div>
+    <Store>
+      <div className={`_app ${appconfig.theme}`}>
+        <div className="nav">
+          <div className="title">
+            <Logo />
+          </div>
+          <div className="navigation">
+            {buttons.map((button, i) => {
+              let Icon = button.icon;
+              return (
+                <div
+                  key={i}
+                  to={button.path}
+                  className={button.selected ? "btn selected" : "btn"}
+                  onClick={(e) => {
+                    buttons = buttons.map((_button) => {
+                      _button.selected = _button.name === button.name;
+                      if (_button.selected) {
+                        document.getElementById("context-title").innerText =
+                          button.name;
+                        renderState({
+                          ..._button,
+                        });
+                      }
+                      return _button;
+                    });
+                    buttonsState([...buttons]);
+                  }}
+                >
+                  <Icon
+                    fill={button.selected ? "white" : "rgba(255,255,255,0.3)"}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
+        <div className="topbar">
+          <div className="title" id="context-title">
+            Graph
+          </div>
+          <div className="cmenupar">{/* <Icon icon={icons.Menu} /> */}</div>
+          <div
+            className="switch"
+            onClick={() => {
+              if (appconfig.theme === "light") {
+                appconfig.theme = "dark";
+              } else {
+                appconfig.theme = "light";
+              }
+              appconfigState({ ...appconfig });
+            }}
+          >
+            <div className="holder">
+              <div className="button"></div>
+            </div>
+          </div>
+        </div>
+        <div className="sidemenu"></div>
+        {getRenderComp()}
       </div>
-      <div className="sidemenu"></div>
-      {getRenderComp()}
-    </div>
+    </Store>
   );
 };
 
