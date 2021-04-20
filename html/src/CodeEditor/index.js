@@ -3,9 +3,9 @@ import Editor from "@monaco-editor/react";
 
 import "./code.css"
 
-const CodeEditor = (props={layers:{}}) => {
+const CodeEditor = (props={graphdef:{}}) => {
 
-  let { appconfig,appconfigState } = props;
+  let { appconfig, } = props;
   let [code,codeState] = React.useState({
     data:"",
     fetched:true
@@ -17,7 +17,7 @@ const CodeEditor = (props={layers:{}}) => {
       {
         method:"POST",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...props.layers })
+        body: JSON.stringify({ ...props.graphdef })
       }
     )
     .then(response=>response.json())
@@ -29,12 +29,14 @@ const CodeEditor = (props={layers:{}}) => {
     })
   }
 
+
   React.useEffect(()=>{
     if ( code.data.length === 0 ){
       buildCode()
     }
     clearTimeout(window.__UPDATE_TIMEOUT__)
-  },[])
+    // console.log(props.graphdef)
+  },)
 
     return (
       <div className="container">

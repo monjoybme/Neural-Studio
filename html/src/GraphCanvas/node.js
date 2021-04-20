@@ -78,6 +78,7 @@ const Node = (props={
               {...props}
             />
           ),
+          render:true
         });
         break;
       default:
@@ -102,13 +103,15 @@ const Node = (props={
         });
         window.layersState({ ...window.layers });
         break;
+      default:
+        break
     }
   }
 
   return (
     <g x={pos.x} y={pos.y}>
       {connections.inbound.map((layer, i) => {
-        let pos_out = window.layers[layer];
+        let pos_out = window.graphdef[layer];
         if (pos_out) {
           return (
             <line

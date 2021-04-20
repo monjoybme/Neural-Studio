@@ -67,7 +67,7 @@ const Output = (props) => {
   return (
     <div className="log outvis">
       <div>Epoch Output | Type : {props.data.type}</div>
-      <img src={props.data.value} />
+      <img src={props.data.value} alt={'output'} />
     </div>
   );
 };
@@ -163,7 +163,7 @@ const Monitor = (
   let outputs = {};
   try {
     epochs.forEach((epoch, i) => {
-      Object.keys(epoch.data.log.output).map((output) => {
+      Object.keys(epoch.data.log.output).forEach((output) => {
         if (outputs[output] === undefined) {
           outputs[output] = [];
         }
@@ -187,7 +187,7 @@ const Training = (
   props = {
     train: { training: false, hist: [] },
     trainState: undefined,
-    layers: {},
+    graphdef: {},
     layerState: undefined,
   }
 ) => {
@@ -200,7 +200,7 @@ const Training = (
     name: "Pause",
     state: true,
   });
-  let { layers } = props;
+  let { graphdef } = props;
 
   async function getStatus() {
     await fetch("http://localhost/status", {
@@ -234,7 +234,7 @@ const Training = (
     await fetch("http://localhost/train/start", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...layers }),
+      body: JSON.stringify({ ...graphdef }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -280,15 +280,6 @@ const Training = (
         window.__TRAIN__ = false;
       });
   }
-
-  const TrainEnd = (props) => {
-    return (
-      <div className="log buttons">
-        <div className="btn">Download Model</div>
-        <div className="btn">Download Inference</div>
-      </div>
-    );
-  };
 
   React.useEffect(() => {
     var elem = document.getElementById("logs");

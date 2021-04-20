@@ -8,7 +8,7 @@ import './menu.css'
 
 
 const TextProperty = (props) =>{
-    let property = window.layers[props.layer_id].arguments[props.name];
+    let property = window.graphdef[props.layer_id].arguments[props.name];
     return (
       <div className="property" >
         <div className="name" > {props.name} </div>
@@ -17,9 +17,9 @@ const TextProperty = (props) =>{
           id = {props.layer_id+props.name}
           defaultValue={property.value} 
           onKeyUp={e=>{
-              window.layers[props.layer_id].arguments[props.name].value = e.target.value;
-              window.layersState({
-                ...window.layers
+              window.graphdef[props.layer_id].arguments[props.name].value = e.target.value;
+              window.graphdefState({
+                ...window.graphdef
               })
             }
           } 
@@ -29,7 +29,7 @@ const TextProperty = (props) =>{
   }
   
 const ListProperty = (props) => {
-  let property = window.layers[props.layer_id].arguments[props.name];
+  let property = window.graphdef[props.layer_id].arguments[props.name];
   let options = Options[property.options];
 
   return (
@@ -40,9 +40,9 @@ const ListProperty = (props) => {
         id = {props.layer_id+props.name}
         defaultValue={property.value} 
         onChange={(e)=>{
-          window.layers[props.layer_id].arguments[props.name].value = e.target.value;
-          window.layersState({
-            ...window.layers
+          window.graphdef[props.layer_id].arguments[props.name].value = e.target.value;
+          window.graphdefState({
+            ...window.graphdef
           }) 
       }}
         >
@@ -64,19 +64,19 @@ const ListProperty = (props) => {
 }
 
 const CheckboxProperty = (props) => {
-  let property = window.layers[props.layer_id].arguments[props.name];
+  let property = window.graphdef[props.layer_id].arguments[props.name];
   let options = Options[property.options];
 
   function selectBox(e){
-    if (window.layers[props.layer_id].arguments[props.name].value.lastIndexOf(e.target.name) > -1){
-      window.layers[props.layer_id].arguments[props.name].value.pop(e.target.name)
+    if (window.graphdef[props.layer_id].arguments[props.name].value.lastIndexOf(e.target.name) > -1){
+      window.graphdef[props.layer_id].arguments[props.name].value.pop(e.target.name)
     }
     else{
-      window.layers[props.layer_id].arguments[props.name].value.push(e.target.name)
+      window.graphdef[props.layer_id].arguments[props.name].value.push(e.target.name)
     }
 
-    window.layersState({
-      ...window.layers
+    window.graphdefState({
+      ...window.graphdef
     }) 
   }
   return (
@@ -91,7 +91,7 @@ const CheckboxProperty = (props) => {
                   type="checkbox" 
                   name={option} 
                   key={i}  
-                  defaultChecked={ window.layers[props.layer_id].arguments[props.name].value.lastIndexOf(option) > -1 }
+                  defaultChecked={ window.graphdef[props.layer_id].arguments[props.name].value.lastIndexOf(option) > -1 }
                   onChange={selectBox}
                  /> 
                 {option}
@@ -108,20 +108,20 @@ const Dataset = (props) =>{
   let { id, name } = props;
 
   function updateCode(e){
-    window.layers[id].arguments.dataset.value = e;
-    window.layersState({
-      ...window.layers
+    window.graphdef[id].arguments.dataset.value = e;
+    window.graphdefState({
+      ...window.graphdef
     })
   }
 
   React.useEffect(()=>{
-    window.layers[id].arguments.dataset.value = props.arguments.dataset.value.lastIndexOf("__id__") > 0 ?
+    window.graphdef[id].arguments.dataset.value = props.arguments.dataset.value.lastIndexOf("__id__") > 0 ?
       props.arguments.dataset.value.replaceAll(/__id__/g,id)
       :
       props.arguments.dataset.value
       
-    window.layersState({
-      ...window.layers
+    window.graphdefState({
+      ...window.graphdef
     })
   })
 
@@ -167,17 +167,17 @@ const CustomNode = (props)=>{
   }
 
   function updateCode(e){
-    window.layers[props.id].arguments.code.value = e;
-    window.layersState({
-      ...window.layers
+    window.graphdef[props.id].arguments.code.value = e;
+    window.graphdefState({
+      ...window.graphdef
     })
   }
 
   function updateName(e){
-    window.layers[props.id].name = e.target.value;
-    window.layers[props.id].width = e.target.value.length * 10;
-    window.layersState({
-      ...window.layers
+    window.graphdef[props.id].name = e.target.value;
+    window.graphdef[props.id].width = e.target.value.length * 10;
+    window.graphdefState({
+      ...window.graphdef
     })
   }
 
@@ -191,17 +191,17 @@ const CustomNode = (props)=>{
     POST({
       path:'node/build',
       data:{
-        code:window.layers[props.id].arguments.code.value
+        code:window.graphdef[props.id].arguments.code.value
       }
     }).then(response=>response.json()).then(data=>{
 
-      props.layerGroups.custom.layers = props.layerGroups.custom.layers.filter(layer=>{
+      props.layerGroups.custom.graphdef = props.layerGroups.custom.graphdef.filter(layer=>{
         return layer.name !== props._id && layer.name !== _id.value 
       })
 
       delete data.arguments['inbound']
 
-      props.layerGroups.custom.layers.push({
+      props.layerGroups.custom.graphdef.push({
         name:_id.value,
         type: { 
           name: "Node", 
@@ -210,10 +210,10 @@ const CustomNode = (props)=>{
         arguments: data.arguments
       })
       
-      window.layers[props.id]._id = _id.value
-      window.layers[props.id].index = _id.index
-      window.layersState({
-        ...window.layers
+      window.graphdef[props.id]._id = _id.value
+      window.graphdef[props.id].index = _id.index
+      window.graphdefState({
+        ...window.graphdef
       })
 
       props.layerGroupsState({
@@ -283,9 +283,9 @@ const Layer = (props) =>{
             name="id"
             defaultValue={props.name}
             onKeyUp={(e) => {
-              window.layers[props.id].name = e.target.value;
-              window.layersState({
-                ...window.layers
+              window.graphdef[props.id].name = e.target.value;
+              window.graphdefState({
+                ...window.graphdef
               })
             }}
           />
@@ -307,8 +307,8 @@ const Layer = (props) =>{
                   name={property}
                   key={i}
 
-                  layers={window.layers}
-                  layersState={window.layersState}
+                  graphdef={window.graphdef}
+                  graphdefState={window.graphdefState}
                   menu={props.menu}
                   menuState={props.menuState}
                 />
@@ -320,8 +320,8 @@ const Layer = (props) =>{
                   name={property}
                   key={i}
 
-                  layers={window.layers}
-                  layersState={window.layersState}
+                  graphdef={window.graphdef}
+                  graphdefState={window.graphdefState}
                   menu={props.menu}
                   menuState={props.menuState}
                 />
@@ -333,8 +333,8 @@ const Layer = (props) =>{
                   name={property}
                   key={i}
 
-                  layers={window.layers}
-                  layersState={window.layersState}
+                  graphdef={window.graphdef}
+                  graphdefState={window.graphdefState}
                   menu={props.menu}
                   menuState={props.menuState}
                 />

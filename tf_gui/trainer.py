@@ -234,6 +234,11 @@ class Trainer(object):
         
     def _start(self,build_config:dict)->None:
         build_config,code = build_code(build_config=build_config,)
+
+        if not build_config:
+            self.update_log("error",{ "code":code , "message": code})
+            return False
+
         model = build_config['train_config']['model']['id']
 
         if build_config != self.build_config:

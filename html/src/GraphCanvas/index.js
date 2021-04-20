@@ -16,15 +16,15 @@ let cursors = {
 
 const Canvas = (
   props = {
-    layers: {},
-    layersState: undefined,
+    graphdef: {},
+    graphdefState: undefined,
   }
 ) => {
   let [menu, menuState] = React.useState({
     comp: <div />,
+    render:false
   });
-  let { layers, layersState } = props;
-  let { appconfig, appconfigState } = props;
+  let { graphdef, graphdefState } = props;
   let { layerGroups, layerGroupsState } = props;
 
   function layerIdGenerator(name = "") {
@@ -40,7 +40,6 @@ const Canvas = (
   }
 
   function downLine(e) {
-    console.log(e);
     e.preventDefault();
     let scroll = document.getElementById("canvasTop");
     let _line = document.getElementById("dummy");
@@ -72,7 +71,7 @@ const Canvas = (
       let layer = window.copy(window.canvasConfig.activeLayer);
       let n = layerIdGenerator(layer.name);
       let id = layer.name.toLowerCase().replaceAll(" ", "_") + "_" + n;
-      window.layers[id] = {
+      window.graphdef[id] = {
         ...layer,
         name: layer.name + " " + n,
         id: id,
@@ -88,15 +87,15 @@ const Canvas = (
       };
 
       let scroll = document.getElementById("canvasTop");
-      window.layers[id].width = window.layers[id].name.length * 10;
-      window.layers[id].pos = {
+      window.graphdef[id].width = window.graphdef[id].name.length * 10;
+      window.graphdef[id].pos = {
         x:
           e.clientX -
           window.offsetX +
           scroll.scrollLeft -
-          window.layers[id].width / 2,
+          window.graphdef[id].width / 2.5,
         y: e.clientY - window.offsetY + scroll.scrollTop - 25,
-        offsetX: window.layers[id].name.length * 5 - 2,
+        offsetX: window.graphdef[id].name.length * 5 - 2,
         offsetY: 23,
       };
 
@@ -112,14 +111,16 @@ const Canvas = (
           );
           break;
         case "Node":
-          window.layers[id]._id = "Please Set Node ID";
+          window.graphdef[id]._id = "Please Set Node ID";
+          break;
         default:
           break;
       }
 
-      window.layersState({
-        ...window.layers,
+      window.graphdefState({
+        ...window.graphdef,
       });
+      window.autosave();
     }
   }
 
@@ -272,25 +273,28 @@ const Canvas = (
     if (window.canvasConfig.newEdge) {
       let { from, to } = window.canvasConfig.newEdge;
       if (from && to && from !== to) {
-        if (window.layers[from].connections.outbound.lastIndexOf(to) === -1) {
-          window.layers[from].connections.outbound.push(to);
+        if (window.graphdef[from].connections.outbound.lastIndexOf(to) === -1) {
+          window.graphdef[from].connections.outbound.push(to);
         }
-        if (window.layers[to].connections.inbound.lastIndexOf(from) === -1) {
-          window.layers[to].connections.inbound.push(from);
+        if (window.graphdef[to].connections.inbound.lastIndexOf(from) === -1) {
+          window.graphdef[to].connections.inbound.push(from);
         }
-        window.layersState({
-          ...window.layers,
+        window.canvasConfig.newEdge = undefined;
+        window.canvasConfig.activeLine = undefined;
+        window.graphdefState({
+          ...window.graphdef,
         });
+        window.autosave();
       }
 
-      window.canvasConfig.newEdge = undefined;
     } else if (window.canvasConfig.activeElement) {
       if (window.canvasConfig.pos) {
-        window.layers[window.canvasConfig.activeElement.layer.id].pos =
+        window.graphdef[window.canvasConfig.activeElement.layer.id].pos =
           window.canvasConfig.pos;
-        window.layersState({
-          ...window.layers,
+        window.graphdefState({
+          ...window.graphdef,
         });
+        window.autosave();
       }
     }
 
@@ -305,9 +309,12 @@ const Canvas = (
     line.x2.baseVal.value = 1;
     line.y2.baseVal.value = 1;
 
-    menuState({
-      comp: <div />,
-    });
+    if (menu.render){
+      menuState({
+        comp: <div />,
+        render:false
+      })
+    }
   }
 
   function scroll(e) {
@@ -344,9 +351,11 @@ const Canvas = (
   };
 
   React.useEffect(() => {
-    window.layers = layers;
-    window.layersState = layersState;
+    window.graphdef = graphdef;
+    window.graphdefState = graphdefState;
     window.toolbarHandler = toolbarHandler;
+
+
   });
 
   return (
@@ -389,10 +398,10 @@ const Canvas = (
             strokeWidth="0"
             markerEnd="url(#triangle)"
           />
-          {Object.keys(layers).map((layer, i) => {
+          {Object.keys(graphdef).map((layer, i) => {
             return (
               <Node
-                {...layers[layer]}
+                {...graphdef[layer]}
                 {...props}
                 menu={menu}
                 menuState={menuState}

@@ -215,6 +215,7 @@ raw_text = """.3dm	x-world/x-3dmf
 .jpg	image/jpeg
 .jpg	image/pjpeg
 .jps	image/x-jps
+.json	application/json
 .js	application/x-javascript
 .js	application/javascript
 .js	application/ecmascript
@@ -644,3 +645,12 @@ raw_text = """.3dm	x-world/x-3dmf
 .zip	multipart/x-zip
 .zoo	application/octet-stream
 .zsh	text/x-script.zsh"""
+
+
+mimes = dict([
+    i[1:].split("\t")
+     for 
+    i 
+     in
+    raw_text.split("\n")
+])

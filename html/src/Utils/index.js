@@ -4,7 +4,7 @@ import { ReactComponent as Logo } from "../data/images/logo.svg";
 import './utils.css'
 
 async function POST( options = { path:"/", data:{  }, body: { }  } ){
-    let { path, data, body } = options;
+    let { path, data, } = options;
     let response = await fetch(
         "http://localhost/"+path, 
         {

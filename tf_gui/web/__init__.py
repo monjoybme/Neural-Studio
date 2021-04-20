@@ -1,4 +1,5 @@
 # from .utils import Response
+from tensorflow.python.keras.backend import print_tensor
 from websockets.framing import prepare_data
 from .headers import Header,RequestHeader
 from .utils import text_response,json_response
@@ -15,10 +16,10 @@ class Router:
     def __init__(self,):
         self.url_re = re.compile(r"<\w+:\w+>")
         self.var_re = re.compile(r"\w+")
-        self.path_re = re.compile(r'/([a-z0-9?=-_+]+)+|(<\w+:\w+>)')
+        self.path_re = re.compile(r'/([a-z0-9?=_+\-\.]+)+|(<\w+:\w+>)')
         
         self.dtype_re = {
-            'string':'[a-zA-Z0-9_-]+',
+            'string':'[a-zA-Z0-9_\-\.]+',
             'int':'\d+'
         }
         self.dtype_obj = {
@@ -128,9 +129,12 @@ class App(object):
         except asyncio.IncompleteReadError:
             pass
         else:
-            header += await reader.readuntil(separator=b'\r\n\r\n')
-            header = RequestHeader().parse(str(header[self.__rnrn],encoding='utf-8'))
+            try:
+                header += await reader.readuntil(separator=b'\r\n\r\n')
+            except asyncio.exceptions.IncompleteReadError:
+                return
 
+            header = RequestHeader().parse(str(header[self.__rnrn],encoding='utf-8'))
             if header.method == "OPTIONS":
                 response = CORS_RESPONSE.format(origin=header.origin).encode()                
             else:
@@ -144,7 +148,6 @@ class App(object):
                 writer.write( response )
                 await writer.drain()
                 writer.close()   
-            # print (f'[{header.method}] {header.path}')
 
     def serve(self,host:str='localhost',port:int=8080):
         self.loop.create_task(
@@ -160,4 +163,9 @@ class App(object):
             f"* Port : {port}\n"
             f"* URL  : http://{host}:{port}"
         )
-        self.loop.run_forever()
+        try:
+            self.loop.run_forever()
+        except KeyboardInterrupt:
+            print ("Exiting Serve !")
+            exit()
+        

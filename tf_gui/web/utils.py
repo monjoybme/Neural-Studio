@@ -3,7 +3,7 @@ from .__imports__ import (
         )
 
 from .headers import Header,ResponseHeader
-from .mime_types import raw_text
+from .mime_types import mimes
 
 import aiofiles as io
 import time
@@ -35,15 +35,22 @@ def json_response(
 
 
 async def send_file(file:str,request,headers:dict=dict(),chunk_size=1024):  
+    *_,name = pathlib.split(file)
+    *_, ext = name.split(".")
+
     head = ResponseHeader()
     head.status_code = 200
     head.message = 'OK'
     head.access_control_allow_origin = "*"
     head.connection = "Keep-Alive"
-    head.content_type = 'application/octet-stream'
     head.keep_alive = "timeout=1, max=999"
     head.content_length = stat(file).st_size
-    
+    try:
+        head.content_type = mimes[ext]
+    except KeyError as e:
+        print (e)
+        head.content_type = 'application/octet-stream'
+
     for key,val in headers.items():
         head[key.title().replace("_","-")] = val
 
@@ -59,10 +66,3 @@ async def send_file(file:str,request,headers:dict=dict(),chunk_size=1024):
     request.writer.close()
     return False
 
-mime_type = dict((
-    row.split("\t")
-        for
-    row
-        in 
-    raw_text.split("\n")
-))

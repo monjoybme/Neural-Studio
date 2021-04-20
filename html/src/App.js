@@ -5,13 +5,14 @@ import CodeEditor from "./CodeEditor";
 import Train from "./Training";
 import SummaryViewer from "./SummaryViewer";
 
-import {  Icon, icons } from "./data/icons";
+import { icons } from "./data/icons";
 import { appConfig } from "./data/appconfig.js";
-import { GET, Loading, POST} from "./Utils";
+import { GET, POST } from "./Utils";
 
-import _layerGroups from './data/layers';
+import _layerGroups from "./data/layers";
+
 import "./App.css";
-
+import "./home.css";
 
 window.copy = function (object) {
   return JSON.parse(JSON.stringify(object));
@@ -23,87 +24,11 @@ setInterval(function () {
   window.offsetY = appConfig.geometry.topBar.height;
 }, 1000);
 
-const SaveDialogue = (
-  props = {
-    layers: {},
-    saveFunction: function () {},
-    popupState: function () {},
-    project: { name: "graph", updated: false },
-  }
-) => {
-  return (
-    <div className="save-dialogue">
-      <div className="title">Save</div>
-      <input value={props.project.name} />
-      <div className="btns">
-        <div
-          style={{ background:"#517551" }}
-          onClick={(e) => {
-            props.saveFunction({
-              file: e.target.parentElement.previousElementSibling.value,
-            });
-          }}
-        >
-          save
-        </div>
-        <div
-        style={{ background:"#bd5252" }}
-          onClick={(e) => {
-            document.getElementById("popups").style.visibility = "hidden";
-            props.popupState(<div></div>);
-          }}
-        >
-          cancel
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const DownloadModel = (props={ popup:{},popupState:function(){} }) =>{
-
-  let [load, loadState] = React.useState(false);
-
-  async function download(e){
-    loadState(true)
-    let { value } = document.getElementById("select_")
-    POST({
-      path:"model/download/"+ value,
-    }).then(response=>response.json()).then(data=>{
-      console.log(data);
-      window. link = document.createElement("a");
-      window.link.href = "http://localhost/model/download/_" 
-      window.link.download = "model." + ( value === "pb" ? "zip" : value)
-      document.getElementById("popups").style.visibility = "hidden"
-      props.popupState(<div></div>)
-    })
-  }
-
-  return load ? <Loading /> 
-          : 
-        (
-          <div className="download-model">
-            <div className="title">
-              Download Model
-            </div>
-            <div className="select">
-              Output Format
-              <select id="select_" defaultValue="pb">
-                <option value="pb" > pb </option>
-                <option value="hdf5" > hdf5 </option>
-                <option value="json" > json </option>
-              </select>
-            </div>
-            <button onClick={download}> Download </button>
-          </div>
-        )
-}
-
 async function downloadCode(e) {
   await fetch("http://localhost/build", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...window.layers }),
+    body: JSON.stringify({ ...window.graphdef }),
   })
     .then((response) => response.json())
     .then((data) => {
@@ -114,16 +39,158 @@ async function downloadCode(e) {
     });
 }
 
+const WorkspaceCard = (props = { name: "Hello" }) => {
+  return (
+    <div className="card">
+      <div className="image"></div>
+      <div className="footer">
+        <div className="name">
+          {props.name}
+          <icons.More />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const New = (props) =>{
+  let { newworkspace, newworkspaceState } = props;
+  function handleKey(e){
+    if (e.key === 'Enter'){
+      newworkspaceState({
+        name:"",
+        active:false
+      })
+      props.newWorkspace(
+        document.getElementById("newname").value,
+      )
+    }
+  }
+
+  React.useEffect(()=>{
+    document.getElementById("newname").focus()
+  })
+
+  return (
+    <div>
+      <input id={"newname"} defaultValue={newworkspace.name} placeholder={"Enter Name"} onKeyUp={handleKey} />
+    </div>
+  )
+}
+
+const NewCard = (props) => {
+  let [ newworkspace, newworkspaceState ] = React.useState({
+    active:false,
+    name:""
+  })
+  
+  return (
+    <div className="card new" onClick={e=>newworkspaceState({name:"", active:true})} onMouseLeave={e=>newworkspaceState({name:"",active:false})}>
+      {
+        newworkspace.active ?
+        <New newWorkspace={props.newWorkspace} newworkspace={newworkspace} newworkspaceState={newworkspaceState} />
+          :
+        <icons.Add  />
+      }
+    </div>
+  );
+};
+
+const Home = (
+  props = {
+    appconfigState: undefined,
+    graphdefState: undefined,
+    workspace: undefined,
+    workspaceState: undefined,
+  }
+) => {
+  let { workspace, workspaceState } = props;
+
+  async function fetchWorkspace() {
+      let active = await GET({
+        path: "workspace/active",
+      }).then((response) => response.json());
+
+      let all = await GET({
+        path: "workspace/all",
+      }).then((response) => response.json());
+
+      workspaceState({
+        ntbf: false,
+        all: all.data,
+        active: active.data,
+      });
+
+      console.log(all.data, active.data)
+
+      props.graphdefState({
+        ...active.data.graphdef,
+      });
+      props.appconfigState({
+        ...active.data.app_config,
+      });
+      window.canvasConfig = active.data.canvas_config;
+      window.graphdef = active.data.graphdef;
+  }
+  
+  async function newWorkspace(name="model"){
+    await POST({
+      path:"workspace/new",
+      data:{
+        name:name
+      }
+    }).then(response=>response.json()).then(data=>{
+      console.log(data)
+      fetchWorkspace();
+    })
+  }
+
+  React.useEffect(() => {
+    if (workspace.ntbf){
+      fetchWorkspace();
+    }
+  });
+
+  return (
+    <div className="container home">
+      <div className="name">Active Worksapce</div>
+      <div className="card active">
+        <div className="head">{workspace.active.config.name}</div>
+        <div className="footer">
+          <div className="name">
+            <icons.Save />
+            <icons.Code />
+            <icons.Download />
+            <icons.Share />
+          </div>
+        </div>
+      </div>
+      <div className="name">Your Work</div>
+      <div className="cards">
+        <NewCard newWorkspace={newWorkspace} />
+        {workspace.all.map((work, i) => {
+          return <WorkspaceCard {...work} key={i} />;
+        })}
+      </div>
+    </div>
+  );
+};
 
 const App = (props) => {
   let Logo = icons.Logo;
-  let [layers, layersState] = React.useState({});
-  let [ layerGroups, layerGroupsState ] = React.useState({ ..._layerGroups})
+  let [graphdef, graphdefState] = React.useState({});
+  let [layerGroups, layerGroupsState] = React.useState({ ..._layerGroups });
   let [buttons, buttonsState] = React.useState([
     {
-      name: "Graph",
+      name: "Home",
       path: "/",
       selected: window.location.pathname === "/",
+      icon: icons.Home,
+    },
+    {
+      name: "Graph",
+      path: "/graph",
+      selected: window.location.pathname === "/graph",
       icon: icons.Graph,
     },
     {
@@ -145,134 +212,67 @@ const App = (props) => {
       icon: icons.Train,
     },
   ]);
-  let [render, renderState] = React.useState({ name: "Graph" });
-  let [project, projectState] = React.useState({
-    file: {
-      name: "graph",
-      updated: false,
-    },
-  });
+  let [render, renderState] = React.useState({ name: "Home" });
   let [train, trainState] = React.useState({
     training: false,
     hist: [],
   });
   let [popup, popupState] = React.useState(<div></div>);
-  let [files, filesState] = React.useState({
-    display: false,
-    buttons: [
-      {
-        name: "Save",
-        shortcut: "Ctrl + S",
-        func: function () {
-          popupState(
-            <SaveDialogue
-              layers={layers}
-              saveFunction={saveGraph}
-              popupState={popupState}
-              project={project}
-            />
-          );
-          document.getElementById("popups").style.visibility = "visible";
-        },
-      },
-      { name: "Load", shortcut: "Ctrl + O", func: loadGraph },
-      { name: "Save as", shortcut: "Ctrl + Shift + S", func: saveGraph },
-      { name: "Download Code", shortcut: "Ctrl + D", func: downloadCode },
-      { name: "Download Model", shortcut: "Ctrl + M", func: saveModel },
-      { name: "Load Model", shortcut: "Ctrl + M", func: loadModel },
-    ],
-  });
+
   let [appconfig, appconfigState] = React.useState({
     ...appConfig,
   });
+  let [workspace, workspaceState] = React.useState({
+    ntbf: true,
+    active: {
+      config: {
+        name: "Workspce",
+      },
+    },
+    recent: [],
+    all: [],
+  });
 
-  function saveModel(e){
-    document.getElementById("popups").style.visibility = "visible";
-    popupState(<DownloadModel popup={popup} popupState={popupState}  />) 
-  }
-  
-  function loadModel(e){
-      
-  }
-
-  window.getLayers = function () {
-    return window.layers;
-  };
-
-  async function saveGraph(project = { file: "graph" }) {
-    filesState({
-      display: false,
-      buttons: files.buttons,
-    });
-
-    await fetch("http://localhost/graph/save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        graph: { ...window.getLayers() },
-        file: project.file,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data, project);
-        projectState({
-          file: project.file,
-          updated: true,
+  window.autosave = async function () {
+    let data = {
+      graphdef: { ...graphdef },
+      app_config: { ...appconfig },
+      canvas_config: { ...window.canvasConfig },
+    };
+    try {
+      await POST({
+        path: "workspace/autosave",
+        data: data,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
         });
-
-        document.getElementById("popups").style.visibility = "hidden";
-        popupState(<div></div>);
-      });
-  }
-
-  async function loadGraph(e) {
-    filesState({
-      display: false,
-      buttons: files.buttons,
-    });
-    setTimeout(async function () {
-      let input = document.createElement("input");
-      input.type = "file";
-      input.id = "fileopen";
-      input.onchange = function (e) {
-        var reader = new FileReader();
-        reader.onload = function () {
-          let graph = JSON.parse(reader.result);
-          layersState({ ...graph });
-          layersState({ ...graph });
-
-          projectState({
-            file: input.files[0].name.split(".")[0],
-            updated: true,
-          });
-          projectState({
-            file: input.files[0].name.split(".")[0],
-            updated: true,
-          });
-          document.body.style.cursor = "default";
-        };
-        reader.readAsText(e.target.files[0]);
-      };
-      input.click();
-      document.body.style.cursor = "loading";
-    }, 10);
-  }
+    } catch (TypeError) {
+      console.log(TypeError);
+    }
+  };
 
   function getRenderComp() {
     switch (render.name) {
+      case "Home":
+        return (
+          <Home
+            appconfigState={appconfigState}
+            graphdefState={graphdefState}
+            workspace={workspace}
+            workspaceState={workspaceState}
+          />
+        );
       case "Graph":
         return (
           <Canvas
             appconfig={appconfig}
             appconfigState={appconfigState}
-
-            layers={layers}
-            layersState={layersState}
-
+            graphdef={graphdef}
+            graphdefState={graphdefState}
             layerGroups={layerGroups}
             layerGroupsState={layerGroupsState}
-
             popup={popup}
             popupState={popupState}
           />
@@ -282,10 +282,8 @@ const App = (props) => {
           <CodeEditor
             appconfig={appconfig}
             appconfigState={appconfigState}
-
-            layers={layers}
-            layersState={layersState}
-            
+            graphdef={graphdef}
+            graphdefState={graphdefState}
             layerGroups={layerGroups}
             layerGroupsState={layerGroupsState}
           />
@@ -295,13 +293,10 @@ const App = (props) => {
           <Train
             train={train}
             trainState={trainState}
-            
             appconfig={appconfig}
             appconfigState={appconfigState}
-
-            layers={layers}
-            layersState={layersState}
-            
+            graphdef={graphdef}
+            graphdefState={graphdefState}
             layerGroups={layerGroups}
             layerGroupsState={layerGroupsState}
           />
@@ -309,47 +304,30 @@ const App = (props) => {
       case "Summary":
         return (
           <SummaryViewer
-            layers={layers}
-            
+            graphdef={graphdef}
             appconfig={appconfig}
             appconfigState={appconfigState}
           />
         );
       default:
-        return <Canvas />;
+        return <div>Under Construction</div>;
     }
   }
 
-  React.useEffect(() => {
-    document.getElementById("root").onmouseup = function () {
-      if (files.display) {
-        setTimeout(function () {
-          filesState({
-            display: false,
-            buttons: files.buttons,
-          });
-        }, 100);
-      }
-    };
-
+  React.useEffect(function () {
+    window.graphdef = graphdef;
+    window.graphdefState = graphdefState;
     document.getElementsByTagName("html")[0].onkeydown = function (e) {
       if (window.__SHORTCUT__) {
         switch (e.key) {
           case "s":
             e.preventDefault();
-            if (project.updated) {
-              saveGraph(project);
-            } else {
-              files.buttons[0].func(project);
-            }
             break;
           case "e":
             e.preventDefault();
-            files.buttons[0].func(project);
             break;
           case "o":
             e.preventDefault();
-            loadGraph();
             break;
           case "d":
             e.preventDefault();
@@ -373,11 +351,12 @@ const App = (props) => {
             break;
           case "5":
             e.preventDefault();
-            layersState({});
+            graphdefState({});
+            window.autosave();
             break;
           case "Shift":
             e.preventDefault();
-            window.__SHORTCUT__SHIFT__ = true
+            window.__SHORTCUT__SHIFT__ = true;
             break;
           default:
             break;
@@ -389,8 +368,7 @@ const App = (props) => {
             break;
           case "Escape":
             popupState(<div></div>);
-            document.getElementById("popups").style.visibility = "hidden";
-            if (render.name === "Graph"){
+            if (render.name === "Graph") {
               window.toolbarHandler({ mode: "normal", name: "Normal" });
             }
             break;
@@ -399,19 +377,18 @@ const App = (props) => {
         }
       }
     };
+
     document.getElementsByTagName("html")[0].onkeyup = function (e) {
       window.__SHORTCUT__ = false;
     };
-    document.getElementsByTagName("html")[0].onclick = function(e){
+
+    document.getElementsByTagName("html")[0].onclick = function (e) {
       e.preventDefault();
-    }
+    };
   });
 
   return (
-    <div className="_app" className={appconfig.theme}>
-      <div className="popups" id="popups">
-        {popup}
-      </div>
+    <div className={`_app ${appconfig.theme}`}>
       <div className="nav">
         <div className="title">
           <Logo />
@@ -451,6 +428,7 @@ const App = (props) => {
         <div className="title" id="context-title">
           Graph
         </div>
+        <div className="cmenupar">{/* <Icon icon={icons.Menu} /> */}</div>
         <div
           className="switch"
           onClick={() => {
@@ -466,31 +444,8 @@ const App = (props) => {
             <div className="button"></div>
           </div>
         </div>
-        <div className={ files.display ? "cmenupar open" :  "cmenupar" } onClick={(e)=>{ files.display = true; filesState({...files}) }}>
-          <Icon icon={icons.Menu} />
-          {
-            files.display ? (
-              <div className="cmenu">
-                {
-                  files.buttons.map((button,i)=>{
-                    return (
-                      <div className="btn" key={i} onClick={button.func}>
-                        <div className="name">
-                          { button.name }
-                        </div>
-                        <div className="shortcut">
-                          { button.shortcut }
-                        </div>
-                      </div>
-                    )
-                  })
-                }
-              </div>
-            ):
-            null
-          }
-        </div>
       </div>
+      <div className="sidemenu"></div>
       {getRenderComp()}
     </div>
   );

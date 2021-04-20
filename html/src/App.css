@@ -61,7 +61,7 @@
 
 *{ 
   box-sizing: border-box;
-  font-family: monospace;
+  /* font-family: monospace; */
 }
 
 html{
@@ -72,7 +72,31 @@ body{
   overflow: hidden;
 }
 
+button {
+  border: none;
+}
+
+button:focus {
+  outline: none;
+}
+
+input {
+  border: none;
+}
+
+input:focus {
+  outline: none;
+}
+
 /* Top Level Blocks */
+
+.light {
+  background-color: var(--bgs-light);
+}
+
+.dark {
+  background-color: var(--bgs-dark);
+}
 
 .container {
   position: absolute;
@@ -83,6 +107,9 @@ body{
 
   top: var(--topbar-height);
   left: var(--sidebar-width);
+
+  /* transition-property: all; */
+  /* transition-duration: 100ms; */
 }
 
 .light .container{
@@ -148,6 +175,7 @@ body{
   justify-content: center;
 
   cursor: pointer;
+
 }
 
 .nav .navigation .btn svg{
@@ -155,8 +183,8 @@ body{
 }
 
 .nav .navigation .selected {
-  border-top: 1px solid #f18f0e72;
-  border-bottom: 1px solid #f18f0e72;
+  border-top: 1px solid var(--orange1);
+  border-bottom: 1px solid var(--orange1);
 }
 
 .light .nav .navigation .selected {
@@ -183,7 +211,7 @@ body{
 
   position: absolute;
   z-index: 9999;
-  border-bottom: 1px solid #f18f0e72;
+  border-bottom: 1px solid var(--orange1);
 
   display: grid;
   grid-template-columns: 18fr 1fr 1fr;

@@ -3,7 +3,7 @@ import { Loading } from '../Utils';
 
 import "./summary.css"
 
-const SummaryViewer = (props={layers:{},}) =>{
+const SummaryViewer = (props={graphdef:{},}) =>{
 
     let [summary, summaryState] = React.useState({
         data:[],
@@ -17,7 +17,7 @@ const SummaryViewer = (props={layers:{},}) =>{
           {
             method:"POST",
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...props.layers })
+            body: JSON.stringify({ ...props.graphdef })
           }
         )
         .then(response=>response.json())

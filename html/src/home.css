@@ -1,0 +1,144 @@
+.home {
+    padding: 10px;
+    display: grid;
+    grid-template-rows: 2fr 3fr 2fr 28fr;
+}
+
+.light .home {
+    background: var(--bgs-light) ;
+    color: var(--color-dark);
+}
+
+.dark .home {
+    background: var(--bgs-dark) ;
+    color: var(--color-light);
+}
+
+.home .cards {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: repeat( auto-fill , minMax( 240px, 1fr ) );
+
+    height: auto;
+}
+
+.light .home .card{
+    background: var(--bg-light) ;
+    color: var(--color-dark);
+}
+
+.dark .home .card{
+    background: var(--bg-dark) ;
+    color: var(--color-light);
+}
+
+.card {
+    height: 160px;
+    border-radius: 2px;
+    display: grid;
+    grid-template-rows: 8fr 2fr;
+    cursor: pointer;
+}
+
+.dark .card {
+    border: 1px solid rgba(240, 240, 240, 0.4);
+    background: var(--bg-dark);
+}
+
+.light .card {
+    border: 1px solid rgba(40, 40, 40, 0.4);
+    background: var(--bg-light);
+}
+
+.card .name{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    height: 100%;
+    width: 100%;
+
+    padding-left: 5px;
+    font-size: 13px;
+
+    letter-spacing: 1px;
+    padding: 0px 10px;
+}
+
+.light .card .name {
+    background: #eee;
+}
+
+.dark .card .name {
+    background: #444;
+}
+
+.dark .card  svg {
+    fill: #eee;
+    height: 15px;
+    width: 15px;
+}
+
+.light .card  svg {
+    fill: #444;
+    height: 15px;
+    width: 15px;
+}
+
+.new {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.new svg{
+    height: 50px !important;
+    width: 50px !important;
+}
+
+.new input {
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+
+.light .new input {
+    background: var(--bg-light);
+    color: var(--color-dark);
+}
+
+.new input {
+    background: var(--bg-dark);
+    color: var(--color-light);
+}
+
+.name {
+    display: flex;
+    align-items: center;
+    height: 100%;
+
+    font-size: 14px;
+    letter-spacing: 1px;
+    font-weight: 200;
+
+    padding-left: 5px;
+}
+
+.active {
+    width: 255px;
+ }
+
+.active svg{
+    height: 15px !important;
+    width: 15px !important;
+}
+
+.active .name {
+    padding: 0px 10px;
+}
+
+.active .head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 1px;
+}

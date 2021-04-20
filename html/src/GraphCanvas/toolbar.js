@@ -28,7 +28,8 @@ const Toolbar = (props) => {
         name: "Clean",
         icon: icons.DeleteAll,
         func: function () {
-          window.layersState({ });
+          window.graphdefState({ });
+          window.autosave();
         },
       },
     ];
