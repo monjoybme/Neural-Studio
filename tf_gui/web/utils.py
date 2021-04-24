@@ -45,6 +45,8 @@ async def send_file(file:str,request,headers:dict=dict(),chunk_size=1024):
     head.connection = "Keep-Alive"
     head.keep_alive = "timeout=1, max=999"
     head.content_length = stat(file).st_size
+    head.content_disposition = f"attachment; {name}"
+
     try:
         head.content_type = mimes[ext]
     except KeyError as e:

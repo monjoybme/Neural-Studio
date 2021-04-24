@@ -1,11 +1,14 @@
 import React from "react";
 import Editor from "@monaco-editor/react";
 
+import { StoreContext } from "../Store";
+
 import "./code.css"
 
-const CodeEditor = (props={graphdef:{}}) => {
 
-  let { appconfig, } = props;
+const CodeEditor = (props={store:StoreContext}) => {
+
+  let { appconfig, graphdef } = props.store;
   let [code,codeState] = React.useState({
     data:"",
     fetched:true
@@ -17,7 +20,7 @@ const CodeEditor = (props={graphdef:{}}) => {
       {
         method:"POST",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...props.graphdef })
+        body: JSON.stringify({ ...graphdef })
       }
     )
     .then(response=>response.json())
@@ -35,7 +38,6 @@ const CodeEditor = (props={graphdef:{}}) => {
       buildCode()
     }
     clearTimeout(window.__UPDATE_TIMEOUT__)
-    // console.log(props.graphdef)
   },)
 
     return (

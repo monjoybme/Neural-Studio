@@ -205,7 +205,6 @@ class Trainer(object):
         }
     }
 
-    model = keras.Model
     update_id = 0
     training = False
     re_charset =  'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\:-\<\>"'
@@ -215,6 +214,7 @@ class Trainer(object):
     logs = []
 
     _model = False
+    _model_name = 'Model'
 
     def __init__(self,save_epoch=False,epoch_output=None):
         globals()['tfgui'] = TfGui(self,save_epoch=save_epoch,epoch_output=epoch_output)
@@ -232,15 +232,13 @@ class Trainer(object):
             "data":log
         })
         
-    def _start(self,build_config:dict)->None:
+    def build_model(self,build_config:dict):
         build_config,code = build_code(build_config=build_config,)
-
         if not build_config:
             self.update_log("error",{ "code":code , "message": code})
             return False
 
         model = build_config['train_config']['model']['id']
-
         if build_config != self.build_config:
             self.update_log("notif",{"message":"Creating New Session"})
 
@@ -275,49 +273,54 @@ class Trainer(object):
                         if not execute_code(_code[0],self.update_log,session_var=self.session_var):
                             return False
 
-            self.update_log("notif",{"message":"Compiling Model"})
-
-            if build_config['train_config']['optimizer']:
-                if not execute_code(build_config['train_config']['optimizer']['value'],self.update_log,session_var=self.session_var):
-                    return False
-
-            if build_config['train_config']['callbacks']:
-                for callback in build_config['train_config']['callbacks']:
-                    if not execute_code(callback['value'],self.update_log,session_var=self.session_var):
-                        return False    
-            
-            if build_config['train_config']['loss']:
-                if not execute_code(build_config['train_config']['loss']['value'],self.update_log,session_var=self.session_var):
-                    return False
-
-            if build_config['train_config']['compile']:
-                comp = build_config['train_config']['compile']['id']
-                if not execute_code(re.findall(f"""{model}.compile[{self.re_charset}]+#end-{comp}""",code)[0],self.update_log,session_var=self.session_var):
-                    return False
-            else:
-                self.update_log("notif",{ "message": "Please provide compiler." })
-                self.update_log("notif",{ "message": "Training stopped", "ended":True })
-                return False
-
             self.build_config = build_config
         else:
             self.update_log("notif",{ "message": "Using Existing Session." })
 
         self.build = True
+        self.build_config = build_config
+        self.code = code
+        self._model_name = model
         self._model = globals()[model]
 
-        if build_config['train_config']['train']:
-            self.tfgui.epochs = int(build_config['train_config']['train']['arguments']['epochs']['value'])
-            self.tfgui.batch_size = int(build_config['train_config']['train']['arguments']['batch_size']['value'])
+    def compile(self,):
+        self.update_log("notif",{"message":"Compiling Model"})
+        if self.build_config['train_config']['optimizer']:
+            if not execute_code(self.build_config['train_config']['optimizer']['value'],self.update_log,session_var=self.session_var):
+                return False
+
+        if self.build_config['train_config']['callbacks']:
+            for callback in self.build_config['train_config']['callbacks']:
+                if not execute_code(callback['value'],self.update_log,session_var=self.session_var):
+                    return False    
+        
+        if self.build_config['train_config']['loss']:
+            if not execute_code(self.build_config['train_config']['loss']['value'],self.update_log,session_var=self.session_var):
+                return False
+
+        if self.build_config['train_config']['compile']:
+            comp = self.build_config['train_config']['compile']['id']
+            if not execute_code(re.findall(f"""{self._model_name}.compile[{self.re_charset}]+#end-{comp}""",self.code)[0],self.update_log,session_var=self.session_var):
+                return False
+
+        else:
+            self.update_log("notif",{ "message": "Please provide compiler." })
+            self.update_log("notif",{ "message": "Training stopped", "ended":True })
+            return False
+
+    def _start(self, )->None:
+        if self.build_config['train_config']['train']:
+            self.tfgui.epochs = int(self.build_config['train_config']['train']['arguments']['epochs']['value'])
+            self.tfgui.batch_size = int(self.build_config['train_config']['train']['arguments']['batch_size']['value'])
             
             try:
-                self.tfgui.batches = int(np.ceil(globals()[build_config['train_config']['dataset']['id']].train_x.__len__() / self.tfgui.batch_size)) - 1
+                self.tfgui.batches = int(np.ceil(globals()[self.build_config['train_config']['dataset']['id']].train_x.__len__() / self.tfgui.batch_size)) - 1
             except KeyError:
                 self.update_log("notif",{ "message": "Please configure dataset." })
                 self.update_log("notif",{ "message": "Training stopped", "ended":True })
                 return False
 
-            train_code, = re.findall(f"""{model}.fit\([a-z\n\t =_0-9.,\[\]\(\)]+#end-train_\d+""",code)
+            train_code, = re.findall(f"""{self._model_name}.fit\([a-z\n\t =_0-9.,\[\]\(\)]+#end-train_\d+""",self.code)
             if not execute_code(train_code,self.update_log,session_var=self.session_var):
                 return False        
             return True
@@ -333,8 +336,9 @@ class Trainer(object):
         else:
             self.update_log("notif",{"message":"Training Resumed"})
 
-    def start(self,build_config:dict,)->None:
-        train_thread = Thread(target=self._start,args=(build_config,))
+    def start(self,)->None:
+        self.training = True
+        train_thread = Thread(target=self._start,)
         train_thread.start()
         return 0
 

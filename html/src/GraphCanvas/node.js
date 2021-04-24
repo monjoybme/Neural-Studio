@@ -1,4 +1,5 @@
 import React from "react";
+import { StoreContext } from "../Store";
 import Menu from "./menu";
 
 const Node = (props={
@@ -17,19 +18,27 @@ const Node = (props={
   connections:{
     inbound:[],
     outbound:[]
-  }
+  },
+  store:StoreContext
 }) => {
   let height = 30;
   let { id, name, pos, connections,width } = props;
+  let { graphdef, graphdefState, canvasConfig  } = props.store;
+  let nodeRef = React.useRef(<svg />)
 
   function onMouseDown(e) {
     e.preventDefault();
-    switch (window.canvasConfig.mode) {
+    switch (canvasConfig.mode) {
       case "move":
-        window.canvasConfig.activeElement = {
+        let scroll = document.getElementById("canvasTop");
+        canvasConfig.activeElement = {
           layer: props,
           text: document.getElementById(`${id}-text`),
           rect: document.getElementById(`${id}-rect`),
+          offset:{ 
+            x:pos.x - ( e.clientX - window.offsetX + scroll.scrollLeft ),
+            y:pos.y - ( e.clientY - window.offsetY + scroll.scrollTop ),
+          },
           edges_in: connections.inbound.map((layer, i) => {
             return document.getElementById(`${layer}-${id}`);
           }),
@@ -38,8 +47,8 @@ const Node = (props={
           }),
         };
         break;
-      case "line":
-        window.canvasConfig.newEdge = { from: id };
+      case "edge":
+        canvasConfig.newEdge = { from: id };
         break;
       default:
         break;
@@ -48,11 +57,11 @@ const Node = (props={
 
   function onMouseUp(e) {
     e.preventDefault();
-    switch (window.canvasConfig.mode) {
+    switch (canvasConfig.mode) {
       case "move":
         break;
-      case "line":
-        window.canvasConfig.newEdge.to = id;
+      case "edge":
+        canvasConfig.newEdge.to = id;
         break;
       default:
         break;
@@ -60,16 +69,17 @@ const Node = (props={
   }
 
   function onClick(e) {
-    switch (window.canvasConfig.mode) {
+    switch (canvasConfig.mode) {
       case "delete":
         connections.inbound.forEach((lid) => {
-          window.layers[lid].connections.outbound.pop(id);
+          graphdef[lid].connections.outbound.pop(id);
         });
         connections.outbound.forEach((lid) => {
-          window.layers[lid].connections.inbound.pop(id);
+          graphdef[lid].connections.inbound.pop(id);
         });
-        delete window.layers[id];
-        window.layersState({ ...window.layers });
+        delete graphdef[id];
+        graphdefState({ ...graphdef });
+        window.autosave()
         break;
       case "normal":
         props.menuState({
@@ -86,46 +96,21 @@ const Node = (props={
     }
   }
 
-  function lineOut(e) {
-    e.target.style.strokeWidth = 2;
-  }
-
-  function lineOver(e) {
-    e.target.style.strokeWidth = 4;
-  }
-
-  function lineOnClick(e) {
-    switch (window.canvasConfig.mode) {
-      case "delete":
-        connections.outbound.forEach((layerId, i) => {
-          window.layers[layerId].connections.outbound.pop(id);
-          window.layers[id].connections.inbound.pop(layerId);
-        });
-        window.layersState({ ...window.layers });
-        break;
-      default:
-        break
-    }
-  }
-
   return (
-    <g x={pos.x} y={pos.y}>
+    <g x={pos.x} y={pos.y} ref={nodeRef}>
       {connections.inbound.map((layer, i) => {
-        let pos_out = window.graphdef[layer];
+        let pos_out = graphdef[layer];
         if (pos_out) {
           return (
             <line
-              x1={pos.x + pos.offsetX}
-              y1={pos.y + 15}
-              x2={pos_out.pos.x + pos_out.pos.offsetX}
-              y2={pos_out.pos.y + 31}
+              x1={ pos.x + pos.offsetX + width / 2}
+              y1={ pos.y }
+              x2={ pos_out.pos.x + pos_out.pos.offsetX + pos_out.width / 2 }
+              y2={ pos_out.pos.y + 30 }
               markerMid="url(#triangle)"
-              stroke="#555"
+              stroke="#333"
               strokeWidth="2"
               key={i}
-              onClick={lineOnClick}
-              onMouseOver={lineOver}
-              onMouseOut={lineOut}
               id={`${pos_out.id}-${id}`}
             />
           );
@@ -145,8 +130,8 @@ const Node = (props={
         id={`${id}-rect`}
       ></rect>
       <text
-        x={pos.x + Math.floor(width * 0.16)}
-        y={pos.y + 19}
+        x={pos.x + ( width / 10 ) * 1.6 }
+        y={pos.y + 19 }
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
         onClick={onClick}

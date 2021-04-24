@@ -3,6 +3,7 @@ import { icons } from "../data/icons";
 import { appConfig } from "../data/appconfig";
 
 import "./training.css";
+import { StoreContext } from "../Store";
 
 const Notification = (props) => {
   return <div className="log notif">{props.data.message}</div>;
@@ -185,14 +186,12 @@ const Monitor = (
 
 const Training = (
   props = {
-    train: { training: false, hist: [] },
-    trainState: undefined,
-    graphdef: {},
-    layerState: undefined,
+    store:StoreContext
   }
 ) => {
+  let { graphdef, train, trainState } = props.store;
   let [status, statusState] = React.useState({
-    data: props.train.hist !== undefined ? props.train.hist : [],
+    data: train.hist !== undefined ? train.hist : [],
     ended: false,
     updating: false,
   });
@@ -200,7 +199,6 @@ const Training = (
     name: "Pause",
     state: true,
   });
-  let { graphdef } = props;
 
   async function getStatus() {
     await fetch("http://localhost/status", {
@@ -215,7 +213,7 @@ const Training = (
         });
         if (data.logs[data.logs.length - 1].data.ended) {
           console.log("Training Ended");
-          props.trainState({
+          trainState({
             training: false,
             hist: data.logs,
           });
@@ -238,7 +236,7 @@ const Training = (
     })
       .then((response) => response.json())
       .then((data) => {
-        props.trainState({
+        trainState({
           training: true,
         });
         statusState({
@@ -284,7 +282,7 @@ const Training = (
   React.useEffect(() => {
     var elem = document.getElementById("logs");
     elem.scrollTop = elem.scrollHeight;
-    if (props.train.training) {
+    if (train.training) {
       if (status.updating === false) {
         if (status.ended === false && status.ended !== undefined) {
           console.log("Starting Update");
@@ -315,7 +313,7 @@ const Training = (
       func: function () {
         status.data = [];
         statusState({ ...status });
-        props.trainState({
+        trainState({
           training: false,
           hist: undefined,
         });

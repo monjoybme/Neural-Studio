@@ -142,3 +142,121 @@
     justify-content: center;
     letter-spacing: 1px;
 }
+
+@keyframes load_popup {
+    0%{
+        transform: scale( 0.8 )translate( -60%, -60%);
+    }    
+    100%{
+        transform: scale( 1.0 ) translate( -50%, -50%);
+    }
+}
+
+.download-model{
+    height: 100vh;
+    width: 100vw;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+ 
+
+    animation-name: load_popup;
+    animation-duration: 300ms;
+  }
+  
+  .dark .download-model {
+    background: var(--bg-dark);
+    border: 1px solid rgba(240, 240, 240, 0.4);
+  }
+
+  .light .download-model {
+    background: var(--bg-light);
+    border: 1px solid rgba(24, 24, 24, 0.4);
+  }
+
+  .options {
+    width: 50%;
+    height: 100%;
+  
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .option {
+    height: 40px;
+    width: 50%;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+
+    font-weight: 300;
+    font-size: small;
+    letter-spacing: 1px;
+
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.dark .option {
+    background: var(--bgs-dark);
+    color: var(--color-light);
+    border: 1px solid rgba(240, 240, 240, 0.4);
+}
+
+.light .option {
+    background: var(--bgs-light);
+    color: var(--color-dark);
+    border: 1px solid rgba(24, 24, 24, 0.4);
+}
+
+.dark .title {
+    background: none;
+    border: none;
+}
+
+.light .title {
+    background: none;
+    border: none;
+}
+
+.light .download-model .output a{
+    color: var(--color-dark);
+}
+
+.dark .download-model .output a{
+    color: var(--color-light);
+}
+
+.download-model .output {
+    width: 20%;
+    height: 40px;
+}
+
+.download-model .output a {
+    text-decoration: none;
+    font-weight: 300;
+    font-size: small;
+}
+
+.download-model .exit {
+    position: absolute;
+    top: 5%;
+    left: 90%;
+
+    font-weight: 300;
+    letter-spacing: 1px;
+    font-size: small;
+}
+
+.dark .exit {
+    color: var(--color-light);
+}
+
+.light .exit {
+    color: var(--color-dark);
+}

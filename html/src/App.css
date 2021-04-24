@@ -14,7 +14,7 @@
   --orange2 : #f18e0e;
   --orange3 : #f18f0e67;
 
-  --bg-light : white;
+  --bg-light : #fff;
   --bg-dark : #333;
 
   --color-dark : #333;
@@ -48,10 +48,11 @@
 }
 
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 7px;
   border-radius: 3px;
   padding-left: 10px;
-  height: 5px;
+  height: 7px;
+  cursor: grabbing;
 }
  
 ::-webkit-scrollbar-thumb {
@@ -61,8 +62,10 @@
 
 *{ 
   box-sizing: border-box;
-  /* font-family: monospace; */
+  font-family: 'Fira Code';
+  font-size: small;
 }
+
 
 html{
   overflow: hidden;
@@ -100,7 +103,7 @@ input:focus {
 
 .container {
   position: absolute;
-  height: calc( 100vh - var(--topbar-height) ) ;
+  height: calc( 100vh - var(--topbar-height) - 20px ) ;
   width: calc( 100vw - var(--sidebar-width) );
 
   overflow: hidden;
@@ -387,124 +390,43 @@ input:focus {
   transform: translateX(18px);  
 }
 
-.popups{
+.popup {
   position: absolute;
   z-index: 99999;
 
-  top: var(--topbar-height);
+  top: 50%;
+  left: 50%;
+
+  transform: translate( -50%, -50%);
+}
+
+.notifications {
+  height: 20px;
+  position: absolute;
+  width: 100vw;
+
+  top: calc( 100% - 20px );
   left: var(--sidebar-width);
 
-  height: calc( 100vh - var(--topbar-height) );
-  width: calc( 100vw - var(--sidebar-width) );
+  z-index: 999999;
+  border-top: 0.001rem solid var(--orange1);
 
   display: flex;
-  justify-content: center;
   align-items: center;
 
-  visibility: hidden;
+  font-size: 11px;
+  padding-left: 10px;
+  letter-spacing: 1px;
+  font-weight: 300;
 }
 
-.popups .save-dialogue{
-  height: 100px;
-  width: 200px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-}
-
-.light .save-dialogue{
-  background: var(--bgs-light);
-  border: 1px solid var(--orange0);
-  color: var(--color-dark);
-}
-
-.dark .save-dialogue{
-  background: var(--bgs-dark);
-  border: 1px solid var(--orange1);
+.dark .notifications {
   color: var(--color-light);
-}
-
-.save-dialogue .btns {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  width: 70%;
-}
-
-.save-dialogue .btns div{
-  width: 55px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 2px;
-  height: 20px;
-  color: white !important;
-  cursor: pointer;
-}
-
-.dark .save-dialogue .btns div{
-  border: 1px solid var(--border-light);
-}
-
-.light .save-dialogue .btns div{
-  border: 1px solid var(--broder-darker);
-}
-
-
-/* DownloadCode */
-
-.download-model{
-  height: 150px;
-  width: 300px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-}
-
-.light .download-model{
-  background: var(--bgs-light);
-  border: 1px solid var(--orange0);
-  color: var(--color-dark);
-}
-
-.dark .download-model{
   background: var(--bgs-dark);
-  border: 1px solid var(--orange1);
-  color: var(--color-light);
 }
 
-.download-model .title {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 30px;
-  width: 100%;
-}
-
-/* .light .title {
-  background: var(--bg-light);
-}
-
-.dark .title {
-  background: var(--bg-dark);
-} */
-
-.download-model .select {
-  width: 100%;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-  background: #777;
-  height: 60px;
-}
-
-.download-model button {
-  border: none;
-  cursor: pointer;
+.light .notifications {
+  color: var(--color-dark);
+  background: var(--bgs-light);
+  font-weight: 500;
 }

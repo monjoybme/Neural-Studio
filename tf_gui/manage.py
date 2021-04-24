@@ -37,7 +37,7 @@ class Cache(object):
 class Workspace(object):
     
     required_vars = [
-        ( 'config', { 'name':'model', "description":'Model Description !' } ),
+        ( 'config', { 'name':'model', "description":'Model Description !', 'thumb':'<svg></svg>' } ),
         ( 'graphdef', {} ),
         ( 'canvas_config',  
             {
@@ -95,7 +95,9 @@ class Workspace(object):
                     dump(val, file)
                 self.__dict__[f"var_{var}"] = val
                 
-        
+        if not pathlib.isdir(pathlib.join(self.path, "outputs")):
+            mkdir(pathlib.join(self.path, "outputs"))
+
     def __repr__(self,):
         return f"""Workspace(
     name={self.name},
@@ -126,9 +128,7 @@ class Workspace(object):
         return dict([ (key.replace("var_",""), val) for key, val in self.__dict__.items() if key.startswith("var") ])
         
 class WorkspaceManager(object):
-    
     workspaces:List[Workspace] = []
-        
     def __init__(self,root='.tfstudio'):
         self.root =  pathlib.abspath(root)
         if not pathlib.isdir(self.root):
@@ -161,7 +161,7 @@ class WorkspaceManager(object):
     def __repr__(self,):
         return f"""WorkspaceManager @ {self.root}"""
         
-    def __iter__(self,):
+    def __iter__(self,)->Workspace:
         for w in self.workspaces:
             yield w.name
         
@@ -171,6 +171,7 @@ class WorkspaceManager(object):
         )
         self.workspaces.append(workspace)
         self.cache >> workspace.name
+        self.active_workspace = workspace
         return workspace
     
     def open_workspace(self,name:str)->Workspace:
@@ -196,5 +197,5 @@ class WorkspaceManager(object):
     
 
     def get(self,):
-        return [ { "name":w.name } for w in self.workspaces ]
+        return [ { "name":w.name, 'svg':w.var_config['thumb'] } for w in self.workspaces ]
 

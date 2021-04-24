@@ -166,10 +166,12 @@
 
 .progress .bar {
   width: 100%;
-  height: 50%;
+  height: 60%;
   border: solid 1px rgba(51, 51, 51, 0.1);
   background: rgba(228, 228, 228, 0.3);
   border-radius: 3px;
+
+  padding: 3px;
 }
 
 .progress .done {
@@ -178,8 +180,6 @@
 }
 
 .outputs {
-  /* display: grid; */
-  /* grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); */
   display: flex;
 }
 
@@ -189,8 +189,6 @@
   align-items: center;
   padding: 0px 10px 0px 3px;
   margin-right: 3px;
-
-  /* border-right: solid 1px rgba(51, 51, 51, 0.1); */
 }
 
 .output .name {

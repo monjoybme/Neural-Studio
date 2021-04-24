@@ -1,14 +1,17 @@
 import React from 'react';
+
 import { Loading } from '../Utils';
+import { StoreContext } from "../Store";
 
 import "./summary.css"
 
-const SummaryViewer = (props={graphdef:{},}) =>{
+const SummaryViewer = (props={graphdef:{}, store:StoreContext }) =>{
 
     let [summary, summaryState] = React.useState({
         data:[],
         fetched:false
     })
+    let { graphdef,  } = props.store;
 
     async function getModel(e) {
         console.log("Getting Model Summary !")
@@ -17,7 +20,7 @@ const SummaryViewer = (props={graphdef:{},}) =>{
           {
             method:"POST",
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...props.graphdef })
+            body: JSON.stringify({ ...graphdef })
           }
         )
         .then(response=>response.json())

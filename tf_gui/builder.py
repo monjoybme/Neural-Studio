@@ -81,7 +81,8 @@ def build_train(layer,build_config,*args,**kwargs)->str:
     batch_size={layer['arguments']['batch_size']['value']},
     epochs={layer['arguments']['epochs']['value']},
     validation_data=( {build_config['train_config']['dataset']['id']}.test_x, {build_config['train_config']['dataset']['id']}.test_y ),
-    callbacks=[ tfgui, {', '.join(callback_ids)} ]
+    callbacks=[ tfgui, {', '.join(callback_ids)} ],
+    verbose=0
 ) #end-{layer['id']}
 """
 

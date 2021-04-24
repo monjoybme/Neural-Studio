@@ -1,4 +1,5 @@
 import React from 'react';
+import { StoreContext } from '../Store';
 
 const LayerGroupCollapsed = (props) => {
   return (
@@ -16,6 +17,7 @@ const LayerGroupCollapsed = (props) => {
 };
 
 const LayerGroupOpen = (props) => {
+  
   return (
     <div className="layers" key={props.i}>
       <div className="name" id={props.id} onClick={props.toggleSection}>
@@ -27,12 +29,11 @@ const LayerGroupOpen = (props) => {
             <div
               className="btn"
               onClick={(e) => {
-                props.tools.toolbarHandler({
-                  mode: "layer",
+                props.setToolMode({
+                  name: "layer",
                   layer: { ...layer },
                 });
               }}
-              id="btn-del"
               key={j}
             >
               {layer.name}
@@ -44,8 +45,8 @@ const LayerGroupOpen = (props) => {
   );
 };
 
-const LayerGroups = (props={tools:{ }, layerGroups : {  }, layerGroupsState:{ }}) => {
-  let { layerGroups, layerGroupsState } = props;
+const LayerGroups = (props={store:StoreContext}) => {
+  let { layerGroups, layerGroupsState } = props.store;
 
   function toggleSection(e) {
     layerGroups[e.target.id].visible = ~layerGroups[e.target.id].visible;
@@ -60,20 +61,20 @@ const LayerGroups = (props={tools:{ }, layerGroups : {  }, layerGroupsState:{ }}
         return layerGroups[layerGroup].visible ? (
           <LayerGroupOpen
             key={i}
-            i={i}
             id={layerGroup}
             layerGroup={layerGroups[layerGroup]}
             toggleSection={toggleSection}
-            tools={props.tools}
+            
+            { ...props }
           />
         ) : (
           <LayerGroupCollapsed
             key={i}
-            i={i}
             id={layerGroup}
             layerGroup={layerGroups[layerGroup]}
             toggleSection={toggleSection}
-            tools={props.tools}
+            
+            { ...props }
           />
         );
       })}
