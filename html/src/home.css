@@ -18,8 +18,8 @@
     display: grid;
     grid-gap: 10px;
     grid-template-columns: repeat( auto-fill , minMax( 240px, 1fr ) );
-
-    height: auto;
+    min-height: 170px;
+    overflow-y: scroll;
 }
 
 .light .home .card{
@@ -51,9 +51,8 @@
 }
 
 .card .name{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 9fr 1fr 0fr;
 
     height: 100%;
     width: 100%;
@@ -133,7 +132,10 @@
 }
 
 .active .name {
-    padding: 0px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 30px;
 }
 
 .active .head {
@@ -260,3 +262,50 @@
 .light .exit {
     color: var(--color-dark);
 }
+
+.workspace-card-context {
+    height: 100px;
+    width: 100px;
+
+    position: fixed;
+    z-index: 9999;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+}
+
+.light .workspace-card-context {
+    background: var(--bg-light);
+    border: 0.001rem solid rgba(24, 24, 24, 0.4);
+}
+
+.dark .workspace-card-context {
+    background: #333;
+    border: 0.001rem solid rgba(240, 240, 240, 0.4); 
+}
+
+.workspace-card-context .btn {
+    height: 25%;
+    width: 100%;
+    font-size: 10px;
+    letter-spacing: 1px;
+
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    cursor: pointer;
+}
+
+.light .workspace-card-context .btn {
+    color: var(--color-dark);
+    border-bottom: 00.001rem solid rgba(24, 24, 24, 0.1);
+}
+
+.dark .workspace-card-context .btn {
+    color: var(--color-light);
+    border-bottom: 00.001rem solid rgba(240, 240, 240, 0.1);
+}
+
+

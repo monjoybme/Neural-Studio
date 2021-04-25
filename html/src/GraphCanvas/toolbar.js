@@ -1,8 +1,8 @@
 import React from "react";
-import { Icon, icons } from "../data/icons";
+import { Icon, } from "../data/icons";
 
 const Toolbar = (props={ toolbarButtons:[], toolbarButtonsState:function () { } }) => {
-  let { toolbarButtons, toolbarButtonsState } = props;
+  let { toolbarButtons,  } = props;
 
   function setMode(name) {
     props.setToolMode({ name: name.toLowerCase() });

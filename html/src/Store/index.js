@@ -81,7 +81,7 @@ const StoreContext = {
     train: defaultTrain, 
     trainState: function({...defaultTrain}){},
     popup: {}, 
-    popupState: function({}){},
+    popupState: function(){},
     appconfig: appConfig, 
     appconfigState: function({...appConfig}){},
     workspace: defaultWorkspce, 

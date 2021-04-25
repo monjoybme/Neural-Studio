@@ -62,10 +62,14 @@
 
 *{ 
   box-sizing: border-box;
-  font-family: 'Fira Code';
   font-size: small;
 }
 
+.null {
+  height: 0px;
+  width: 0px;
+  visibility: hidden;
+}
 
 html{
   overflow: hidden;
@@ -85,6 +89,16 @@ button:focus {
 
 input {
   border: none;
+  font-weight: 600 !important;
+  letter-spacing: 1px !important;
+}
+
+option {
+  font-weight: 600;
+}
+
+select {
+  font-weight: 600;
 }
 
 input:focus {
@@ -408,7 +422,7 @@ input:focus {
   top: calc( 100% - 20px );
   left: var(--sidebar-width);
 
-  z-index: 999999;
+  z-index: 999;
   border-top: 0.001rem solid var(--orange1);
 
   display: flex;

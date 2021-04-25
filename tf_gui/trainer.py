@@ -282,6 +282,7 @@ class Trainer(object):
         self.code = code
         self._model_name = model
         self._model = globals()[model]
+        return True
 
     def compile(self,):
         self.update_log("notif",{"message":"Compiling Model"})

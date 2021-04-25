@@ -1,7 +1,7 @@
 from os import path as pathlib, mkdir, chdir, listdir
 from json import dump, load
 
-from typing import List
+from typing import Any, List
 from shutil import rmtree
 
 class Cache(object):
@@ -28,6 +28,13 @@ class Cache(object):
     def __rshift__(self,other:str):
         self.recent[1:] = self.recent[:-1]
         self.recent[0] = other
+        self.__write__()
+
+    def __lshift__(self,other:str):
+        self.recent[:-1] = self.recent[1:]
+        self.recent[-1] = other
+        self.recent = [ r for r in self.recent if r != other ]
+        self.recent += [ None for i in range(10-len(self.recent)) ]
         self.__write__()
         
     @property
@@ -121,9 +128,10 @@ class Workspace(object):
                     dump(val, file)
     
     def set(self,**kwargs):
-        for key, val in kwargs.items():
-            self.__dict__[f"var_{key}"] = val
-    
+        if kwargs.pop('__workspace__') == self.name:
+            for key, val in kwargs.items():
+                self.__dict__[f"var_{key}"] = val
+
     def get(self,)->dict:
         return dict([ (key.replace("var_",""), val) for key, val in self.__dict__.items() if key.startswith("var") ])
         
@@ -180,19 +188,24 @@ class WorkspaceManager(object):
             if w.name == name:
                 workspace = w
                 break
-                
         if workspace:
             self.active_workspace = workspace
             self.cache >> workspace.name
             return workspace
-        
         return workspace
         
     def delete_workspace(self, name:str)->None:
         path = pathlib.join(self.root, "workspace", name) 
         if pathlib.isdir(path,):
+            while self.cache.last == name:
+                self.cache << name
             self.workspaces = [ w for w in self.workspaces if w.path != path]
-            return True,rmtree(path,)
+            rmtree(path,)
+            if self.active_workspace.var_config['name'] == name:
+                self.active_workspace = self.open_workspace(self.cache.last)
+                if not self.active_workspace:
+                    self.active_workspace = self.workspaces[0]
+            return True
         return False
     
 

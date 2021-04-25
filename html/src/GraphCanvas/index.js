@@ -127,7 +127,7 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
       };
 
       let scroll = document.getElementById("canvasTop");
-      graphdef[id].width = graphdef[id].name.length * 11;
+      graphdef[id].width = graphdef[id].name.length * 10;
       graphdef[id].pos = {
         x: e.clientX - window.offsetX + scroll.scrollLeft - graphdef[id].width / 2,
         y: e.clientY - window.offsetY + scroll.scrollTop - 23,

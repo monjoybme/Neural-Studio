@@ -16,7 +16,7 @@ class Router:
     def __init__(self,):
         self.url_re = re.compile(r"<\w+:\w+>")
         self.var_re = re.compile(r"\w+")
-        self.path_re = re.compile(r'/([a-z0-9?=_+\-\.]+)+|(<\w+:\w+>)')
+        self.path_re = re.compile(r'/([a-zA-Z0-9?=_+\-\.]+)+|(<\w+:\w+>)')
         
         self.dtype_re = {
             'string':'[a-zA-Z0-9_\-\.]+',

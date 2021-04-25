@@ -1,6 +1,6 @@
 import inspect
 import re
-from sys import modules, path
+from sys import flags, modules, path
 import zipfile
 
 from tf_gui.web import App, Request, mime_types, text_response, json_response
@@ -31,6 +31,105 @@ def generate_args(code) -> dict:
     ret.pop("code")
     return ret
 
+def download_json(workspace: Workspace, trainer: Trainer):
+    model = trainer.get_model()
+    if not model:
+        if trainer.build_model(workspace.var_graphdef):
+            model = trainer.get_model()
+        else:
+            return {
+                "message":trainer.logs[-1],
+                "status":False
+            }
+
+    with open(pathlib.join(workspace.path, 'outputs', 'model.json'), "w+") as file:
+        file.write(model.to_json())
+    return {
+        "message":"Downloading Model",
+        "status":True
+    }
+
+def download_json_w(workspace: Workspace, trainer: Trainer):
+    temp_dir = pathlib.join(workspace.path, "outputs", "model")
+    if pathlib.isdir(temp_dir):
+        rmtree(temp_dir)
+    mkdir(temp_dir)
+    model = trainer.get_model()
+    if not model:
+        if trainer.build_model(workspace.var_graphdef):
+            model = trainer.get_model()
+        else:
+            return {
+                "message":trainer.logs[-1],
+                "status":False
+            }
+
+    with open(pathlib.join(temp_dir, 'model.json'), "w+") as file:
+        file.write(model.to_json())
+    model.save_weights(pathlib.join(temp_dir, 'model'))
+    chdir(pathlib.join(workspace.path, "outputs",))
+    with zipfile.ZipFile('model.zip', 'w') as zfile:
+        for f in glob("./model/*"):
+            zfile.write(f)
+    chdir(ROOT_PATH)
+    return {
+        "message":"Downloading Model",
+        "status":True
+    }
+
+def download_pb(workspace: Workspace, trainer: Trainer):
+    temp_dir = pathlib.join(workspace.path, "outputs", "model")
+    if pathlib.isdir(temp_dir):
+        rmtree(temp_dir)
+    mkdir(temp_dir)
+    model = trainer.get_model()
+    if not model:
+        if trainer.build_model(workspace.var_graphdef):
+            model = trainer.get_model()
+        else:
+            return {
+                "message":trainer.logs[-1],
+                "status":False
+            }
+    model.save(temp_dir)
+    chdir(pathlib.join(workspace.path, "outputs",))
+    with zipfile.ZipFile('model.zip', 'w') as zfile:
+        for f in glob("./model/*"):
+            zfile.write(f)
+        for f in glob("./assets/*"):
+            zfile.write(f)
+        for f in glob("./variables/*"):
+            zfile.write(f)
+    chdir(ROOT_PATH)
+    return {
+        "message":"Downloading Model",
+        "status":True
+    }
+
+def download_hdf5(workspace: Workspace, trainer: Trainer):
+    temp_dir = pathlib.join(workspace.path, "outputs", "model.hdf5")
+    model = trainer.get_model()
+    if not model:
+        if trainer.build_model(workspace.var_graphdef):
+            model = trainer.get_model()
+        else:
+            return {
+                "message":trainer.logs[-1],
+                "status":False
+            }
+    model.save(temp_dir)
+    return {
+        "message":"Downloading Model",
+        "status":True
+    }
+
+download_options = {
+    "json": download_json,
+    "json_w": download_json_w,
+    "pb": download_pb,
+    "hdf5": download_hdf5
+}
+
 
 @app.route("/workspace/active",)
 async def workspace(request: Request,):
@@ -43,9 +142,31 @@ async def workspace(request: Request,):
         "message": "Method Not Allowed !"
     }, status_code=400)
 
+@app.route("/workspace/open/<string:name>",)
+async def workspace_open(request: Request,name:str):
+    if request.header.method == "POST":
+        return json_response({
+            "status": bool(workspace_mamager.open_workspace(name)),
+        }, )
+
+    return json_response({
+        "message": "Method Not Allowed !"
+    }, status_code=400)
+
+@app.route("/workspace/delete/<string:name>",)
+async def workspace_new(request: Request, name:str):
+    if request.header.method == "POST":
+        return json_response({
+            "status": workspace_mamager.delete_workspace(name),
+        },)
+
+    return json_response({
+        "message": "Method Not Allowed !"
+    }, status_code=400)
+
 
 @app.route("/workspace/recent",)
-async def workspace(request: Request,):
+async def workspace_recent(request: Request,):
     if request.header.method == "GET":
         return json_response({
             "data": workspace_mamager.cache.recent,
@@ -57,7 +178,7 @@ async def workspace(request: Request,):
 
 
 @app.route("/workspace/all",)
-async def workspace(request: Request,):
+async def workspace_all(request: Request,):
     if request.header.method == "GET":
         return json_response({
             "data": workspace_mamager.get(),
@@ -69,7 +190,7 @@ async def workspace(request: Request,):
 
 
 @app.route("/workspace/autosave",)
-async def workspace(request: Request,):
+async def workspace_autosave(request: Request,):
     if request.header.method == "POST":
         data = await request.get_json()
         workspace_mamager.active_workspace.set(**data)
@@ -83,7 +204,7 @@ async def workspace(request: Request,):
     }, status_code=400)
 
 @app.route("/workspace/new",)
-async def workspace(request: Request,):
+async def workspace_new(request: Request,):
     if request.header.method == "POST":
         data = await request.get_json()
         workspace_mamager.new_workspace(**data)
@@ -94,6 +215,7 @@ async def workspace(request: Request,):
     return json_response({
         "message": "Method Not Allowed !"
     }, status_code=400)
+
 
 
 @app.route("/build",)
@@ -130,68 +252,10 @@ async def status(request: Request):
     })
 
 
-def download_json(workspace: Workspace, trainer: Trainer):
-    model = trainer.get_model()
-    if not model:
-        trainer.build_model(workspace.var_graphdef)
-        model = trainer.get_model()
-
-    with open(pathlib.join(workspace.path, 'outputs', 'model.json'), "w+") as file:
-        file.write(model.to_json())
-
-
-def download_json_w(workspace: Workspace, trainer: Trainer):
-    temp_dir = pathlib.join(workspace.path, "outputs", "model")
-    if pathlib.isdir(temp_dir):
-        rmtree(temp_dir)
-    mkdir(temp_dir)
-    model = trainer.get_model()
-    if not model:
-        trainer.build_model(workspace.var_graphdef)
-        model = trainer.get_model()
-    with open(pathlib.join(temp_dir, 'model.json'), "w+") as file:
-        file.write(model.to_json())
-    model.save_weights(pathlib.join(temp_dir, 'model'))
-    chdir(pathlib.join(workspace.path, "outputs",))
-    with zipfile.ZipFile('model.zip', 'w') as zfile:
-        for f in glob("./model/*"):
-            zfile.write(f)
-    chdir(ROOT_PATH)
-
-
-def download_pb(workspace: Workspace, trainer: Trainer):
-    model = trainer.get_model()
-    if not model:
-        trainer.build_model(workspace.var_graphdef)
-        model = trainer.get_model()
-    model.save(pathlib.join(workspace.path, 'outputs', 'model'))
-    chdir(pathlib.join(workspace.path, "outputs",))
-    with zipfile.ZipFile('model.zip', 'w') as zfile:
-        for f in glob("./model/*"):
-            zfile.write(f)
-        for f in glob("./assets/*"):
-            zfile.write(f)
-        for f in glob("./variables/*"):
-            zfile.write(f)
-    chdir(ROOT_PATH)
-
-
-def download_hdf5(workspace: Workspace, trainer: Trainer):
-    pass
-
-
-download_options = {
-    "json": download_json,
-    "json_w": download_json_w,
-    "pb": download_pb,
-    "hdf5": download_hdf5
-}
-
-
 @app.route("/download/<string:name>")
-def download_name(request: Request, name: str):
+async def download_name(request: Request, name: str):
     if request.header.method == 'GET':
-        return send_file(
+        return await send_file(
             pathlib.join(
                 workspace_mamager.active_workspace.path,
                 "outputs",
@@ -211,9 +275,7 @@ async def download_model(request: Request):
         data = await request.get_json()
         prep_func = download_options[data['format']]
         status = prep_func(workspace_mamager.active_workspace, trainer)
-        return json_response({
-            "message": status
-        })
+        return json_response(status)
 
     return json_response({
         "message": "Method Not Allowed",
@@ -339,6 +401,10 @@ async def node_build(request: Request):
         "message": "Method not allowed",
     }, status_code=400)
 
+
+@app.route("/<string:t>")
+async def test(request:Request, t:str):
+    return text_response(t)
 
 if __name__ == "__main__":
     app.serve(

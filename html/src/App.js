@@ -153,10 +153,6 @@ const TopBar = (props = { store: StoreContext }) => {
   );
 };
 
-function  keyboardShortcuts(e) {
-  
-}
-
 const App = (props) => {
   let [graphdef, graphdefState] = React.useState({});
   let [layerGroups, layerGroupsState] = React.useState({...layerGroupsDefault, });
@@ -193,7 +189,8 @@ const App = (props) => {
       graphdef: { ...graphdef },
       app_config: { ...appconfig },
       canvas_config: { ...window.canvasConfig },
-      config:{ ...workspace.active.config }
+      config:{ ...workspace.active.config },
+      __workspace__: workspace.active.config.name
     };
     try {
       await POST({
@@ -203,10 +200,9 @@ const App = (props) => {
         .then((response) => response.json())
         .then((data) => {
           let time = new Date();
-          notificationState(`autosave @ ${ time.toDateString() }`);
+          notificationState(`autosave @ ${ time.toTimeString() }`);
         });
     } catch (TypeError) {
-      console.log("Autosave Error : ",data);
     }
   };
 
@@ -282,11 +278,7 @@ const App = (props) => {
       window.__SHORTCUT__ = false;
     };
 
-    if (window.__AUTOSAVE__){
-      clearInterval(window.__AUTOSAVE__);
-    }
-    window.__AUTOSAVE__ = setInterval(window.autosave, 10000);
-
+    window.autosave();
   });
 
   return (
