@@ -240,7 +240,7 @@ const Home = ( props = { store: StoreContext, }) => {
             <icons.Save onClick={window.autosave} />
             <icons.Code onClick={window.downloadCode} />
             <icons.Download onClick={ e=>{ popupState(<DownloadModel { ...props } />) } } />
-            <icons.Delete />
+            <icons.Delete onClick={e=>{deleteWorkspace({ name:workspace.active.config.name })}} />
           </div>
         </div>
       </div>

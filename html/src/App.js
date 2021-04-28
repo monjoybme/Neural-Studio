@@ -222,11 +222,9 @@ const App = (props) => {
   React.useEffect(function () {
     document.getElementsByTagName("html")[0].onkeydown = function (e) { 
       if (window.__SHORTCUT__) {
-        if ( ['r',].filter(key=>{ return key !== e.key }).length ){
-          e.preventDefault();
-        }
         switch (e.key) {
           case "s":
+            e.preventDefault();
             window.autosave();
             break;
           case "e":
@@ -234,21 +232,27 @@ const App = (props) => {
           case "o":
             break;
           case "d":
+            e.preventDefault();
             window.downloadCode();
             break;
           case "1":
+            e.preventDefault();
             window.setToolMode({ mode: "Normal", name:"normal"  });
             break;
           case "2":
+            e.preventDefault();
             window.setToolMode({ mode: "Edge", name:"edge"  });
             break;
           case "3":
+            e.preventDefault();
             window.setToolMode({ mode: "Move", name:"move"  });
             break;
           case "4":
+            e.preventDefault();
             window.setToolMode({ mode: "Delete", name:"delete"  });
             break;
           case "5":
+            e.preventDefault();
             graphdefState({});
             break;
           case "Shift":
