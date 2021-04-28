@@ -1,0 +1,192 @@
+@import "./App.scss";
+
+.nav {
+  height: 100vh;
+  width: $sidebarWidth;
+  border-right: $border1;
+
+  .title {
+    height: $topbarHeight - 1px;
+    width: $sidebarWidth;
+    @extend .grid-center;
+
+    svg {
+      height: 30px;
+      width: 30px;
+    }
+  }
+
+  .navigation {
+    width: $sidebarWidth;
+    @include flex(column, flex-start, center);
+
+    .btn {
+      width: $sidebarWidth;
+      height: $sidebarWidth;
+      @extend .grid-center;
+
+      svg {
+        fill: $orange3;
+      }
+    }
+
+    .selected {
+      border-top: 1px solid var(--orange1);
+      border-bottom: 1px solid var(--orange1);
+
+      svg {
+        fill: $orange0;
+      }
+    }
+  }
+}
+
+.topbar {
+  height: $topbarHeight;
+  width: calc(100% - #{$sidebarWidth});
+
+  display: grid;
+  grid-template-columns: 18fr 1fr 1fr;
+  position: absolute;
+  top: 0px;
+  left: $sidebarWidth;
+  z-index: 9999;
+
+  border-bottom: $border1;
+
+  .title {
+    height: $topbarHeight;
+    width: $topbarHeight;
+    margin-left: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    @extend .grid-center;
+  }
+
+  .switch {
+    height: 100%;
+    width: 100%;
+    @include flex();
+  }
+
+  .holder {
+    height: 23px;
+    width: 42px;
+    border-radius: 15px;
+    padding-left: 5px;
+    padding-right: 5px;
+
+    cursor: pointer;
+
+    transition-property: all;
+    transition-duration: 200ms;
+
+    @include flex(row, flex-start, center);
+  }
+
+  .button {
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    transition-property: all;
+    transition-duration: 500ms;
+  }
+}
+
+.notifications {
+  height: 20px;
+  position: absolute;
+  width: 100vw;
+
+  top: calc(100% - 20px);
+  left: $sidebarWidth;
+
+  z-index: 999;
+  border-top: $border1;
+
+  display: flex;
+  align-items: center;
+
+  font-size: 11px;
+  padding-left: 10px;
+  letter-spacing: 1px;
+  font-weight: 300;
+}
+
+.light {
+  .nav {
+    background: $bgLight;
+
+    .title {
+      border-right: 00.001rem solid $bgLight;
+    }
+    .navigation {
+      .btn {
+        background: $bgLight;
+        border-right: $border1;
+      }
+      .selected {
+        background: $bgsLight;
+        border-top: $border1;
+        border-bottom: $border1;
+        border-right: none;
+      }
+    }
+  }
+
+  .topbar {
+    .title {
+      color: $colorDark;
+    }
+    .holder {
+      background: skyblue;
+    }
+    .button {
+      background: yellow;
+      transform: translateX(0px);
+    }
+  }
+  .notifications {
+        color: $colorDark;
+        background: $bgLight;
+    }
+}
+
+.dark {
+  .nav {
+    background: $bgDark;
+    .title {
+      border-right: 00.001rem solid $bgDark;
+    }
+    .navigation {
+      .btn {
+        background: $bgDark;
+        border-right: $border1;
+      }
+      .selected {
+        background: $bgsDark;
+        border-top: $border1;
+        border-bottom: $border1;
+        border-right: none;
+      }
+    }
+  }
+
+  .topbar {
+    .title {
+      color: $colorLight;
+    }
+    .holder {
+      background: #582d58;
+    }
+    .button {
+      background: rgb(226, 164, 6);
+      transform: translateX(18px);
+    }
+  }
+
+  .notifications {
+    color: $colorLight;
+    background: $bgDark;
+  }
+}

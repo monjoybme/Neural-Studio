@@ -1,12 +1,3 @@
-@keyframes load_menu {
-  0%{
-    transform: translateX(300px);
-  }
-  100%{
-    transform: translateX(0px);
-  }
-}
-
 .menu {
   z-index: 10;
   position: absolute;
@@ -21,12 +12,9 @@
   align-items: center;
 
   border: rgba(51, 51, 51, 0.241) 1px solid;
-  box-shadow: rgba(51, 51, 51, 0.35) -2px 0px 10px -5px;
   overflow-y: scroll;
   border-top: none;
   border-left: 1px solid var(--orange1);
-
-  /* animation: load_menu 10ms; */
 }
 
 .light .menu {
@@ -110,8 +98,6 @@
 .menu input {
   border: rgba(51, 51, 51, 0.186) solid 1px;
   border-radius: 3px;
-
-  background: whitesmoke;
 
   font-weight: 400;
   font-size: smaller;

@@ -12,8 +12,12 @@ import { icons } from "./data/icons";
 import { appConfig } from "./data/appconfig.js";
 import { POST } from "./Utils";
 
-import "./App.css";
-import "./home.css";
+
+import './style/App.scss';
+import './style/Nav.scss';
+import './style/Home.scss';
+import './style/Canvas.scss';
+// import "./App.css";
 
 window.copy = function (object) {
   return JSON.parse(JSON.stringify(object));

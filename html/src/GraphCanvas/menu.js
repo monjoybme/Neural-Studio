@@ -4,8 +4,6 @@ import Options from "../data/options";
 
 import { POST } from "../Utils";
 
-import "./menu.css";
-
 const TextProperty = (props) => {
   let { graphdef, graphdefState } = props.store;
   let property = graphdef[props.layer_id].arguments[props.name];

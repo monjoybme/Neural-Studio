@@ -1,0 +1,289 @@
+@import './App.scss';
+
+@keyframes load_popup {
+    0%{
+        transform: scale( 0.8 )translate( -60%, -60%);
+    }    
+    100%{
+        transform: scale( 1.0 ) translate( -50%, -50%);
+    }
+}
+
+
+.home {
+    padding: 10px;
+    display: grid;
+    grid-template-rows: 2fr 3fr 2fr 28fr;
+
+    .cards {
+        display: grid;
+        grid-gap: 10px;
+        grid-template-columns: repeat( auto-fill , minMax( 240px, 1fr ) );
+        min-height: 170px;
+        overflow-y: scroll;
+
+        .new {
+            @extend .grid-center;
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr;
+            svg{
+                height: 50px !important;
+                width: 50px !important;
+            }
+            input {
+                letter-spacing: 1px;
+                font-weight: 500;
+            }
+        }
+    }
+
+    .card {
+        height: 160px;
+        border-radius: 2px;
+        display: grid;
+        grid-template-rows: 8fr 2fr;
+        cursor: pointer;
+
+        .name{
+            display: grid;
+            grid-template-columns: 9fr 1fr 0fr;
+        
+            height: 100%;
+            width: 100%;
+        
+            padding-left: 5px;
+            font-size: 13px;
+        
+            letter-spacing: 1px;
+            padding: 0px 10px;
+        }
+
+        svg{
+            height: 15px;
+            width: 15px;
+        }
+    }
+
+    .active {
+        width: 255px;
+        .head {
+            @include flex();
+            letter-spacing: 1px;
+        }
+        .name {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0px 30px;
+        }
+     }
+
+    .name {
+        display: flex;
+        align-items: center;
+
+        height: 100%;
+        font-size: 14px;
+        letter-spacing: 1px;
+        font-weight: 200;    
+        padding-left: 5px;
+    }
+    
+}
+
+.download-model{
+
+    height: 100vh;
+    width: 100vw;
+
+    animation-name: load_popup;
+    animation-duration: 300ms;
+
+    @include flex();
+
+    .options {
+        width: 50%;
+        height: 100%;
+          
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    
+        .option {
+            height: 40px;
+            width: 50%;
+          
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        
+            font-weight: 300;
+            font-size: small;
+            letter-spacing: 1px;
+        
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .title {
+            background: none !important;
+            border: none !important;
+        }
+        
+    }
+
+    .output {
+        width: 20%;
+        height: 40px;
+    }
+
+    .exit {
+        position: absolute;
+        top: 5%;
+        left: 90%;
+    
+        font-weight: 300;
+        letter-spacing: 1px;
+        font-size: small;
+    }
+
+    a {
+        text-decoration: none;
+        font-weight: 300;
+        font-size: small;
+    }
+}
+
+.workspace-card-context {
+    height: 100px;
+    width: 100px;
+
+    position: fixed;
+    z-index: 9999;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .btn {
+        height: 25%;
+        width: 100%;
+        font-size: 10px;
+        letter-spacing: 1px;
+    
+        display: flex;
+        align-items: center;
+        padding-left: 10px;
+        cursor: pointer;
+    }
+
+}
+
+.light {
+    .home {
+        background: $bgsLight;
+        color: $colorDark;
+
+        .cards {
+            .new {
+                input {
+                    background: $bgLight;
+                    color: $colorDark;
+                    border-bottom: $colorDark;
+                }
+            }
+        }
+
+        .card{
+            background: $bgLight ;
+            color: $colorDark;
+            border: $borderDark;
+    
+            .name {
+                background: #eee;
+            }
+        }
+
+    }
+    .download-model {
+        background: $bgLight;
+        .options{
+            .option {
+                background: $bgsLight;
+                color: $colorDark;
+                border: $borderDark;
+            }
+        }
+
+        .exit {
+            color: $colorDark;
+        }
+    }
+    .workspace-card-context {
+        background: $colorLight;
+        border: $borderDark;
+        
+        .btn{
+            color: $colorDark;
+            border-bottom: $borderDark;
+        }
+    }
+    svg {
+        fill: #444;
+    }
+}
+
+.dark {
+    .home {
+        background: $bgsDark;
+        color: $colorLight;
+
+        .cards {
+            .new {
+                input {
+                    background: $bgDark;
+                    color: $colorLight;
+                    border-bottom: $borderLight;
+                }
+            }
+        }
+
+        .card{
+            background: $bgDark ;
+            color: $colorLight;
+            border: $borderLight;
+
+            .name {
+                background: #444;
+            }
+        }
+
+    }
+    .download-model {
+        background: $bgDark;
+        .options{
+            .option {
+                background: $bgsDark;
+                color: $colorLight;
+                border: $borderLight;
+            }
+        }
+
+        .exit {
+            color: $colorLight;
+        }
+    }
+    .workspace-card-context {
+        background: $colorDark;
+        border: $borderLight;
+        .btn{
+            color: $colorLight;
+            border-bottom: $borderLight;
+        }
+    }
+    svg {
+        fill: #eee;
+    }
+}

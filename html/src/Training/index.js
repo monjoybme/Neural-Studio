@@ -1,8 +1,6 @@
 import React from "react";
 import { icons } from "../data/icons";
 import { appConfig } from "../data/appconfig";
-
-import "./training.css";
 import { StoreContext } from "../Store";
 
 const Notification = (props) => {

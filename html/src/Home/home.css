@@ -2,6 +2,7 @@
     padding: 10px;
     display: grid;
     grid-template-rows: 2fr 3fr 2fr 28fr;
+    background: var(--bgs-dark) !important;
 }
 
 .light .home {

@@ -1,0 +1,116 @@
+$sidebarWidth : 60px;
+$topbarHeight : 60px;
+$lossmonitorWidth : 400px;
+
+// Colors
+
+$orange0 : #f15f11;
+$orange1 : #f18f0ed4;
+$orange2 : #f18f0eb9;
+$orange3 : #f18f0e75;
+
+$bgLight : #fff;
+$bgDark : #333;
+
+$bgsLight : #fafafa;
+$bgsDark : #555;
+
+$colorDark : #333;
+$colorLight : white;
+
+$svgActive : #f15f11;
+$svgDark : #ddd;
+$svgLight : #333;
+
+// Borders
+
+$borderLight : 1px solid rgba(240, 240, 240, 0.4);
+$borderDark : 1px solid rgba(40, 40, 40, 0.4);
+
+$border1: 0.001rem solid $orange1;
+
+// mixins
+
+@mixin flex ( $direction : row, $justify : center, $align : center ) {
+  display: flex;
+  align-items: $align;
+  justify-content: $justify;
+  flex-direction: $direction;
+}
+
+*{ 
+  box-sizing: border-box;
+}
+
+:focus {
+  outline: none;
+  border: none;
+}
+
+html body {
+  overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  border-radius: 3px;
+  padding-left: 10px;
+  height: 5px;
+  cursor: grabbing;
+}
+ 
+::-webkit-scrollbar-thumb {
+  background-color: $orange1;
+  border-radius: 3px;
+}
+
+.grid-center {
+  display: grid;
+  place-items: center;
+}
+
+.flex-column-center-start {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.flex-center-center {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.btn {
+  cursor: pointer;
+}
+
+.container {
+  position: absolute;
+  height: calc( 100vh - #{$topbarHeight} - 20px ) ;
+  width: calc( 100vw - #{$sidebarWidth} );
+
+  overflow: hidden;
+
+  top: $topbarHeight;
+  left: $sidebarWidth;
+}
+
+.popup {
+  position: absolute;
+  z-index: 99999;
+
+  top: 50%;
+  left: 50%;
+
+  transform: translate( -50%, -50%);
+}
+
+.light {
+  background: $bgLight;
+}
+
+.dark {
+  background: $bgDark;
+}

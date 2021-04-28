@@ -231,7 +231,7 @@ const Home = ( props = { store: StoreContext, }) => {
   });
 
   return (
-    <div className="container home">
+    <div className="home container">
       <div className="name">Active Worksapce</div>
       <div className="card active">
         <div className="head">{workspace.active.config.name}</div>

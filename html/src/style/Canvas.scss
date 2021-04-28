@@ -1,0 +1,457 @@
+@import './App.scss';
+
+$toolbarWidth : 240px;
+
+.tools {
+    width: $toolbarWidth;
+    border-right: $border1;
+    height: calc(100vh - #{$topbarHeight});
+    padding-right: 3px;
+
+    .toolbar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+        height: 59px;
+        width: calc(100% + 2px);
+        
+        .btn {
+            @include flex();
+            min-height: $topbarHeight;
+          
+            transition-property: all;
+            transition-duration: 100ms;
+        }
+
+        .selected {
+            svg {
+                fill: $orange0;
+            }
+        }
+
+        svg:hover{
+            fill: $orange0;
+        }
+
+    }
+
+    .layergroups {
+        overflow-y: scroll;
+        overflow-x: hidden;
+      
+        height: calc(100% - #{$topbarHeight} - 60px);
+        min-width: $toolbarWidth;
+        @include flex(column, flex-start, center);
+
+        .layers {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            .name {
+                min-height: calc( #{$topbarHeight} - 1px ) !important;
+                height: auto !important;
+                width: 100%;
+              
+                font-weight: 400;
+                font-size: 11px;
+                letter-spacing: 1px;
+              
+                padding-left: 10px;
+                cursor: pointer;
+                @include flex( row, flex-start, center );
+            }
+
+            .grid {
+                width: 100%;
+                display: grid;
+                grid-gap: 5px;
+                padding: 0px 7px 7px 7px;
+                .btn {
+                    font-weight: 400;
+                    font-size: 11px;
+                    letter-spacing: 1px;
+                    
+                    height: 30px;
+                    border-radius: 2px;
+
+                    @extend .grid-center;
+                  }
+            }
+        }
+    }
+
+    .layergroups::-webkit-scrollbar {
+        width: 0px;
+    }      
+
+}
+
+.canvas-top {
+    position: fixed;
+    left: $sidebarWidth + $toolbarWidth + 7px;
+    top: $topbarHeight;
+
+    width: calc(100% - #{$sidebarWidth} - #{$toolbarWidth} - 15px );
+    height: calc(100% - #{$topbarHeight} - 30px);
+    
+    overflow: scroll !important;
+    
+    padding: 5px;
+    margin-top: 5px;
+
+    .canvas {
+        min-width: 150vw;
+        min-height: 200vh;
+
+        rect {
+            height: 30px;
+            stroke-width: 1;
+            opacity: 0.99;
+        }
+
+        text {
+            position: relative;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            font-weight: 500;
+        }
+    }
+
+}
+
+.menu {
+    position: absolute;
+    z-index: 10;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    width: 300px;
+    padding: 5px;
+  
+    border: rgba(51, 51, 51, 0.241) 1px solid;
+    box-shadow: rgba(51, 51, 51, 0.35) -2px 0px 10px -5px;
+    overflow-y: scroll;
+    border-top: none;
+    border-left: $border1;
+
+    @include flex(column, flex-start,center);
+
+    .name {
+        font-size: small;
+        font-weight: 500;
+        letter-spacing: 1px;
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .properties {
+        width: 98%;
+        display: grid;
+        grid-gap: 10px;
+        margin-top: 5px;
+        max-height: 85vh;
+
+        .property {
+            height: 70px;
+            border-radius: 2px;
+            width: 280px;
+          
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 5px;
+            
+            .name {
+                font-size: small;
+                margin-left: 3px;
+                font-weight: 400;
+            }
+
+            .btn {
+                border: rgba(51, 51, 51, 0.186) solid 1px;
+                border-radius: 3px;
+              
+                height: 25px;
+                padding-left: 10px;
+                margin-top: 5px;
+                width: 94%;
+              
+                font-size: small;
+                cursor: pointer;
+            }
+
+            .checkboxes {
+                display: flex;
+                flex-direction: column;
+                height: 160px;
+                overflow-y: scroll;
+                border: rgba(51, 51, 51, 0.241) 1px solid;
+                margin-top: 5px;
+                width: 100%;
+                padding: 3px;
+
+                .checkbox {
+                    display: flex;
+                    align-items: center;
+                    font-size: small;
+                    margin-top: 5px;
+                    .box {
+                        height: 15px;
+                        width: 15px;
+                        margin: 0px 7px;
+                      }
+                }
+            }
+
+            select {
+                width: 11.5vw;
+                margin-top: 6px;
+                height: 25px;
+              
+                border: rgba(51, 51, 51, 0.186) solid 1px;
+                border-radius: 3px;
+                width: 98%;
+            }
+
+            input {
+                border: rgba(51, 51, 51, 0.186) solid 1px;
+                border-radius: 3px;
+              
+                font-weight: 400;
+                font-size: smaller;
+                letter-spacing: 1px;
+              
+                height: 30px;
+                padding-left: 10px;
+                margin-top: 5px;
+                width: 98%;
+            }
+        }
+    }
+
+}
+
+.dataset {
+    position: absolute;
+    z-index: 99999;
+    left: $sidebarWidth + 180px;
+    height: calc(100vh - #{$topbarHeight} - 50px);
+    width: calc(100vw - #{$sidebarWidth} - 240px);
+    
+    .head {
+        width: 100%;
+        padding: 7px 10px;
+        height: 40px;
+        border-bottom: rgba(51, 51, 51, 0.241) 1px solid;
+      
+        display: flex;
+        justify-content: space-between;
+
+        input {
+            border: none;
+            background: none;
+            font-size: 12px;
+            height: 100%;
+            letter-spacing: 1px;
+
+            @include flex();
+        }
+
+        .btn {
+            border: rgba(51, 51, 51, 0.186) solid 1px;
+            border-radius: 3px;
+          
+            height: 25px;
+            width: 70px;
+          
+            background: rgba(255, 255, 255, 0.364);
+          
+            font-size: small;
+            letter-spacing: 1px;
+            font-weight: 500;
+
+            cursor: pointer;
+            @include flex();
+        }
+    }
+}
+
+.customNode {
+    
+    .body{
+        display: flex;
+        height: 100%;
+    }
+
+    section {
+       width: calc( 100% - 300px) !important;
+    }
+
+    .func_menu {
+        position: relative;
+        width: 300px;
+        height: 100%;
+        height: inherit;
+      
+        border-left: $border1;
+    }
+    
+    .property {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+
+.light {
+
+    .tools {
+        background: $bgsLight;
+        .toolbar {
+            border-bottom: $borderDark;
+        }
+    }
+
+    .layergroups {
+        .layers{
+            border-bottom: $borderDark;
+            .name{
+                color: $colorDark;
+            }
+            .grid {
+                .btn{
+                    color: $colorDark;
+                    border: solid 1px rgba(51, 51, 51, 0.15);
+                    background: rgba(228, 228, 228, 0.15);
+                }
+            }
+        }
+    }
+
+    .canvas-top{
+        .canvas{
+            rect {
+                stroke: #333;
+                stroke-width: 0.03rem;
+                fill: rgb(250, 250, 250);
+            }
+            text {
+                fill: #333;
+            }
+            line {
+                stroke: rgba(51, 51, 51, 0.72);
+            }
+            marker {
+                stroke: rgba(221, 221, 221, 0.446);
+            }
+        }
+    }
+
+    .menu{
+        background: $bgsLight;
+        color: $colorDark;
+        .properties {
+            .property{
+                border:1px solid  rgba(51, 51, 51, 0.241);
+            }
+            .checkboxes {
+                .checkbox {
+                    .box {
+                        border: 3px solid $colorDark;
+                        background: $colorDark;
+                    }
+                    .selected {
+                        background: $colorLight;
+                    }
+                }
+            }
+        }
+    }
+
+    .dataset{
+        color: $colorDark;
+        input{
+            color: $colorDark;
+        }
+    }
+
+}
+
+.dark {
+
+    .tools {
+        background: $bgsDark;
+        .toolbar {
+            border-bottom: $borderLight;
+        }
+    }
+
+    .layergroups {
+        .layers{
+            border-bottom: $borderLight;
+            .name{
+                color: $colorLight;
+            }
+            .grid {
+                .btn{
+                    color: $colorLight;
+                    border: solid 1px rgba(51, 51, 51, 0.15);
+                    background: rgba(228, 228, 228, 0.15);
+                }
+            }
+        }
+    }
+    
+    .canvas-top{
+        .canvas{
+            rect {
+                stroke: $bgsDark;
+                stroke-width: 1px;
+                fill: #4d4d4d;
+            }
+            text {
+                fill: #ddd;
+            }
+            line {
+                stroke: #ddd;
+            }
+            marker {
+                stroke: rgba(221, 221, 221, 0.446);
+            }
+        }
+    }
+
+    .menu{
+        background: $bgsDark;
+        color: $colorLight;
+
+        .properties {
+            .property{
+                border: 1px solid rgba( 228, 228, 228, 0.4);
+            }
+            .checkboxes {
+                .checkbox {
+                    .box {
+                        border: 3px solid $colorLight;
+                        background: $colorLight;
+                    }
+                    .selected {
+                        background: $colorDark;
+                    }
+                }
+            }
+        }
+    }
+
+    .dataset{
+        color: $colorLight;
+        input{
+            color: $colorLight;
+        }
+    }
+
+}

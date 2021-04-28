@@ -60,10 +60,7 @@
   border-radius: 3px;
 }
 
-*{ 
-  box-sizing: border-box;
-  font-size: small;
-}
+
 
 .null {
   height: 0px;
@@ -113,20 +110,6 @@ input:focus {
 
 .dark {
   background-color: var(--bgs-dark);
-}
-
-.container {
-  position: absolute;
-  height: calc( 100vh - var(--topbar-height) - 20px ) ;
-  width: calc( 100vw - var(--sidebar-width) );
-
-  overflow: hidden;
-
-  top: var(--topbar-height);
-  left: var(--sidebar-width);
-
-  /* transition-property: all; */
-  /* transition-duration: 100ms; */
 }
 
 .light .container{

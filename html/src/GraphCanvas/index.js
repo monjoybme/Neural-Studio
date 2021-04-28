@@ -7,9 +7,6 @@ import LayerGroups from "./layergroups";
 import { StoreContext } from "../Store";
 import { icons } from "../data/icons";
 
-import "./canvas.css";
-
-
 let cursors = {
   edge: "crosshair",
   delete: "no-drop",
