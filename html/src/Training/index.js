@@ -229,7 +229,12 @@ const Training = (
   }
 
   async function trainModel(e) {
-    await fetch("http://localhost/train/start", {
+    if ( train.training ){
+      window.notify({
+        text:"Training Already Running"
+      })
+    }else{
+      await fetch("http://localhost/train/start", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...graphdef }),
@@ -244,7 +249,11 @@ const Training = (
           ended: false,
           updating: false,
         });
+        window.notify({
+          text:"Training Started !"
+        })
       });
+    }
   }
 
   async function haltModel(e) {

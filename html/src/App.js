@@ -217,6 +217,11 @@ const App = (props) => {
         link.download = "train.py";
         link.click();
       });
+  };
+
+  window.notify = function( options={ text:"Notification" } ){
+    let { text } = options;
+    notificationState(text)
   }
 
   React.useEffect(function () {
