@@ -1,10 +1,6 @@
 import React from "react";
 import Editor from "@monaco-editor/react";
-
 import { StoreContext } from "../Store";
-
-import "./code.css"
-
 
 const CodeEditor = (props={store:StoreContext}) => {
 

@@ -77,9 +77,15 @@ const Node = (props={
         connections.outbound.forEach((lid) => {
           graphdef[lid].connections.inbound.pop(id);
         });
+        switch(graphdef[id].type._class){
+          case "optimizers":
+            delete graphdef.train_config.optimizer
+            break
+          default:
+            break
+        }
         delete graphdef[id];
         graphdefState({ ...graphdef });
-        window.autosave()
         break;
       case "normal":
         props.menuState({
@@ -120,8 +126,8 @@ const Node = (props={
       <rect
         x={pos.x}
         y={pos.y}
-        rx={3}
-        ry={3}
+        rx={10}
+        ry={10}
         height={height}
         width={width}
         onMouseDown={onMouseDown}
@@ -130,14 +136,14 @@ const Node = (props={
         id={`${id}-rect`}
       ></rect>
       <text
-        x={pos.x + ( width / 10 ) * 1.6 }
+        x={pos.x + ( width / 12 ) * 2.5 }
         y={pos.y + 19 }
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
         onClick={onClick}
         id={`${id}-text`}
       >
-        {name}
+        {id}
       </text>
     </g>
   );

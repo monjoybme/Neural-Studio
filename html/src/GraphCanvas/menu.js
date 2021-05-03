@@ -128,34 +128,42 @@ const Layer = (props) => {
   let { graphdef, graphdefState } = props.store;
   return (
     <div className="menu">
-      <div className="name">{props.name}</div>
-      <div className="properties">
-        <div className="property">
-          <div className="name"> {props.name} </div>
-          <input
-            name="id"
-            defaultValue={props.name}
-            onKeyUp={(e) => {
-              graphdef[props.id].name = e.target.value;
-              graphdefState({
-                ...graphdef,
-              });
-            }}
-          />
-        </div>
-
-        <div className="property">
-          <div className="name"> {props.id} </div>
-          <input name="id" defaultValue={props.id} />
-        </div>
+      {
+        props.train 
+          ?
+        undefined
+          : 
+        <div className="name">{props.name}</div>
+      }
+      <div className="properties">        
+        {
+          props.train 
+           ?
+          undefined 
+            :
+          (
+              <div className="property">
+                <div className="name"> {props.name} </div>
+                <input
+                  name="id"
+                  defaultValue={props.name}
+                  onKeyUp={(e) => {
+                    graphdef[props.id].name = e.target.value;
+                    graphdefState({
+                      ...graphdef,
+                    });
+                  }}
+                />
+              </div>
+              
+          )
+        }
         {Object.keys(props.arguments).map((property, i) => {
           switch (props.arguments[property].render) {
             case "text":
               return (
                 <TextProperty
-
                   {...props}
-
                   layer_id={props.id}
                   name={property}
                   key={i}
@@ -166,7 +174,6 @@ const Layer = (props) => {
               return (
                 <ListProperty
                   {...props}
-
                   layer_id={props.id}
                   name={property}
                   key={i}
@@ -177,7 +184,6 @@ const Layer = (props) => {
               return (
                 <CheckboxProperty
                   {...props}
-
                   layer_id={props.id}
                   name={property}
                   key={i}
@@ -373,7 +379,7 @@ const Menu = (props) => {
       return <CustomNode {...props} />;
 
     default:
-      return <Layer {...props} />;
+      return <Layer {...props} train={props.train} />;
   }
 };
 

@@ -5,7 +5,7 @@ $lossmonitorWidth : 400px;
 // Colors
 
 $orange0 : #f15f11;
-$orange1 : #f18f0ed4;
+$orange1 : #c76d0cd4;
 $orange2 : #f18f0eb9;
 $orange3 : #f18f0e75;
 
@@ -95,6 +95,8 @@ html body {
 
   top: $topbarHeight;
   left: $sidebarWidth;
+
+  border-right: $border1;
 }
 
 .popup {

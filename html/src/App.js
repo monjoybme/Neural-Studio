@@ -17,6 +17,9 @@ import './style/App.scss';
 import './style/Nav.scss';
 import './style/Home.scss';
 import './style/Canvas.scss';
+import './style/Code.scss';
+import './style/Training.scss';
+import './style/Summary.scss';
 // import "./App.css";
 
 window.copy = function (object) {
@@ -85,6 +88,10 @@ const defaultWorkspce = {
   recent: [],
   all: [],
 };
+
+const PageCycle = defaultSideNav.map((btn, i)=>{
+  return btn.name;
+})
 
 const SideBar = (props = { store: StoreContext }) => {
   let Logo = icons.Logo;
@@ -228,9 +235,9 @@ const App = (props) => {
     notificationState(text)
   }
 
-  React.useEffect(function () {
-    document.getElementsByTagName("html")[0].onkeydown = function (e) { 
-      if (window.__SHORTCUT__) {
+  function keynap (e) { 
+    switch (window.__SHORTCUT__) {
+      case 0:
         switch (e.key) {
           case "s":
             e.preventDefault();
@@ -265,16 +272,43 @@ const App = (props) => {
             graphdefState({});
             break;
           case "Shift":
-            window.__SHORTCUT__SHIFT__ = true;
+            window.__SHORTCUT__ = 2;
             break;
+          case 'Tab':
+            e.preventDefault();
+            break
           default:
             break;
         }
-      } else {
+        break
+      
+      case 1: 
+        break
+      
+      case 2:
+        let idx = Number(e.key) - 1;
+        sidenav = sidenav.map((btn) => {
+          btn.selected = btn.name === PageCycle[idx];
+          if (btn.selected) {
+            renderState({
+              ...btn,
+            });
+          }
+          return btn;
+        });
+        sidenavState([...sidenav]);
+        break
+
+      default:
         switch (e.key) {
           case "Control":
-            window.__SHORTCUT__ = true;
+            window.__SHORTCUT__ = 0;
             break;
+          case "Shift":
+            window.__SHORTCUT__ = 1;
+            break;
+          case 'Alt':
+            window.__SHORTCUT__ = 2;
           case "Escape":
             popupState(<div className='popup'></div>);
             if (render.name === "Graph") {
@@ -284,18 +318,20 @@ const App = (props) => {
           default:
             break;
         }
-      }
-    };
+        break
+    }
+  };
 
-    document.getElementsByTagName("html")[0].onkeyup = function (e) {
-      window.__SHORTCUT__ = false;
+  React.useEffect(function () {
+    window.onkeydown = keynap;
+    window.onkeyup = function (e) {
+      window.__SHORTCUT__ = -1;
     };
-
     window.autosave();
   });
 
   return (
-    <div className={`_app ${appconfig.theme}`}>
+    <div className={`app ${appconfig.theme}`}>
       {popup}
       <SideBar store={store} />
       <TopBar store={store} />

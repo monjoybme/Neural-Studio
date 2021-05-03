@@ -1,0 +1,32 @@
+@import './App.scss';
+
+.summary {
+    .sum-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+}
+
+.dark {
+    .summary {
+        background: $bgsDark;
+        .logs{
+            .sum-col {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr 1fr;
+            }   
+        }
+    }
+}
+
+.light {
+    .summary {
+        background: $bgsLight;
+        .logs{
+            .sum-col {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr 1fr;
+            }   
+        }
+    }
+}

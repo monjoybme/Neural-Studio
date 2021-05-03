@@ -11,7 +11,7 @@ $toolbarWidth : 240px;
     .toolbar {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
-        height: 59px;
+        height: $topbarHeight;
         width: calc(100% + 2px);
         
         .btn {
@@ -112,8 +112,8 @@ $toolbarWidth : 240px;
 
         text {
             position: relative;
-            font-size: 11px;
-            letter-spacing: 1.5px;
+            font-size: 12px;
+            letter-spacing: 1px;
             font-weight: 500;
         }
     }
@@ -130,7 +130,6 @@ $toolbarWidth : 240px;
     padding: 5px;
   
     border: rgba(51, 51, 51, 0.241) 1px solid;
-    box-shadow: rgba(51, 51, 51, 0.35) -2px 0px 10px -5px;
     overflow-y: scroll;
     border-top: none;
     border-left: $border1;
@@ -298,11 +297,10 @@ $toolbarWidth : 240px;
         height: inherit;
       
         border-left: $border1;
-    }
-    
-    .property {
-        width: 100%;
-        margin-bottom: 10px;
+        .property {
+            width: 100%;
+            margin-bottom: 10px;
+        }
     }
 }
 
@@ -335,18 +333,18 @@ $toolbarWidth : 240px;
     .canvas-top{
         .canvas{
             rect {
-                stroke: #333;
-                stroke-width: 0.03rem;
+                stroke: rgb(179, 179, 179);
+                stroke-width: 2px;
                 fill: rgb(250, 250, 250);
             }
             text {
-                fill: #333;
+                fill: rgb(95, 95, 95);
             }
             line {
-                stroke: rgba(51, 51, 51, 0.72);
+                stroke: rgb(179, 179, 179);
             }
             marker {
-                stroke: rgba(221, 221, 221, 0.446);
+                stroke: rgb(179, 179, 179);
             }
         }
     }
@@ -357,6 +355,7 @@ $toolbarWidth : 240px;
         .properties {
             .property{
                 border:1px solid  rgba(51, 51, 51, 0.241);
+                background: rgba($color: #c5c5c5, $alpha: 0.1);
             }
             .checkboxes {
                 .checkbox {
@@ -409,15 +408,15 @@ $toolbarWidth : 240px;
     .canvas-top{
         .canvas{
             rect {
-                stroke: $bgsDark;
+                stroke: rgba(250, 250, 250, 0.5);
                 stroke-width: 1px;
-                fill: #4d4d4d;
+                fill: #525252;
             }
             text {
                 fill: #ddd;
             }
             line {
-                stroke: #ddd;
+                stroke: rgba(221, 221, 221, 0.693);
             }
             marker {
                 stroke: rgba(221, 221, 221, 0.446);
@@ -432,6 +431,7 @@ $toolbarWidth : 240px;
         .properties {
             .property{
                 border: 1px solid rgba( 228, 228, 228, 0.4);
+                background: rgba($color: #c5c5c5, $alpha: 0.3);
             }
             .checkboxes {
                 .checkbox {

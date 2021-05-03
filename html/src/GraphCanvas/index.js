@@ -61,11 +61,6 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
       );
     }
   }
-
-  React.useEffect(() => {
-    window.setToolMode = setToolMode;
-    window.thumb_export = document.getElementById("canvas");
-  });
   
   function newLine(e) {
     e.preventDefault();
@@ -106,8 +101,11 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
     e.preventDefault();
     if (e.button) {
     } else {
+      
       let layer = window.copy(canvasConfig.activeLayer);
+      let scroll = document.getElementById("canvasTop");
       let { name, id } = layerIdGenerator(layer.name);
+
       graphdef[id] = {
         ...layer,
         name: name,
@@ -122,32 +120,61 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
         },
         width: 0,
       };
-
-      let scroll = document.getElementById("canvasTop");
-      graphdef[id].width = graphdef[id].name.length * 10;
+      graphdef[id].width = graphdef[id].name.length * 12;
       graphdef[id].pos = {
-        x: e.clientX - window.offsetX + scroll.scrollLeft - graphdef[id].width / 2,
+        x: e.clientX - window.offsetX + scroll.scrollLeft - graphdef[id].width / 1.5,
         y: e.clientY - window.offsetY + scroll.scrollTop - 23,
         offsetX: 0,
         offsetY: 0,
       };
 
-      switch (canvasConfig.activeLayer.name) {
+      switch (canvasConfig.activeLayer.type.name) {
         case "Model":
           canvasConfig.activeLayer = window.copy(
             layerGroups["build-layers"].layers[1]
           );
+          if ( graphdef.train_config === undefined ){
+            graphdef.train_config = { }
+          }
+          graphdef.train_config.model = graphdef[id]
           break;
         case "Compile":
           canvasConfig.activeLayer = window.copy(
             layerGroups["build-layers"].layers[2]
           );
+          if ( graphdef.train_config === undefined ){
+            graphdef.train_config = { }
+          }
+          graphdef.train_config.compile = graphdef[id]
           break;
-        case "Node":
+        case "Train":
+          if ( graphdef.train_config === undefined ){
+            graphdef.train_config = { }
+          }
+          graphdef.train_config.train = graphdef[id]
+          break
+        case "Dataset":
+          if ( graphdef.train_config === undefined ){
+            graphdef.train_config = { }
+          }
+          graphdef.train_config.dataset = graphdef[id]
+          break
+        case "Custom":
           graphdef[id]._id = "Please Set Node ID";
           break;
         default:
           break;
+      }
+
+      switch(canvasConfig.activeLayer.type._class){
+        case "optimizers":
+          if ( graphdef.train_config === undefined ){
+            graphdef.train_config = { }
+          }
+          graphdef.train_config.optimizer = graphdef[id]
+          break
+        default:
+          break
       }
 
       graphdefState({
@@ -177,7 +204,7 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
 
       canvasConfig.activeElement.rect.x.baseVal.value = canvasConfig.pos.x;
       canvasConfig.activeElement.rect.y.baseVal.value = canvasConfig.pos.y;
-      canvasConfig.activeElement.text.x.baseVal[0].value = canvasConfig.pos.x + ( canvasConfig.activeElement.layer.width / 10 )*1.6; 
+      canvasConfig.activeElement.text.x.baseVal[0].value = canvasConfig.pos.x + ( canvasConfig.activeElement.layer.width / 12 ) * 2.5; 
       canvasConfig.activeElement.text.y.baseVal[0].value = canvasConfig.pos.y + 19 ;
 
       canvasConfig.activeElement.edges_in.forEach((edge) => {
@@ -280,6 +307,12 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
     }
   }
 
+  React.useEffect(() => {
+    window.setToolMode = setToolMode;
+    window.thumb_export = document.getElementById("canvas");
+    window.autosave();
+  });
+
   return (
     <div className="container">
       {menu.comp}
@@ -295,6 +328,9 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
           <line id="dummy"  x1="0" y1="0" x2="0" y2="0" strokeWidth="0" markerEnd="url(#triangle)" />
           {
             Object.keys(graphdef).map((layer, i) => {
+              if ( layer === 'train_config' ){
+                return undefined;
+              }
               return (
                 <Node
                   {...graphdef[layer]}

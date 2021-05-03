@@ -1,20 +1,15 @@
-.tfcode {
-    width: 100vw;
-    height: 95vh;
-    position: absolute;
-    padding: 7px;
-}
+@import './App.scss';
 
 .margin-view-overlays{
     border-right: 1px solid var(--orange1);
 }
 
 .light .margin-view-overlays {
-    background: var(--bgs-light) !important;
+    background: $bgsLight !important;
 }
 
 .dark .margin-view-overlays {
-    background: var(--bgs-dark) !important;
+    background: $bgsDark !important;
 }
 
 .monaco-scrollable-element {
