@@ -43,13 +43,8 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
   ]);
   let { graphdef, graphdefState ,canvasConfig, layerGroups } = props.store;
   let canvasref = React.useRef(<svg> </svg>);
-  let [ viewBox, viewBoxState ] = React.useState({
-    x:0, 
-    y:0,
-    h:window.innerHeight,
-    w:window.innerWidth
-  })  
-
+  let canvasTop = React.useRef();
+  let [ load, loadState ] = React.useState(true);
 
   
   function newLine(e) {
@@ -57,8 +52,8 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
     let scroll = document.getElementById("canvasTop");
     let _line = document.getElementById("dummy");
     let pos = {
-      x: e.clientX - window.offsetX + scroll.scrollLeft,
-      y: e.clientY - window.offsetY + scroll.scrollTop,
+      x: window.canvasConfig.viewBox.x + e.clientX - window.offsetX + scroll.scrollLeft,
+      y: window.canvasConfig.viewBox.y + e.clientY - window.offsetY + scroll.scrollTop,
     };
 
     _line.style.strokeWidth = 2;
@@ -112,8 +107,8 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
       };
       graphdef[id].width = graphdef[id].name.length * 12;
       graphdef[id].pos = {
-        x: e.clientX - window.offsetX + scroll.scrollLeft - graphdef[id].width / 1.5,
-        y: e.clientY - window.offsetY + scroll.scrollTop - 23,
+        x: window.canvasConfig.viewBox.x + e.clientX - window.offsetX + scroll.scrollLeft - graphdef[id].width / 2,
+        y: window.canvasConfig.viewBox.y + e.clientY - window.offsetY + scroll.scrollTop - 23,
         offsetX: 0,
         offsetY: 0,
       };
@@ -177,8 +172,8 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
     e.preventDefault();
     if (canvasConfig.activeLine) {
       let scroll = document.getElementById("canvasTop");
-      canvasConfig.activeLine.line.x2.baseVal.value = e.clientX - window.offsetX + scroll.scrollLeft - 3;
-      canvasConfig.activeLine.line.y2.baseVal.value = e.clientY - window.offsetY + scroll.scrollTop - 10;
+      canvasConfig.activeLine.line.x2.baseVal.value = window.canvasConfig.viewBox.x + e.clientX - window.offsetX + scroll.scrollLeft - 3;
+      canvasConfig.activeLine.line.y2.baseVal.value = window.canvasConfig.viewBox.y + e.clientY - window.offsetY + scroll.scrollTop - 10;
     }
   }
 
@@ -210,6 +205,38 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
     }
   }
 
+  function normalMouseDown(){
+    if ( window.canvasConfig.mode === 'normal' ){
+      window.canvasConfig.pan = true;
+    }
+  }
+
+  function moveCanvas(e){
+    e.preventDefault();
+    if (window.canvasConfig.pan){
+      if ( window.canvasConfig.panLast ){
+        window.canvasConfig.viewBox.x -= ( e.clientX - 
+          window.canvasConfig.panLast.x );
+        window.canvasConfig.viewBox.y -= ( e.clientY - 
+          window.canvasConfig.panLast.y
+        )
+        canvasref.current.viewBox.baseVal.x = window.canvasConfig.viewBox.x 
+        canvasref.current.viewBox.baseVal.y = window.canvasConfig.viewBox.y
+        canvasref.current.viewBox.baseVal.width = window.canvasConfig.viewBox.w
+        canvasref.current.viewBox.baseVal.height = window.canvasConfig.viewBox.h
+        window.canvasConfig.panLast = {
+          x:e.clientX, 
+          y:e.clientY
+        }
+      }else{
+        window.canvasConfig.panLast = {
+          x:e.clientX, 
+          y:e.clientY
+        }
+      }
+    }
+  }
+
   function setToolMode(options={ name:"Mode", layer:{ name:"Layer" } }) {
     console.log(`Setting ${options.name} mode`)
     canvasConfig.mode = options.name;
@@ -218,22 +245,37 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
       case "normal":
         canvasref.current.onmousedown = undefined;
         canvasref.current.onmousemove = undefined;
+
+        canvasTop.current.onmousedown = normalMouseDown;
+        canvasTop.current.onmousemove = moveCanvas;
         break
       case "edge":
         canvasref.current.onmousedown = newLine;
         canvasref.current.onmousemove = moveEdge;
+
+        canvasTop.current.onmousedown = undefined;
+        canvasTop.current.onmousemove = undefined;
         break
       case "move":
         canvasref.current.onmousedown = undefined;
         canvasref.current.onmousemove = moveNode;
+
+        canvasTop.current.onmousedown = undefined;
+        canvasTop.current.onmousemove = undefined;
         break
       case "delete":
         canvasref.current.onmousedown = undefined;
-        canvasref.current.onmousemove = undefined;
+        canvasref.current.onmousemove = undefined
+        ;
+        canvasTop.current.onmousedown = undefined;
+        canvasTop.current.onmousemove = undefined;
         break
       case "clean":
         canvasref.current.onmousedown = undefined;
-        canvasref.current.onmousemove = undefined;
+        canvasref.current.onmousemove = undefined
+        ;
+        canvasTop.current.onmousedown = undefined;
+        canvasTop.current.onmousemove = undefined;
         graphdefState({ })
         break
       case 'layer':
@@ -289,6 +331,9 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
     line.x2.baseVal.value = 1;
     line.y2.baseVal.value = 1;
 
+    window.canvasConfig.pan = false;
+    window.canvasConfig.panLast = undefined;
+
     if (menu.render) {
       menuState({
         comp: <div />,
@@ -297,41 +342,33 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
     }
   }
 
-  function onScroll(e) {
-    let canv = e.target;
-    let svg = canv.children[0];
-
-    if (canv.scrollTop > canv.scrollHeight - window.innerHeight) {
-      svg.height.baseVal.value = Math.max(
-        4400,
-        Math.floor(svg.height.baseVal.value * 1.01)
-      );
-    }
-    if (canv.scrollLeft > canv.scrollWidth - window.innerWidth + 230) {
-      svg.width.baseVal.value = Math.max(
-        4400,
-        Math.floor(svg.width.baseVal.value * 1.005)
-      );
-    }
-  }
-
-  function zoomout(){
-    viewBox.h += ( window.innerHeight * 0.1 );
-    viewBox.w += ( window.innerWidth * 0.1 );
-    viewBoxState({...viewBox})
-  }
-
-  function zoomin(){
-    viewBox.h -= ( window.innerHeight * 0.1 );
-    viewBox.w -= ( window.innerWidth * 0.1 );
-    viewBoxState({...viewBox})
-  }
-
+ 
   React.useEffect(() => {
     window.setToolMode = setToolMode;
     window.thumb_export = document.getElementById("canvas");
     window.autosave();
+
+    if ( canvasref.current.viewBox.baseVal.height === 0 && canvasref.current.viewBox.baseVal.width === 0 ){
+      if ( window.canvasConfig.viewBox.w === 0 || window.canvasConfig.viewBox.h ){
+        window.canvasConfig.viewBox = {
+          x:0, 
+          y:0,
+          w:canvasTop.current.scrollWidth,
+          h:canvasTop.current.scrollHeight,
+        }
+      } 
+      canvasref.current.viewBox.baseVal.x = window.canvasConfig.viewBox.x 
+      canvasref.current.viewBox.baseVal.y = window.canvasConfig.viewBox.y
+      canvasref.current.viewBox.baseVal.width = window.canvasConfig.viewBox.w
+      canvasref.current.viewBox.baseVal.height = window.canvasConfig.viewBox.h
+    }
+
+    if ( load ){
+      setToolMode({"name":"normal"});
+      loadState(false);
+    }
   });
+  
 
   return (
     <div className="container">
@@ -340,10 +377,13 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
         <Toolbar {...props} toolbarButtons={toolbarButtons} toolbarButtonsState={toolbarButtonsState} setToolMode={setToolMode} />
         <LayerGroups {...props} setToolMode={setToolMode} />
       </div>
-      <div className="canvas-top" id="canvasTop" onScroll={onScroll}  >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`} className="canvas" ref={canvasref} id="canvas" onMouseUp={onMouseUp}>
+      <div className="canvas-top" id="canvasTop" ref={canvasTop} >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox='0 0 0 0' className="canvas" ref={canvasref} id="canvas" onMouseUp={onMouseUp}>
           <marker xmlns="http://www.w3.org/2000/svg" id="triangle" viewBox="0 0 10 10" refX="0" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="90deg" >
             <path d="M 0 0 L 10 5 L 0 10 z" />
+          </marker>
+          <marker xmlns="http://www.w3.org/2000/svg" id="circle" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="4" >
+            <circle cx="5" cy="5" r="3" fill="black"/>
           </marker>
           <line id="dummy"  x1="0" y1="0" x2="0" y2="0" strokeWidth="0" markerEnd="url(#triangle)" />
           {

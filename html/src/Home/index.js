@@ -187,6 +187,7 @@ const Home = ( props = { store: StoreContext, }) => {
       ...active.data.app_config,
     });
     window.canvasConfig = active.data.canvas_config;
+    window.canvasConfig.mode = 'normal'
   }
 
   async function newWorkspace(name = "model") {

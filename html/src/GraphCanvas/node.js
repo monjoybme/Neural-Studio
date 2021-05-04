@@ -114,7 +114,7 @@ const Node = (props={
               x2 ={ pos_out.pos.x + pos_out.pos.offsetX + pos_out.width / 2 }
               y2 ={ pos_out.pos.y + 30 }
               markerStart="url(#triangle)"
-              // markerEnd="url(#triangle)"
+              markerEnd="url(#circle)"
               stroke="#333"
               strokeWidth="2"
               key={i}

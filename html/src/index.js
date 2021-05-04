@@ -4,15 +4,24 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+window.__FIRST__LOAD__ = true;
 window.layers = {}
 window.canvasConfig = {
-  "activeLayer": undefined,
-  "activeLine":undefined,
-  "newEdge":undefined,
-  "pos":undefined,
-  "lineCount":0,
-  "layerCount":{},
-  "mode":"normal",
+  ctiveLayer: undefined,
+  activeLine:undefined,
+  newEdge:undefined,
+  pos:undefined,
+  lineCount:0,
+  layerCount:{},
+  mode:"normal",
+  pan:false,
+  panLast:undefined, 
+  viewBox:{
+    x:0,
+    y:0,
+    w:0,
+    h:0
+  }
 }
 
 ReactDOM.render(

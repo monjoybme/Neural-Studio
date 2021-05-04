@@ -95,14 +95,13 @@ $toolbarWidth : 240px;
     width: calc(100% - #{$sidebarWidth} - #{$toolbarWidth} - 15px );
     height: calc(100% - #{$topbarHeight} - 30px);
     
-    overflow: scroll !important;
-    
-    padding: 5px;
+    overflow: hidden !important;
     margin-top: 5px;
+    padding: 0px;
 
     .canvas {
-        min-width: 150vw;
-        min-height: 200vh;
+        width: -webkit-fill-available;
+        height: 100%;
 
         rect {
             height: 30px;
@@ -419,7 +418,11 @@ $toolbarWidth : 240px;
                 stroke: rgba(221, 221, 221, 0.693);
             }
             marker {
-                stroke: rgba(221, 221, 221, 0.446);
+                stroke: rgba(180, 180, 180, 0.4);
+                fill: rgba(180, 180, 180, 0.8);
+            }
+            circle {
+                fill : rgba(221, 221, 221, 0.446);
             }
         }
     }

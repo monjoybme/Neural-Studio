@@ -107,7 +107,6 @@ const SideBar = (props = { store: StoreContext }) => {
       }
       return btn;
     });
-    window.autosave();
     sidenavState([...sidenav]);
   }
 
