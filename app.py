@@ -8,7 +8,7 @@ from tf_gui.web.utils import send_file
 from tf_gui.web.headers import Header
 
 from tf_gui.builder import build_code
-from tf_gui.trainer import Trainer, Summary
+from tf_gui.trainer import Trainer
 from tf_gui.manage import Workspace, WorkspaceManager
 
 from json import dump, JSONDecodeError
@@ -20,10 +20,8 @@ from glob import glob
 ROOT_PATH = pathlib.abspath("./")
 
 app = App()
-trainer = Trainer()
-summary = Summary()
 workspace_mamager = WorkspaceManager()
-
+trainer = Trainer(workspace_mamager)
 
 def generate_args(code) -> dict:
     exec(code)
@@ -286,12 +284,9 @@ async def download_model(request: Request):
 async def summary_viewer(request: Request):
     if request.header.method == 'POST':
         try:
-            data = await request.get_json()
-            build_config, code = build_code(data,)
-            summ = summary.get(build_config, code)
             return json_response({
                 "status": 200,
-                "summary": summ
+                "summary": trainer.summary
             })
         except JSONDecodeError:
             return json_response(
@@ -313,9 +308,8 @@ async def train_start(request: Request):
     if request.header.method == 'POST':
         try:
             trainer.logs = []
-            trainer.build_model(
-                workspace_mamager.active_workspace.var_graphdef.copy())
-            trainer.compile()
+            trainer.build_session()
+            trainer.compile_model()
             trainer.start()
             return json_response({
                 "status": "Training Started"
@@ -411,46 +405,3 @@ if __name__ == "__main__":
         port=80
     )
 
-  # @app.route("/model/download/<string:form>")
-# async def model_download_format(request:Request,form:str):
-#     if request.header.method == "GET":
-#         file = globals()['model_download_name']
-#         return await send_file(pathlib.abspath(file,),request)
-
-#     elif request.header.method == "POST":
-#         model = trainer.get_model();
-#         if model:
-#             if form == "pb":
-#                 model.save("./models/model/")
-#                 with zipfile.ZipFile("./models/model.zip","w") as zfile:
-#                     chdir("./models/model/")
-#                     zfile.write("./saved_model.pb")
-#                     for f in glob("./assets/*"):
-#                         zfile.write(f)
-#                     for f in glob("./variables/*"):
-#                         zfile.write(f)
-#                     chdir("../..")
-#                 globals()['model_download_name'] = pathlib.abspath('./models/model.zip')
-
-#             elif form == "hdf5":
-#                 model.save("./models/model.hdf5")
-#                 globals()['model_download_name'] = pathlib.abspath('./models/model.hdf5')
-
-#             elif form == "json":
-#                 with open("./models/model.json","w+") as file:
-#                     file.write(model.to_json())
-#                 globals()['model_download_name'] = pathlib.abspath('./models/model.json')
-
-#             return json_response({
-#                 "status":True,
-#                 "message":"Download Will Begin Shortly !"
-#             })
-
-#         return json_response({
-#             "status":False,
-#             "message":"Please build and train model before downloading."
-#         })
-
-#     return json_response({
-#         "message":"Method Not Allowed !"
-#     },status_code=200)

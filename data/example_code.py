@@ -2,16 +2,19 @@
 #import
 import pandas as pd
 import numpy as np
+import cv2
 import tensorflow as tf
 
 from tensorflow import keras
-from tensorflow.keras import layers,optimizers,losses,metrics,callbacks,applications
+from tensorflow.keras import layers,optimizers,losses,metrics,callbacks, applications
 
+from concurrent.futures import ThreadPoolExecutor
+from glob import glob
+from gc import collect
 #end-import
 
 """
 Note : Don't change dataset id.
-
 All the required packages have been imported with their standard namespaces.
 
 tensorflow as tf
@@ -22,8 +25,7 @@ numpy as np
 from sklearn.model_selection , train_test_split
 """
 
-
-#dataset id=dataset_1
+#dataset id=mnist_13
 class Dataset:
     """
     Dataset will be used in training 
@@ -53,236 +55,61 @@ class Dataset:
         Load dataset and set required variables.
         """
 
-        images = glob("C:\\workspace\\tensorflow-gui\\data\\datasets\\bfsiw\\leedsbutterfly\\images\\*")
-        labels = glob("C:\\workspace\\tensorflow-gui\\data\\datasets\\bfsiw\\leedsbutterfly\\segmentations\\*")
+        (X,Y),(x,y) = keras.datasets.mnist.load_data()
 
+        self.train_x = X.reshape(-1,784) / 255
+        self.train_y = keras.utils.to_categorical(Y)
+        self.test_x = X.reshape(-1,784) / 255
+        self.test_y = keras.utils.to_categorical(Y)
     
-        self.train_x = np.zeros((len(images),224,224,3)).astype(np.float32)
-        self.train_y = np.zeros((len(labels),224,224,3)).astype(np.float32)
-
-        def get_image(args):
-            index,path,array = args
-            im = cv2.imread(path,)[:,:,::-1]
-            im = cv2.resize(im,(224,224),interpolation=cv2.INTER_AREA)
-            array[index] = im
-            return 1
-
-
-        with ThreadPoolExecutor(max_workers=32) as executor:
-            res = executor.map(get_image,[ ( i,path,self.train_x ) for i,path in enumerate(images)])
-            print (sum(list(res)))
-            
-        with ThreadPoolExecutor(max_workers=32) as executor:
-            res = executor.map(get_image,[ ( i,path,self.train_y ) for i,path in enumerate(labels)])
-
-        self.train_y = self.train_y.mean(axis=-1) / 255
-        test_idx = np.random.randint(0,len(self.train_x),size=32)
-        
-        self.test_x = self.train_x[test_idx]
-        self.test_y = self.train_y[test_idx]
-
-        collect()
-        
 # Do not change the anything.
-dataset_1 = Dataset()
-#end-dataset id=dataset_1
+mnist_13 = Dataset()
+#end-dataset id=mnist_13
+                    
 
-#node_0
-def conv_2d_block(
-    inbound:list=[],
-    filters:int=8,
-    activation:str="swish"
-  )->None:
-  
-  x = layers.Conv2D(filters,kernel_size=3, padding="same")(inbound)
-  x = layers.BatchNormalization()(x)
-  x = layers.Activation(activation)(x)
+#start-modeldef
 
-  x = layers.Conv2D(filters,kernel_size=3,strides=2,padding="same")(x)
-  x = layers.BatchNormalization()(x)
-  x = layers.Activation(activation)(x)
-
-  x = layers.Dropout(0.1)(x)
-
-  return x  
-
-#end-node_0
-
-#node_1
-def convt_2d_block(
-    inbound:list=[],
-    filters:int=8,
-    activation:str="swish"
-  )->None:
-
-  x = layers.Concatenate()(inbound)  
-  x = layers.Conv2DTranspose(filters,kernel_size=3,padding="same")(x)
-  x = layers.BatchNormalization()(x)
-  x = layers.Activation(activation)(x)
-
-  x = layers.Conv2DTranspose(filters,kernel_size=3,strides=2,padding="same")(x)
-  x = layers.BatchNormalization()(x)
-  x = layers.Activation(activation)(x)
-
-  x = layers.Dropout(0.1)(x)
-
-  return x  
-
-#end-node_1
-
-
-input_1 = layers.Input(
-    shape=(224, 224, 3),
+input_12 = layers.Input(
+    shape=(784,),
     batch_size=None,
     name=None,
     dtype=None,
     sparse=False,
     tensor=None,
     ragged=False,
-) #end-input_1
+) #end-input_12
 
-
-conv_block_1 = conv_2d_block(
-    inbound=input_1,
-    filters=8,
-    activation='swish',
-) #end-conv_block_1
-
-
-conv_block_2 = conv_2d_block(
-    inbound=conv_block_1,
-    filters=16,
-    activation='swish',
-) #end-conv_block_2
-
-
-conv_block_3 = conv_2d_block(
-    inbound=conv_block_2,
-    filters=32,
-    activation='swish',
-) #end-conv_block_3
-
-
-conv_block_4 = conv_2d_block(
-    inbound=conv_block_3,
-    filters=64,
-    activation='swish',
-) #end-conv_block_4
-
-
-dense_1 = layers.Dense(
-    units=128,
-    activation='sigmoid',
+dense_3 = layers.Dense(
+    units=10,
+    activation='softmax',
     use_bias=False,
     kernel_regularizer=None,
     bias_regularizer=None,
     activity_regularizer=None,
     kernel_constraint=None,
     bias_constraint=None,
-)(conv_block_4) #end-dense_1
+)(input_12) #end-dense_3
+
+model_8 = keras.Model(
+    [ input_12, ],
+    [ dense_3, ]
+) #end-model_8
+
+#end-modeldef
+
+model_8.compile(
+    optimizer='adam',
+    loss='categorical_crossentropy',
+    metrics=["categorical_accuracy"]
+) #end-compile_8
 
 
-convtranspose_block_1 = convt_2d_block(
-    inbound=[ dense_1, conv_block_4 ],
-    filters=64,
-    activation='swish',
-) #end-convtranspose_block_1
-
-
-convtranspose_block_2 = convt_2d_block(
-    inbound=[ convtranspose_block_1, conv_block_3 ],
-    filters=32,
-    activation='swish',
-) #end-convtranspose_block_2
-
-
-convtranspose_block_3 = convt_2d_block(
-    inbound=[ conv_block_2, convtranspose_block_2 ],
-    filters=16,
-    activation='swish',
-) #end-convtranspose_block_3
-
-
-convtranspose_block_4 = convt_2d_block(
-    inbound=[ conv_block_1, convtranspose_block_3 ],
-    filters=8,
-    activation='swish',
-) #end-convtranspose_block_4
-
-
-conv2d_1 = layers.Conv2D(
-    filters=1,
-    kernel_size=3,
-    padding='same',
-    strides=(1, 1),
-    data_format=None,
-    dilation_rate=(1, 1),
-    groups=1,
-    activation=None,
-    use_bias=True,
-    kernel_regularizer=None,
-    bias_regularizer=None,
-    activity_regularizer=None,
-    kernel_constraint=None,
-    bias_constraint=None,
-)(convtranspose_block_4) #end-conv2d_1
-
-
-batchnormalization_1 = layers.BatchNormalization(
-    momentum=0.99,
-    epsilon=0.001,
-    center=True,
-    scale=True,
-    beta_regularizer=None,
-    gamma_regularizer=None,
-    beta_constraint=None,
-    gamma_constraint=None,
-    renorm=False,
-    renorm_clipping=None,
-    renorm_momentum=0.99,
-    fused=None,
-    trainable=True,
-    virtual_batch_size=None,
-    adjustment=None,
-    name=None,
-)(conv2d_1) #end-batchnormalization_1
-
-
-activation_1 = layers.Activation(
-    activation='sigmoid',
-)(batchnormalization_1) #end-activation_1
-
-
-model_1 = keras.Model(
-    [ input_1, ],
-    [ activation_1, ]
-) #end-model_1
-
-
-adam_1 = optimizers.Adam(
-    learning_rate=9e-05,
-    beta_1=0.9,
-    beta_2=0.999,
-    epsilon=1e-07,
-    amsgrad=False,
-    name='Adam',
-) #end-adam_1
-
-
-model_1.compile(
-    optimizer=adam_1,
-    loss='mean_absolute_error',
-    metrics=None
-) #end-compile_1
-
-
-
-model_1.fit(
-    x=dataset_1.train_x,
-    y=dataset_1.train_y,
-    batch_size=16,
+model_8.fit(
+    x=mnist_13.train_x,
+    y=mnist_13.train_y,
+    batch_size=32,
     epochs=3,
-    validation_data=( dataset_1.test_x, dataset_1.test_y ),
-    callbacks=[ tfgui,  ]
-) #end-train_1
-
+    validation_data=( mnist_13.test_x, mnist_13.test_y ),
+    callbacks=[ tfgui,  ],
+    verbose=0
+) #end-train_10

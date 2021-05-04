@@ -127,13 +127,14 @@ class App(object):
         try:
             header = await reader.read(1)
         except asyncio.IncompleteReadError:
-            pass
+            return -1
+        except OSError:
+            return -1
         else:
             try:
                 header += await reader.readuntil(separator=b'\r\n\r\n')
             except asyncio.exceptions.IncompleteReadError:
-                return
-
+                return -1
             header = RequestHeader().parse(str(header[self.__rnrn],encoding='utf-8'))
             if header.method == "OPTIONS":
                 response = CORS_RESPONSE.format(origin=header.origin).encode()                
@@ -143,11 +144,11 @@ class App(object):
                     response = await func(Request(header,reader,writer,self.loop),**var)
                 else:
                     response = text_response(f'{header.path} not found !',404,'Not Found !')
-            
             if response:
                 writer.write( response )
                 await writer.drain()
                 writer.close()   
+            return -1
 
     def serve(self,host:str='localhost',port:int=8080):
         self.loop.create_task(

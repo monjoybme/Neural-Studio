@@ -1,3 +1,4 @@
+from json import load,dump
 from typing import Tuple
 
 def build_inbound(inbound:list)->str:
@@ -95,8 +96,9 @@ build_functions = {
     "Node":build_custom_node
 }
 
-def build_code(build_config:dict)->Tuple[dict,str]:
-    inputs = []
+def build_code(graphdef:dict)->Tuple[dict,str]:
+    graphdef = graphdef.copy()
+    input_nodes = []
     custom_nodes = []
     train_config = {
         "dataset":None,
@@ -109,9 +111,12 @@ def build_code(build_config:dict)->Tuple[dict,str]:
         "train":None
     }
 
-    for _id,config in build_config.items():
-        if config['type']['name'] == 'Input':
-            inputs.append(_id)
+    for _id,config in graphdef.items():
+        if _id == 'train_config':
+            continue 
+
+        elif config['type']['name'] == 'Input':
+            input_nodes.append(_id)
             
         elif config['type']['name'] == 'Dataset':
             train_config['dataset'] = _id
@@ -131,64 +136,60 @@ def build_code(build_config:dict)->Tuple[dict,str]:
         elif config['type']['_class'] == 'callbacks':
             train_config['callbacks'].append(_id)
     
-    if not len(inputs):
+    if not len(input_nodes):
         return False,"Please add Input node."
 
     node_inject = [  ]
     for i,node in enumerate(custom_nodes):
-        node_inject.append(f"""#node_{i}
-{node['arguments']['code']['value']}
-#end-node_{i}""")
+        node_inject.append(f"""#node_{i}\n{node['arguments']['code']['value']}\n#end-node_{i}""")
 
     custom_node_code = "\n".join(node_inject)
         
-    build_config['train_config'] = train_config
-    build_config['input_nodes'] = inputs
-    build_config['custom_nodes'] = custom_nodes
+    graphdef['train_config'] = train_config
+    graphdef['input_nodes'] = input_nodes
+    graphdef['custom_nodes'] = custom_nodes
     
     skip = []
-    levels = [ set() for i in range(len(build_config))]
+    levels = [ set() for i in range(len(graphdef))]
 
     def setLevel(node,config,di=0):
         if node not in skip:
             levels[di].add(node)
             skip.append(node)
         
-        if build_config[node]['connections']['outbound']:
-            for next_node in build_config[node]['connections']['outbound']: 
-                setLevel(next_node,build_config,di+1)
+        if graphdef[node]['connections']['outbound']:
+            for next_node in graphdef[node]['connections']['outbound']: 
+                setLevel(next_node,graphdef,di+1)
 
-    for inp in inputs:
-        setLevel(inp,build_config,0)
+    for node in input_nodes:
+        setLevel(node,graphdef,0)
         
     levels = [list(level) for level in levels if len(level)]    
     for level in levels:
         for idx,layer in enumerate(level):
             for jdx,conn in enumerate(level[idx+1:]):
-                if conn in build_config[layer]['connections']['inbound']:
+                if conn in graphdef[layer]['connections']['inbound']:
                     level[jdx+idx+1],level[idx] = layer,conn
                 
-    build_config['levels'] = levels
-
+    graphdef['levels'] = levels
     levels = [list(level) for level in levels if len(level)]
     for key,val in train_config.items():
         if val != None:
             if key == 'dataset':
                 train_config['dataset'] = {
                     "id":val,
-                    "value":build_config[val]['arguments']['dataset']['value']
+                    "value":graphdef[val]['arguments']['dataset']['value']
                 }
             elif key == 'optimizer':
                 train_config['optimizer'] = {
                     'id':val,
-                    'value':build_default(build_config[val],build_config)+'\n'
+                    'value':build_default(graphdef[val],graphdef)+'\n'
                 }
             elif key == 'callbacks':
                 callbacks = []
                 for callback in train_config['callbacks']:
                     callbacks.append({
                         "id":callback,
-                        "value":build_default(build_config[callback],build_config)
                     })
                 train_config['callbacks'] = callbacks
                 
@@ -196,11 +197,17 @@ def build_code(build_config:dict)->Tuple[dict,str]:
 
     for level in levels:
         for layer in level:
-            layer = build_config[layer]
+            layer = graphdef[layer]
             if layer['type']['name'] in build_functions: 
-                build += build_functions[layer['type']['name']](layer,build_config) + '\n\n'
+                func = build_functions[layer['type']['name']]
             else:
-                build += build_functions['default'](layer,build_config) + '\n\n'
+                func = build_functions['default']
+                 
+            build +=  (
+                ('#start-modeldef\n\n' if layer['type']['name'] == 'Input' else '') +
+                func(layer,graphdef) +
+                ('\n#end-modeldef\n' if layer['type']['name'] == 'Model' else '\n') 
+            )
                 
     build = build[:-2]
 
@@ -220,7 +227,6 @@ from gc import collect
 #end-import
 
 {dataset}
-
 {custom_node_code}
 {build}
 """.format(
@@ -228,5 +234,5 @@ dataset=train_config['dataset']['value'],
 build=build,
 custom_node_code=custom_node_code
 )
-    return build_config,code
+    return graphdef.copy(),code
 
