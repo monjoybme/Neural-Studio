@@ -43,24 +43,14 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
   ]);
   let { graphdef, graphdefState ,canvasConfig, layerGroups } = props.store;
   let canvasref = React.useRef(<svg> </svg>);
+  let [ viewBox, viewBoxState ] = React.useState({
+    x:0, 
+    y:0,
+    h:window.innerHeight,
+    w:window.innerWidth
+  })  
 
-  function onScroll(e) {
-    let canv = e.target;
-    let svg = canv.children[0];
 
-    if (canv.scrollTop > canv.scrollHeight - window.innerHeight) {
-      svg.height.baseVal.value = Math.max(
-        4400,
-        Math.floor(svg.height.baseVal.value * 1.01)
-      );
-    }
-    if (canv.scrollLeft > canv.scrollWidth - window.innerWidth + 230) {
-      svg.width.baseVal.value = Math.max(
-        4400,
-        Math.floor(svg.width.baseVal.value * 1.005)
-      );
-    }
-  }
   
   function newLine(e) {
     e.preventDefault();
@@ -209,7 +199,7 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
 
       canvasConfig.activeElement.edges_in.forEach((edge) => {
         edge.x1.baseVal.value = canvasConfig.pos.x + canvasConfig.activeElement.layer.width / 2;
-        edge.y1.baseVal.value = canvasConfig.pos.y;
+        edge.y1.baseVal.value = canvasConfig.pos.y - 5;
       });
       canvasConfig.activeElement.edges_out.forEach((edge) => {
         edge.x2.baseVal.value = canvasConfig.pos.x + canvasConfig.activeElement.layer.width / 2;
@@ -307,6 +297,36 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
     }
   }
 
+  function onScroll(e) {
+    let canv = e.target;
+    let svg = canv.children[0];
+
+    if (canv.scrollTop > canv.scrollHeight - window.innerHeight) {
+      svg.height.baseVal.value = Math.max(
+        4400,
+        Math.floor(svg.height.baseVal.value * 1.01)
+      );
+    }
+    if (canv.scrollLeft > canv.scrollWidth - window.innerWidth + 230) {
+      svg.width.baseVal.value = Math.max(
+        4400,
+        Math.floor(svg.width.baseVal.value * 1.005)
+      );
+    }
+  }
+
+  function zoomout(){
+    viewBox.h += ( window.innerHeight * 0.1 );
+    viewBox.w += ( window.innerWidth * 0.1 );
+    viewBoxState({...viewBox})
+  }
+
+  function zoomin(){
+    viewBox.h -= ( window.innerHeight * 0.1 );
+    viewBox.w -= ( window.innerWidth * 0.1 );
+    viewBoxState({...viewBox})
+  }
+
   React.useEffect(() => {
     window.setToolMode = setToolMode;
     window.thumb_export = document.getElementById("canvas");
@@ -321,8 +341,8 @@ const GraphEditor = ( props = { store: StoreContext, }) => {
         <LayerGroups {...props} setToolMode={setToolMode} />
       </div>
       <div className="canvas-top" id="canvasTop" onScroll={onScroll}  >
-        <svg xmlns="http://www.w3.org/2000/svg" className="canvas" ref={canvasref} id="canvas" onMouseUp={onMouseUp}>
-          <marker xmlns="http://www.w3.org/2000/svg" id="triangle" viewBox="0 0 10 10" refX="0" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="auto" >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}`} className="canvas" ref={canvasref} id="canvas" onMouseUp={onMouseUp}>
+          <marker xmlns="http://www.w3.org/2000/svg" id="triangle" viewBox="0 0 10 10" refX="0" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="90deg" >
             <path d="M 0 0 L 10 5 L 0 10 z" />
           </marker>
           <line id="dummy"  x1="0" y1="0" x2="0" y2="0" strokeWidth="0" markerEnd="url(#triangle)" />

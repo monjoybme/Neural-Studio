@@ -317,7 +317,6 @@ const Training = (
     var elem = document.getElementById("logs");
     elem.scrollTop = elem.scrollHeight;
     if (train.training && status.updating === false && status.ended === false && status.ended !== undefined) {
-      // console.log("Starting Update");
       getStatus();
     }
   });

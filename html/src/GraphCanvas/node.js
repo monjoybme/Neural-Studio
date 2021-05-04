@@ -109,11 +109,12 @@ const Node = (props={
         if (pos_out) {
           return (
             <line
-              x1={ pos.x + pos.offsetX + width / 2}
-              y1={ pos.y }
-              x2={ pos_out.pos.x + pos_out.pos.offsetX + pos_out.width / 2 }
-              y2={ pos_out.pos.y + 30 }
-              markerMid="url(#triangle)"
+              x1 ={ pos.x + pos.offsetX + width / 2}
+              y1 ={ pos.y - 5}
+              x2 ={ pos_out.pos.x + pos_out.pos.offsetX + pos_out.width / 2 }
+              y2 ={ pos_out.pos.y + 30 }
+              markerStart="url(#triangle)"
+              // markerEnd="url(#triangle)"
               stroke="#333"
               strokeWidth="2"
               key={i}
