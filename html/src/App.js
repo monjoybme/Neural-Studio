@@ -25,7 +25,10 @@ window.copy = function (object) {
   return JSON.parse(JSON.stringify(object));
 };
 
-setInterval(function () {
+if ( window.__SHORTCUT__ ){
+  clearInterval(window.__UPDATE_OFFSET__);
+}
+window.__UPDATE_OFFSET__ =  setInterval(function () {
   window.offsetX = appConfig.canvas.toolbar.width + appConfig.geometry.sideBar.width;
   window.offsetY = appConfig.geometry.topBar.height;
 }, 1000);
@@ -306,6 +309,7 @@ const App = (props) => {
             break;
           case 'Alt':
             window.__SHORTCUT__ = 2;
+            break
           case "Escape":
             popupState(<div className='popup'></div>);
             if (render.name === "Graph") {
@@ -330,11 +334,16 @@ const App = (props) => {
   return (
     <div className={`app ${appconfig.theme}`}>
       {popup}
-      <SideBar store={store} />
-      <TopBar store={store} />
-      <render.comp store={store} />
-      <div className="notifications">
-        { notification.toLowerCase() } | workspace : { workspace.active.config.name }
+      <div className="sidenav">
+        <SideBar store={store} />
+      </div>
+      <div className="container-area">
+        <TopBar store={store} />
+        <render.comp store={store} />
+        <div className="notifications">
+          {notification.toLowerCase()} | workspace :{" "}
+          {workspace.active.config.name}
+        </div>
       </div>
     </div>
   );

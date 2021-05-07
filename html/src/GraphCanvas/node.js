@@ -22,7 +22,7 @@ const Node = (props={
   store:StoreContext
 }) => {
   let height = 30;
-  let { id, name, pos, connections,width } = props;
+  let { id,  pos, connections,width } = props;
   let { graphdef, graphdefState, canvasConfig  } = props.store;
   let nodeRef = React.useRef(<svg />)
 
@@ -30,14 +30,13 @@ const Node = (props={
     e.preventDefault();
     switch (canvasConfig.mode) {
       case "move":
-        let scroll = document.getElementById("canvasTop");
         canvasConfig.activeElement = {
           layer: props,
           text: document.getElementById(`${id}-text`),
           rect: document.getElementById(`${id}-rect`),
-          offset:{ 
-            x:pos.x - ( e.clientX - window.offsetX + scroll.scrollLeft ),
-            y:pos.y - ( e.clientY - window.offsetY + scroll.scrollTop ),
+          ref:{ 
+            x:pos.x - ( e.clientX - window.offsetX  ),
+            y:pos.y - ( e.clientY - window.offsetY  ),
           },
           edges_in: connections.inbound.map((layer, i) => {
             return document.getElementById(`${layer}-${id}`);
@@ -109,9 +108,9 @@ const Node = (props={
         if (pos_out) {
           return (
             <line
-              x1 ={ pos.x + pos.offsetX + width / 2}
+              x1 ={ pos.x + pos.offsetX }
               y1 ={ pos.y - 5}
-              x2 ={ pos_out.pos.x + pos_out.pos.offsetX + pos_out.width / 2 }
+              x2 ={ pos_out.pos.x + pos_out.pos.offsetX }
               y2 ={ pos_out.pos.y + 30 }
               markerStart="url(#triangle)"
               markerEnd="url(#circle)"
@@ -137,7 +136,7 @@ const Node = (props={
         id={`${id}-rect`}
       ></rect>
       <text
-        x={pos.x + ( width / 12 ) * 2.5 }
+        x={pos.x + ( Math.floor( width * ( 1/ 5 ) ) ) }
         y={pos.y + 19 }
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}

@@ -2,10 +2,14 @@
 
 $toolbarWidth : 240px;
 
+.graph-canvas {
+    display: flex;    
+}
+
 .tools {
     width: $toolbarWidth;
-    border-right: 1px solid $primary;
-    height: calc(100vh - #{$topbarHeight});
+    height: 100%;
+    border-right: $lightBorder1;
 
     .toolbar {
         display: grid;
@@ -33,16 +37,14 @@ $toolbarWidth : 240px;
 
     .layergroups {
         overflow-y: scroll;
-        overflow-x: hidden;
-      
-        height: calc(100% - #{$topbarHeight} - 20px );
+        
+        height: 92%;
         width: $toolbarWidth;
         @include flex(column, flex-start, center);
 
         .layers {
             width: 100%;
             @include flex( column,);
-
             .name {
                 min-height: calc( #{$topbarHeight} - 2px ) !important;
                 height: auto !important;
@@ -78,15 +80,9 @@ $toolbarWidth : 240px;
 }
 
 .canvas-top {
-    position: fixed;
-    left: $sidebarWidth + $toolbarWidth;
-    top: $topbarHeight;
-
-    width: calc(100% - #{$sidebarWidth} - #{$toolbarWidth});
-    height: calc(100% - #{$topbarHeight} - 20px);
-    
+    width: 100%;
+    height: 100%;
     overflow: hidden !important;
-    padding: 5px;
 
     .canvas {
         width: -webkit-fill-available;
@@ -102,14 +98,12 @@ $toolbarWidth : 240px;
 
 .menu {
     position: absolute;
-    z-index: 10;
+    z-index: 99;
     right: 0;
-    top: 0;
-    height: 100vh;
+    height: 100%;
     width: 300px;
     padding: 5px;
     overflow-y: scroll;
-    border-left: 1px solid $primary;
     @include flex(column, flex-start,center);
 
     .name {
@@ -123,7 +117,7 @@ $toolbarWidth : 240px;
         display: grid;
         grid-gap: 10px;
         margin-top: 5px;
-        max-height: 85vh;
+        max-height: 85%;
 
         .property {
             height: 70px;
@@ -134,7 +128,7 @@ $toolbarWidth : 240px;
             flex-direction: column;
             justify-content: center;
             align-items: flex-start;
-            padding: 5px;
+            padding: 5px 7px;
             
             .name {
                 margin-left: 3px;
@@ -193,9 +187,10 @@ $toolbarWidth : 240px;
 .dataset {
     position: absolute;
     z-index: 99999;
-    left: $sidebarWidth + 180px;
-    height: calc(100vh - #{$topbarHeight} - 60px);
-    width: calc(100vw - #{$sidebarWidth} - 240px);
+    left: $toolbarWidth + $sidebarWidth;
+    top: $topbarHeight;
+    width: calc( 100% - ( #{$toolbarWidth} + #{$sidebarWidth} ) );
+    height: calc( 100% - ( #{$topbarHeight} + #{$notificationBarHeight} ) );
     
     .head {
         width: 100%;
@@ -229,6 +224,9 @@ $toolbarWidth : 240px;
             @include flex();
             @extend .heading-4;
         }
+    }
+    section {
+        height: calc( 100% - 40px ) !important;
     }
 }
 
@@ -300,6 +298,8 @@ $toolbarWidth : 240px;
     .menu{
         background: $lightFr;
         color: $lightColorPr;
+        border-left: $lightBorder2;
+
         .properties {
             .property{
                 border: $lightBorder2;
@@ -338,15 +338,16 @@ $toolbarWidth : 240px;
 .dark {
 
     .tools {
+        border-right: $darkBorder2;
         background: $darkFr;
         .toolbar {
-            border-bottom: $darkBorder1;
+            border-bottom: $darkBorder2;
         }
     }
 
     .layergroups {
         .layers{
-            border-bottom: $darkBorder1;
+            border-bottom: $darkBorder2;
             .name{
                 color: $darkColorPr;
                 @extend .heading-light;
@@ -388,10 +389,11 @@ $toolbarWidth : 240px;
     .menu{
         background: $darkFr;
         color: $darkColorPr;
+        border-left: $darkBorder2;
 
         .properties {
             .property{
-                border: 1px solid rgba( 228, 228, 228, 0.4);
+                // border: 1px solid rgba( 228, 228, 228, 0.4);
                 background: rgba($color: #c5c5c5, $alpha: 0.3);
             }
             .checkboxes {
@@ -410,6 +412,7 @@ $toolbarWidth : 240px;
 
     .dataset{
         color: $darkColorPr;
+        background: $bgDark;
         input{
             color: $darkColorPr;
         }

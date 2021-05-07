@@ -2,8 +2,8 @@
 
 .nav {
   height: 100vh;
-  width: $sidebarWidth;
-  border-right: 1px solid $primary;
+  width: 100%;
+  border-right: $lightBorder1;
 
   .title {
     height: $topbarHeight - 1px;
@@ -17,14 +17,13 @@
   }
 
   .navigation {
-    width: $sidebarWidth;
+    width: 100%;
     @include flex(column, flex-start, center);
 
     .btn {
-      width: $sidebarWidth;
-      height: $sidebarWidth;
+      height: $topbarHeight;
+      width: 100%;
       @extend .grid-center;
-
       svg {
         fill: $secondary;
         opacity: 0.3;
@@ -32,9 +31,6 @@
     }
 
     .selected {
-      border-top: 1px solid $primary;
-      border-bottom: 1px solid $primary;
-
       svg {
         fill: $primary;
         opacity: 1;
@@ -45,17 +41,15 @@
 
 .topbar {
   height: $topbarHeight;
-  width: calc(100% - #{$sidebarWidth});
+  width: 100%;
 
   display: grid;
   grid-template-columns: 18fr 1fr 1fr;
   
-  position: absolute;
+  
   top: 0px;
   left: $sidebarWidth;
   z-index: 9999;
-
-  border-bottom: 1px solid $primary;
 
   .title {
     height: $topbarHeight;
@@ -98,15 +92,9 @@
 }
 
 .notifications {
-  height: 20px;
-  position: absolute;
-  width: 100vw;
-
-  top: calc(100% - 20px);
-  left: $sidebarWidth;
-
-  z-index: 999;
-  border-top: 1px solid $primary;
+  height: $notificationBarHeight;
+  width: 100%;
+  border-top : $lightBorder1;
 
   padding-left: 3px;
 
@@ -123,18 +111,20 @@
     .navigation {
       .btn {
         background: $lightBg;
-        border-right: 1px solid $primary;
       }
       .selected {
         background: $lightFr;
-        border-top: 1px solid $primary;
-        border-bottom: 1px solid $primary;
+        width: $sidebarWidth;
         border-right: 1px solid $lightFr;
+        border-top: $lightBorder1;
+        border-bottom: $lightBorder1;
       }
     }
   }
 
   .topbar {
+    border-bottom: $lightBorder1;
+    box-shadow: 3px 1px 1px 1px $lightFr;
     .title {
       color: $lightColorPr;
     }
@@ -155,24 +145,25 @@
 .dark {
   .nav {
     background: $darkBg;
+    border-right: $darkBorder2;
     .title {
       border-right: 00.001rem solid $darkBg;
     }
     .navigation {
       .btn {
         background: $darkBg;
-        border-right: 1px solid $primary;
       }
       .selected {
+        border-top: $darkBorder2;
+        border-bottom: $darkBorder2;
         background: $darkFr;
-        border-top: 1px solid $primary;
-        border-bottom: 1px solid $primary;
-        border-right: none;
+        width: $sidebarWidth;
       }
     }
   }
 
   .topbar {
+    border-bottom: $darkBorder2;
     .title {
       color: $darkColorPr;
     }
@@ -188,5 +179,6 @@
   .notifications {
     color: $darkColorPr;
     background: $darkBg;
+    border-top: $darkBorder2;
   }
 }

@@ -47,29 +47,20 @@ const GraphEditor = (props = { store: StoreContext }) => {
 
   function newLine(e) {
     e.preventDefault();
-    let scroll = document.getElementById("canvasTop");
-    let _line = document.getElementById("dummy");
+    let line = document.getElementById("dummy");
     let pos = {
-      x:
-        window.canvasConfig.viewBox.x +
-        e.clientX -
-        window.offsetX +
-        scroll.scrollLeft,
-      y:
-        window.canvasConfig.viewBox.y +
-        e.clientY -
-        window.offsetY +
-        scroll.scrollTop,
+      x: window.canvasConfig.viewBox.x + e.clientX - window.offsetX + 10,
+      y: window.canvasConfig.viewBox.y + e.clientY - window.offsetY 
     };
 
-    _line.style.strokeWidth = 2;
-    _line.x1.baseVal.value = pos.x;
-    _line.y1.baseVal.value = pos.y;
-    _line.x2.baseVal.value = pos.x + 1;
-    _line.y2.baseVal.value = pos.y + 1;
+    line.style.strokeWidth = 2;
+    line.x1.baseVal.value = pos.x;
+    line.y1.baseVal.value = pos.y;
+    line.x2.baseVal.value = pos.x;
+    line.y2.baseVal.value = pos.y;
 
     canvasConfig.activeLine = {
-      line: _line,
+      line: line,
     };
   }
 
@@ -94,39 +85,15 @@ const GraphEditor = (props = { store: StoreContext }) => {
     if (e.button) {
     } else {
       let layer = window.copy(canvasConfig.activeLayer);
-      let scroll = document.getElementById("canvasTop");
       let { name, id } = layerIdGenerator(layer.name);
 
-      graphdef[id] = {
-        ...layer,
-        name: name,
-        id: id,
-        pos: {
-          x: 0,
-          y: 0,
-        },
-        connections: {
-          inbound: [],
-          outbound: [],
-        },
-        width: 0,
-      };
-      graphdef[id].width = graphdef[id].name.length * 12;
+      graphdef[id] = { ...layer, name: name, id: id, pos: { x: 0, y: 0, }, connections: { inbound: [], outbound: [], }, width: 0, };
+      graphdef[id].width = graphdef[id].name.length * 13;
       graphdef[id].pos = {
-        x:
-          window.canvasConfig.viewBox.x +
-          e.clientX -
-          window.offsetX +
-          scroll.scrollLeft -
-          graphdef[id].width / 2,
-        y:
-          window.canvasConfig.viewBox.y +
-          e.clientY -
-          window.offsetY +
-          scroll.scrollTop -
-          23,
-        offsetX: 0,
-        offsetY: 0,
+        x: window.canvasConfig.viewBox.x + e.clientX - window.offsetX - Math.floor(graphdef[id].width / 2) + 10,
+        y: window.canvasConfig.viewBox.y + e.clientY - window.offsetY - 15,
+        offsetX : Math.floor( graphdef[id].width / 2 ),
+        offsetY : 15
       };
 
       switch (canvasConfig.activeLayer.type.name) {
@@ -187,47 +154,28 @@ const GraphEditor = (props = { store: StoreContext }) => {
   function moveEdge(e) {
     e.preventDefault();
     if (canvasConfig.activeLine) {
-      let scroll = document.getElementById("canvasTop");
       canvasConfig.activeLine.line.x2.baseVal.value =
-        window.canvasConfig.viewBox.x +
-        e.clientX -
-        window.offsetX +
-        scroll.scrollLeft -
-        3;
+        window.canvasConfig.viewBox.x + e.clientX - window.offsetX + 10;
       canvasConfig.activeLine.line.y2.baseVal.value =
-        window.canvasConfig.viewBox.y +
-        e.clientY -
-        window.offsetY +
-        scroll.scrollTop -
-        10;
+        window.canvasConfig.viewBox.y + e.clientY - window.offsetY ; 
     }
   }
 
   function moveNode(e) {
+
     try {
-      let scroll = document.getElementById("canvasTop");
       canvasConfig.pos = {
-        x:
-          e.clientX +
-          scroll.scrollLeft -
-          window.offsetX +
-          canvasConfig.activeElement.offset.x,
-        y:
-          e.clientY +
-          scroll.scrollTop -
-          window.offsetY +
-          canvasConfig.activeElement.offset.y,
+        x:  e.clientX - window.offsetX + canvasConfig.activeElement.ref.x,
+        y:  e.clientY - window.offsetY + canvasConfig.activeElement.ref.y,
         offsetX: canvasConfig.activeElement.layer.pos.offsetX,
         offsetY: canvasConfig.activeElement.layer.pos.offsetY,
       };
 
       canvasConfig.activeElement.rect.x.baseVal.value = canvasConfig.pos.x;
       canvasConfig.activeElement.rect.y.baseVal.value = canvasConfig.pos.y;
-      canvasConfig.activeElement.text.x.baseVal[0].value =
-        canvasConfig.pos.x +
-        (canvasConfig.activeElement.layer.width / 12) * 2.5;
-      canvasConfig.activeElement.text.y.baseVal[0].value =
-        canvasConfig.pos.y + 19;
+
+      canvasConfig.activeElement.text.x.baseVal[0].value = canvasConfig.pos.x + Math.floor( canvasConfig.activeElement.layer.width * ( 1/5 ) );
+      canvasConfig.activeElement.text.y.baseVal[0].value = canvasConfig.pos.y + 19;
 
       canvasConfig.activeElement.edges_in.forEach((edge) => {
         edge.x1.baseVal.value =
@@ -380,39 +328,53 @@ const GraphEditor = (props = { store: StoreContext }) => {
     }
   }
 
+  function updateViewBox(){
+    window.canvasConfig.viewBox = {
+      x: window.canvasConfig.viewBox.x,
+      y: window.canvasConfig.viewBox.y,
+      w: canvasTop.current.scrollWidth,
+      h: canvasTop.current.scrollHeight,
+    };
+    canvasref.current.viewBox.baseVal.x = window.canvasConfig.viewBox.x;
+    canvasref.current.viewBox.baseVal.y = window.canvasConfig.viewBox.y;
+    canvasref.current.viewBox.baseVal.width = window.canvasConfig.viewBox.w;
+    canvasref.current.viewBox.baseVal.height = window.canvasConfig.viewBox.h;
+  }
+
   React.useEffect(() => {
     window.setToolMode = setToolMode;
-    window.thumb_export = document.getElementById("canvas");
     window.autosave();
 
-    if (
-      canvasref.current.viewBox.baseVal.height === 0 &&
-      canvasref.current.viewBox.baseVal.width === 0
-    ) {
-      if (
-        window.canvasConfig.viewBox.w === 0 ||
-        window.canvasConfig.viewBox.h
-      ) {
-        window.canvasConfig.viewBox = {
-          x: 0,
-          y: 0,
-          w: canvasTop.current.scrollWidth,
-          h: canvasTop.current.scrollHeight,
-        };
-      }
-      canvasref.current.viewBox.baseVal.x = window.canvasConfig.viewBox.x;
-      canvasref.current.viewBox.baseVal.y = window.canvasConfig.viewBox.y;
-      canvasref.current.viewBox.baseVal.width = window.canvasConfig.viewBox.w;
-      canvasref.current.viewBox.baseVal.height = window.canvasConfig.viewBox.h;
+    if ( canvasref.current.viewBox.baseVal.height === 0 && canvasref.current.viewBox.baseVal.width === 0 ) {      
+      updateViewBox();
     }
+
+    function updateViewBoxService(){
+      if (canvasTop.current){
+        if (
+          canvasTop.current.scrollHeight !== window.canvasConfig.viewBox.h ||
+          canvasTop.current.scrollWidth !== window.canvasConfig.viewBox.w
+        ){
+          updateViewBox();
+        }
+          window.__VIEWBOX__UPDATE__ = setTimeout(updateViewBoxService, 1);
+      }else{
+
+      }
+    }
+
+    clearTimeout(window.__VIEWBOX__UPDATE__);
+    window.__VIEWBOX__UPDATE__ = setTimeout(updateViewBoxService, 1);
+    
+
     if (load) {
       setToolMode({ name: "normal" });
       loadState(false);
     }
-  });
+  }, [ setToolMode, load ]);
 
   return (
-    <div className="container">
+    <div className="container graph-canvas">
       {menu.comp}
       <div className="tools">
         <Toolbar
