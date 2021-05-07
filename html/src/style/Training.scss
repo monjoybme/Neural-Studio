@@ -1,224 +1,211 @@
-@import './App.scss';
+@import "./App.scss";
 
 .training {
-    display: flex;
+  display: flex;
 
-    .toolbar{ 
-        position: relative;
+  .toolbar {
+    position: relative;
+    width: 100%;
+    height: $topbarHeight;
+
+    border: none;
+    border-bottom: 1px solid $primary;
+
+    padding: 0px;
+    overflow: hidden;
+
+    .buttons {
+      width: 100%;
+      height: 100%;
+      @include flex(row, space-around, center);
+
+      .btn {
         width: 100%;
         height: $topbarHeight;
 
-        border: none;
-        border-bottom: $border1;
-        
+        margin: 0px;
         padding: 0px;
+
+        background: none;
+        border: none;
+
         overflow: hidden;
+        @include flex();
 
-        .buttons {
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            width: 100%;
-            height: 100%;
-
-            .btn {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              
-                width: 100%;
-                height: $topbarHeight - 1px;
-              
-                margin: 0px;
-                padding: 0px;
-                background: none;
-                border: none;
-              
-                overflow: hidden;
-
-                svg:hover{
-                    fill: $orange0;
-                }
-            }
+        svg:hover {
+          fill: $primary;
         }
-
+      }
     }
+  }
 
-    .tuner {
-        width: 320px;
-        border-right: $border1;
-        height: calc( 100vh - #{$topbarHeight} );
-        .params {
-            overflow-y: scroll;
-            height: -webkit-fill-available;
-            width: 100%;
-            padding: 0px 0px 5px 0px;
-        }
-        .property {
-
-            .menu {
-                position: relative !important;
-                height: 50%;
-                width: 100%;
-                border: none;
-            }
-
-        }
+  .tuner {
+    width: 320px;
+    border-right: 1px solid $primary;
+    height: calc(100vh - #{$topbarHeight});
+    .params {
+      overflow-y: scroll;
+      height: -webkit-fill-available;
+      width: 100%;
+      padding: 0px 0px 0px 0px;
     }
+    .property {
+      padding-left: 5px;
+      .menu {
+        position: relative !important;
+        height: 50%;
+        width: 100%;
+        border: none;
+        overflow-y: hidden;
+      }
+    }
+  }
 }
 
 .logs {
-    overflow-y: scroll;
-    height: auto;
-    max-height: calc(100vh - #{$topbarHeight} - 20px);
-    width: -webkit-fill-available;
-    padding: 10px;
+  overflow-y: scroll;
+  height: auto;
+  max-height: calc(100vh - #{$topbarHeight} - 20px);
+  width: -webkit-fill-available;
+  padding: 10px;
 
-    .log {
-        width: 100%;
-        background: rgba(228, 228, 228, 0.2);
-        padding: 7px 7px 7px 7px;
-        margin-bottom: 10px;
-        border-radius: 2px;
+  .log {
+    width: 100%;
+    background: rgba(228, 228, 228, 0.25);
+    padding: 7px 7px 7px 7px;
+    margin-bottom: 10px;
+    border-radius: 2px;
+  }
+
+  .notif {
+    max-height: 35px;
+    @extend .heading-4;
+  }
+
+  .error {
+    .message {
+      min-height: 30px;
+
+      background: #fb7d7d;
+      padding-left: 10px;
+      border-radius: 2px;
+
+      color: rgb(252, 252, 252);
+
+      @include flex(row, flex-start, center);
+      @extend .heading-4;
+      @extend .heading-medium;
     }
-
-    .notif {
-        font-size: small;
-        letter-spacing: 1px;
-        max-height: 35px;
+    pre {
+      padding: 10px;
+      border-radius: 2px;
     }
+  }
 
-    .error {
-        .message {
-            font-size: small;
-            letter-spacing: 1px;
-            min-height: 30px;
-          
-            display: flex;
-            align-items: center;
-          
-            background: #fb7d7d;
-            padding-left: 10px;
-            border-radius: 2px;
-            color: rgb(252, 252, 252);
-        }
-        pre{
-            padding: 10px;
-            border-radius: 2px;
-        }
-    }
+  .epoch {
+    min-height: 80px;
+    @include flex(column, none, none);
 
-    .epoch {
-        display: flex;
-        flex-direction: column;
-        min-height: 80px;
-
-        .upper {
-            display: grid;
-            grid-template-columns: 2fr 18fr;
-            height: 30px;
-            padding-bottom: 3px;
-
-            .epochname {
-                font-size: 14px;
-                display: flex;
-                justify-content: flex-start;
-                align-items: center;
-            }
-
-            .progress {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-
-                .bar {
-                    width: 100%;
-                    height: 60%;
-                    border: solid 1px rgba(51, 51, 51, 0.1);
-                    background: rgba(228, 228, 228, 0.3);
-                    border-radius: 3px;
-                    padding: 3px;
-                }
-
-                .done {
-                    background: rgb(87, 158, 87);
-                    height: 100%;
-                }
-
-            }  
-
-        }
-
-        .lower {
-            margin: 10px 3px 7px 3px;
-            padding-top: 5px;
-            
-            .outputs {
-                display: flex;
-
-                .output {
-                    display: flex;
-                    justify-content: left;
-                    align-items: center;
-                    padding: 0px 10px 0px 3px;
-                    margin-right: 3px;
-                    font-size: 12px;
-                }
-            }              
-        }
-    }
+    .upper {
+      display: grid;
+      grid-template-columns: 2fr 18fr;
+      height: 40px;
+      padding: 5px 0px 10px 0px; 
       
+      .epochname {
+        @include flex(row, flex-start, center);
+        @extend .heading-4;
+      }
+
+      .progress {
+        @include flex();
+
+        .bar {
+          width: 100%;
+          height: 60%;
+          background: rgba(228, 228, 228, 0.3);
+          border-radius: 3px;
+          padding: 3px;
+        }
+
+        .done {
+          background: rgb(87, 158, 87);
+          height: 100%;
+        }
+      }
+    }
+
+    .lower {
+      min-height: 40px;
+      @include flex( row, flex-start, center );
+      .outputs {
+        display: flex;
+        .output {
+          padding: 0px 5px 0px 3px;
+
+          @include flex( row, left, center );
+          @extend .heading-5;
+        }
+      }
+    }
+  }
 }
 
 .dark {
-    .logs{
-        .log{
-            color: $colorLight;
-            border: solid 1px rgba(255, 255, 255, 0.15);
-            border-radius: 1px;
-            .lower {
-                border-top: solid 1px rgba(255, 255, 255, 0.15);
-            }
-        }
-        .error {
-            pre{
-                border: solid 1px rgba(228, 228, 228, 0.1);
-            }
-        }
-    }    
-    .tuner {
-        background: $bgsDark;
-        .title {
-            color: $colorLight;
-            letter-spacing: 1px;
-            font-weight: 500;
-            font-size: 13px;
-        }
+  .logs {
+    .log {
+      color: $darkColorPr;
+      border: solid 1px rgba(255, 255, 255, 0.15);
+      border-radius: 1px;
+      .lower {
+        border-top: solid 1px rgba(255, 255, 255, 0.15);
+      }
     }
+    .error {
+      pre {
+        border: solid 1px rgba(228, 228, 228, 0.1);
+      }
+    }
+    .epoch {
+      .progress {
+        .bar{
+          background: $darkFr;
+          border: $darkBorder2;
+          padding: 3px 3px;
+        }
+      }
+    }
+  }
+  .tuner {
+    background: $darkFr;
+  }
 }
 
 .light {
-    .logs{
-        .log{
-            color: $colorDark;
-            border: solid 1px rgba(51, 51, 51, 0.1);
-            .lower {
-                border-top: solid 1px rgba(51, 51, 51, 0.1);
-            }
-        }
-        .error {
-            pre{
-                border: solid 1px rgba(51, 51, 51, 0.05);
-            }
-        }
+  .logs {
+    .log {
+      color: $lightColorPr;
+      border: solid 1px rgba(51, 51, 51, 0.1);
+      .lower {
+        border-top: solid 1px rgba(51, 51, 51, 0.1);
+      }
     }
-    .tuner {
-        background: $bgsLight;
-        .title {
-            color: $colorDark;
-            letter-spacing: 1px;
-            font-weight: 500;
-            font-size: 13px;
+    .error {
+      pre {
+        border: solid 1px rgba(51, 51, 51, 0.05);
+      }
+    }
+    .epoch {
+      .progress {
+        .bar{
+          background: $lightBg;
+          border: $lightBorder3;
+          padding: 3px 3px;
         }
-    }    
+      }
+    }
+  }
+  .tuner {
+    background: $lightFr;
+  }
 }

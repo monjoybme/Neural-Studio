@@ -30,7 +30,7 @@ const Epoch = (props) => {
       <div className="lower">
         {props.data.log.output ? (
           <div className="outputs">
-            <div className="output">
+            <div className="output heading-5">
               {props.data.log.batch} / {props.data.train.batches}
             </div>
             {Object.keys(props.data.log.output).map((output, i) => {

@@ -3,7 +3,7 @@
 .nav {
   height: 100vh;
   width: $sidebarWidth;
-  border-right: $border1;
+  border-right: 1px solid $primary;
 
   .title {
     height: $topbarHeight - 1px;
@@ -26,16 +26,18 @@
       @extend .grid-center;
 
       svg {
-        fill: $orange3;
+        fill: $secondary;
+        opacity: 0.3;
       }
     }
 
     .selected {
-      border-top: 1px solid var(--orange1);
-      border-bottom: 1px solid var(--orange1);
+      border-top: 1px solid $primary;
+      border-bottom: 1px solid $primary;
 
       svg {
-        fill: $orange0;
+        fill: $primary;
+        opacity: 1;
       }
     }
   }
@@ -47,20 +49,21 @@
 
   display: grid;
   grid-template-columns: 18fr 1fr 1fr;
+  
   position: absolute;
   top: 0px;
   left: $sidebarWidth;
   z-index: 9999;
 
-  border-bottom: $border1;
+  border-bottom: 1px solid $primary;
 
   .title {
     height: $topbarHeight;
     width: $topbarHeight;
-    margin-left: 10px;
-    font-weight: 600;
-    letter-spacing: 1px;
+    
     @extend .grid-center;
+    @extend .heading-2;
+    @extend .heading-bold;
   }
 
   .switch {
@@ -73,6 +76,7 @@
     height: 23px;
     width: 42px;
     border-radius: 15px;
+
     padding-left: 5px;
     padding-right: 5px;
 
@@ -102,41 +106,37 @@
   left: $sidebarWidth;
 
   z-index: 999;
-  border-top: $border1;
+  border-top: 1px solid $primary;
 
-  display: flex;
-  align-items: center;
+  padding-left: 3px;
 
-  font-size: 11px;
-  padding-left: 10px;
-  letter-spacing: 1px;
-  font-weight: 300;
+  @include flex(row, flex-start, center);
+  @extend .heading-5;
 }
 
 .light {
   .nav {
-    background: $bgLight;
-
+    background: $lightBg;
     .title {
-      border-right: 00.001rem solid $bgLight;
+      border-right: 00.001rem solid $lightBg;
     }
     .navigation {
       .btn {
-        background: $bgLight;
-        border-right: $border1;
+        background: $lightBg;
+        border-right: 1px solid $primary;
       }
       .selected {
-        background: $bgsLight;
-        border-top: $border1;
-        border-bottom: $border1;
-        border-right: none;
+        background: $lightFr;
+        border-top: 1px solid $primary;
+        border-bottom: 1px solid $primary;
+        border-right: 1px solid $lightFr;
       }
     }
   }
 
   .topbar {
     .title {
-      color: $colorDark;
+      color: $lightColorPr;
     }
     .holder {
       background: skyblue;
@@ -147,26 +147,26 @@
     }
   }
   .notifications {
-        color: $colorDark;
-        background: $bgLight;
+        color: $lightColorPr;
+        background: $lightBg;
     }
 }
 
 .dark {
   .nav {
-    background: $bgDark;
+    background: $darkBg;
     .title {
-      border-right: 00.001rem solid $bgDark;
+      border-right: 00.001rem solid $darkBg;
     }
     .navigation {
       .btn {
-        background: $bgDark;
-        border-right: $border1;
+        background: $darkBg;
+        border-right: 1px solid $primary;
       }
       .selected {
-        background: $bgsDark;
-        border-top: $border1;
-        border-bottom: $border1;
+        background: $darkFr;
+        border-top: 1px solid $primary;
+        border-bottom: 1px solid $primary;
         border-right: none;
       }
     }
@@ -174,7 +174,7 @@
 
   .topbar {
     .title {
-      color: $colorLight;
+      color: $darkColorPr;
     }
     .holder {
       background: #582d58;
@@ -186,7 +186,7 @@
   }
 
   .notifications {
-    color: $colorLight;
-    background: $bgDark;
+    color: $darkColorPr;
+    background: $darkBg;
   }
 }

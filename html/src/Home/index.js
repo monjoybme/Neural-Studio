@@ -4,31 +4,34 @@ import { icons } from "../data/icons";
 import { GET, Loading, POST } from "../Utils";
 
 const WorkspaceCard = (props = { name: "Hello" }) => {
-  function loadMenu(e){
+  function loadMenu(e) {
     props.store.popupState(
-      <div 
-        className="workspace-card-context" 
-        style={{ top:e.clientY, left:e.clientX }} 
-        onMouseLeave={e=>props.store.popupState(<div></div>)}
+      <div
+        className="workspace-card-context"
+        style={{ top: e.clientY, left: e.clientX }}
+        onMouseLeave={(e) => props.store.popupState(<div></div>)}
       >
-        <div className="btn" onClick={e=>props.openWorkspace({ name: props.name})}>
+        <div
+          className="btn"
+          onClick={(e) => props.openWorkspace({ name: props.name })}
+        >
           Open
         </div>
-        <div className="btn">
-          Renane
-        </div>
-        <div className="btn">
-          Duplicate
-        </div>
-        <div className="btn" onClick={e=>props.deleteWorkspace({ name: props.name})} >
+        <div className="btn">Renane</div>
+        <div className="btn">Duplicate</div>
+        <div
+          className="btn"
+          onClick={(e) => props.deleteWorkspace({ name: props.name })}
+        >
           Delete
         </div>
       </div>
-    )
+    );
   }
   return (
-    <div className="card" onDoubleClick={e=>props.openWorkspace({ name: props.name})}>
-      <div className="image"></div>
+    <div className="card" onDoubleClick={(e) => props.openWorkspace({ name: props.name })} >
+      <div className="image">
+      </div>
       <div className="footer">
         <div className="name">
           {props.name}
@@ -49,12 +52,14 @@ const New = (props) => {
           active: false,
         });
         props.newWorkspace(document.getElementById("newname").value);
-        break
+        break;
       case " ":
-        document.getElementById("newname").value = document.getElementById("newname").value.replaceAll(" ", "")
-        break
+        document.getElementById("newname").value = document
+          .getElementById("newname")
+          .value.replaceAll(" ", "");
+        break;
       default:
-        break
+        break;
     }
   }
 
@@ -99,64 +104,86 @@ const NewCard = (props) => {
   );
 };
 
-const DownloadModel = (props) =>{
-
-  async function downloadModel(options={ format:"Format", download:"download.format" }){
+const DownloadModel = (props) => {
+  async function downloadModel(
+    options = { format: "Format", download: "download.format" }
+  ) {
     let { format, download } = options;
-    renderState(<Loading />)
+    renderState(<Loading />);
     POST({
-      path:'download',
-      data:{ 
-        format:format  
-      }      
-    }).then(response=>response.json()).then(data=>{
-      if (data.status){
-        renderState(
-          <div className="option output">
-            <a href={`http://localhost/download/${download}`}  onClick={ e=>props.store.popupState(<div></div>) } download={download} > Click To Download Model </a>
-          </div>
-        )
-      }else{
-        renderState(
-          <div className='option'>
-            Error Occured While Building Model
-          </div>
-        )
-      }
+      path: "download",
+      data: {
+        format: format,
+      },
     })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status) {
+          renderState(
+            <div className="option output">
+              <a
+                href={`http://localhost/download/${download}`}
+                onClick={(e) => props.store.popupState(<div></div>)}
+                download={download}
+              >
+                {" "}
+                Click To Download Model{" "}
+              </a>
+            </div>
+          );
+        } else {
+          renderState(
+            <div className="option">Error Occured While Building Model</div>
+          );
+        }
+      });
   }
-  
-  let [ render, renderState ] = React.useState(
+
+  let [render, renderState] = React.useState(
     <div className="options">
-        <div className='option title'>
-          Select Format
-        </div>
-        <div className="option" onClick={e=>downloadModel({ format:"json", download:"model.json" })}>
-          json
-        </div>
-        <div className="option" onClick={e=>downloadModel({ format:"json_w", download:"model.zip" })}>
-          json with weights
-        </div>
-        <div className="option" onClick={e=>downloadModel({ format:"pb", download:"model.zip" })}>
-          pb
-        </div>
-        <div className="option" onClick={e=>downloadModel({ format:"hdf5", download:"model.hdf5" })}>
-          hdf5
-        </div>
+      <div className="title option">Select Format</div>
+      <div
+        className="option"
+        onClick={(e) =>
+          downloadModel({ format: "json", download: "model.json" })
+        }
+      >
+        json
+      </div>
+      <div
+        className="option"
+        onClick={(e) =>
+          downloadModel({ format: "json_w", download: "model.zip" })
+        }
+      >
+        json with weights
+      </div>
+      <div
+        className="option"
+        onClick={(e) => downloadModel({ format: "pb", download: "model.zip" })}
+      >
+        pb
+      </div>
+      <div
+        className="option"
+        onClick={(e) =>
+          downloadModel({ format: "hdf5", download: "model.hdf5" })
+        }
+      >
+        hdf5
+      </div>
     </div>
-  )
+  );
 
   return (
     <div className="popup download-model">
-      <div className="exit">
-        Press Esc to exit.
-      </div>
-      { render }  
+      <div className="exit">Press Esc to exit.</div>
+      {render}
     </div>
-  )
-}
+  );
+};
 
-const Home = ( props = { store: StoreContext, }) => {
+const Home = (props = { store: StoreContext }) => {
   let {
     workspace,
     workspaceState,
@@ -187,7 +214,7 @@ const Home = ( props = { store: StoreContext, }) => {
       ...active.data.app_config,
     });
     window.canvasConfig = active.data.canvas_config;
-    window.canvasConfig.mode = 'normal'
+    window.canvasConfig.mode = "normal";
   }
 
   async function newWorkspace(name = "model") {
@@ -203,28 +230,32 @@ const Home = ( props = { store: StoreContext, }) => {
       });
   }
 
-  async function openWorkspace(options={ name : "workspace"}){
-   POST({
-     path:`workspace/open/${options.name}`,
-     data:{},
-   }).then(response=>response.json()).then(data=>{
-     popupState(undefined);
-     fetchWorkspace();
-   })
+  async function openWorkspace(options = { name: "workspace" }) {
+    POST({
+      path: `workspace/open/${options.name}`,
+      data: {},
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        popupState(undefined);
+        fetchWorkspace();
+      });
   }
 
-  async function deleteWorkspace(options={ name: "workspace" }){
+  async function deleteWorkspace(options = { name: "workspace" }) {
     POST({
-      path:`workspace/delete/${encodeURIComponent(options.name)}`,
-      data:{}
-    }).then(response=>response.json()).then(data=>{
-      if (data.status){
-        fetchWorkspace();
-      }
-      popupState(undefined);
+      path: `workspace/delete/${encodeURIComponent(options.name)}`,
+      data: {},
     })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status) {
+          fetchWorkspace();
+        }
+        popupState(undefined);
+      });
   }
-  
+
   React.useEffect(() => {
     if (workspace.ntbf) {
       fetchWorkspace();
@@ -240,8 +271,16 @@ const Home = ( props = { store: StoreContext, }) => {
           <div className="name">
             <icons.Save onClick={window.autosave} />
             <icons.Code onClick={window.downloadCode} />
-            <icons.Download onClick={ e=>{ popupState(<DownloadModel { ...props } />) } } />
-            <icons.Delete onClick={e=>{deleteWorkspace({ name:workspace.active.config.name })}} />
+            <icons.Download
+              onClick={(e) => {
+                popupState(<DownloadModel {...props} />);
+              }}
+            />
+            <icons.Delete
+              onClick={(e) => {
+                deleteWorkspace({ name: workspace.active.config.name });
+              }}
+            />
           </div>
         </div>
       </div>
@@ -250,14 +289,14 @@ const Home = ( props = { store: StoreContext, }) => {
         <NewCard newWorkspace={newWorkspace} />
         {workspace.all.map((work, i) => {
           return (
-            <WorkspaceCard 
-              {...props} 
-              {...work} 
-              openWorkspace={openWorkspace} 
+            <WorkspaceCard
+              {...props}
+              {...work}
+              openWorkspace={openWorkspace}
               deleteWorkspace={deleteWorkspace}
               key={i}
             />
-          )
+          );
         })}
       </div>
     </div>

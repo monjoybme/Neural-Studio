@@ -325,16 +325,9 @@ const CustomNode = (props) => {
   }
 
   return (
-    <div className="dataset customNode">
+    <div className="customNode dataset">
       <div className="head">
-        <div
-          style={{
-            height: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <div className="name">
           {props.name}
         </div>
         <div className="btn" onClick={saveAndExit}>
@@ -348,19 +341,21 @@ const CustomNode = (props) => {
           onChange={updateCode}
           defaultValue={props.arguments.code.value}
         />
-        <div className="menu func_menu">
+        <div className="menu" style={{position:"relative"}}>
           <div className="name">Options</div>
-          <div className="property">
-            <div className="name">Name</div>
-            <input defaultValue={props.name} onKeyUp={updateName} />
-          </div>
-          <div className="property">
-            <div className="name">Node Id</div>
-            <input defaultValue={props._id} onKeyUp={updateNodeName} />
-          </div>
-          <div className="property">
-            <div className="name">Index</div>
-            <input defaultValue={0} type="number" onChange={chageIndex} />
+          <div className="properties">
+            <div className="property">
+              <div className="name">Name</div>
+              <input defaultValue={props.name} onKeyUp={updateName} />
+            </div>
+            <div className="property">
+              <div className="name">Node Id</div>
+              <input defaultValue={props._id} onKeyUp={updateNodeName} />
+            </div>
+            <div className="property">
+              <div className="name">Index</div>
+              <input defaultValue={0} type="number" onChange={chageIndex} />
+            </div>
           </div>
         </div>
       </div>

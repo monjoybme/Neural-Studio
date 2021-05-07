@@ -30,18 +30,8 @@ def generate_args(code) -> dict:
     return ret
 
 def download_json(workspace: Workspace, trainer: Trainer):
-    model = trainer.get_model()
-    if not model:
-        if trainer.build_model(workspace.var_graphdef):
-            model = trainer.get_model()
-        else:
-            return {
-                "message":trainer.logs[-1],
-                "status":False
-            }
-
     with open(pathlib.join(workspace.path, 'outputs', 'model.json'), "w+") as file:
-        file.write(model.to_json())
+        file.write(trainer.model.to_json())
     return {
         "message":"Downloading Model",
         "status":True
@@ -52,19 +42,10 @@ def download_json_w(workspace: Workspace, trainer: Trainer):
     if pathlib.isdir(temp_dir):
         rmtree(temp_dir)
     mkdir(temp_dir)
-    model = trainer.get_model()
-    if not model:
-        if trainer.build_model(workspace.var_graphdef):
-            model = trainer.get_model()
-        else:
-            return {
-                "message":trainer.logs[-1],
-                "status":False
-            }
 
     with open(pathlib.join(temp_dir, 'model.json'), "w+") as file:
-        file.write(model.to_json())
-    model.save_weights(pathlib.join(temp_dir, 'model'))
+        file.write(trainer.model.to_json())
+    trainer.model.save_weights(pathlib.join(temp_dir, 'model'))
     chdir(pathlib.join(workspace.path, "outputs",))
     with zipfile.ZipFile('model.zip', 'w') as zfile:
         for f in glob("./model/*"):
@@ -80,16 +61,7 @@ def download_pb(workspace: Workspace, trainer: Trainer):
     if pathlib.isdir(temp_dir):
         rmtree(temp_dir)
     mkdir(temp_dir)
-    model = trainer.get_model()
-    if not model:
-        if trainer.build_model(workspace.var_graphdef):
-            model = trainer.get_model()
-        else:
-            return {
-                "message":trainer.logs[-1],
-                "status":False
-            }
-    model.save(temp_dir)
+    trainer.model.save(temp_dir)
     chdir(pathlib.join(workspace.path, "outputs",))
     with zipfile.ZipFile('model.zip', 'w') as zfile:
         for f in glob("./model/*"):
@@ -106,16 +78,7 @@ def download_pb(workspace: Workspace, trainer: Trainer):
 
 def download_hdf5(workspace: Workspace, trainer: Trainer):
     temp_dir = pathlib.join(workspace.path, "outputs", "model.hdf5")
-    model = trainer.get_model()
-    if not model:
-        if trainer.build_model(workspace.var_graphdef):
-            model = trainer.get_model()
-        else:
-            return {
-                "message":trainer.logs[-1],
-                "status":False
-            }
-    model.save(temp_dir)
+    trainer.model.save(temp_dir)
     return {
         "message":"Downloading Model",
         "status":True

@@ -127,8 +127,8 @@ const Node = (props={
       <rect
         x={pos.x}
         y={pos.y}
-        rx={10}
-        ry={10}
+        rx={15}
+        ry={15}
         height={height}
         width={width}
         onMouseDown={onMouseDown}

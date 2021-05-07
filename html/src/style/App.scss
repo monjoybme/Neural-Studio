@@ -1,8 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+
 $sidebarWidth : 60px;
 $topbarHeight : 60px;
 $lossmonitorWidth : 400px;
 
 // Colors
+
+$primary : #f28622d5;
+$secondary : #F29B22;
+$tirtiary : #F2AD22;
+
+// Dark palette
+
+$darkBg : rgba(51, 51, 51, 1);
+$darkFr : rgba(79, 79, 79, 1);
+
+$darkColorPr : #fefefe;
+$darkColorSc : #fafafa;
+
+$darkBtnPr : rgba(70, 70, 70, 1);
+
+$darkBorder3 : 0.01rem solid rgba(79, 79, 79, 1);
+$darkBorder2 : 0.01rem solid rgba(130, 130, 130, 1);
+$darkBorder1 : 0.01rem solid rgba(189, 189, 189, 1);
+
+// Light palette
+
+$lightBg : rgba(254, 255, 254, 1);
+$lightFr : rgba(250, 253, 250, 1);
+
+$lightColorPr : #333333;
+$lightColorSc : #4F4F4F;
+
+$lightBtnPr : rgba(228, 228, 228, 0.15);
+
+$lightBorder1 : 0.01rem solid rgba(51, 51, 51, 0.3);
+$lightBorder2 : 0.01rem solid rgba(85, 85, 85, 0.3);
+$lightBorder3 : 0.01rem solid rgba(119, 119, 119, 0.3);
+
+// Typo
+
+.heading-1 {
+  font-family: Roboto Mono;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: 0.05em;
+}
+
+.heading-2 {
+  font-family: Roboto Mono;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 21px;
+  letter-spacing: 0.05em;
+}
+
+.heading-3 {
+  font-family: Roboto Mono;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: 0.05em;
+}
+
+.heading-4 {
+  font-family: Roboto Mono;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.05em;
+}
+
+.heading-5 {
+  font-family: Roboto Mono;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 10px;
+  line-height: 13px;
+  letter-spacing: 0.05em;
+}
+
+.heading-6 {
+  font-family: Roboto Mono;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 8px;
+  line-height: 11px;
+  letter-spacing: 0.05em;
+}
+
+.heading-bold {
+  font-weight: 500;
+}
+
+.heading-medium {
+  font-weight: 400;
+}
+
+.heading-regular {
+  font-weight: 300;
+}
+
+.heading-light {
+  font-weight: 200;
+}
+
+.heading-thin {
+  font-weight: 100;
+}
+
+.heading-italic {
+  font-style: italic;
+}
 
 $orange0 : #f15f11;
 $orange1 : #c76d0cd4;
@@ -40,6 +154,15 @@ $border1: 0.001rem solid $orange1;
 
 *{ 
   box-sizing: border-box;
+  outline: none;
+}
+
+input {
+  border: none;
+}
+
+input:focus {
+  outline: none;
 }
 
 :focus {
@@ -96,7 +219,7 @@ html body {
   top: $topbarHeight;
   left: $sidebarWidth;
 
-  border-right: $border1;
+  border-right: $border1 !important;
 }
 
 .popup {

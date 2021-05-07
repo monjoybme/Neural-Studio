@@ -9,7 +9,7 @@
 
 .dark {
     .summary {
-        background: $bgsDark;
+        background: $darkFr;
         .logs{
             .sum-col {
                 display: grid;
@@ -21,7 +21,7 @@
 
 .light {
     .summary {
-        background: $bgsLight;
+        background: $lightFr;
         .logs{
             .sum-col {
                 display: grid;

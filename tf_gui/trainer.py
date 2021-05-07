@@ -151,6 +151,8 @@ class Trainer(object):
     
     @property
     def model(self,)->keras.Model:
+        if not self._model:
+            self.build_session()
         return self._model 
         
     @property

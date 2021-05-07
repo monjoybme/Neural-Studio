@@ -47,15 +47,10 @@
         .name{
             display: grid;
             grid-template-columns: 9fr 1fr 0fr;
-        
             height: 100%;
             width: 100%;
-        
-            padding-left: 5px;
-            font-size: 13px;
-        
-            letter-spacing: 1px;
             padding: 0px 10px;
+            @extend .heading-4;
         }
 
         svg{
@@ -68,7 +63,7 @@
         width: 255px;
         .head {
             @include flex();
-            letter-spacing: 1px;
+            @extend .heading-2;
         }
         .name {
             display: flex;
@@ -82,11 +77,11 @@
         display: flex;
         align-items: center;
 
-        height: 100%;
-        font-size: 14px;
-        letter-spacing: 1.5px;
-        font-weight: 400;    
+        height: 100%;    
         padding-left: 5px;
+
+        @extend .heading-3;
+        @extend .heading-light;
     }
     
 }
@@ -109,27 +104,24 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-    
+        
+        .title {
+            background: none !important;
+            border: none !important;
+
+            @extend .heading-3;
+        }
+
         .option {
             height: 40px;
             width: 50%;
           
-            display: flex;
-            align-items: center;
-            justify-content: center;
             margin-bottom: 10px;
-        
-            font-weight: 300;
-            font-size: small;
-            letter-spacing: 1px;
-        
             border-radius: 2px;
             cursor: pointer;
-        }
 
-        .title {
-            background: none !important;
-            border: none !important;
+            @include flex();
+            @extend .heading-4;
         }
         
     }
@@ -137,22 +129,21 @@
     .output {
         width: 20%;
         height: 40px;
+
+        @include flex();
     }
 
     .exit {
         position: absolute;
         top: 5%;
-        left: 90%;
+        left: 85%;
     
-        font-weight: 300;
-        letter-spacing: 1px;
-        font-size: small;
+        @extend .heading-4;
     }
 
     a {
         text-decoration: none;
-        font-weight: 300;
-        font-size: small;
+        @extend .heading-3;
     }
 }
 
@@ -162,128 +153,154 @@
 
     position: fixed;
     z-index: 9999;
-    
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+
+    @include flex(column, center, none);
 
     .btn {
         height: 25%;
         width: 100%;
-        font-size: 10px;
-        letter-spacing: 1px;
-    
-        display: flex;
-        align-items: center;
+        
         padding-left: 10px;
         cursor: pointer;
+
+        @include flex(row, flex-start, center);
+        @extend .heading-5;
     }
 
 }
 
 .light {
     .home {
-        background: $bgsLight;
-        color: $colorDark;
-
+        background: $lightFr;
+        color: $lightColorPr;
         .cards {
             .new {
                 input {
-                    background: $bgLight;
-                    color: $colorDark;
-                    border-bottom: $colorDark;
+                    background: $lightBg;
+                    color: $lightColorPr;
+                    border-bottom: $lightBorder1;
+
+                    @extend .heading-3;
                 }
             }
         }
 
         .card{
-            background: $bgLight ;
-            color: $colorDark;
-            border: $borderDark;
-    
+            background: $lightBg ;
+            color: $lightColorPr;
+
+            border: $lightBorder2;
             .name {
-                background: #eee;
+                background: $lightFr;
+                border-top: $lightBorder2;
+                @extend .heading-medium;
             }
         }
 
+        .name {
+            color: $lightColorPr;
+            @extend .heading-regular;
+        }
     }
+
     .download-model {
-        background: $bgLight;
+        background: $lightBg;
         .options{
             .option {
-                background: $bgsLight;
-                color: $colorDark;
-                border: $borderDark;
+                background: $lightFr;
+                color: $lightColorPr;
+                border: $lightBorder1;
+            }
+        }
+
+        .output {
+            a{
+                color: $lightColorPr;
             }
         }
 
         .exit {
-            color: $colorDark;
+            color: $lightColorPr;
         }
     }
     .workspace-card-context {
-        background: $colorLight;
-        border: $borderDark;
+        background: $lightBg;
+        border: $lightBorder1;
         
         .btn{
-            color: $colorDark;
-            border-bottom: $borderDark;
+            color: $lightColorPr;
+            border-bottom: $lightBorder1;
         }
     }
     svg {
-        fill: #444;
+        fill: $lightColorPr;
     }
 }
 
 .dark {
     .home {
-        background: $bgsDark;
-        color: $colorLight;
-
+        background: $darkFr;
+        color: $darkColorPr;
         .cards {
             .new {
                 input {
-                    background: $bgDark;
-                    color: $colorLight;
-                    border-bottom: $borderLight;
+                    background: $darkBg;
+                    color: $darkColorPr;
+                    border-bottom: $darkBorder1;
+
+                    @extend .heading-3;
                 }
             }
         }
 
         .card{
-            background: $bgDark ;
-            color: $colorLight;
-            border: $borderLight;
+            background: $darkBg ;
+            color: $darkColorPr;
 
+            border: $darkBorder2;
             .name {
-                background: #444;
+                background: $darkFr;
+                border-top: $darkBorder2;
+                @extend .heading-medium;
             }
         }
 
+        .name {
+            color: $darkColorPr;
+            @extend .heading-regular;
+        }
     }
+
     .download-model {
-        background: $bgDark;
+        background: $darkBg;
         .options{
             .option {
-                background: $bgsDark;
-                color: $colorLight;
-                border: $borderLight;
+                background: $darkFr;
+                color: $darkColorPr;
+                border: $darkBorder1;
+            }
+        }
+
+        .output {
+            a{
+                color: $darkColorPr;
             }
         }
 
         .exit {
-            color: $colorLight;
+            color: $darkColorPr;
         }
     }
     .workspace-card-context {
-        background: $colorDark;
-        border: $borderLight;
+        background: $darkBg;
+        border: $darkBorder1;
+        
         .btn{
-            color: $colorLight;
-            border-bottom: $borderLight;
+            color: $darkColorPr;
+            border-bottom: $darkBorder1;
         }
     }
     svg {
-        fill: #eee;
+        fill: $darkColorPr;
     }
 }

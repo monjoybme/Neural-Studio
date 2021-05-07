@@ -20,15 +20,13 @@ import './style/Canvas.scss';
 import './style/Code.scss';
 import './style/Training.scss';
 import './style/Summary.scss';
-// import "./App.css";
 
 window.copy = function (object) {
   return JSON.parse(JSON.stringify(object));
 };
 
 setInterval(function () {
-  window.offsetX =
-    appConfig.canvas.toolbar.width + appConfig.geometry.sideBar.width;
+  window.offsetX = appConfig.canvas.toolbar.width + appConfig.geometry.sideBar.width;
   window.offsetY = appConfig.geometry.topBar.height;
 }, 1000);
 
