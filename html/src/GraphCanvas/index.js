@@ -50,7 +50,7 @@ const GraphEditor = (props = { store: StoreContext }) => {
     let line = document.getElementById("dummy");
     let pos = {
       x: window.canvasConfig.viewBox.x + e.clientX - window.offsetX + 10,
-      y: window.canvasConfig.viewBox.y + e.clientY - window.offsetY 
+      y: window.canvasConfig.viewBox.y + e.clientY - window.offsetY,
     };
 
     line.style.strokeWidth = 2;
@@ -87,44 +87,50 @@ const GraphEditor = (props = { store: StoreContext }) => {
       let layer = window.copy(canvasConfig.activeLayer);
       let { name, id } = layerIdGenerator(layer.name);
 
-      graphdef[id] = { ...layer, name: name, id: id, pos: { x: 0, y: 0, }, connections: { inbound: [], outbound: [], }, width: 0, };
+      graphdef[id] = {
+        ...layer,
+        name: name,
+        id: id,
+        pos: { x: 0, y: 0 },
+        connections: { inbound: [], outbound: [] },
+        width: 0,
+      };
       graphdef[id].width = graphdef[id].name.length * 13;
       graphdef[id].pos = {
-        x: window.canvasConfig.viewBox.x + e.clientX - window.offsetX - Math.floor(graphdef[id].width / 2) + 10,
+        x:
+          window.canvasConfig.viewBox.x +
+          e.clientX -
+          window.offsetX -
+          Math.floor(graphdef[id].width / 2) +
+          10,
         y: window.canvasConfig.viewBox.y + e.clientY - window.offsetY - 15,
-        offsetX : Math.floor( graphdef[id].width / 2 ),
-        offsetY : 15
+        offsetX: Math.floor(graphdef[id].width / 2),
+        offsetY: 15,
       };
+
+      if ( graphdef.train_config === undefined ){
+        graphdef.train_config = {
+          session_id : ( new Date() ).toTimeString()
+        }
+      }
 
       switch (canvasConfig.activeLayer.type.name) {
         case "Model":
           canvasConfig.activeLayer = window.copy(
             layerGroups["build-layers"].layers[1]
           );
-          if (graphdef.train_config === undefined) {
-            graphdef.train_config = {};
-          }
           graphdef.train_config.model = graphdef[id];
           break;
         case "Compile":
           canvasConfig.activeLayer = window.copy(
             layerGroups["build-layers"].layers[2]
           );
-          if (graphdef.train_config === undefined) {
-            graphdef.train_config = {};
-          }
           graphdef.train_config.compile = graphdef[id];
           break;
         case "Train":
-          if (graphdef.train_config === undefined) {
-            graphdef.train_config = {};
-          }
           graphdef.train_config.train = graphdef[id];
           break;
         case "Dataset":
-          if (graphdef.train_config === undefined) {
-            graphdef.train_config = {};
-          }
           graphdef.train_config.dataset = graphdef[id];
           break;
         case "Custom":
@@ -136,9 +142,6 @@ const GraphEditor = (props = { store: StoreContext }) => {
 
       switch (canvasConfig.activeLayer.type._class) {
         case "optimizers":
-          if (graphdef.train_config === undefined) {
-            graphdef.train_config = {};
-          }
           graphdef.train_config.optimizer = graphdef[id];
           break;
         default:
@@ -157,16 +160,15 @@ const GraphEditor = (props = { store: StoreContext }) => {
       canvasConfig.activeLine.line.x2.baseVal.value =
         window.canvasConfig.viewBox.x + e.clientX - window.offsetX + 10;
       canvasConfig.activeLine.line.y2.baseVal.value =
-        window.canvasConfig.viewBox.y + e.clientY - window.offsetY ; 
+        window.canvasConfig.viewBox.y + e.clientY - window.offsetY;
     }
   }
 
   function moveNode(e) {
-
     try {
       canvasConfig.pos = {
-        x:  e.clientX - window.offsetX + canvasConfig.activeElement.ref.x,
-        y:  e.clientY - window.offsetY + canvasConfig.activeElement.ref.y,
+        x: e.clientX - window.offsetX + canvasConfig.activeElement.ref.x,
+        y: e.clientY - window.offsetY + canvasConfig.activeElement.ref.y,
         offsetX: canvasConfig.activeElement.layer.pos.offsetX,
         offsetY: canvasConfig.activeElement.layer.pos.offsetY,
       };
@@ -174,8 +176,11 @@ const GraphEditor = (props = { store: StoreContext }) => {
       canvasConfig.activeElement.rect.x.baseVal.value = canvasConfig.pos.x;
       canvasConfig.activeElement.rect.y.baseVal.value = canvasConfig.pos.y;
 
-      canvasConfig.activeElement.text.x.baseVal[0].value = canvasConfig.pos.x + Math.floor( canvasConfig.activeElement.layer.width * ( 1/5 ) );
-      canvasConfig.activeElement.text.y.baseVal[0].value = canvasConfig.pos.y + 19;
+      canvasConfig.activeElement.text.x.baseVal[0].value =
+        canvasConfig.pos.x +
+        Math.floor(canvasConfig.activeElement.layer.width * (1 / 5));
+      canvasConfig.activeElement.text.y.baseVal[0].value =
+        canvasConfig.pos.y + 19;
 
       canvasConfig.activeElement.edges_in.forEach((edge) => {
         edge.x1.baseVal.value =
@@ -328,7 +333,7 @@ const GraphEditor = (props = { store: StoreContext }) => {
     }
   }
 
-  function updateViewBox(){
+  function updateViewBox() {
     window.canvasConfig.viewBox = {
       x: window.canvasConfig.viewBox.x,
       y: window.canvasConfig.viewBox.y,
@@ -345,33 +350,35 @@ const GraphEditor = (props = { store: StoreContext }) => {
     window.setToolMode = setToolMode;
     window.autosave();
 
-    if ( canvasref.current.viewBox.baseVal.height === 0 && canvasref.current.viewBox.baseVal.width === 0 ) {      
+    if (
+      canvasref.current.viewBox.baseVal.height === 0 &&
+      canvasref.current.viewBox.baseVal.width === 0
+    ) {
       updateViewBox();
     }
 
-    function updateViewBoxService(){
-      if (canvasTop.current){
+    function updateViewBoxService() {
+      if (canvasTop.current) {
         if (
           canvasTop.current.scrollHeight !== window.canvasConfig.viewBox.h ||
           canvasTop.current.scrollWidth !== window.canvasConfig.viewBox.w
-        ){
+        ) {
           updateViewBox();
         }
-          window.__VIEWBOX__UPDATE__ = setTimeout(updateViewBoxService, 1);
-      }else{
-
+        window.__VIEWBOX__UPDATE__ = setTimeout(updateViewBoxService, 1);
+      } else {
       }
     }
 
     clearTimeout(window.__VIEWBOX__UPDATE__);
     window.__VIEWBOX__UPDATE__ = setTimeout(updateViewBoxService, 1);
-    
 
     if (load) {
       setToolMode({ name: "normal" });
       loadState(false);
     }
-  }, [ setToolMode, load ]);
+
+  }, [setToolMode, load]);
 
   return (
     <div className="container graph-canvas">

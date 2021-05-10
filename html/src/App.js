@@ -21,13 +21,7 @@ import './style/Code.scss';
 import './style/Training.scss';
 import './style/Summary.scss';
 
-window.copy = function (object) {
-  return JSON.parse(JSON.stringify(object));
-};
-
-if ( window.__SHORTCUT__ ){
-  clearInterval(window.__UPDATE_OFFSET__);
-}
+clearInterval(window.__UPDATE_OFFSET__);
 window.__UPDATE_OFFSET__ =  setInterval(function () {
   window.offsetX = appConfig.canvas.toolbar.width + appConfig.geometry.sideBar.width;
   window.offsetY = appConfig.geometry.topBar.height;

@@ -269,21 +269,13 @@ async def summary_viewer(request: Request):
 @app.route("/train/start",)
 async def train_start(request: Request):
     if request.header.method == 'POST':
-        try:
-            trainer.logs = []
-            trainer.build_session()
-            trainer.compile_model()
-            trainer.start()
-            return json_response({
-                "status": "Training Started"
-            })
-        except JSONDecodeError:
-            return json_response(
-                data={"message": "Can't read graph !"},
-                status_code=200,
-                message="Method Not Allowed !"
-            )
-
+        trainer.logs = []
+        trainer.build_session()
+        trainer.compile()
+        trainer.start()
+        return json_response({
+            "status": "Training Started"
+        })
     else:
         return json_response(
             data={"message": "Method Not Allowed"},

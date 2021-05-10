@@ -45,7 +45,11 @@ class Workspace(object):
     
     required_vars = [
         ( 'config', { 'name':'model', "description":'Model Description !', 'thumb':'<svg></svg>' } ),
-        ( 'graphdef', {} ),
+        ( 'graphdef', {
+            'train_config':{
+                'session_id':None
+            }
+        } ),
         ( 'canvas_config',  
             {
                 "activeLayer": None,
@@ -144,6 +148,9 @@ class Workspace(object):
         return dict([ (key.replace("var_",""), val) for key, val in self.__dict__.items() if key.startswith("var") ])
         
 class WorkspaceManager(object):
+
+    __session_id = None
+
     workspaces:List[Workspace] = []
     def __init__(self,root='.tfstudio'):
         self.root =  pathlib.abspath(root)
@@ -181,6 +188,10 @@ class WorkspaceManager(object):
         for w in self.workspaces:
             yield w.name
         
+    @property
+    def session_id(self,)->str:
+        return self.active_workspace.var_graphdef['train_config']['session_id']
+
     def new_workspace(self,name:str)->Workspace:
         workspace = Workspace(
             path = pathlib.join(self.root, "workspace", name) 

@@ -23,6 +23,9 @@ window.canvasConfig = {
     h:0
   }
 }
+window.copy = function (object) {
+  return JSON.parse(JSON.stringify(object));
+};
 
 ReactDOM.render(
   <React.StrictMode>

@@ -52,6 +52,13 @@
   width: -webkit-fill-available;
   padding: 10px;
 
+  
+  .title {
+    height: 30px;
+    @include flex(row,center,flex-start);
+    @extend .heading-3;
+  }
+
   .log {
     width: 100%;
     background: rgba(228, 228, 228, 0.25);
@@ -69,7 +76,7 @@
     .message {
       min-height: 30px;
       background: #fb7d7d;
-      padding-left: 10px;
+      padding: 10px;
       border-radius: 2px;
 
       color: rgb(252, 252, 252);
@@ -142,15 +149,38 @@
 .monitor-container {
   @include width($lossmonitorWidth, $lossmonitorWidth, $lossmonitorWidth);
   overflow-y: scroll;
+  .title {
+      height: 30px;
+      margin-top: 10px;
+      cursor: pointer;
+      @include flex();
+      @extend .heading-3;
+  }
   .monitor {
     width: 100%;
     padding: 10px;
+    padding-top: 0px;
     @include flex(column, flex-start, center);
 
-    .title {
-      height: 30px;
-      @include flex();
-      @extend .heading-3;
+    .legends {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      @include flex(column, center, flex-start);
+      .legend {
+        height: 20px;
+        width: 100%;
+        display: flex;
+        .name {
+          width: 60%;
+          @extend .heading-4;
+        }
+        .color{
+          width: 15px;
+          height: 15px;
+          margin-right: 10px;
+        }
+      }
     }
 
     .lossvsmetric{
@@ -193,12 +223,20 @@
 
 .tooltipcontainer {
   position: absolute;
-  height: 60px;
-  width: 100px;
+  padding: 5px;
+  border-radius: 2px;
+
+  background: $lightBg;
+  border: $lightBorder3;
+  @extend .heading-4;
 }
+
 
 .dark {
   .logs {
+    .title {
+      color: $darkColorPr;
+    }
     .log {
       color: $darkColorPr;
       border: solid 1px rgba(255, 255, 255, 0.15);
@@ -208,8 +246,12 @@
       }
     }
     .error {
+      .message{
+        color: $darkColorPr;
+      }
       pre {
         border: solid 1px rgba(228, 228, 228, 0.1);
+        color: $darkColorPr;
       }
     }
     .epoch {
@@ -231,6 +273,14 @@
     .title{
       color: $darkColorPr;
     }
+    .legends {
+      border: $darkBorder2;
+      .legend {
+        .name {
+          color: $darkColorPr;
+        }
+      }
+    }
     .lossvsmetric{
       background-color: $lightColorSc;
       .name{
@@ -244,7 +294,9 @@
           .axis {
             stroke: $darkColorPr;
           }
-
+          circle {
+            stroke: $darkColorPr;
+          }
         }
       }
     }
@@ -253,6 +305,9 @@
 
 .light {
   .logs {
+    .title {
+      color: $lightColorPr;
+    }
     .log {
       color: $lightColorPr;
       border: solid 1px rgba(51, 51, 51, 0.1);
@@ -261,8 +316,12 @@
       }
     }
     .error {
+      .message{
+        color: $lightColorPr;
+      }
       pre {
         border: solid 1px rgba(51, 51, 51, 0.05);
+        color: $lightColorPr;
       }
     }
     .epoch {
@@ -284,6 +343,14 @@
     .title{
       color: $lightColorPr;
     }
+    .legends {
+      border: $lightBorder2;
+      .legend {
+        .name {
+          color: $lightColorPr;
+        }
+      }
+    }
     .lossvsmetric{
       border: $lightBorder2;
       background-color: $lightFr;
@@ -299,7 +366,7 @@
             stroke: $lightColorTr;
           }
           circle{
-            fill: $lightColorPr;
+            stroke: $lightColorPr;
           }
         }
       }

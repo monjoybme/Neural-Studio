@@ -12,6 +12,7 @@ from tensorflow.keras import layers,optimizers,losses,metrics,callbacks
 from tensorflow.python.training.tracking.base import no_manual_dependency_tracking_scope
 
 from .builder import build_code
+from .manage import WorkspaceManager, Workspace
 
 from glob import glob
 from concurrent.futures import ThreadPoolExecutor
@@ -20,7 +21,6 @@ from json import load,dump
 from time import sleep, time
 from threading import Thread
 from gc import collect
-
 
 def execute_code(_code:str,logs=lambda log_type,log:None,session_var:dict={})->bool:
     try:
@@ -121,13 +121,14 @@ class Trainer(object):
 
     logs = []
 
-    _model = False
-    _dataset = False
-    _model_name = 'Model'
-    _dataset_name = 'Dataset'
+    __model = False
+    __dataset = False
+    __model_name = 'Model'
+    __dataset_name = 'Dataset'
 
-    def __init__(self,workspace_manager):
-        self.workspace_manager = workspace_manager
+    def __init__(self,workspace_manager:WorkspaceManager ):
+        self.workspace_manager:WorkspaceManager = workspace_manager
+        self.session_id = workspace_manager.session_id
         globals()['tfgui'] = TfGui(self,)
         self.tfgui = globals()['tfgui']
         self.build_config = {
@@ -147,13 +148,13 @@ class Trainer(object):
 
     @property
     def dataset(self,):
-        return self._dataset
+        return self.__dataset
     
     @property
     def model(self,)->keras.Model:
-        if not self._model:
+        if not self.__model:
             self.build_session()
-        return self._model 
+        return self.__model 
         
     @property
     def summary(self, )->List[List[str]]:
@@ -180,10 +181,10 @@ class Trainer(object):
             self.update_log("error",{ "code":code , "message": code})
             return False
         
-        if build_config == self.build_config:
+        if build_config == self.build_config and self.session_id ==  self.workspace_manager.session_id : 
             self.update_log("notif",{"message":"Using current model !"})
             return True
-            
+                    
         model = build_config['train_config']['model']['id']
         self.update_log("notif",{"message":"Creating new session !"})
 
@@ -222,10 +223,11 @@ class Trainer(object):
                     
         self.build_config = build_config
         self.code = code
-        self._model_name = model
-        self._model = self.session_var[model]
+        self.session_id = self.workspace_manager.session_id
+        self.__model_name = model
+        self.__model = self.session_var[model]
     
-    def compile_model(self,):
+    def compile(self,):
         self.update_log("notif",{"message":"Compiling Model"})
         if self.build_config['train_config']['optimizer']:
             if not execute_code(self.build_config['train_config']['optimizer']['value'],self.update_log,session_var=self.session_var):
@@ -242,7 +244,7 @@ class Trainer(object):
 
         if self.build_config['train_config']['compile']:
             comp = self.build_config['train_config']['compile']['id']
-            if not execute_code(re.findall(f"""{self._model_name}.compile[{self.re_charset}]+#end-{comp}""",self.code)[0],self.update_log,session_var=self.session_var):
+            if not execute_code(re.findall(f"""{self.__model_name}.compile[{self.re_charset}]+#end-{comp}""",self.code)[0],self.update_log,session_var=self.session_var):
                 return False
 
         else:
@@ -260,7 +262,7 @@ class Trainer(object):
                 self.update_log("notif",{ "message": "Training stopped", "ended":True })
                 return False
 
-            train_code, = re.findall(f"""{self._model_name}.fit\([{self.re_charset}]+#end-train_\d+""",self.code)
+            train_code, = re.findall(f"""{self.__model_name}.fit\([{self.re_charset}]+#end-train_\d+""",self.code)
             if not execute_code(train_code,self.update_log,session_var=self.session_var):
                 return False        
             return True
