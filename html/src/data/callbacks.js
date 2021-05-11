@@ -2,11 +2,16 @@ const callbacks = {
   name: "Callbacks",
   layers: [
     {
+      name: "Callback",
+      type: { name: "Callback", object_class: "callbacks" },
+      arguments: {},
+    },
+    {
       name: "ModelCheckpoint",
-      type: { name: "ModelCheckpoint", _class: "callbacks" },
+      type: { name: "ModelCheckpoint", object_class: "callbacks" },
       arguments: {
         filepath: {
-          value: "REQUIRED",
+          value: "required",
           type: "str",
           render: "text",
           options: "filepath",
@@ -19,19 +24,19 @@ const callbacks = {
         },
         verbose: {
           value: "0",
-          type: "str",
+          type: "int",
           render: "text",
           options: "verbose",
         },
         save_best_only: {
           value: "False",
-          type: "str",
+          type: "bool",
           render: "list",
           options: "bool",
         },
         save_weights_only: {
           value: "False",
-          type: "str",
+          type: "bool",
           render: "list",
           options: "bool",
         },
@@ -40,7 +45,7 @@ const callbacks = {
           value: "epoch",
           type: "str",
           render: "text",
-          options: "freq",
+          options: "save_freq",
         },
         options: {
           value: "None",
@@ -52,24 +57,29 @@ const callbacks = {
     },
     {
       name: "TensorBoard",
-      type: { name: "TensorBoard", _class: "callbacks" },
+      type: { name: "TensorBoard", object_class: "callbacks" },
       arguments: {
-        log_dir: { value: "logs", type: "str", render: "text", options: "dir" },
-        histogram_freq: {
-          value: "0",
+        log_dir: {
+          value: "logs",
           type: "str",
           render: "text",
-          options: "freq",
+          options: "log_dir",
+        },
+        histogram_freq: {
+          value: "0",
+          type: "int",
+          render: "text",
+          options: "histogram_freq",
         },
         write_graph: {
           value: "True",
-          type: "str",
+          type: "bool",
           render: "list",
           options: "bool",
         },
         write_images: {
           value: "False",
-          type: "str",
+          type: "bool",
           render: "list",
           options: "bool",
         },
@@ -77,31 +87,31 @@ const callbacks = {
           value: "epoch",
           type: "str",
           render: "text",
-          options: "freq",
+          options: "update_freq",
         },
         profile_batch: {
           value: "2",
-          type: "str",
+          type: "int",
           render: "text",
-          options: "batch",
+          options: "profile_batch",
         },
         embeddings_freq: {
           value: "0",
-          type: "str",
+          type: "int",
           render: "text",
-          options: "freq",
+          options: "embeddings_freq",
         },
         embeddings_metadata: {
           value: "None",
           type: "str",
           render: "text",
-          options: "metadata",
+          options: "embeddings_metadata",
         },
       },
     },
     {
       name: "EarlyStopping",
-      type: { name: "EarlyStopping", _class: "callbacks" },
+      type: { name: "EarlyStopping", object_class: "callbacks" },
       arguments: {
         monitor: {
           value: "val_loss",
@@ -111,19 +121,19 @@ const callbacks = {
         },
         min_delta: {
           value: "0",
-          type: "str",
+          type: "int",
           render: "text",
-          options: "delta",
+          options: "min_delta",
         },
         patience: {
           value: "0",
-          type: "str",
+          type: "int",
           render: "text",
           options: "patience",
         },
         verbose: {
           value: "0",
-          type: "str",
+          type: "int",
           render: "text",
           options: "verbose",
         },
@@ -135,26 +145,26 @@ const callbacks = {
           options: "baseline",
         },
         restore_best_weights: {
-          value: "False,",
-          type: "str",
-          render: "text",
-          options: "weights",
+          value: "False",
+          type: "bool",
+          render: "list",
+          options: "bool",
         },
       },
     },
     {
       name: "LearningRateScheduler",
-      type: { name: "LearningRateScheduler", _class: "callbacks" },
+      type: { name: "LearningRateScheduler", object_class: "callbacks" },
       arguments: {
         schedule: {
-          value: "REQUIRED",
+          value: "required",
           type: "str",
           render: "text",
           options: "schedule",
         },
         verbose: {
           value: "0",
-          type: "str",
+          type: "int",
           render: "text",
           options: "verbose",
         },
@@ -162,7 +172,7 @@ const callbacks = {
     },
     {
       name: "ReduceLROnPlateau",
-      type: { name: "ReduceLROnPlateau", _class: "callbacks" },
+      type: { name: "ReduceLROnPlateau", object_class: "callbacks" },
       arguments: {
         monitor: {
           value: "val_loss",
@@ -170,97 +180,158 @@ const callbacks = {
           render: "text",
           options: "monitor",
         },
-        factor: { value: "0", type: "str", render: "text", options: "factor" },
+        factor: { value: "0", type: "int", render: "text", options: "factor" },
+        patience: {
+          value: "10",
+          type: "int",
+          render: "text",
+          options: "patience",
+        },
+        verbose: {
+          value: "0",
+          type: "int",
+          render: "text",
+          options: "verbose",
+        },
+        mode: { value: "auto", type: "str", render: "text", options: "mode" },
+        min_delta: {
+          value: "0",
+          type: "int",
+          render: "text",
+          options: "min_delta",
+        },
+        "0001": {
+          value: "required",
+          type: "str",
+          render: "text",
+          options: "0001",
+        },
+        cooldown: {
+          value: "0",
+          type: "int",
+          render: "text",
+          options: "cooldown",
+        },
+        min_lr: { value: "0", type: "int", render: "text", options: "min_lr" },
       },
     },
     {
       name: "RemoteMonitor",
-      type: { name: "RemoteMonitor", _class: "callbacks" },
+      type: { name: "RemoteMonitor", object_class: "callbacks" },
       arguments: {
-        root: { value: "http:", type: "str", render: "text", options: "root" },
-      },
-    },
-    {
-      name: "LambdaCallback",
-      type: { name: "LambdaCallback", _class: "callbacks" },
-      arguments: {
-        on_epoch_begin: {
+        root: {
+          value: "http://localhost:9000",
+          type: "str",
+          render: "text",
+          options: "root",
+        },
+        path: {
+          value: "/publish/epoch/end/",
+          type: "str",
+          render: "text",
+          options: "path",
+        },
+        field: { value: "data", type: "str", render: "text", options: "field" },
+        headers: {
           value: "None",
           type: "str",
           render: "text",
-          options: "begin",
+          options: "headers",
         },
-        on_epoch_end: {
-          value: "None",
-          type: "str",
-          render: "text",
-          options: "end",
-        },
-        on_batch_begin: {
-          value: "None",
-          type: "str",
-          render: "text",
-          options: "begin",
-        },
-        on_batch_end: {
-          value: "None",
-          type: "str",
-          render: "text",
-          options: "end",
-        },
-        on_train_begin: {
-          value: "None",
-          type: "str",
-          render: "text",
-          options: "begin",
-        },
-        on_train_end: {
-          value: "None",
-          type: "str",
-          render: "text",
-          options: "end",
-        },
-      },
-    },
-    {
-      name: "CSVLogger",
-      type: { name: "CSVLogger", _class: "callbacks" },
-      arguments: {
-        filename: {
-          value: "REQUIRED",
-          type: "str",
-          render: "text",
-          options: "filename",
-        },
-        separator: {
-          value: ",",
-          type: "str",
-          render: "text",
-          options: "separator",
-        },
-        append: {
+        send_as_json: {
           value: "False",
-          type: "str",
+          type: "bool",
           render: "list",
           options: "bool",
         },
       },
     },
     {
+      name: "LambdaCallback",
+      type: { name: "LambdaCallback", object_class: "callbacks" },
+      arguments: {
+        on_epoch_begin: {
+          value: "None",
+          type: "str",
+          render: "text",
+          options: "on_epoch_begin",
+        },
+        on_epoch_end: {
+          value: "None",
+          type: "str",
+          render: "text",
+          options: "on_epoch_end",
+        },
+        on_batch_begin: {
+          value: "None",
+          type: "str",
+          render: "text",
+          options: "on_batch_begin",
+        },
+        on_batch_end: {
+          value: "None",
+          type: "str",
+          render: "text",
+          options: "on_batch_end",
+        },
+        on_train_begin: {
+          value: "None",
+          type: "str",
+          render: "text",
+          options: "on_train_begin",
+        },
+        on_train_end: {
+          value: "None",
+          type: "str",
+          render: "text",
+          options: "on_train_end",
+        },
+      },
+    },
+    {
+      name: "TerminateOnNaN",
+      type: { name: "TerminateOnNaN", object_class: "callbacks" },
+      arguments: {},
+    },
+    {
+      name: "CSVLogger",
+      type: { name: "CSVLogger", object_class: "callbacks" },
+      arguments: {
+        filename: {
+          value: "required",
+          type: "str",
+          render: "text",
+          options: "filename",
+        },
+        append: {
+          value: "False",
+          type: "bool",
+          render: "list",
+          options: "bool",
+        },
+        separator: {
+          value: ",",
+          type: "str",
+          render: "text",
+          options: "filename",
+        },
+      },
+    },
+    {
       name: "ProgbarLogger",
-      type: { name: "ProgbarLogger", _class: "callbacks" },
+      type: { name: "ProgbarLogger", object_class: "callbacks" },
       arguments: {
         count_mode: {
           value: "samples",
           type: "str",
           render: "text",
-          options: "mode",
+          options: "count_mode",
         },
         stateful_metrics: {
           value: "None",
           type: "str",
           render: "text",
-          options: "metrics",
+          options: "stateful_metrics",
         },
       },
     },

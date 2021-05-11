@@ -3,8 +3,8 @@ const applications = {
   layers: [
     {
       name: "DenseNet121",
-      type: { name: "Application", _class: "DenseNet121" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -15,8 +15,8 @@ const applications = {
     },
     {
       name: "DenseNet169",
-      type: { name: "Application", _class: "DenseNet169" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -27,8 +27,8 @@ const applications = {
     },
     {
       name: "DenseNet201",
-      type: { name: "Application", _class: "DenseNet201" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -39,8 +39,8 @@ const applications = {
     },
     {
       name: "EfficientNetB0",
-      type: { name: "Application", _class: "EfficientNetB0" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -51,8 +51,8 @@ const applications = {
     },
     {
       name: "EfficientNetB1",
-      type: { name: "Application", _class: "EfficientNetB1" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -63,8 +63,8 @@ const applications = {
     },
     {
       name: "EfficientNetB2",
-      type: { name: "Application", _class: "EfficientNetB2" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -75,8 +75,8 @@ const applications = {
     },
     {
       name: "EfficientNetB3",
-      type: { name: "Application", _class: "EfficientNetB3" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -87,8 +87,8 @@ const applications = {
     },
     {
       name: "EfficientNetB4",
-      type: { name: "Application", _class: "EfficientNetB4" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -99,8 +99,8 @@ const applications = {
     },
     {
       name: "EfficientNetB5",
-      type: { name: "Application", _class: "EfficientNetB5" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -111,8 +111,8 @@ const applications = {
     },
     {
       name: "EfficientNetB6",
-      type: { name: "Application", _class: "EfficientNetB6" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -123,8 +123,8 @@ const applications = {
     },
     {
       name: "EfficientNetB7",
-      type: { name: "Application", _class: "EfficientNetB7" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -135,8 +135,8 @@ const applications = {
     },
     {
       name: "InceptionResNetV2",
-      type: { name: "Application", _class: "InceptionResNetV2" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -147,8 +147,8 @@ const applications = {
     },
     {
       name: "InceptionV3",
-      type: { name: "Application", _class: "InceptionV3" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -159,8 +159,8 @@ const applications = {
     },
     {
       name: "MobileNet",
-      type: { name: "Application", _class: "MobileNet" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -171,8 +171,8 @@ const applications = {
     },
     {
       name: "MobileNetV2",
-      type: { name: "Application", _class: "MobileNetV2" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -183,8 +183,8 @@ const applications = {
     },
     {
       name: "MobileNetV3Large",
-      type: { name: "Application", _class: "MobileNetV3Large" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -195,8 +195,8 @@ const applications = {
     },
     {
       name: "MobileNetV3Small",
-      type: { name: "Application", _class: "MobileNetV3Small" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -207,8 +207,8 @@ const applications = {
     },
     {
       name: "NASNetLarge",
-      type: { name: "Application", _class: "NASNetLarge" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -219,8 +219,8 @@ const applications = {
     },
     {
       name: "NASNetMobile",
-      type: { name: "Application", _class: "NASNetMobile" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -231,8 +231,8 @@ const applications = {
     },
     {
       name: "ResNet101",
-      type: { name: "Application", _class: "ResNet101" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -243,8 +243,8 @@ const applications = {
     },
     {
       name: "ResNet101V2",
-      type: { name: "Application", _class: "ResNet101V2" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -255,8 +255,8 @@ const applications = {
     },
     {
       name: "ResNet152",
-      type: { name: "Application", _class: "ResNet152" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -267,8 +267,8 @@ const applications = {
     },
     {
       name: "ResNet152V2",
-      type: { name: "Application", _class: "ResNet152V2" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -279,8 +279,8 @@ const applications = {
     },
     {
       name: "ResNet50",
-      type: { name: "Application", _class: "ResNet50" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -291,8 +291,8 @@ const applications = {
     },
     {
       name: "ResNet50V2",
-      type: { name: "Application", _class: "ResNet50V2" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -303,8 +303,8 @@ const applications = {
     },
     {
       name: "VGG16",
-      type: { name: "Application", _class: "VGG16" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -315,8 +315,8 @@ const applications = {
     },
     {
       name: "VGG19",
-      type: { name: "Application", _class: "VGG19" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",
@@ -327,8 +327,8 @@ const applications = {
     },
     {
       name: "Xception",
-      type: { name: "Application", _class: "Xception" },
-      arguments: {
+      type: { name: "Application", object_class: "applications" },
+      args: {
         weights: {
           value: "imagenet",
           type: "str",

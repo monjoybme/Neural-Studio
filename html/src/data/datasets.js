@@ -1,15 +1,15 @@
 const datasets = {
-    "name":"Input",
-    "layers":[
-        {
-            "name":"Dataset",
-            "type":{
-                _class:"datasets",
-                name:"Dataset",
-            },
-            "arguments":{
-                "dataset":{
-                    value:`"""
+  name: "Datasets",
+  layers: [
+    {
+      name: "Dataset",
+      type: {
+        object_class: "datasets",
+        name: "Dataset",
+      },
+      arguments: {
+        dataset: {
+          value: `"""
 Note : Don't change dataset id.
 
 All the required packages have been imported with their standard namespaces.
@@ -62,20 +62,20 @@ class Dataset:
 __id__ = Dataset()
 #end-dataset id=__id__
 `,
-                    type:"dataset",
-                    render:"dataset",
-                },
-            },
+          type: "dataset",
+          render: "dataset",
         },
-        {
-            "name":"MNIST",
-            "type":{
-                _class:"datasets",
-                name:"Dataset",
-            },
-            "arguments":{
-                "dataset":{
-                    value:`"""
+      },
+    },
+    {
+      name: "MNIST",
+      type: {
+        object_class: "datasets",
+        name: "Dataset",
+      },
+      arguments: {
+        dataset: {
+          value: `"""
 Note : Don't change dataset id.
 All the required packages have been imported with their standard namespaces.
 
@@ -128,20 +128,20 @@ class Dataset:
 __id__ = Dataset()
 #end-dataset id=__id__
                     `,
-                    type:"dataset",
-                    render:"dataset",
-                },
-            },
+          type: "dataset",
+          render: "dataset",
         },
-        {
-            "name":"Boston Housing",
-            "type":{
-                _class:"datasets",
-                name:"Dataset",
-            },
-            "arguments":{
-                "dataset":{
-                    value:`"""
+      },
+    },
+    {
+      name: "Boston Housing",
+      type: {
+        object_class: "datasets",
+        name: "Dataset",
+      },
+      arguments: {
+        dataset: {
+          value: `"""
 Note : Don't change dataset id.
 All the required packages have been imported with their standard namespaces.
 
@@ -196,20 +196,20 @@ class Dataset:
 __id__ = Dataset()
 #end-dataset id=__id__
                     `,
-                    type:"dataset",
-                    render:"dataset",
-                },
-            },
+          type: "dataset",
+          render: "dataset",
         },
-        {
-            "name":"CIFAR10",
-            "type":{
-                _class:"datasets",
-                name:"Dataset",
-            },
-            "arguments":{
-                "dataset":{
-                    value:`"""
+      },
+    },
+    {
+      name: "CIFAR10",
+      type: {
+        object_class: "datasets",
+        name: "Dataset",
+      },
+      arguments: {
+        dataset: {
+          value: `"""
 Note : Don't change dataset id.
 All the required packages have been imported with their standard namespaces.
 
@@ -264,20 +264,20 @@ class Dataset:
 __id__ = Dataset()
 #end-dataset id=__id__
                     `,
-                    type:"dataset",
-                    render:"dataset",
-                },
-            },
+          type: "dataset",
+          render: "dataset",
         },
-        {
-            "name":"CIFAR100",
-            "type":{
-                _class:"datasets",
-                name:"Dataset",
-            },
-            "arguments":{
-                "dataset":{
-                    value:`"""
+      },
+    },
+    {
+      name: "CIFAR100",
+      type: {
+        object_class: "datasets",
+        name: "Dataset",
+      },
+      arguments: {
+        dataset: {
+          value: `"""
 Note : Don't change dataset id.
 All the required packages have been imported with their standard namespaces.
 
@@ -329,20 +329,20 @@ class Dataset:
 __id__ = Dataset()
 #end-dataset id=__id__
                     `,
-                    type:"dataset",
-                    render:"dataset",
-                },
-            },
+          type: "dataset",
+          render: "dataset",
         },
-        {
-            "name":"Fashion MNIST",
-            "type":{
-                _class:"datasets",
-                name:"Dataset",
-            },
-            "arguments":{
-                "dataset":{
-                    value:`"""
+      },
+    },
+    {
+      name: "Fashion MNIST",
+      type: {
+        object_class: "datasets",
+        name: "Dataset",
+      },
+      arguments: {
+        dataset: {
+          value: `"""
 Note : Don't change dataset id.
 All the required packages have been imported with their standard namespaces.
 
@@ -394,20 +394,20 @@ class Dataset:
 __id__ = Dataset()
 #end-dataset id=__id__
                     `,
-                    type:"dataset",
-                    render:"dataset",
-                },
-            },
+          type: "dataset",
+          render: "dataset",
         },
-        {
-            "name":"IMDB",
-            "type":{
-                _class:"datasets",
-                name:"Dataset",
-            },
-            "arguments":{
-                "dataset":{
-                    value:`"""
+      },
+    },
+    {
+      name: "IMDB",
+      type: {
+        object_class: "datasets",
+        name: "Dataset",
+      },
+      arguments: {
+        dataset: {
+          value: `"""
 Note : Don't change dataset id.
 All the required packages have been imported with their standard namespaces.
 
@@ -459,13 +459,12 @@ class Dataset:
 __id__ = Dataset()
 #end-dataset id=__id__
                     `,
-                    type:"dataset",
-                    render:"dataset",
-                },
-            },
+          type: "dataset",
+          render: "dataset",
         },
-    ]
-}
+      },
+    },
+  ],
+};
 
 export default datasets;
-
