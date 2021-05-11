@@ -117,18 +117,19 @@ const GraphEditor = (props = { store: StoreContext }) => {
       switch (canvasConfig.activeLayer.type.name) {
         case "Model":
           canvasConfig.activeLayer = window.copy(
-            layerGroups["build-layers"].layers[1]
+            layerGroups.build_tools.layers[1]
           );
           graphdef.train_config.model = graphdef[id];
           break;
         case "Compile":
           canvasConfig.activeLayer = window.copy(
-            layerGroups["build-layers"].layers[2]
+            layerGroups.build_tools.layers[2]
           );
           graphdef.train_config.compile = graphdef[id];
           break;
         case "Train":
           graphdef.train_config.train = graphdef[id];
+          setToolMode({ name : "normal" })
           break;
         case "Dataset":
           graphdef.train_config.dataset = graphdef[id];
@@ -140,7 +141,7 @@ const GraphEditor = (props = { store: StoreContext }) => {
           break;
       }
 
-      switch (canvasConfig.activeLayer.type._class) {
+      switch (canvasConfig.activeLayer.type.object_class) {
         case "optimizers":
           graphdef.train_config.optimizer = graphdef[id];
           break;
@@ -349,7 +350,7 @@ const GraphEditor = (props = { store: StoreContext }) => {
   React.useEffect(() => {
     window.setToolMode = setToolMode;
     window.autosave();
-
+    
     if (
       canvasref.current.viewBox.baseVal.height === 0 &&
       canvasref.current.viewBox.baseVal.width === 0

@@ -21,7 +21,7 @@ def build_default(layer,build_config,*args,**kwargs)->str:
     arguments =  build_arguments(layer['arguments'])
     inbound = build_inbound(layer['connections']['inbound']) if layer['type']['name'] != 'Input' else '' 
     
-    return f"""{layer['id']} = {layer['type']['_class']}.{layer['type']['name']}(
+    return f"""{layer['id']} = {layer['type']['object_class']}.{layer['type']['name']}(
 {arguments}
 ){inbound} #end-{layer['id']}
 """
@@ -31,7 +31,7 @@ def build_custom_node(layer,build_config,*args,**kwargs)->str:
     inbound = layer['connections']['inbound'] 
     inbound = "[ " + ", ".join(inbound) + " ]" if len(inbound) > 1 else inbound[0]
                             
-    return f"""{layer['id']} = {layer['type']['_class']}(
+    return f"""{layer['id']} = {layer['type']['object_class']}(
     inbound={inbound},
 {arguments}
 ) #end-{layer['id']}
@@ -40,7 +40,7 @@ def build_custom_node(layer,build_config,*args,**kwargs)->str:
 def build_application(layer,build_config,*args,**kwargs)->str:
     arguments =  build_arguments(layer['arguments'])
     inbound = build_inbound(layer['connections']['inbound']) if layer['type']['name'] != 'Input' else '' 
-    return f"""{layer['id']} = applications.{layer['type']['_class']}(
+    return f"""{layer['id']} = applications.{layer['type']['object_class']}(
     input_tensor={layer['connections']['inbound'][0]},
 {arguments}
     include_top=False
@@ -130,10 +130,10 @@ def build_code(graphdef:dict)->Tuple[dict,str]:
         elif config['type']['name'] == 'Custom':
             custom_nodes.append(config)
 
-        if config['type']['_class'] == 'optimizers':
+        if config['type']['object_class'] == 'optimizers':
             train_config['optimizer'] = _id
             
-        elif config['type']['_class'] == 'callbacks':
+        elif config['type']['object_class'] == 'callbacks':
             train_config['callbacks'].append(_id)
     
     if not len(input_nodes):

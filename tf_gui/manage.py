@@ -190,8 +190,11 @@ class WorkspaceManager(object):
         
     @property
     def session_id(self,)->str:
-        return self.active_workspace.var_graphdef['train_config']['session_id']
-
+        try:
+            return self.active_workspace.var_graphdef['train_config']['session_id']
+        except KeyError:
+            return None
+            
     def new_workspace(self,name:str)->Workspace:
         workspace = Workspace(
             path = pathlib.join(self.root, "workspace", name) 

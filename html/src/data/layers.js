@@ -4,7 +4,7 @@ import callbaacks from "./callbacks";
 import applications from "./applications";
 
 const layers = {
-  datasets:datasets,
+  datasets: datasets,
   core_layers: {
     name: "Core layers",
     layers: [
@@ -3500,12 +3500,12 @@ const layers = {
       {
         name: "Model",
         type: { name: "Model", object_class: "models" },
-        args: {},
+        arguments: {},
       },
       {
         name: "Compile",
         type: { name: "Compile", object_class: "models" },
-        args: {
+        arguments: {
           optmizer: {
             value: "rmsprop",
             type: "str",
@@ -3524,7 +3524,7 @@ const layers = {
       {
         name: "Train",
         type: { name: "Train", object_class: "models" },
-        args: {
+        arguments: {
           batch_size: {
             value: "8",
             type: "int",
