@@ -1,28 +1,22 @@
 import React from "react";
 import Editor from "@monaco-editor/react";
 import { StoreContext } from "../Store";
+import { GET, } from "../Utils";
 
 const CodeEditor = (props={store:StoreContext}) => {
-
-  let { appconfig, graphdef } = props.store;
+  let { appconfig, } = props.store;
   let [code,codeState] = React.useState({
-    data:"",
+    data:undefined,
     fetched:true
   })
-
   async function buildCode(e) {
-    await fetch(
-      "http://localhost/build",
-      {
-        method:"POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...graphdef })
-      }
-    )
-    .then(response=>response.json())
+    await GET({
+      path:"/model/code"
+    })
+    .then(response=>response.text())
     .then(data=>{
       codeState({
-        data:data.code,
+        data:data,
         fetched:false
       })
     })
@@ -30,24 +24,22 @@ const CodeEditor = (props={store:StoreContext}) => {
 
 
   React.useEffect(()=>{
-    if ( code.data.length === 0 ){
+    if ( code.data === undefined ){
       buildCode()
     }
-    clearTimeout(window.__UPDATE_TIMEOUT__)
-  },)
+  }, [code])
 
     return (
       <div className="container">
       {
-        code.fetched ?
-          undefined
-        :
-          <Editor
-            defaultLanguage="python"
-            defaultValue={code.data}
-            onValidate={e=>console.log(e)}
-            theme={"vs-"+appconfig.theme}
-          />         
+        code.fetched 
+          ? undefined
+          : <Editor
+              defaultLanguage="python"
+              defaultValue={code.data}
+              onValidate={e=>console.log(e)}
+              theme={"vs-"+appconfig.theme}
+            />         
       }
       </div>
     );

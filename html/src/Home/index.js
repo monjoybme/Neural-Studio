@@ -194,11 +194,11 @@ const Home = (props = { store: StoreContext }) => {
 
   async function fetchWorkspace() {
     let active = await GET({
-      path: "workspace/active",
+      path: "/workspace/active",
     }).then((response) => response.json());
 
     let all = await GET({
-      path: "workspace/all",
+      path: "/workspace/all",
     }).then((response) => response.json());
 
     workspaceState({
@@ -214,12 +214,13 @@ const Home = (props = { store: StoreContext }) => {
       ...active.data.app_config,
     });
     window.canvasConfig = active.data.canvas_config;
+    console.log(active.data.canvas_config);
     window.canvasConfig.mode = "normal";
   }
 
   async function newWorkspace(name = "model") {
     await POST({
-      path: "workspace/new",
+      path: "/workspace/new",
       data: {
         name: name,
       },
@@ -232,13 +233,14 @@ const Home = (props = { store: StoreContext }) => {
 
   async function openWorkspace(options = { name: "workspace" }) {
     POST({
-      path: `workspace/open/${options.name}`,
+      path: `/workspace/open/${options.name}`,
       data: {},
     })
       .then((response) => response.json())
       .then((data) => {
         popupState(undefined);
         fetchWorkspace();
+        window.notify({ message: `Workspace ${options.name} loaded.` });
       });
   }
 

@@ -209,29 +209,37 @@ const Dataset = (props) => {
       ...graphdef,
     });
   }
+  
+  async function updateDataset(e){
+    await POST({
+      path:"/dataset/checkpoint",
+      data:{
+        dataset:graphdef[id].arguments.dataset.value,
+        id:id,
+      }
+    }).then(response=>response.json()).then(data=>{
+      window.notify({
+        message:data.message,
+        timeout:5000
+      });
+      if (data.status){
+        props.menuState(<div></div>);
+      }
+    })
+  }
 
   React.useEffect(() => {
-    graphdef[id].arguments.dataset.value =
-      props.arguments.dataset.value.lastIndexOf("__id__") > 0
-        ? props.arguments.dataset.value.replaceAll(/__id__/g, id)
-        : props.arguments.dataset.value;
-
-    graphdefState({
-      ...graphdef,
-    });
+    
   });
 
   return (
     <div className="dataset">
       <div className="head">
         <input defaultValue={name} />
-        <div
-          className="btn"
-          onClick={(e) => {
-            props.menuState({ comp: <div /> });
-          }}
-        >
-          Save
+        <div className="buttons">
+          <div className="btn" onClick={updateDataset}>
+            Save
+          </div>
         </div>
       </div>
       <Editor
@@ -284,8 +292,8 @@ const CustomNode = (props) => {
   }
 
   async function saveAndExit(e) {
-    POST({
-      path: "node/build",
+    await POST({
+      path: "/custom/node/build",
       data: {
         code: graphdef[props.id].arguments.code.value,
       },
@@ -303,8 +311,8 @@ const CustomNode = (props) => {
         layerGroups.custom.layers.push({
           name: _id.value,
           type: {
-            name: "Node",
-            _class: data.id,
+            name: data.id,
+            object_class: "CustomNode",
           },
           arguments: data.arguments,
         });

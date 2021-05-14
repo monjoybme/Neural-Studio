@@ -65,18 +65,16 @@ const GraphEditor = (props = { store: StoreContext }) => {
   }
 
   function layerIdGenerator(name = "Layer") {
-    let _id,
-      _name = name.toLowerCase().replaceAll(" ", "_");
+    let idx, namex = name.toLowerCase().replaceAll(" ", "_");
     if (canvasConfig.layerCount[name]) {
       canvasConfig.layerCount[name] = canvasConfig.layerCount[name] + 1;
     } else {
       canvasConfig.layerCount[name] = 1;
     }
-    _id = canvasConfig.layerCount[name];
-
+    idx = canvasConfig.layerCount[name];
     return {
-      name: `${name} ${_id}`,
-      id: `${_name}_${_id}`,
+      name: `${name} ${idx}`,
+      id: `${namex}_${idx}`,
     };
   }
 
@@ -108,10 +106,10 @@ const GraphEditor = (props = { store: StoreContext }) => {
         offsetY: 15,
       };
 
-      if ( graphdef.train_config === undefined ){
+      if (graphdef.train_config === undefined) {
         graphdef.train_config = {
-          session_id : ( new Date() ).toTimeString()
-        }
+          session_id: new Date().toTimeString(),
+        };
       }
 
       switch (canvasConfig.activeLayer.type.name) {
@@ -132,6 +130,10 @@ const GraphEditor = (props = { store: StoreContext }) => {
           setToolMode({ name : "normal" })
           break;
         case "Dataset":
+          graphdef[id].arguments.dataset.value =
+            graphdef[id].arguments.dataset.value.lastIndexOf("__id__") > 0
+              ? graphdef[id].arguments.dataset.value.replaceAll(/__id__/g, id)
+              : graphdef[id].arguments.dataset.value;
           graphdef.train_config.dataset = graphdef[id];
           break;
         case "Custom":
@@ -285,22 +287,33 @@ const GraphEditor = (props = { store: StoreContext }) => {
     toolbarButtonsState([...toolbarButtons]);
   }
 
+  function addEdge(from , to){
+    if (from && to && from !== to) {
+      if (graphdef[from].connections.outbound.lastIndexOf(to) === -1) {
+        graphdef[from].connections.outbound.push(to);
+      }
+      if (graphdef[to].connections.inbound.lastIndexOf(from) === -1) {
+        graphdef[to].connections.inbound.push(from);
+      }
+      canvasConfig.newEdge = undefined;
+      canvasConfig.activeLine = undefined;
+    }
+  }
+
   function onMouseUp(e) {
     if (canvasConfig.newEdge) {
-      let { from, to } = canvasConfig.newEdge;
-      if (from && to && from !== to) {
-        if (graphdef[from].connections.outbound.lastIndexOf(to) === -1) {
-          graphdef[from].connections.outbound.push(to);
-        }
-        if (graphdef[to].connections.inbound.lastIndexOf(from) === -1) {
-          graphdef[to].connections.inbound.push(from);
-        }
-        canvasConfig.newEdge = undefined;
-        canvasConfig.activeLine = undefined;
-        graphdefState({
-          ...graphdef,
-        });
+      if (canvasConfig.newEdge.longLine){
+        canvasConfig.newEdge.queue.forEach(edge =>{
+          let { from, to } = edge;
+          addEdge(from, to);
+        })
+      }else{
+        let { from, to } = canvasConfig.newEdge;
+        addEdge(from, to);
       }
+      graphdefState({
+        ...graphdef,
+      });
     }
 
     if (canvasConfig.activeElement) {
@@ -314,6 +327,7 @@ const GraphEditor = (props = { store: StoreContext }) => {
 
     canvasConfig.activeElement = undefined;
     canvasConfig.pos = undefined;
+    canvasConfig.newEdge = undefined;
     canvasConfig.activeLine = undefined;
 
     let line = document.getElementById("dummy");

@@ -1,19 +1,18 @@
 @import './App.scss';
 
-$toolbarWidth : 240px;
+$toolbarWidth : 280px;
 
 .graph-canvas {
     display: flex;    
 }
 
 .tools {
-    width: $toolbarWidth;
     height: 100%;
     border-right: $lightBorder1;
-
+    min-width: $toolbarWidth;
     .toolbar {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+        grid-template-columns: 1fr 1fr 1fr 1fr;
         height: $topbarHeight;
         
         .btn {
@@ -37,9 +36,8 @@ $toolbarWidth : 240px;
 
     .layergroups {
         overflow-y: scroll;
-        
-        height: 92%;
-        width: $toolbarWidth;
+        height: calc( 100vh - ( 2 * #{$topbarHeight} + #{$statusBarHeight} )  );
+        width: 100%;
         @include flex(column, flex-start, center);
 
         .layers {
@@ -72,11 +70,6 @@ $toolbarWidth : 240px;
             }
         }
     }
-
-    .layergroups::-webkit-scrollbar {
-        width: 0px;
-    }      
-
 }
 
 .canvas-top {
@@ -100,8 +93,8 @@ $toolbarWidth : 240px;
     position: absolute;
     z-index: 99;
     right: 0;
-    height: calc( 100vh - ( #{$topbarHeight} + #{$notificationBarHeight} ) );
-    max-height: calc( 100vh - ( #{$topbarHeight} + #{$notificationBarHeight} ) );
+    height: calc( 100vh - ( #{$topbarHeight} + #{$statusBarHeight} ) );
+    max-height: calc( 100vh - ( #{$topbarHeight} + #{$statusBarHeight} ) );
     width: 300px;
     padding: 5px;
     overflow-y: scroll;
@@ -191,7 +184,7 @@ $toolbarWidth : 240px;
     left: $toolbarWidth + $sidebarWidth;
     top: $topbarHeight;
     width: calc( 100% - ( #{$toolbarWidth} + #{$sidebarWidth} ) );
-    height: calc( 100% - ( #{$topbarHeight} + #{$notificationBarHeight} ) );
+    height: calc( 100% - ( #{$topbarHeight} + #{$statusBarHeight} ) );
     
     .head {
         width: 100%;
@@ -211,19 +204,21 @@ $toolbarWidth : 240px;
             @extend .heading-4;
         }
 
-        .btn {
-            border: $lightBorder1;
-            border-radius: 3px;
-          
-            height: 25px;
-            width: 70px;
+        .buttons {
+            display: flex;
+            .btn {
+                border: $lightBorder1;
+                border-radius: 3px;
+                height: 25px;
+                width: 70px;
+                padding-bottom: 3px;
+                cursor: pointer;
 
-            padding-bottom: 3px;
-
-            cursor: pointer;
-            
-            @include flex();
-            @extend .heading-4;
+                margin-left: 10px;
+                
+                @include flex();
+                @extend .heading-4;
+            }
         }
     }
     section {
@@ -239,6 +234,19 @@ $toolbarWidth : 240px;
             @extend .heading-4;
             @include flex();
         }
+        .btn {
+                border: $lightBorder1;
+                border-radius: 3px;
+                height: 25px;
+                width: 70px;
+                padding-bottom: 3px;
+                cursor: pointer;
+
+                margin-left: 10px;
+                
+                @include flex();
+                @extend .heading-4;
+            }
     }
 
     .body{
@@ -329,6 +337,9 @@ $toolbarWidth : 240px;
 
     .dataset{
         color: $lightColorPr;
+        .head{
+            background: $lightBg;
+        }
         input{
             color: $lightColorPr;
         }
@@ -413,7 +424,10 @@ $toolbarWidth : 240px;
 
     .dataset{
         color: $darkColorPr;
-        background: $bgDark;
+        background: $darkBg;
+        .head{
+            background: $darkBg;
+        }
         input{
             color: $darkColorPr;
         }

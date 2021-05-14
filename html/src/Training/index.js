@@ -6,6 +6,7 @@ import { EpochLog, ErrorLog, NotificationLog } from './logs';
 
 import { icons } from "../data/icons";
 import { StoreContext } from "../Store";
+import { GET } from "../Utils";
 
 
 
@@ -59,8 +60,8 @@ const Training = (
   ];
 
   async function getStatus() {
-    await fetch("http://localhost/status", {
-      method: "GET",
+    await GET({
+      path:"/train/status"
     })
       .then((respomse) => respomse.json())
       .then((data) => {
@@ -88,7 +89,7 @@ const Training = (
   async function trainModel(e) {
     if (train.training) {
       window.notify({
-        text: "Training Already Running",
+        message: "Training Already Running",
       });
     } else {
       trainState({
@@ -100,7 +101,7 @@ const Training = (
         updating: false,
       });
       window.notify({
-        text: "Training Started !",
+        message: "Training Started !",
       });
       await fetch("http://localhost/train/start", {
         method: "POST",
@@ -127,13 +128,13 @@ const Training = (
         halt.name = "Resume";
         halt.state = false;
         window.notify({
-          text: "Training paused !",
+          message: "Training paused !",
         });
       } else {
         halt.name = "Pause";
         halt.state = true;
         window.notify({
-          text: "Training resumed !",
+          message: "Training resumed !",
         });
       }
       haltState({
@@ -141,7 +142,7 @@ const Training = (
       });
     } else {
       window.notify({
-        text: "Can't halt, Training has not started !",
+        message: "Can't halt, Training has not started !",
       });
     }
   }
@@ -158,12 +159,12 @@ const Training = (
             hist: data.logs,
           });
           window.notify({
-            text: "Training has stopped !",
+            message: "Training has stopped !",
           });
         });
     } else {
       window.notify({
-        text: "Can't stop, Training has not started !",
+        message: "Can't stop, Training has not started !",
       });
     }
   }

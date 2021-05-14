@@ -4,6 +4,7 @@
   display: flex;
 
   .tuner {
+    min-width: 300px;
     .toolbar {
       width: 100%;
       height: $topbarHeight;

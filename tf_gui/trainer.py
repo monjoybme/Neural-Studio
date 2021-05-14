@@ -1,290 +1,335 @@
+import sys
 import re
 import base64
+from threading import Thread
 
 import cv2
 import pandas as pd
 import numpy as np
 import tensorflow as tf
 
-
 from tensorflow import keras
-from tensorflow.keras import layers,optimizers,losses,metrics,callbacks
-from tensorflow.python.training.tracking.base import no_manual_dependency_tracking_scope
+from tensorflow.keras import layers, callbacks, optimizers, losses, applications
 
 from .builder import build_code
 from .manage import WorkspaceManager, Workspace
+from .graph import GraphDef, LayerMeta
 
-from glob import glob
-from concurrent.futures import ThreadPoolExecutor
-from typing import List, Any
-from json import load,dump
-from time import sleep, time
-from threading import Thread
-from gc import collect
+from time import sleep
+from typing import List, Tuple
 
-def execute_code(_code:str,logs=lambda log_type,log:None,session_var:dict={})->bool:
+
+def execute_code(exec_code: str) -> Tuple[dict, str]:
     try:
-        exec(_code)
+        _ = exec(exec_code)
         globals().update(locals())
-        session_var.update(locals())
-        return True
-    except ValueError as e:
-        print (e)
-        logs("error",{ "error":str(e), "code":_code })
-        logs("notif",{ "message": "Training stopped", "ended":True })
-        return False
-    except NameError as e:
-        print (e)
-        logs("error",{ "error":str(e), "code":_code })
-        logs("notif",{ "message": "Training stopped", "ended":True })
-        return False
-    
+        return locals(), None
+    except Exception as e:
+        return {}, str(e)
+
+
+class Dataset:
+    """
+    Dataset will be used in training 
+
+    The dataset object needs to have following attributes
+
+    train_x : np.ndarray -> Training features
+    train_y : np.ndarray -> Training labels 
+    test_x : np.ndarray -> Testing features
+    test_y : np.ndarray -> Testing labels
+
+    validate : bool -> Weather use validation data or not
+
+    batch_size : int -> Batch size
+    epochs : int -> Number of epochs
+    batches : int -> Number of batches ( Will be calculated automatically )
+    """
+    train_x = None
+    test_x = None
+    train_y = None
+    test_y = None
+
+    validate = True
+
+    def __init__(self) -> None:
+        """
+        Load dataset and set required variables.
+        """
+        pass
+
+
 class TfGui(keras.callbacks.Callback):
-    batch = None 
+    batch = None
     epoch = 0
-    
-    batch_size=8
+
+    batch_size = 8
     batches = 1
     epochs = 1
-    
+
     trainer = None
     halt = False
-    output= []
-    
+    output = []
+
     def __repr__(self,):
         return f"""TfGui(\n\tbatch={self.batch},\n\tbatch_size={self.batch_size},\n\tepochs={self.epochs},\m)"""
-    
-    
-    def __init__(self,trainer,):
+
+    def __init__(self, trainer,):
         self.trainer = trainer
-    
+
     @property
     def status(self,):
         return {
-            "epochs":self.epochs,
-            "batchs":self.batches
+            "epochs": self.epochs,
+            "batchs": self.batches
         }
 
     def stop(self,):
         self.model.stop_training = True
-    
-    def on_batch_end(self,batch,logs=None):
+
+    def on_batch_end(self, batch, logs=None):
         self.batch = batch
         self._epoch['log'] = {
-            "batch":batch,
-            "output":logs
+            "batch": batch,
+            "output": logs
         }
         while self.halt:
             sleep(0.1)
-        
-    def on_epoch_begin(self,epoch,logs=None):
+
+    def on_epoch_begin(self, epoch, logs=None):
         self.epoch = epoch
         self._epoch = {
-            "epoch":epoch,
-            "log":{
-                "batch":0,
-                "output":None
+            "epoch": epoch,
+            "log": {
+                "batch": 0,
+                "output": None
             },
-            "train":{
-                "epochs":self.epochs,
-                "batches":self.batches
+            "train": {
+                "epochs": self.epochs,
+                "batches": self.batches
             }
         }
-        
+
         self.trainer.update_log(
-            log_type = "epoch",
+            log_type="epoch",
             log=self._epoch
         )
 
     def on_epoch_end(self, epoch, logs=None):
         self._epoch['log'] = {
-            "batch":self.batch,
-            "output":logs
-        }   
+            "batch": self.batch,
+            "output": logs
+        }
         while self.halt:
             sleep(1)
 
     def on_train_end(self, logs):
-        self.trainer.update_log(log_type="notif",log={
-            "message":"Training Ended",
-            "ended":True
+        self.trainer.update_log(log_type="notif", log={
+            "message": "Training Ended",
+            "ended": True
         })
-        
+        self.trainer.isTraining = False
+
+
 class Trainer(object):
-    
+
     training = False
     build = False
-    
-    re_charset =  'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\:-\<\>#"'
+
+    re_charset = 'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\:-\<\>#"'
     session_var = {}
     build_config = {}
+    isTraining = False
 
     logs = []
 
-    __model = False
-    __dataset = False
-    __model_name = 'Model'
-    __dataset_name = 'Dataset'
+    __model__: keras.Model = False
+    __dataset__: Dataset = False
+    __model__name__: str = '__model__model__'
+    __dataset__name__: str = '__dataset__name__'
+    __dataset__code__: str = '__dataset__code__'
 
-    def __init__(self,workspace_manager:WorkspaceManager ):
-        self.workspace_manager:WorkspaceManager = workspace_manager
-        self.session_id = workspace_manager.session_id
+    def __init__(self, workspace_manager: WorkspaceManager):
+        self.workspace_manager: WorkspaceManager = workspace_manager
+        self.session_id = workspace_manager[[
+            'active:var_graphdef:train_config:session_id']]
         globals()['tfgui'] = TfGui(self,)
         self.tfgui = globals()['tfgui']
-        self.build_config = {
-            "train_config" : {
-            "dataset":{
-                "value":""
-            },
-            "optimizer":None,
-            "loss":None,
-            "callbacks":[],
-            
-            "model":None,
-            "compile":None,
-            "train":None
-        }
-    }
 
     @property
     def dataset(self,):
-        return self.__dataset
-    
+        return self.__dataset__
+
     @property
-    def model(self,)->keras.Model:
-        if not self.__model:
-            self.build_session()
-        return self.__model 
-        
+    def model(self,) -> keras.Model:
+        if not self.__model__:
+            print (self.build())
+        return self.__model__
+
     @property
-    def summary(self, )->List[List[str]]:
+    def summary(self, ) -> List[List[str]]:
         summary = []
         def print_fn(line, *args, **kwargs):
             if not re.match("(_+)|(=+)", line):
                 line = re.sub('\n', '', line)
-                line  = re.split("   +",line)    
-                line += [ '' for i in range( 4 - len(line))]
+                line = re.split("   +", line)
+                line += ['' for i in range(4 - len(line))]
                 summary.append(line)
-        self.build_session()
-        self.model.summary(line_length=256, print_fn=print_fn)
-        return summary
-        
-    def update_log(self,log_type:str,log:dict):
+        status, error = self.build()
+        if status:
+            self.model.summary(line_length=256, print_fn=print_fn)
+            return summary
+        return [[ error, '', '', '' ]]
+
+    def perform_imports(self, import_string: str) -> str:
+        pass
+
+    def update_dataset(self, dataset: str = None, idx: str = None, from_workspace: bool = False) -> object:
+        if from_workspace:
+            dataset = self.workspace_manager[[
+                'active:var_graphdef:train_config:dataset:arguments:dataset:value']]
+            idx = self.workspace_manager[[
+                'active:var_graphdef:train_config:dataset:id']]
+        if self.__dataset__code__ == dataset:
+            return True, "No update !"
+        self.__dataset__code__ = dataset
+        exec_var, error = execute_code(self.__dataset__code__)
+        if exec_var:
+            self.session_var.update(exec_var)
+            self.__dataset__name__ = idx
+            self.__dataset__ = self.session_var[idx]
+            return True, "Dataset updated succesfully"
+        return False, error
+
+    def update_log(self, log_type: str, log: dict):
         self.logs.append({
-            "type":log_type,
-            "data":log
+            "type": log_type,
+            "data": log
         })
-        
-    def build_session(self,):
-        build_config,code = build_code(graphdef=self.workspace_manager.active_workspace.var_graphdef,)
-        if not build_config:
-            self.update_log("error",{ "code":code , "message": code})
-            return False
-        
-        if build_config == self.build_config and self.session_id ==  self.workspace_manager.session_id : 
-            self.update_log("notif",{"message":"Using current model !"})
-            return True
-                    
-        model = build_config['train_config']['model']['id']
-        self.update_log("notif",{"message":"Creating new session !"})
 
-        if not build_config:
-            self.update_log("notif",{ "message": code })
-            self.update_log("notif",{ "message": "Training stopped", "ended":True })
-            return False
+    def build(self,):
+        self.graph = GraphDef(self.workspace_manager[['active:var_graphdef']])
+        build_status, message = self.graph.build()
+        if not build_status:
+            return build_status, message
 
-        self.update_log("notif",{"message":"Copiling Code"})
-        self.update_log("notif",{"message":"Performing imports"})
-        imports, = re.findall("""#import[a-zA-Z0-9\n .,_\-]+#end-import""",code)
-        if not execute_code(imports,self.update_log,self.session_var):
-            return False
+        for node in self.graph.__custom__nodes__:
+            exec_var, error = execute_code(
+                node.to_code(self.graph, train=True))
+            if not exec_var:
+                self.update_log("error", {
+                    "message": error
+                })
+                return False, error
+            self.session_var.update(exec_var)
 
-        if build_config['train_config']['dataset']['value'] != self.build_config['train_config']['dataset']['value']:
-            self.update_log("notif",{"message":"Reading Dataset."})
-            if not execute_code(build_config['train_config']['dataset']['value'],self.update_log,self.session_var):
-                return False
-
-        self.update_log("notif",{"message":"Defining Custom Nodes"})
-        for i in range(len(build_config['custom_nodes'])):
-            _code, = re.findall(f"""#node_{i}[{self.re_charset}]+#end-node_{i}""",code)
-            if not execute_code(_code,logs=self.update_log,session_var=self.session_var):
-                return False
-
-        self.update_log("notif",{"message":"Building Model"})
-        modeldef, = re.findall(f"""#start-modeldef[{self.re_charset}]+#end-modeldef""", code)
-        modeldef = re.sub("\#((start)|(end))-modeldef", "", modeldef)
-        for level in build_config['levels']:
+        for level in self.graph.__levels__:
             for layer in level:
-                _code = re.findall(f"""{layer} =[{self.re_charset}]+#end-{layer}""",modeldef)
-                if len(_code):
-                    _code, = _code 
-                    if not execute_code(_code,self.update_log,session_var=self.session_var):
-                        return False
-                    
-        self.build_config = build_config
-        self.code = code
-        self.session_id = self.workspace_manager.session_id
-        self.__model_name = model
-        self.__model = self.session_var[model]
-    
+                layer = self.graph[layer]
+                if layer[['type:object_class']] == 'layers':
+                    exec_var, error = execute_code(
+                        layer.to_code(self.graph, train=True))
+                    if not exec_var:
+                        self.update_log("error", {
+                            "message": error
+                        })
+                        return False, error
+                    self.session_var.update(exec_var)
+
+        exec_var, error = execute_code(
+            self.graph.__model__.to_code(self.graph, train=True))
+        if not exec_var:
+            self.update_log("error", {
+                "message": error
+            })
+            return False, error
+        self.session_var.update(exec_var)
+
+        self.__model__name__ = self.graph.__model__.id
+        self.__model__ = self.session_var[self.__model__name__]
+        return True, "Built successful"
+
     def compile(self,):
-        self.update_log("notif",{"message":"Compiling Model"})
-        if self.build_config['train_config']['optimizer']:
-            if not execute_code(self.build_config['train_config']['optimizer']['value'],self.update_log,session_var=self.session_var):
-                return False
+        self.update_log("notif", {"message": "Compiling Model"})
+        if not self.graph.__compile__:
+            self.update_log(
+                "notif", {"message": "Please provide compiler.", "ended": True})
+            return False, "Please add compile node."
 
-        if self.build_config['train_config']['callbacks']:
-            for callback in self.build_config['train_config']['callbacks']:
-                if not execute_code(callback['value'],self.update_log,session_var=self.session_var):
-                    return False    
-        
-        if self.build_config['train_config']['loss']:
-            if not execute_code(self.build_config['train_config']['loss']['value'],self.update_log,session_var=self.session_var):
-                return False
+        if self.graph.__optimizer__:
+            exec_var, error = execute_code(
+                self.graph.__optimizer__.to_code(self.graph, train=True))
+            if not exec_var:
+                self.update_log("error", {
+                    "message": error
+                })
+                return False, error
+            self.session_var.update(exec_var)
 
-        if self.build_config['train_config']['compile']:
-            comp = self.build_config['train_config']['compile']['id']
-            if not execute_code(re.findall(f"""{self.__model_name}.compile[{self.re_charset}]+#end-{comp}""",self.code)[0],self.update_log,session_var=self.session_var):
-                return False
+        exec_var, error = execute_code(
+            self.graph.__compile__.to_code(self.graph, train=True))
+        if not exec_var:
+            self.update_log("error", {
+                "message": error
+            })
+            return False, error
+        self.session_var.update(exec_var)
+        return True, "Model compiled successfully."
 
-        else:
-            self.update_log("notif",{ "message": "Please provide compiler.", "ended":True })
-            return False
-
-    def _start_train_thread(self, )->None:
-        if self.build_config['train_config']['train']:
-            self.tfgui.epochs = int(self.build_config['train_config']['train']['arguments']['epochs']['value'])
-            self.tfgui.batch_size = int(self.build_config['train_config']['train']['arguments']['batch_size']['value'])
+    def __train__thread__(self, ) -> None:
+        if self.graph.__train__:
+            self.tfgui.epochs = int(
+                self.graph.__train__.arguments.epochs.value)
+            self.tfgui.batch_size = int(
+                self.graph.__train__.arguments.batch_size.value)
             try:
-                self.tfgui.batches = int(np.ceil(self.session_var[self.build_config['train_config']['dataset']['id']].train_x.__len__() / self.tfgui.batch_size)) - 1
+                self.tfgui.batches = int(np.ceil(len(self.dataset.train_x) / self.tfgui.batch_size))
+                self.tfgui.batches -= 1
             except KeyError:
-                self.update_log("notif",{ "message": "Please configure dataset." })
-                self.update_log("notif",{ "message": "Training stopped", "ended":True })
-                return False
+                self.update_log( "notif", {"message": "Please configure dataset.", "ended": True})
+                return 0
+            except Exception as e:
+                self.update_log(
+                    "notif", {"message": str(e), "ended": True})
+                return 0
 
-            train_code, = re.findall(f"""{self.__model_name}.fit\([{self.re_charset}]+#end-train_\d+""",self.code)
-            if not execute_code(train_code,self.update_log,session_var=self.session_var):
-                return False        
-            return True
+            if self.graph.__callbacks__:
+                for callback in self.graph.__callbacks__:
+                    exec_var, error = execute_code(
+                        callback.to_code(self.graph, train=True),)
+                    if not exec_var:
+                        self.update_log("error", {
+                            "message": error
+                        })
+                        return False, error
+                self.session_var.update(exec_var)
+            exec_var, error = execute_code(
+                self.graph.__train__.to_code(self.graph, train=True),)
+            if not exec_var:
+                self.update_log("error", {
+                    "message": error,
+                    "ended":True
+                })
+            self.session_var.update(exec_var)
         else:
-            self.update_log("notif",{ "message": "Please add Train node" })
-            self.update_log("notif",{ "message": "Training stopped", "ended":True })
-            return False
-    
-    def halt(self,state)->None:
+            self.update_log(
+                "notif", {"message": "Please add Train node", "ended": True})
+
+        return 0
+
+    def halt(self, state) -> None:
         self.tfgui.halt = state
         if state:
-            self.update_log("notif",{"message":"Training Paused"})
+            self.update_log("notif", {"message": "Training Paused"})
         else:
-            self.update_log("notif",{"message":"Training Resumed"})
+            self.update_log("notif", {"message": "Training Resumed"})
 
-    def start(self,)->None:
-        self.training = True
-        train_thread = Thread(target=self._start_train_thread,)
-        train_thread.start()
+    def start(self,) -> None:
+        self.isTraining = True
+        self.train_thread = Thread(target=self.__train__thread__, )
+        self.train_thread.start()
 
     def stop(self,):
         self.tfgui.halt = False
         self.tfgui.stop()
-        self.update_log("notif",{"message":"Stopped Training"})
-    
+        self.update_log("notif", {"message": "Stopped Training"})

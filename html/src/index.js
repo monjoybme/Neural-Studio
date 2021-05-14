@@ -3,11 +3,11 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { appConfig } from './data/appconfig';
 
 window.__FIRST__LOAD__ = true;
-window.layers = {}
 window.canvasConfig = {
-  ctiveLayer: undefined,
+  activeLayer: undefined,
   activeLine:undefined,
   newEdge:undefined,
   pos:undefined,
@@ -26,6 +26,11 @@ window.canvasConfig = {
 window.copy = function (object) {
   return JSON.parse(JSON.stringify(object));
 };
+window.__UPDATE__OFFSET__ = setInterval(function () {
+  window.offsetX =
+    appConfig.canvas.toolbar.width + appConfig.geometry.sideBar.width;
+  window.offsetY = appConfig.geometry.topBar.height;
+}, 1000);
 
 ReactDOM.render(
   <React.StrictMode>

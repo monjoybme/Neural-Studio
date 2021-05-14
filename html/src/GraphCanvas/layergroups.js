@@ -78,6 +78,9 @@ const LayerGroups = (props={store:StoreContext}) => {
           />
         );
       })}
+      <div className="layers">
+
+      </div>
     </div>
   );
 };

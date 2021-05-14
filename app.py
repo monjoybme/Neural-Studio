@@ -3,13 +3,11 @@ import re
 from sys import flags, modules, path
 import zipfile
 
-from tf_gui.web import App, Request, mime_types, text_response, json_response
-from tf_gui.web.utils import send_file
-from tf_gui.web.headers import Header
+from tf_gui.web import App, Request, json_response, text_response, send_file
 
-from tf_gui.builder import build_code
 from tf_gui.trainer import Trainer
 from tf_gui.manage import Workspace, WorkspaceManager
+from tf_gui.graph import GraphDef
 
 from json import dump, JSONDecodeError
 from os import chdir, path as pathlib, mkdir
@@ -23,19 +21,27 @@ app = App()
 workspace_mamager = WorkspaceManager()
 trainer = Trainer(workspace_mamager)
 
+try:
+    trainer.update_dataset(from_workspace=True)
+except KeyError as e:
+    # print (f'Warning : {e}')
+    pass
+
 def generate_args(code) -> dict:
     exec(code)
     ret = locals()
     ret.pop("code")
     return ret
 
+
 def download_json(workspace: Workspace, trainer: Trainer):
     with open(pathlib.join(workspace.path, 'outputs', 'model.json'), "w+") as file:
         file.write(trainer.model.to_json())
     return {
-        "message":"Downloading Model",
-        "status":True
+        "message": "Downloading Model",
+        "status": True
     }
+
 
 def download_json_w(workspace: Workspace, trainer: Trainer):
     temp_dir = pathlib.join(workspace.path, "outputs", "model")
@@ -52,9 +58,10 @@ def download_json_w(workspace: Workspace, trainer: Trainer):
             zfile.write(f)
     chdir(ROOT_PATH)
     return {
-        "message":"Downloading Model",
-        "status":True
+        "message": "Downloading Model",
+        "status": True
     }
+
 
 def download_pb(workspace: Workspace, trainer: Trainer):
     temp_dir = pathlib.join(workspace.path, "outputs", "model")
@@ -72,17 +79,19 @@ def download_pb(workspace: Workspace, trainer: Trainer):
             zfile.write(f)
     chdir(ROOT_PATH)
     return {
-        "message":"Downloading Model",
-        "status":True
+        "message": "Downloading Model",
+        "status": True
     }
+
 
 def download_hdf5(workspace: Workspace, trainer: Trainer):
     temp_dir = pathlib.join(workspace.path, "outputs", "model.hdf5")
     trainer.model.save(temp_dir)
     return {
-        "message":"Downloading Model",
-        "status":True
+        "message": "Downloading Model",
+        "status": True
     }
+
 
 download_options = {
     "json": download_json,
@@ -91,210 +100,205 @@ download_options = {
     "hdf5": download_hdf5
 }
 
+# Workspace Endpoints
+
 
 @app.route("/workspace/active",)
 async def workspace(request: Request,):
-    if request.header.method == "GET":
-        return json_response({
-            "data": workspace_mamager.active_workspace.get(),
-        }, )
+    if request.headers.method == "GET":
+        return await json_response({
+            "data": workspace_mamager.active.get_var_dict(),
+        })
 
-    return json_response({
+    return await json_response({
         "message": "Method Not Allowed !"
-    }, status_code=400)
-
-@app.route("/workspace/open/<string:name>",)
-async def workspace_open(request: Request,name:str):
-    if request.header.method == "POST":
-        return json_response({
-            "status": bool(workspace_mamager.open_workspace(name)),
-        }, )
-
-    return json_response({
-        "message": "Method Not Allowed !"
-    }, status_code=400)
-
-@app.route("/workspace/delete/<string:name>",)
-async def workspace_new(request: Request, name:str):
-    if request.header.method == "POST":
-        return json_response({
-            "status": workspace_mamager.delete_workspace(name),
-        },)
-
-    return json_response({
-        "message": "Method Not Allowed !"
-    }, status_code=400)
+    })
 
 
 @app.route("/workspace/recent",)
 async def workspace_recent(request: Request,):
-    if request.header.method == "GET":
-        return json_response({
+    if request.headers.method == "GET":
+        return await json_response({
             "data": workspace_mamager.cache.recent,
         },)
 
-    return json_response({
+    return await json_response({
         "message": "Method Not Allowed !"
     }, status_code=400)
 
 
 @app.route("/workspace/all",)
 async def workspace_all(request: Request,):
-    if request.header.method == "GET":
-        return json_response({
-            "data": workspace_mamager.get(),
+    if request.headers.method == "GET":
+        return await json_response({
+            "data": workspace_mamager.get_workspaces(),
         },)
 
-    return json_response({
+    return await json_response({
         "message": "Method Not Allowed !"
     }, status_code=400)
 
 
 @app.route("/workspace/autosave",)
 async def workspace_autosave(request: Request,):
-    if request.header.method == "POST":
+    if request.headers.method == "POST":
         data = await request.get_json()
-        workspace_mamager.active_workspace.set(**data)
-        workspace_mamager.active_workspace.save()
-        return json_response({
-            "data": workspace_mamager.get(),
-        },)
-
-    return json_response({
+        workspace_mamager.active.set(**data)
+        workspace_mamager.active.save()
+        return await json_response({
+            "data": workspace_mamager.get_workspaces(),
+        })
+    return await json_response({
         "message": "Method Not Allowed !"
-    }, status_code=400)
-
-@app.route("/workspace/new",)
-async def workspace_new(request: Request,):
-    if request.header.method == "POST":
-        data = await request.get_json()
-        workspace_mamager.new_workspace(**data)
-        return json_response({
-            "data": workspace_mamager.active_workspace.get(),
-        },)
-
-    return json_response({
-        "message": "Method Not Allowed !"
-    }, status_code=400)
-
-
-
-@app.route("/build",)
-async def buiild(request: Request):
-    if request.header.method == 'POST':
-        try:
-            build_config = await request.get_json()
-            with open("./data/example_build.json", "w+") as file:
-                dump(build_config, file,)
-            _, code = build_code(build_config)
-            return json_response({
-                "status": 200,
-                "code": code
-            })
-
-        except NameError as e:
-            return json_response({
-                "status": 200,
-                "code": f"""Error : {str(e)}"""
-            })
-    else:
-        return json_response(
-            data={"message": "Method Not Allowed"},
-            status_code=401,
-            message="Method Not Allowed !"
-        )
-
-
-@app.route("/status")
-async def status(request: Request):
-    return json_response({
-        "status": True,
-        "logs": trainer.logs
     })
 
 
-@app.route("/download/<string:name>")
+@app.route("/workspace/new",)
+async def workspace_new(request: Request,):
+    if request.headers.method == "POST":
+        data = await request.get_json()
+        workspace_mamager.new_workspace(**data)
+        return await json_response({
+            "data": workspace_mamager.active.get_var_dict(),
+        },)
+
+    return await json_response({
+        "message": "Method Not Allowed !"
+    }, status_code=400)
+
+
+@app.route("/workspace/open/<str:name>",)
+async def workspace_open(request: Request, name: str):
+    if request.headers.method == "POST":
+        return await json_response({
+            "status": bool(workspace_mamager.open_workspace(name)),
+        }, )
+
+    return await json_response({
+        "message": "Method Not Allowed !"
+    }, status_code=400)
+
+
+@app.route("/workspace/delete/<str:name>",)
+async def workspace_new(request: Request, name: str):
+    if request.headers.method == "POST":
+        return await json_response({
+            "status": workspace_mamager.delete_workspace(name),
+        },)
+
+    return await json_response({
+        "message": "Method Not Allowed !"
+    }, status_code=400)
+
+# download endpoints
+
+
+@app.route("/download",)
+async def download_model(request: Request):
+    if request.headers.method == 'POST':
+        data = await request.get_json()
+        prep_func = download_options[data['format']]
+        status = prep_func(workspace_mamager.active, trainer)
+        return await json_response(status)
+
+    return await json_response({
+        "message": "Method Not Allowed",
+    }, status_code=400)
+
+
+@app.route("/download/<str:name>")
 async def download_name(request: Request, name: str):
-    if request.header.method == 'GET':
+    if request.headers.method == 'GET':
         return await send_file(
             pathlib.join(
-                workspace_mamager.active_workspace.path,
+                workspace_mamager.active.path,
                 "outputs",
                 name
             ),
             request=request
         )
 
-    return json_response({
+    return await json_response({
         "message": "Method Not Allowed",
     }, status_code=400)
 
 
-@app.route("/download",)
-async def download_model(request: Request):
-    if request.header.method == 'POST':
-        data = await request.get_json()
-        prep_func = download_options[data['format']]
-        status = prep_func(workspace_mamager.active_workspace, trainer)
-        return json_response(status)
+# model api endpoints
 
-    return json_response({
-        "message": "Method Not Allowed",
-    }, status_code=400)
+@app.route("/model/code",)
+async def buiild(request: Request):
+    if request.headers.method == 'GET':
+        graph = GraphDef(workspace_mamager.active.var_graphdef)
+        status, message = graph.build()
+        if status:
+            return await text_response(graph.to_code())
+        return await text_response(message)
+    return await json_response(
+        data={
+            "message": "Method Not Allowed"
+        },
+    )
 
 
 @app.route("/model/summary",)
 async def summary_viewer(request: Request):
-    if request.header.method == 'POST':
-        try:
-            return json_response({
-                "status": 200,
+    if request.headers.method == 'POST':
+            return await json_response({
                 "summary": trainer.summary
             })
-        except JSONDecodeError:
-            return json_response(
-                data={"message": "Can't read graph !"},
-                status_code=200,
-                message="Method Not Allowed !"
-            )
+    return await json_response({
+        "message": "Method Not Allowed"
+    },code=402)
 
-    else:
-        return json_response(
-            data={"message": "Method Not Allowed"},
-            status_code=401,
-            message="Method Not Allowed !"
-        )
+# dataset api endpoints
 
+
+@app.route("/dataset/checkpoint")
+async def dataset_checkpoint(request: Request):
+    if request.headers.method == 'POST':
+        data = await request.get_json()
+        dataset = data['dataset']
+        idx = data['id']
+        status, message = trainer.update_dataset(dataset, idx)
+        return await json_response({
+            "message":message,
+            "status":status
+        })
+
+    return await json_response({
+        "message": "Method Not Allowed."
+    }, code=402)
+
+# training endpoints
 
 @app.route("/train/start",)
 async def train_start(request: Request):
-    if request.header.method == 'POST':
+    if request.headers.method == 'POST':
+        if trainer.isTraining:
+            return await json_response({
+                "message":"A training session is already running, please wait or stop the session."
+            })
         trainer.logs = []
-        trainer.build_session()
+        trainer.build()
         trainer.compile()
         trainer.start()
-        return json_response({
+        return await json_response({
             "status": "Training Started"
         })
-    else:
-        return json_response(
-            data={"message": "Method Not Allowed"},
-            status_code=401,
-            message="Method Not Allowed !"
-        )
 
+    return await json_response(data={"message": "Method Not Allowed"}, code=402)
 
 @app.route("/train/halt",)
 async def train_halt(request: Request):
-    if request.header.method == 'POST':
+    if request.headers.method == 'POST':
         data = await request.get_json()
         trainer.halt(state=data['state'])
-        return json_response({
+        return await json_response({
             "status": "Training Halt"
         })
 
     else:
-        return json_response(
+        return await json_response(
             data={"message": "Method Not Allowed"},
             status_code=401,
             message="Method Not Allowed !"
@@ -303,30 +307,39 @@ async def train_halt(request: Request):
 
 @app.route("/train/stop",)
 async def train_stop(request: Request):
-    if request.header.method == 'POST':
+    if request.headers.method == 'POST':
         try:
             trainer.stop()
-            return json_response({
+            return await json_response({
                 "status": 200,
                 "message": "Interrupting Training"
             })
         except AttributeError:
-            return json_response({
+            return await json_response({
                 "status": 200,
                 "message": "Training hasn't statrted yet."
             })
 
     else:
-        return json_response(
+        return await json_response(
             data={"message": "Method Not Allowed"},
             status_code=401,
             message="Method Not Allowed !"
         )
 
 
-@app.route("/node/build")
+@app.route("/train/status")
+async def status(request: Request):
+    return await json_response({
+        "status": True,
+        "logs": trainer.logs
+    })
+
+# custom node endpoints
+
+@app.route("/custom/node/build")
 async def node_build(request: Request):
-    if request.header.method == "POST":
+    if request.headers.method == "POST":
         data = await request.get_json()
         (function_id, function), = generate_args(data['code']).items()
         fullspecs = inspect.getfullargspec(function)
@@ -340,23 +353,16 @@ async def node_build(request: Request):
                 "options": None,
 
             }
-        return json_response({
+        return await json_response({
             "status": 200,
             "id": function_id,
             "arguments": arguments
         })
-
-    return json_response({
+    return await json_response({
         "message": "Method not allowed",
     }, status_code=400)
-
-
-@app.route("/<string:t>")
-async def test(request:Request, t:str):
-    return text_response(t)
 
 if __name__ == "__main__":
     app.serve(
         port=80
     )
-

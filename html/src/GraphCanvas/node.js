@@ -47,10 +47,38 @@ const Node = (props={
         };
         break;
       case "edge":
-        canvasConfig.newEdge = { from: id };
+        if (e.button){
+          canvasConfig.newEdge = {
+            longLine:true,
+            queue: [{ from : undefined, to: id }]
+          };
+        }else{
+          canvasConfig.newEdge = { 
+            longLine:false,
+            from: id,
+          };
+        }
         break;
       default:
         break;
+    }
+  }
+
+  function onMouseOver(e){
+    switch(canvasConfig.mode){
+      case "edge":
+        if (canvasConfig.newEdge){
+          if (canvasConfig.newEdge.longLine){
+            let { queue } = canvasConfig.newEdge;
+            canvasConfig.newEdge.queue.push({
+              from: queue[queue.length - 1].to,
+              to:id
+            });
+          }
+        }
+        break
+      default:
+        break
     }
   }
 
@@ -102,7 +130,7 @@ const Node = (props={
   }
 
   return (
-    <g x={pos.x} y={pos.y} ref={nodeRef}>
+    <g x={pos.x} y={pos.y} ref={nodeRef} onMouseEnter={onMouseOver}>
       {connections.inbound.map((layer, i) => {
         let pos_out = graphdef[layer];
         if (pos_out) {

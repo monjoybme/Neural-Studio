@@ -91,8 +91,8 @@
   }
 }
 
-.notifications {
-  height: $notificationBarHeight;
+.statusbar {
+  height: $statusBarHeight;
   width: 100%;
   border-top : $lightBorder1;
 
@@ -136,7 +136,7 @@
       transform: translateX(0px);
     }
   }
-  .notifications {
+  .statusbar {
         color: $lightColorPr;
         background: $lightBg;
     }
@@ -176,7 +176,7 @@
     }
   }
 
-  .notifications {
+  .statusbar {
     color: $darkColorPr;
     background: $darkBg;
     border-top: $darkBorder2;

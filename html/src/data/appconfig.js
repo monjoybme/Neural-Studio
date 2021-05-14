@@ -10,7 +10,7 @@ let appConfig = {
     },
     "canvas":{
         "toolbar":{
-            "width":240,
+            "width":280,
         }
     },
     "monitor":{
