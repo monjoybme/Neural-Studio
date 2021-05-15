@@ -190,6 +190,8 @@ const Home = (props = { store: StoreContext }) => {
     graphdefState,
     appconfigState,
     popupState,
+    layerGroupsState,
+    layerGroups
   } = props.store;
 
   async function fetchWorkspace() {
@@ -210,11 +212,19 @@ const Home = (props = { store: StoreContext }) => {
     graphdefState({
       ...active.data.graphdef,
     });
+    
     appconfigState({
       ...active.data.app_config,
     });
+
+    layerGroupsState({
+      ...layerGroups,
+      custom_nodes: {
+        name: "Custom Node Definitions",
+        layers: active.data.canvas_config.customNodes.definitions
+      },
+    });
     window.canvasConfig = active.data.canvas_config;
-    console.log(active.data.canvas_config);
     window.canvasConfig.mode = "normal";
   }
 

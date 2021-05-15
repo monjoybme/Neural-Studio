@@ -4,7 +4,7 @@ import callbaacks from "./callbacks";
 import applications from "./applications";
 
 const layers = {
-  datasets: datasets,
+  datasets:datasets,
   core_layers: {
     name: "Core layers",
     layers: [
@@ -32,10 +32,10 @@ const layers = {
             options: "dtype",
           },
           sparse: {
-            value: "False",
-            type: "bool",
-            render: "list",
-            options: "bool",
+            value: "None",
+            type: "str",
+            render: "text",
+            options: "sparse",
           },
           tensor: {
             value: "None",
@@ -44,10 +44,10 @@ const layers = {
             options: "tensor",
           },
           ragged: {
-            value: "False",
-            type: "bool",
-            render: "list",
-            options: "bool",
+            value: "None",
+            type: "str",
+            render: "text",
+            options: "ragged",
           },
         },
       },
@@ -2045,7 +2045,7 @@ const layers = {
             options: "length",
           },
           pad_to_max_tokens: {
-            value: "True",
+            value: "False",
             type: "bool",
             render: "list",
             options: "bool",
@@ -2068,12 +2068,6 @@ const layers = {
             render: "text",
             options: "axis",
           },
-          dtype: {
-            value: "None",
-            type: "str",
-            render: "text",
-            options: "dtype",
-          },
           mean: { value: "None", type: "str", render: "text", options: "mean" },
           variance: {
             value: "None",
@@ -2087,7 +2081,7 @@ const layers = {
         name: "CategoryEncoding",
         type: { name: "CategoryEncoding", object_class: "layers" },
         arguments: {
-          max_tokens: {
+          num_tokens: {
             value: "None",
             type: "str",
             render: "text",
@@ -2117,19 +2111,42 @@ const layers = {
             render: "text",
             options: "bins",
           },
+          mask_value: {
+            value: "None",
+            type: "str",
+            render: "text",
+            options: "value",
+          },
           salt: { value: "None", type: "str", render: "text", options: "salt" },
-          name: { value: "None", type: "str", render: "text", options: "name" },
         },
       },
       {
         name: "Discretization",
         type: { name: "Discretization", object_class: "layers" },
         arguments: {
-          bins: {
-            value: "required",
+          bin_boundaries: {
+            value: "None",
+            type: "str",
+            render: "text",
+            options: "boundaries",
+          },
+          num_bins: {
+            value: "None",
             type: "str",
             render: "text",
             options: "bins",
+          },
+          epsilon: {
+            value: "0",
+            type: "int",
+            render: "text",
+            options: "epsilon",
+          },
+          "01": {
+            value: "required",
+            type: "str",
+            render: "text",
+            options: "01",
           },
         },
       },
@@ -2179,17 +2196,35 @@ const layers = {
             render: "list",
             options: "bool",
           },
+          output_mode: {
+            value: "int",
+            type: "str",
+            render: "text",
+            options: "mode",
+          },
+          sparse: {
+            value: "False",
+            type: "bool",
+            render: "list",
+            options: "bool",
+          },
+          pad_to_max_tokens: {
+            value: "False",
+            type: "bool",
+            render: "list",
+            options: "bool",
+          },
         },
       },
       {
         name: "IntegerLookup",
         type: { name: "IntegerLookup", object_class: "layers" },
         arguments: {
-          max_values: {
+          max_tokens: {
             value: "None",
             type: "str",
             render: "text",
-            options: "values",
+            options: "tokens",
           },
           num_oov_indices: {
             value: "1",
@@ -2197,17 +2232,17 @@ const layers = {
             render: "text",
             options: "indices",
           },
-          mask_value: {
+          mask_token: {
             value: "0",
             type: "int",
             render: "text",
-            options: "value",
+            options: "token",
           },
-          oov_value: {
+          oov_token: {
             value: "required",
             type: "str",
             render: "text",
-            options: "value",
+            options: "token",
           },
           vocabulary: {
             value: "None",
@@ -2216,6 +2251,24 @@ const layers = {
             options: "vocabulary",
           },
           invert: {
+            value: "False",
+            type: "bool",
+            render: "list",
+            options: "bool",
+          },
+          output_mode: {
+            value: "int",
+            type: "str",
+            render: "text",
+            options: "mode",
+          },
+          sparse: {
+            value: "False",
+            type: "bool",
+            render: "list",
+            options: "bool",
+          },
+          pad_to_max_tokens: {
             value: "False",
             type: "bool",
             render: "list",
@@ -2235,7 +2288,7 @@ const layers = {
           },
           name: { value: "None", type: "str", render: "text", options: "name" },
           separator: {
-            value: "None",
+            value: "_X_",
             type: "str",
             render: "text",
             options: "separator",
@@ -2264,7 +2317,6 @@ const layers = {
             render: "text",
             options: "interpolation",
           },
-          name: { value: "None", type: "str", render: "text", options: "name" },
         },
       },
       {
@@ -2283,7 +2335,6 @@ const layers = {
             render: "text",
             options: "offset",
           },
-          name: { value: "None", type: "str", render: "text", options: "name" },
         },
       },
       {
@@ -2302,7 +2353,6 @@ const layers = {
             render: "text",
             options: "width",
           },
-          name: { value: "None", type: "str", render: "text", options: "name" },
         },
       },
       {
@@ -2322,7 +2372,6 @@ const layers = {
             options: "width",
           },
           seed: { value: "None", type: "str", render: "text", options: "seed" },
-          name: { value: "None", type: "str", render: "text", options: "name" },
         },
       },
       {
@@ -2336,7 +2385,6 @@ const layers = {
             options: "mode",
           },
           seed: { value: "None", type: "str", render: "text", options: "seed" },
-          name: { value: "None", type: "str", render: "text", options: "name" },
         },
       },
       {
@@ -2368,7 +2416,6 @@ const layers = {
             options: "interpolation",
           },
           seed: { value: "None", type: "str", render: "text", options: "seed" },
-          name: { value: "None", type: "str", render: "text", options: "name" },
           fill_value: {
             value: "0",
             type: "int",
@@ -2400,7 +2447,6 @@ const layers = {
             options: "interpolation",
           },
           seed: { value: "None", type: "str", render: "text", options: "seed" },
-          name: { value: "None", type: "str", render: "text", options: "name" },
           fill_value: {
             value: "0",
             type: "int",
@@ -2438,7 +2484,6 @@ const layers = {
             options: "interpolation",
           },
           seed: { value: "None", type: "str", render: "text", options: "seed" },
-          name: { value: "None", type: "str", render: "text", options: "name" },
           fill_value: {
             value: "0",
             type: "int",
@@ -2464,7 +2509,6 @@ const layers = {
             options: "interpolation",
           },
           seed: { value: "None", type: "str", render: "text", options: "seed" },
-          name: { value: "None", type: "str", render: "text", options: "name" },
         },
       },
       {
@@ -2484,7 +2528,6 @@ const layers = {
             options: "interpolation",
           },
           seed: { value: "None", type: "str", render: "text", options: "seed" },
-          name: { value: "None", type: "str", render: "text", options: "name" },
         },
       },
     ],
@@ -2581,49 +2624,6 @@ const layers = {
             render: "list",
             options: "constraint",
           },
-          renorm: {
-            value: "False",
-            type: "bool",
-            render: "list",
-            options: "bool",
-          },
-          renorm_clipping: {
-            value: "None",
-            type: "str",
-            render: "text",
-            options: "clipping",
-          },
-          renorm_momentum: {
-            value: "0",
-            type: "int",
-            render: "text",
-            options: "momentum",
-          },
-          fused: {
-            value: "None",
-            type: "str",
-            render: "text",
-            options: "fused",
-          },
-          trainable: {
-            value: "True",
-            type: "bool",
-            render: "list",
-            options: "bool",
-          },
-          virtual_batch_size: {
-            value: "None",
-            type: "str",
-            render: "text",
-            options: "size",
-          },
-          adjustment: {
-            value: "None",
-            type: "str",
-            render: "text",
-            options: "adjustment",
-          },
-          name: { value: "None", type: "str", render: "text", options: "name" },
         },
       },
       {
@@ -2696,13 +2696,6 @@ const layers = {
             render: "list",
             options: "constraint",
           },
-          trainable: {
-            value: "True",
-            type: "bool",
-            render: "list",
-            options: "bool",
-          },
-          name: { value: "None", type: "str", render: "text", options: "name" },
         },
       },
     ],
@@ -3499,12 +3492,12 @@ const layers = {
     layers: [
       {
         name: "Model",
-        type: { name: "Model", object_class: "models" },
+        type: { name: "Model", object_class: "build_tools" },
         arguments: {},
       },
       {
         name: "Compile",
-        type: { name: "Compile", object_class: "models" },
+        type: { name: "Compile", object_class: "build_tools" },
         arguments: {
           optmizer: {
             value: "rmsprop",
@@ -3523,7 +3516,7 @@ const layers = {
       },
       {
         name: "Train",
-        type: { name: "Train", object_class: "models" },
+        type: { name: "Train", object_class: "build_tools" },
         arguments: {
           batch_size: {
             value: "8",
@@ -3548,14 +3541,14 @@ const layers = {
     name: "Custom",
     layers: [
       {
-        name: "Node",
+        name: "CustomNodeFunction",
         type: {
-          name: "Custom",
-          object_class: "node",
+          name: "CustomNodeFunction",
+          object_class: "custom_def",
         },
         arguments: {
           code: {
-            value: `def __id__(inbound:list=[])->None:
+            value: `def func(inbound:list=[])->None:
   ...
 `,
             type: "code",
@@ -3565,7 +3558,7 @@ const layers = {
       },
       {
         name: "Imports",
-        type: { name: "Custom", object_class: "imports" },
+        type: { name: "Imports", object_class: "custom_def" },
         arguments: {},
       },
     ],

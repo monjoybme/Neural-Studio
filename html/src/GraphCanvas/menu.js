@@ -258,18 +258,6 @@ const Dataset = (props) => {
 
 const CustomNode = (props) => {
   let { graphdef, graphdefState, appconfig, layerGroups, layerGroupsState } = props.store;
-  let [_id, _idState] = React.useState({
-    value: props._id,
-    index: 0,
-  });
-
-  function chageIndex(e) {
-    _id.index = e.target.value;
-    _idState({
-      ..._id,
-    });
-  }
-
   function updateCode(e) {
     graphdef[props.id].arguments.code.value = e;
     graphdefState({
@@ -285,12 +273,6 @@ const CustomNode = (props) => {
     });
   }
 
-  function updateNodeName(e) {
-    _idState({
-      value: e.target.value,
-    });
-  }
-
   async function saveAndExit(e) {
     await POST({
       path: "/custom/node/build",
@@ -300,25 +282,28 @@ const CustomNode = (props) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        layerGroups.custom.layers = layerGroups.custom.layers.filter(
+        layerGroups.custom_nodes.layers = layerGroups.custom_nodes.layers.filter(
           (layer) => {
-            return layer.name !== props._id && layer.name !== _id.value;
+            return layer.name !== graphdef[props.id].name ;
           }
         );
+        window.canvasConfig.customNodes.definitions =
+          window.canvasConfig.customNodes.definitions.filter((node)=>{
+            return node.name !== graphdef[props.id].name
+          })
 
         delete data.arguments["inbound"];
-
-        layerGroups.custom.layers.push({
-          name: _id.value,
+        let nodeDef = {
+          name: graphdef[props.id].name,
           type: {
             name: data.id,
             object_class: "CustomNode",
           },
           arguments: data.arguments,
-        });
+        };
+        layerGroups.custom_nodes.layers.push(nodeDef);
 
-        graphdef[props.id]._id = _id.value;
-        graphdef[props.id].index = _id.index;
+        window.canvasConfig.customNodes.definitions.push(nodeDef);
         graphdefState({
           ...graphdef,
         });
@@ -326,11 +311,16 @@ const CustomNode = (props) => {
         layerGroupsState({
           ...layerGroups,
         });
+
         props.menuState({
           comp: <div></div>,
-        });
+        })
       });
   }
+
+  React.useEffect(()=>{
+    // console.log(graphdef[props.id])
+  },[])
 
   return (
     <div className="customNode dataset">
@@ -353,16 +343,8 @@ const CustomNode = (props) => {
           <div className="name">Options</div>
           <div className="properties">
             <div className="property">
-              <div className="name">Name</div>
+              <div className="name">Node Name</div>
               <input defaultValue={props.name} onKeyUp={updateName} />
-            </div>
-            <div className="property">
-              <div className="name">Node Id</div>
-              <input defaultValue={props._id} onKeyUp={updateNodeName} />
-            </div>
-            <div className="property">
-              <div className="name">Index</div>
-              <input defaultValue={0} type="number" onChange={chageIndex} />
             </div>
           </div>
         </div>
@@ -374,11 +356,11 @@ const CustomNode = (props) => {
 const Menu = (props) => {
   let { type } = props;
 
-  switch (type.name) {
-    case "Dataset":
+  switch (type.object_class) {
+    case "datasets":
       return <Dataset {...props} />;
 
-    case "Custom":
+    case "custom_def":
       return <CustomNode {...props} />;
 
     default:

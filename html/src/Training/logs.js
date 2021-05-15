@@ -51,7 +51,7 @@ const EpochLog = (props) => {
 const ErrorLog = (props) => {
   return (
     <div className="log error">
-      <div className="message">{props.data.error}</div>
+      <div className="message">{props.data.message}</div>
       <pre>
         <code>{props.data.code}</code>
       </pre>

@@ -6,6 +6,7 @@ import LayerGroups from "./layergroups";
 
 import { StoreContext } from "../Store";
 import { icons } from "../data/icons";
+import { POST } from "../Utils";
 
 let cursors = {
   edge: "crosshair",
@@ -17,6 +18,7 @@ let cursors = {
 };
 
 const GraphEditor = (props = { store: StoreContext }) => {
+  let { graphdef, graphdefState, canvasConfig, layerGroups, layerGroupsState } = props.store;
   let [menu, menuState] = React.useState({ comp: <div />, render: false });
   let [toolbarButtons, toolbarButtonsState] = React.useState([
     {
@@ -40,10 +42,10 @@ const GraphEditor = (props = { store: StoreContext }) => {
       selected: false,
     },
   ]);
-  let { graphdef, graphdefState, canvasConfig, layerGroups } = props.store;
-  let canvasref = React.useRef(<svg> </svg>);
-  let canvasTop = React.useRef();
   let [load, loadState] = React.useState(true);
+  let canvasref = React.useRef();
+  let canvasTop = React.useRef(); 
+  let dummyLine = React.useRef();
 
   function newLine(e) {
     e.preventDefault();
@@ -112,40 +114,28 @@ const GraphEditor = (props = { store: StoreContext }) => {
         };
       }
 
-      switch (canvasConfig.activeLayer.type.name) {
-        case "Model":
-          canvasConfig.activeLayer = window.copy(
-            layerGroups.build_tools.layers[1]
-          );
-          graphdef.train_config.model = graphdef[id];
+
+      switch (canvasConfig.activeLayer.type.object_class) {
+        case "optimizers":
+          graphdef.train_config.optimizer = graphdef[id];
           break;
-        case "Compile":
-          canvasConfig.activeLayer = window.copy(
-            layerGroups.build_tools.layers[2]
-          );
-          graphdef.train_config.compile = graphdef[id];
+        case "build_tools":
+          let comp = canvasConfig.activeLayer.type.name.toLowerCase();
+          if (graphdef.train_config[comp]) {
+            window.notify({
+              message: `${canvasConfig.activeLayer.type.name} node already exists for this graph ! `,
+            });
+            delete graphdef[id];
+          } else {
+            graphdef.train_config[comp] = graphdef[id];
+          }
           break;
-        case "Train":
-          graphdef.train_config.train = graphdef[id];
-          setToolMode({ name : "normal" })
-          break;
-        case "Dataset":
+        case "datasets":
           graphdef[id].arguments.dataset.value =
             graphdef[id].arguments.dataset.value.lastIndexOf("__id__") > 0
               ? graphdef[id].arguments.dataset.value.replaceAll(/__id__/g, id)
               : graphdef[id].arguments.dataset.value;
           graphdef.train_config.dataset = graphdef[id];
-          break;
-        case "Custom":
-          graphdef[id]._id = "Please Set Node ID";
-          break;
-        default:
-          break;
-      }
-
-      switch (canvasConfig.activeLayer.type.object_class) {
-        case "optimizers":
-          graphdef.train_config.optimizer = graphdef[id];
           break;
         default:
           break;
@@ -232,59 +222,80 @@ const GraphEditor = (props = { store: StoreContext }) => {
     }
   }
 
-  function setToolMode(options = { name: "Mode", layer: { name: "Layer" } }) {
-    console.log(`Setting ${options.name} mode`);
-    canvasConfig.mode = options.name;
-    document.getElementById("canvasTop").style.cursor = cursors[options.name];
-    switch (options.name) {
-      case "normal":
-        canvasref.current.onmousedown = undefined;
-        canvasref.current.onmousemove = undefined;
-
-        canvasTop.current.onmousedown = normalMouseDown;
-        canvasTop.current.onmousemove = moveCanvas;
-        break;
-      case "edge":
-        canvasref.current.onmousedown = newLine;
-        canvasref.current.onmousemove = moveEdge;
-
-        canvasTop.current.onmousedown = undefined;
-        canvasTop.current.onmousemove = undefined;
-        break;
-      case "move":
-        canvasref.current.onmousedown = undefined;
-        canvasref.current.onmousemove = moveNode;
-
-        canvasTop.current.onmousedown = undefined;
-        canvasTop.current.onmousemove = undefined;
-        break;
-      case "delete":
-        canvasref.current.onmousedown = undefined;
-        canvasref.current.onmousemove = undefined;
-        canvasTop.current.onmousedown = undefined;
-        canvasTop.current.onmousemove = undefined;
-        break;
-      case "clean":
-        canvasref.current.onmousedown = undefined;
-        canvasref.current.onmousemove = undefined;
-        canvasTop.current.onmousedown = undefined;
-        canvasTop.current.onmousemove = undefined;
-        graphdefState({});
-        break;
-      case "layer":
-        canvasConfig.activeLayer = { ...options.layer };
-        canvasref.current.onmousedown = newLayer;
-        canvasref.current.onmousemove = undefined;
-        break;
-      default:
-        break;
-    }
-    toolbarButtons = toolbarButtons.map((button) => {
-      button.selected =
-        button.name === options.name && options.name !== "clean";
-      return button;
+  function removeNode(activeElement){
+    let { id, connections } = activeElement;
+    connections.inbound.forEach((lid) => {
+      graphdef[lid].connections.outbound.pop(id);
     });
-    toolbarButtonsState([...toolbarButtons]);
+    connections.outbound.forEach((lid) => {
+      graphdef[lid].connections.inbound.pop(id);
+    });
+    delete graphdef[id];
+  }
+
+  function deleteNode(e){
+    let { activeElement } = canvasConfig;
+    if ( activeElement ){
+      switch (activeElement.type.object_class) {
+        case "layers":
+          removeNode(activeElement);
+          break;
+        case 'applications':
+          removeNode(activeElement);
+          break
+        case "custom_def":
+          layerGroups.custom_nodes.layers =
+            layerGroups.custom_nodes.layers.filter((node, i) => {
+              return activeElement.name !== node.name;
+            });
+          canvasConfig.customNodes.definitions =
+            canvasConfig.customNodes.definitions.filter((node, i) => {
+              return activeElement.name !== node.name;
+            });
+          layerGroupsState({
+            ...layerGroups,
+          });
+          removeNode(activeElement);
+          break;
+        case "optimizers":
+          delete graphdef.train_config.optimizer;
+          break;
+        case "build_tools":
+          let tool = graphdef[activeElement.id].type.name.toLowerCase();
+          if (graphdef.train_config[tool]){
+            delete graphdef.train_config[tool];
+          }
+          removeNode(activeElement);
+          break;
+        case 'edge': 
+          activeElement.inbound.forEach(node=>{
+            graphdef[node].connections.outbound.pop(activeElement.node);
+          })
+          graphdef[activeElement.node].connections.inbound = [];
+          break
+        case 'datasets':
+          let unload = async function(){
+            await POST({
+              path:"/dataset/unload"
+            }).then(response=>response.json()).then(data=>{
+              if( data.status ){
+                window.notify({ message:data.message  });
+                removeNode(activeElement);
+                graphdefState({ ...graphdef });
+              }
+            })
+          }
+          unload();
+          break
+        default:
+          window.notify({
+            message: `Add delete method for : ${canvasConfig.activeElement.type.object_class}`,
+          });
+          break;
+      }
+      graphdefState({ ...graphdef });
+    }
+    canvasConfig.activeElement = undefined;
   }
 
   function addEdge(from , to){
@@ -301,21 +312,6 @@ const GraphEditor = (props = { store: StoreContext }) => {
   }
 
   function onMouseUp(e) {
-    if (canvasConfig.newEdge) {
-      if (canvasConfig.newEdge.longLine){
-        canvasConfig.newEdge.queue.forEach(edge =>{
-          let { from, to } = edge;
-          addEdge(from, to);
-        })
-      }else{
-        let { from, to } = canvasConfig.newEdge;
-        addEdge(from, to);
-      }
-      graphdefState({
-        ...graphdef,
-      });
-    }
-
     if (canvasConfig.activeElement) {
       if (canvasConfig.pos) {
         graphdef[canvasConfig.activeElement.layer.id].pos = canvasConfig.pos;
@@ -324,21 +320,17 @@ const GraphEditor = (props = { store: StoreContext }) => {
         });
       }
     }
-
+    
     canvasConfig.activeElement = undefined;
     canvasConfig.pos = undefined;
-    canvasConfig.newEdge = undefined;
-    canvasConfig.activeLine = undefined;
+    canvasConfig.pan = false;
+    canvasConfig.panLast = undefined;
 
-    let line = document.getElementById("dummy");
-    line.style.strokeWidth = 0;
-    line.x1.baseVal.value = 0;
-    line.y1.baseVal.value = 0;
-    line.x2.baseVal.value = 1;
-    line.y2.baseVal.value = 1;
-
-    window.canvasConfig.pan = false;
-    window.canvasConfig.panLast = undefined;
+    dummyLine.current.style.strokeWidth = 0;
+    dummyLine.current.x1.baseVal.value = 0;
+    dummyLine.current.y1.baseVal.value = 0;
+    dummyLine.current.x2.baseVal.value = 1;
+    dummyLine.current.y2.baseVal.value = 1;
 
     if (menu.render) {
       menuState({
@@ -359,6 +351,70 @@ const GraphEditor = (props = { store: StoreContext }) => {
     canvasref.current.viewBox.baseVal.y = window.canvasConfig.viewBox.y;
     canvasref.current.viewBox.baseVal.width = window.canvasConfig.viewBox.w;
     canvasref.current.viewBox.baseVal.height = window.canvasConfig.viewBox.h;
+  }
+
+  function setToolMode(options = { name: "Mode", layer: { name: "Layer" } }) {
+    console.log(`Setting ${options.name} mode`);
+    canvasConfig.mode = options.name;
+    document.getElementById("canvasTop").style.cursor = cursors[options.name];
+    switch (options.name) {
+      case "normal":
+        canvasref.current.onmousedown = undefined;
+        canvasref.current.onmousemove = undefined;
+        canvasref.current.onmouseup = onMouseUp;
+        canvasTop.current.onmousedown = normalMouseDown;
+        canvasTop.current.onmousemove = moveCanvas;
+        break;
+      case "edge":
+        canvasref.current.onmousedown = newLine;
+        canvasref.current.onmousemove = moveEdge;
+        canvasref.current.onmouseup = onMouseUp;
+        canvasTop.current.onmousedown = undefined;
+        canvasTop.current.onmousemove = undefined;
+        break;
+      case "move":
+        canvasref.current.onmousedown = undefined;
+        canvasref.current.onmousemove = moveNode;
+        canvasref.current.onmouseup = onMouseUp;
+        canvasTop.current.onmousedown = undefined;
+        canvasTop.current.onmousemove = undefined;
+        break;
+      case "delete":
+        canvasref.current.onmousedown = undefined;
+        canvasref.current.onmousemove = undefined;
+        canvasref.current.onmouseup = deleteNode;
+        canvasTop.current.onmousedown = undefined;
+        canvasTop.current.onmousemove = undefined;
+        break;
+      case "clean":
+        canvasref.current.onmousedown = undefined;
+        canvasref.current.onmousemove = undefined;
+        canvasref.current.onmouseup = onMouseUp;
+        canvasTop.current.onmousedown = undefined;
+        canvasTop.current.onmousemove = undefined;
+
+        layerGroups.custom_nodes.layers = []
+        graphdefState({});
+        layerGroupsState({...layerGroups})
+        break;
+      case "layer":
+        canvasConfig.activeLayer = { ...options.layer };
+        canvasref.current.onmousedown = newLayer;
+        canvasref.current.onmousemove = undefined;
+        break;
+      default:
+        break;
+    }
+    toolbarButtons = toolbarButtons.map((button) => {
+      button.selected =
+        button.name === options.name && options.name !== "clean";
+      return button;
+    });
+    toolbarButtonsState([...toolbarButtons]);
+  }
+
+  let tools = {
+    addEdge:addEdge
   }
 
   React.useEffect(() => {
@@ -449,6 +505,7 @@ const GraphEditor = (props = { store: StoreContext }) => {
             y2="0"
             strokeWidth="0"
             markerEnd="url(#triangle)"
+            ref={dummyLine}
           />
           {Object.keys(graphdef).map((layer, i) => {
             if (layer === "train_config") {
@@ -461,6 +518,7 @@ const GraphEditor = (props = { store: StoreContext }) => {
                 menu={menu}
                 menuState={menuState}
                 key={i}
+                tools={tools}
               />
             );
           })}

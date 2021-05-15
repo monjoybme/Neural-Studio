@@ -12,6 +12,12 @@ import tensorflow as tf
 
 from tensorflow import keras
 from tensorflow.keras import layers,optimizers,losses,metrics,callbacks, applications
+
+from glob import glob
+from gc import collect
+from concurrent.futures import ThreadPoolExecutor
+from os import path as pathlib
+
 #end-import
 
 {dataset}
@@ -67,26 +73,43 @@ class LayerMeta(Dict):
         )
         return f"""{self['id']} = {self[['type:object_class']]}.{self[['type:name']]}(\n{arguments}\n){inbound} #end-{self['id']}"""
 
-class CustomNodeMeta(Dict):
-    def __init__(self, config:dict, ):
-        self.name:str = "Layer"
-        self.id:str = "layer_1"
-        self.arguments:dict = Dict(level=2)
+
+class ApplicationMeta(Dict):
+    def __init__(self, config: dict, ):
+        self.name: str = "Layer"
+        self.id: str = "layer_1"
+        self.arguments: dict = Dict(level=2)
         super().__init__(config)
         self.__name__ = f"Layer {{ {self.name} }}"
-        
-    def to_code(self, graphdef:Dict)->str:
-        arguments = NEWLINE.join([ set_argument(arg,cnf) for arg,cnf in self['arguments'] ])
-        inbound =  (
-            ( 
-                "([" + ", ".join(self[['connections:inbound']]) + "])" 
-                    if len(self[['connections:inbound']]) > 1 
-                    else "(" + self[['connections:inbound']][0] + ")" 
-            ) 
-                if len(self[['connections:inbound']]) 
-                else ""
+
+    def to_code(self, graphdef: Dict, train: bool = False) -> str:
+        arguments = NEWLINE.join([set_argument(arg, cnf)
+                                  for arg, cnf in self['arguments']])
+        inbound, *_ = self[['connections:inbound']]
+        return f"""{self['id']} = applications.{self[['type:name']]}(\n{TABSPACE}input_tensor={inbound},\n{arguments}\n).output #end-{self['id']}"""
+
+class CustomNodeMeta(Dict):
+    def __init__(self, config: dict, ):
+        self.name: str = "Layer"
+        self.id: str = "layer_1"
+        self.arguments: dict = Dict(level=2)
+        super().__init__(config)
+        self.__name__ = f"Layer {{ {self.name} }}"
+
+    def to_code(self, graphdef: Dict, train: bool = False) -> str:
+        arguments = NEWLINE.join([set_argument(arg, cnf)
+                                  for arg, cnf in self['arguments']])
+        inbound = (
+            (
+                "([" + ", ".join(self[['connections:inbound']]) + "])"
+                if len(self[['connections:inbound']]) > 1
+                else self[['connections:inbound']][0]
+            )
+            if len(self[['connections:inbound']])
+            else ""
         )
-        return f"""{self['id']} = {self[['type:name']]}(\n{arguments}\n){inbound} #end-{self['id']}""" 
+        return f"""{self['id']} = {self[['type:name']]}(\n{TABSPACE}{inbound},\n{arguments}\n) #end-{self['id']}"""
+
 
 class DatasetMeta(Dict):
     def __init__(self, dataset: dict):
@@ -253,6 +276,8 @@ class GraphDef(Dict):
                         self.__input__.append(idx)
                 elif layer[['type:object_class']] == 'CustomNode':
                     self[idx] = CustomNodeMeta(layer.dict)
+                elif layer[['type:object_class']] == 'applications':
+                    self[idx] = ApplicationMeta(layer.dict)
                 elif layer[["type:object_class"]] == 'callbacks':
                     self[idx] = LayerMeta(layer.dict)
                     self.__callbacks__.append(self[idx])
@@ -268,7 +293,7 @@ class GraphDef(Dict):
                 elif layer[['type:name']] == 'Train':
                     self[idx] = TrainMeta(layer.dict)
                     self.__train__ = self[idx]
-                elif layer[['type:name']] == 'Custom':
+                elif layer[['type:object_class']] == 'custom_def':
                     self.__custom__nodes__.append(LayerMeta(layer.dict))
                 else:
                     pass
@@ -310,7 +335,7 @@ class GraphDef(Dict):
                     layers += self[layer].to_code(self, )
                     layers += NEWLINE * 2
                 except:
-                    return layer
+                    return f"Error processing {layer}"
         custom_nodes = [node[['arguments:code:value']]
                         for node in self.__custom__nodes__]
         return CODE_TEMPLATE.format(

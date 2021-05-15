@@ -70,6 +70,9 @@ const Training = (
           ended: data.logs[data.logs.length - 1].data.ended || false,
           updating: true,
         });
+        if (data.logs[data.logs.length - 1].data.epochEnd) {
+          console.logs("Epoch End");
+        }
         if (data.logs[data.logs.length - 1].data.ended) {
           trainState({
             training: false,
@@ -110,7 +113,7 @@ const Training = (
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log(data.status);  
+          // console.log(data.status);  
         });
     }
   }
@@ -170,8 +173,6 @@ const Training = (
   }
 
   React.useEffect(() => {
-    var elem = document.getElementById("logs");
-    elem.scrollTop = elem.scrollHeight;
     if (train.training && status.updating === false && status.ended === false && status.ended !== undefined) {
       getStatus();
     }

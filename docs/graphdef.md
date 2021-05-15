@@ -6,7 +6,7 @@ graphdef {
         }
     }   
     custom_node_def [
-        
+
     ]
 }
 
@@ -15,7 +15,7 @@ app_config {
 }
 
 workspace_config {
-
+    name : Workspace
 }
 ```
 

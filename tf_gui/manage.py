@@ -29,10 +29,13 @@ DEFAULT_CANVAS_CONFIG = Dict({
         "y": 0,
         "w": 0,
         "h": 0
+    },
+    "customNodes":{
+        "definitions":[]
     }
 })
 DEFAULT_APP_CONFIG = Dict({
-    "theme": "dark",
+    "theme": "light",
     "geometry": {
         "sideBar": {
             "width": 70

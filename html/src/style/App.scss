@@ -303,9 +303,15 @@ html body {
   .notification{
     border: $lightBorder2;
     background: $lightBg;
+    color: $lightColorPr;
   }
 }
 
 .dark {
   background: $darkBg;
+  .notification{
+    border: $darkBorder2;
+    background: $darkBg;
+    color: $darkColorPr;
+  }
 }

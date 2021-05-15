@@ -26,6 +26,8 @@ const Node = (props={
   let { graphdef, graphdefState, canvasConfig  } = props.store;
   let nodeRef = React.useRef(<svg />)
 
+  width = id.length * 13;
+
   function onMouseDown(e) {
     e.preventDefault();
     switch (canvasConfig.mode) {
@@ -59,6 +61,9 @@ const Node = (props={
           };
         }
         break;
+      case 'delete':
+        canvasConfig.activeElement = props;
+        break;
       default:
         break;
     }
@@ -85,10 +90,22 @@ const Node = (props={
   function onMouseUp(e) {
     e.preventDefault();
     switch (canvasConfig.mode) {
-      case "move":
-        break;
       case "edge":
-        canvasConfig.newEdge.to = id;
+        if (canvasConfig.newEdge.longLine){
+          canvasConfig.newEdge.queue.forEach(edge =>{
+            let { from, to } = edge;
+            props.tools.addEdge(from, to);
+          })
+        }else{
+          let to = id;
+          let { from } = canvasConfig.newEdge;
+          props.tools.addEdge(from, to);
+        }
+        graphdefState({
+          ...graphdef,
+        });
+        canvasConfig.newEdge = undefined;
+        canvasConfig.activeLine = undefined;
         break;
       default:
         break;
@@ -97,23 +114,6 @@ const Node = (props={
 
   function onClick(e) {
     switch (canvasConfig.mode) {
-      case "delete":
-        connections.inbound.forEach((lid) => {
-          graphdef[lid].connections.outbound.pop(id);
-        });
-        connections.outbound.forEach((lid) => {
-          graphdef[lid].connections.inbound.pop(id);
-        });
-        switch(graphdef[id].type._class){
-          case "optimizers":
-            delete graphdef.train_config.optimizer
-            break
-          default:
-            break
-        }
-        delete graphdef[id];
-        graphdefState({ ...graphdef });
-        break;
       case "normal":
         props.menuState({
           comp: (
@@ -129,28 +129,20 @@ const Node = (props={
     }
   }
 
+  function edgeOnMouseDown(e){
+    if ( canvasConfig.mode === 'delete' ){
+      canvasConfig.activeElement = {
+        type:{
+          object_class:"edge"
+        },
+        inbound : connections.inbound,
+        node:id
+      }
+    }
+  }
+
   return (
     <g x={pos.x} y={pos.y} ref={nodeRef} onMouseEnter={onMouseOver}>
-      {connections.inbound.map((layer, i) => {
-        let pos_out = graphdef[layer];
-        if (pos_out) {
-          return (
-            <line
-              x1 ={ pos.x + pos.offsetX }
-              y1 ={ pos.y - 5}
-              x2 ={ pos_out.pos.x + pos_out.pos.offsetX }
-              y2 ={ pos_out.pos.y + 30 }
-              markerStart="url(#triangle)"
-              markerEnd="url(#circle)"
-              stroke="#333"
-              strokeWidth="2"
-              key={i}
-              id={`${pos_out.id}-${id}`}
-            />
-          );
-        }
-        return undefined;
-      })}
       <rect
         x={pos.x}
         y={pos.y}
@@ -164,8 +156,8 @@ const Node = (props={
         id={`${id}-rect`}
       ></rect>
       <text
-        x={pos.x + ( Math.floor( width * ( 1/ 5 ) ) ) }
-        y={pos.y + 19 }
+        x={pos.x + Math.floor(width * (1 / 5))}
+        y={pos.y + 19}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
         onClick={onClick}
@@ -173,6 +165,27 @@ const Node = (props={
       >
         {id}
       </text>
+      {connections.inbound.map((layer, i) => {
+        let pos_out = graphdef[layer];
+        if (pos_out) {
+          return (
+            <line
+              x1={pos.x + pos.offsetX}
+              y1={pos.y - 5}
+              x2={pos_out.pos.x + pos_out.pos.offsetX}
+              y2={pos_out.pos.y + 30}
+              markerStart="url(#triangle)"
+              markerEnd="url(#circle)"
+              stroke="#333"
+              strokeWidth="2"
+              key={i}
+              id={`${pos_out.id}-${id}`}
+              onClick={edgeOnMouseDown}
+            />
+          );
+        }
+        return undefined;
+      })}
     </g>
   );
 };

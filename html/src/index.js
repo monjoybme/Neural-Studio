@@ -21,6 +21,10 @@ window.canvasConfig = {
     y:0,
     w:0,
     h:0
+  },
+  customNodes:{
+    nodeCount:{},
+    definitions:[]
   }
 }
 window.copy = function (object) {

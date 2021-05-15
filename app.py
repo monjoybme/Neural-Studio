@@ -24,7 +24,7 @@ trainer = Trainer(workspace_mamager)
 try:
     trainer.update_dataset(from_workspace=True)
 except KeyError as e:
-    # print (f'Warning : {e}')
+    print (f'Warning : error loading {e}')
     pass
 
 def generate_args(code) -> dict:
@@ -101,7 +101,6 @@ download_options = {
 }
 
 # Workspace Endpoints
-
 
 @app.route("/workspace/active",)
 async def workspace(request: Request,):
@@ -269,6 +268,19 @@ async def dataset_checkpoint(request: Request):
         "message": "Method Not Allowed."
     }, code=402)
 
+@app.route("/dataset/unload")
+async def dataset_checkpoint(request: Request):
+    if request.headers.method == 'POST':
+        status, message = trainer.unload_dataset()
+        return await json_response({
+            "message":message,
+            "status":status
+        })
+
+    return await json_response({
+        "message": "Method Not Allowed."
+    }, code=402)
+
 # training endpoints
 
 @app.route("/train/start",)
@@ -353,11 +365,12 @@ async def node_build(request: Request):
                 "options": None,
 
             }
+
         return await json_response({
-            "status": 200,
             "id": function_id,
             "arguments": arguments
         })
+
     return await json_response({
         "message": "Method not allowed",
     }, status_code=400)

@@ -1,4 +1,3 @@
-import sys
 import re
 import base64
 from threading import Thread
@@ -11,12 +10,18 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers, callbacks, optimizers, losses, applications
 
-from .builder import build_code
-from .manage import WorkspaceManager, Workspace
-from .graph import GraphDef, LayerMeta
+from glob import glob
+from gc import collect
+from concurrent.futures import ThreadPoolExecutor
+from os import path as pathlib
+from tqdm.cli import tqdm
 
 from time import sleep
 from typing import List, Tuple
+
+from .builder import build_code
+from .manage import WorkspaceManager, Workspace
+from .graph import GraphDef, LayerMeta
 
 
 def execute_code(exec_code: str) -> Tuple[dict, str]:
@@ -109,19 +114,19 @@ class TfGui(keras.callbacks.Callback):
                 "batches": self.batches
             }
         }
-
         self.trainer.update_log(
             log_type="epoch",
             log=self._epoch
         )
 
     def on_epoch_end(self, epoch, logs=None):
+        self._epoch['epochEnd'] = True
         self._epoch['log'] = {
             "batch": self.batch,
             "output": logs
         }
         while self.halt:
-            sleep(1)
+            sleep(0.1)
 
     def on_train_end(self, logs):
         self.trainer.update_log(log_type="notif", log={
@@ -163,12 +168,13 @@ class Trainer(object):
     @property
     def model(self,) -> keras.Model:
         if not self.__model__:
-            print (self.build())
+            print(self.build())
         return self.__model__
 
     @property
     def summary(self, ) -> List[List[str]]:
         summary = []
+
         def print_fn(line, *args, **kwargs):
             if not re.match("(_+)|(=+)", line):
                 line = re.sub('\n', '', line)
@@ -179,7 +185,7 @@ class Trainer(object):
         if status:
             self.model.summary(line_length=256, print_fn=print_fn)
             return summary
-        return [[ error, '', '', '' ]]
+        return [[error, '', '', '']]
 
     def perform_imports(self, import_string: str) -> str:
         pass
@@ -201,6 +207,12 @@ class Trainer(object):
             return True, "Dataset updated succesfully"
         return False, error
 
+    def unload_dataset(self, ):
+        self.__dataset__code__ = '__dataset__code__'
+        self.__dataset__ = False
+        self.__dataset__name__ = '__dataset__name__'
+        return True, "Removed dataset."
+
     def update_log(self, log_type: str, log: dict):
         self.logs.append({
             "type": log_type,
@@ -214,11 +226,12 @@ class Trainer(object):
             return build_status, message
 
         for node in self.graph.__custom__nodes__:
-            exec_var, error = execute_code(
-                node.to_code(self.graph, train=True))
+            exec_var, error = execute_code(node[['arguments:code:value']])
             if not exec_var:
                 self.update_log("error", {
-                    "message": error
+                    "message": error,
+                    "code": node[['arguments:code:value']],
+                    "ended": True,
                 })
                 return False, error
             self.session_var.update(exec_var)
@@ -226,12 +239,14 @@ class Trainer(object):
         for level in self.graph.__levels__:
             for layer in level:
                 layer = self.graph[layer]
-                if layer[['type:object_class']] == 'layers':
+                if layer[['type:object_class']] in ['layers', 'CustomNode']:
                     exec_var, error = execute_code(
                         layer.to_code(self.graph, train=True))
                     if not exec_var:
                         self.update_log("error", {
-                            "message": error
+                            "message": error, 
+                            "code": layer.to_code(self.graph, train=True),
+                            "ended": True
                         })
                         return False, error
                     self.session_var.update(exec_var)
@@ -240,7 +255,9 @@ class Trainer(object):
             self.graph.__model__.to_code(self.graph, train=True))
         if not exec_var:
             self.update_log("error", {
-                "message": error
+                "message": error, 
+                "code": self.graph.__model__.to_code(self.graph, train=True),
+                "ended": True
             })
             return False, error
         self.session_var.update(exec_var)
@@ -261,7 +278,9 @@ class Trainer(object):
                 self.graph.__optimizer__.to_code(self.graph, train=True))
             if not exec_var:
                 self.update_log("error", {
-                    "message": error
+                    "message": error,
+                    "code": self.graph.__optimizer__.to_code(self.graph, train=True),
+                    "ended": True,
                 })
                 return False, error
             self.session_var.update(exec_var)
@@ -270,7 +289,9 @@ class Trainer(object):
             self.graph.__compile__.to_code(self.graph, train=True))
         if not exec_var:
             self.update_log("error", {
-                "message": error
+                "message": error, 
+                "code": self.graph.__compile__.to_code(self.graph, train=True),
+                "ended": True
             })
             return False, error
         self.session_var.update(exec_var)
@@ -278,19 +299,20 @@ class Trainer(object):
 
     def __train__thread__(self, ) -> None:
         if self.graph.__train__:
+            self.isTraining = True
             self.tfgui.epochs = int(
                 self.graph.__train__.arguments.epochs.value)
             self.tfgui.batch_size = int(
                 self.graph.__train__.arguments.batch_size.value)
             try:
-                self.tfgui.batches = int(np.ceil(len(self.dataset.train_x) / self.tfgui.batch_size))
-                self.tfgui.batches -= 1
-            except KeyError:
-                self.update_log( "notif", {"message": "Please configure dataset.", "ended": True})
-                return 0
+                self.tfgui.batches = int(
+                    np.floor(
+                        len(self.session_var[self.graph.dataset.id].train_x) / self.tfgui.batch_size)
+                )
             except Exception as e:
                 self.update_log(
                     "notif", {"message": str(e), "ended": True})
+                self.isTraining = False
                 return 0
 
             if self.graph.__callbacks__:
@@ -299,17 +321,23 @@ class Trainer(object):
                         callback.to_code(self.graph, train=True),)
                     if not exec_var:
                         self.update_log("error", {
-                            "message": error
+                            "message": error,
+                            "code":self.graph.__compile__.to_code(self.graph, train=True), 
+                            "ended": True
                         })
+                        self.isTraining = False
                         return False, error
                 self.session_var.update(exec_var)
             exec_var, error = execute_code(
                 self.graph.__train__.to_code(self.graph, train=True),)
             if not exec_var:
                 self.update_log("error", {
-                    "message": error,
-                    "ended":True
+                    "message": error, 
+                    "code": self.graph.__train__.to_code(self.graph, train=True),
+                    "ended": True
                 })
+                self.isTraining = False
+                return -1
             self.session_var.update(exec_var)
         else:
             self.update_log(
@@ -325,7 +353,6 @@ class Trainer(object):
             self.update_log("notif", {"message": "Training Resumed"})
 
     def start(self,) -> None:
-        self.isTraining = True
         self.train_thread = Thread(target=self.__train__thread__, )
         self.train_thread.start()
 
