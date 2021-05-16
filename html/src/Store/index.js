@@ -1,287 +1,92 @@
-import React from "react";
-
-import GraphEditor from "../GraphCanvas";
-import Home from "../Home";
-import SummaryViewer from "../SummaryViewer";
-import Training from "../Training";
+import React from 'react';
+import Graph from "../GraphCanvas";
 import CodeEditor from "../CodeEditor";
+import Train from "../Training";
+import SummaryViewer from "../SummaryViewer";
+import Home from '../Home'
 
-import { icons } from "../data/icons";
-import { GET, POST } from "../Utils";
+import layerGroupsDefault from '../data/layers';
+import { icons } from '../data/icons';
+import { appConfig } from '../data/appconfig';
 
-let _dummyStore = {
-  get: function () {
-    return localStorage.getItem("graphDef");
-  },
-  set: function (options = { data: {} }) {
-    localStorage.setItem("graphDef", { ...options.data });
-  },
-  retrive: async function () {
-    GET({
-      path: "/workspace/active/var/graphdef",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        this.set({ data: data });
-      });
-  },
-  store: async function () {
-    POST({
-      path: "/workspace/active/var/graphdef",
-      data: this.get(),
-    });
-  },
-};
+const defaultGraphDef = {
 
-let _dummState = {
-  get: function () {
-    return {};
-  },
-  set: function (options = { data: {} }) {},
-  retrive: async function () {},
-  store: async function () {},
-};
-
-const StoreContext = {
-  appConfig: {
-    name: "app_config",
-    get: function () {
-      return {};
-    },
-    set: function (options = { data: {} }) {},
-    retrive: async function () {},
-    store: async function () {},
-  },
-  canvasConfig: {
-    name: "canvas_config",
-    get: function () {
-      return {};
-    },
-    set: function (options = { data: {} }) {},
-    retrive: async function () {},
-    store: async function () {},
-  },
-  workspaceConfig: {
-    name: "config",
-    get: function () {
-      return {};
-    },
-    set: function (options = { data: {} }) {},
-    retrive: async function () {},
-    store: async function () {},
-  },
-  render: {
-    get: function () {
-      return {};
-    },
-    set: function (options = { data: {} }) {},
-    retrive: async function () {},
-    store: async function () {},
-  },
-  sidenav: {
-    name: "sidenav",
-    get: function () {},
-    set: function (options = { data: {} }) {},
-    retrive: async function () {},
-    store: async function () {},
-  },
-};
+}
 
 const defaultSideNav = [
-  {
-    name: "Home",
-    path: "/",
-    selected: window.location.pathname === "/",
-    icon: "Home",
-    comp: Home,
-  },
-  {
-    name: "Graph",
-    path: "/graph",
-    selected: window.location.pathname === "/graph",
-    icon: "Graph",
-    comp: GraphEditor,
-  },
-  {
-    name: "Code",
-    path: "/code",
-    selected: window.location.pathname === "/code",
-    icon: "Code",
-    comp: CodeEditor,
-  },
-  {
-    name: "Summary",
-    path: "/summary",
-    selected: window.location.pathname === "/summary",
-    icon: "Summary",
-    comp: SummaryViewer,
-  },
-  {
-    name: "Train",
-    path: "/train",
-    selected: window.location.pathname === "/train",
-    icon: "Train",
-    comp: Training,
-  },
-];
+    {
+      name: "Home",
+      path: "/",
+      selected: window.location.pathname === "/",
+      icon: icons.Home,
+      comp:Home,
+    },
+    {
+      name: "Graph",
+      path: "/graph",
+      selected: window.location.pathname === "/graph",
+      icon: icons.Graph,
+      comp:Graph,
+    },
+    {
+      name: "Code",
+      path: "/code",
+      selected: window.location.pathname === "/code",
+      icon: icons.Code,
+      comp:CodeEditor,
+    },
+    {
+      name: "Summary",
+      path: "/summary",
+      selected: window.location.pathname === "/summary",
+      icon: icons.Summary,
+      comp:SummaryViewer
+    },
+    {
+      name: "Train",
+      path: "/train",
+      selected: window.location.pathname === "/train",
+      icon: icons.Train,
+      comp:Train
+    },
+]
 
-const Store = (props) => {
-  let [fl, flState] = React.useState(true);
-  let [children, childrenState] = React.useState(undefined);
+const defaultRender = { name:"Home", comp:<div></div> }
 
-  let [store, storeState] = React.useState({
-    render: { name: "Home", comp: Home },
-    appConfig:{},
-    canvasConfig:{},
-    workspaceConfig:{}
-  });
+const defaultTrain = {
+    training: false,
+    hist: [],
+}
 
-  const StoreContext = {
-    appConfig: {
-      name: "app_config",
-      get: function () {
-        return store.appConfig;
-      },
-      set: function (options = { data: {} }) {
-        store.appConfig = options.data;
-        storeState({ ...storeState });
-      },
-      retrive: async function () {
-        await GET({
-          path: `/workspace/active/var/${this.name}`,
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            this.set({ data: data })
-            console.log(`Fetched ${this.name}`);
-          });
-      },
-      store: async function () {
-        await POST({
-          path: `/workspace/active/var/${this.name}`,
-          data: this.get(),
-        })
-          .then((response) => response.json())
-          .then((data) => {});
+const defaultWorkspce={
+    ntbf: true,
+    active: {
+      config: {
+        name: "Workspce",
       },
     },
-    canvasConfig: {
-      name: "canvas_config",
-      get: function () {
-        return store.canvasConfig;
-      },
-      set: function (options = { data: {} }) {
-        store.canvasConfig = options.data;
-        storeState({ ...storeState });
-      },
-      retrive: async function () {
-        await GET({
-          path: `/workspace/active/var/${this.name}`,
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            this.set({ data: data });
-            console.log(`Fetched ${ this.name }`)
-          });
-      },
-      store: async function () {
-        await POST({
-          path: `/workspace/active/var/${this.name}`,
-          data: this.get(),
-        });
-      },
-    },
-    workspaceConfig: {
-      name: "config",
-      get: function () {
-        return store.workspaceConfig;
-      },
-      set: function (options = { data: {} }) {
-        store.workspaceConfig = options.data;
-        storeState({ ...storeState });
-      },
-      retrive: async function () {
-        await GET({
-          path: `/workspace/active/var/${this.name}`,
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            this.set({ data: data });
-            console.log(`Fetched ${this.name}`);
-          });
-      },
-      store: async function () {
-        await POST({
-          path: `/workspace/active/var/${this.name}`,
-          data: this.get(),
-        });
-      },
-    },
-    render: {
-      get: function () {
-        return store.render;
-      },
-      set: function (options = { data: {} }) {
-        store.render = options.data;
-        storeState({ ...storeState });;
-      },
-      retrive: async function () {
-        this.set({ data: { data: { name: "Home" } }});
-      },
-      store: async function () {},
-    },
-    sidenav: {
-      name: "sidenav",
-      get: function () {
-        return JSON.parse(localStorage.getItem(this.name));
-      },
-      set: function (options = { data: {} }) {
-        localStorage.setItem(this.name, JSON.stringify(options.data));
-      },
-      retrive: async function () {
-        this.set({ data: defaultSideNav });
-      },
-      store: async function () {},
-    },
-  };
-
-  async function autoSave() {
-    storeState({...store});
+    recent: [],
+    all: [],
   }
 
-  React.useEffect(()=> {
-    if (fl) {
-      async function fetchData (){
-        Object.entries(StoreContext).map(async function([key, val]){
-          await val.retrive();
-        })
-        autoSave()
-      }
-      fetchData();
-      flState(false);
-    }
-    else{
-      console.log( store )
-    }
-  },[ store ]);
+const StoreContext = {
+    graphdef: defaultGraphDef, 
+    graphdefState: function({...defaultGraphDef}){},
+    layerGroups: layerGroupsDefault, 
+    layerGroupsState: function({...layerGroupsDefault}){},
+    sidenav: defaultSideNav, 
+    sidenavState: function({...defaultSideNav}){},
+    render: defaultRender, 
+    renderState: function({...defaultRender}){},
+    train: defaultTrain, 
+    trainState: function({...defaultTrain}){},
+    popup: {}, 
+    popupState: function(){},
+    appconfig: appConfig, 
+    appconfigState: function({...appConfig}){},
+    workspace: defaultWorkspce, 
+    workspaceState: function({...defaultWorkspce}){},
+}
 
-  return (
-    <div className={`app ${store.appConfig.theme}`}>
-      { fl 
-          ? undefined
-          : React.Children.map(props.children, (child) => {
-            if (React.isValidElement(child)) {
-              return React.cloneElement(
-                child,
-                (props = { store: StoreContext, autoSave: autoSave })
-              );
-            }
-            return child;
-          })
-        
-      }
-    </div>
-  )
-};
 
-export { Store, StoreContext };
+export { StoreContext, }

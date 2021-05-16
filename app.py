@@ -114,14 +114,6 @@ async def workspace(request: Request,):
     })
 
 
-@app.route("/workspace/active/var/<str:var>",)
-async def workspace(request: Request, var:str):
-    if request.headers.method == 'GET':
-        return await json_response(workspace_mamager.active[f'var_{var}'])
-    return await json_response({
-        "message": "Method Not Allowed !"
-    })
-
 @app.route("/workspace/recent",)
 async def workspace_recent(request: Request,):
     if request.headers.method == "GET":

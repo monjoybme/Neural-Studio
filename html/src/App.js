@@ -7,7 +7,7 @@ import SummaryViewer from "./SummaryViewer";
 import Home from "./Home";
 
 import layerGroupsDefault from "./data/layers";
-import { Store, StoreContext } from "./Store";
+import { StoreContext } from "./Store";
 import { icons } from "./data/icons";
 import { appConfig } from "./data/appconfig.js";
 import { POST, Notification } from "./Utils";
@@ -19,33 +19,6 @@ import "./style/Canvas.scss";
 import "./style/Code.scss";
 import "./style/Training.scss";
 import "./style/Summary.scss";
-
-const defaultRender = {
-  name: "Home",
-  comp: Home,
-};
-
-const defaultTrain = {
-  training: false,
-  hist: [],
-};
-
-const defaultWorkspce = {
-  ntbf: true,
-  active: {
-    config: {
-      name: "Workspace",
-    },
-  },
-  recent: [],
-  all: [],
-};
-
-const defaultGraphdef = {
-  train_config: {
-    session_id: undefined,
-  },
-};
 
 const defaultSideNav = [
   {
@@ -85,84 +58,98 @@ const defaultSideNav = [
   },
 ];
 
+const defaultRender = { 
+  name: "Home", 
+  comp: Home 
+};
+
+const defaultTrain = {
+  training: false,
+  hist: [],
+};
+
+const defaultWorkspce = {
+  ntbf: true,
+  active: {
+    config: {
+      name: "Workspace",
+    },
+  },
+  recent: [],
+  all: [],
+};
+
+const defaultGraphdef = {
+  train_config: {
+    session_id: undefined,
+  },
+};
+
 const PageCycle = defaultSideNav.map((btn, i) => {
   return btn.name;
 });
 
-const SideBar = (
-  props = { store: StoreContext, renderState: function () {} }
-) => {
-  let { store } = props;
-  let [sidenav, sidenavState] = React.useState(props.store.sidenav.get());
+
+const SideBar = (props = { store: StoreContext }) => {
+  let Logo = icons.Logo;
+  let { sidenav, sidenavState, renderState } = props.store;
 
   function loadComp(button) {
     sidenav = sidenav.map((btn) => {
       btn.selected = btn.name === button.name;
       if (btn.selected) {
-        // renderState({
-        //   ...btn,
-        // });
+        renderState({
+          ...btn,
+        });
       }
       return btn;
     });
     sidenavState([...sidenav]);
   }
 
-  React.useEffect(() => {});
-
   return (
-    <div className="sidenav">
-      <div className="nav">
-        <div className="title">
-          <icons.Logo />
-        </div>
-        <div className="navigation">
-          {sidenav.map((button, i) => {
-            let Icon = icons[button.icon];
-            return (
-              <div
-                key={i}
-                className={button.selected ? "btn selected" : "btn"}
-                onClick={(e) => loadComp(button)}
-              >
-                <Icon
-                  fill={button.selected ? "white" : "rgba(255,255,255,0.3)"}
-                />
-              </div>
-            );
-          })}
-        </div>
+    <div className="nav">
+      <div className="title">
+        <Logo />
+      </div>
+      <div className="navigation">
+        {sidenav.map((button, i) => {
+          let Icon = button.icon;
+          return (
+            <div
+              key={i}
+              className={button.selected ? "btn selected" : "btn"}
+              onClick={(e) => loadComp(button)}
+            >
+              <Icon
+                fill={button.selected ? "white" : "rgba(255,255,255,0.3)"}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 };
 
-const TopBar = (
-  props = {
-    store: StoreContext,
-    render: {
-      name: "Home",
-      comp: Home,
-    },
-  }
-) => {
+const TopBar = (props = { store: StoreContext }) => {
+  let { appconfig, appconfigState, render } = props.store;
+
   return (
     <div className="topbar">
       <div className="title" id="context-title">
-        {props.render.name}
+        {render.name}
       </div>
       <div className="cmenupar"></div>
       <div
         className="switch"
         onClick={() => {
-          let app_config = props.store.appConfig.get();
-          if (app_config.theme === "light") {
-            app_config.theme = "dark";
+          if (appconfig.theme === "light") {
+            appconfig.theme = "dark";
           } else {
-            app_config.theme = "light";
+            appconfig.theme = "light";
           }
-          props.store.appConfig.set({ data: app_config });
-          props.autoSave();
+          appconfigState({ ...appconfig });
         }}
       >
         <div className="holder">
@@ -174,11 +161,11 @@ const TopBar = (
 };
 
 const App = (props) => {
-  let [graphdef, graphdefState] = React.useState({ ...defaultGraphdef });
+  let [graphdef, graphdefState] = React.useState({ ...defaultGraphdef  });
   let [layerGroups, layerGroupsState] = React.useState({
     ...layerGroupsDefault,
   });
-  let [sidenav, sidenavState] = React.useState([]);
+  let [sidenav, sidenavState] = React.useState([...defaultSideNav]);
   let [train, trainState] = React.useState({ ...defaultTrain });
   let [popup, popupState] = React.useState(<div className="popup"></div>);
   let [appconfig, appconfigState] = React.useState({ ...appConfig });
@@ -224,9 +211,10 @@ const App = (props) => {
         .then((response) => response.json())
         .then((data) => {
           let time = new Date();
-          statusbarState(`autosave @ ${time.toTimeString()}`);
+          statusbarState(`autosave @ ${ time.toTimeString() }`);
         });
-    } catch (TypeError) {}
+    } catch (TypeError) {
+    }
   };
 
   window.downloadCode = async function (e) {
@@ -362,51 +350,27 @@ const App = (props) => {
     window.onkeyup = function (e) {
       window.__SHORTCUT__ = -1;
     };
-
-    if (!workspace.ntbf) {
+    
+    if ( !workspace.ntbf ){
       window.autosave();
     }
   });
 
-  const PopUp = (props) => {};
-
-  const StatusBar = (props) => {
-    return (
-      <div className="statusbar">
-        {statusbar.toLowerCase()} | workspace : {workspace.active.config.name}
-      </div>
-    );
-  };
-
-  const Container = (
-    props = {
-      render: {
-        name: "Home",
-        comp: Home,
-      },
-    }
-  ) => {
-    return (
-      <div className="container-area">
-        {React.Children.map(props.children, (child) => {
-          if (React.isValidElement(child)) {
-            return React.cloneElement(child, (props = { ...props }));
-          }
-          return child;
-        })}
-      </div>
-    );
-  };
-
   return (
-    <Store>
-      <SideBar />
-      <Container render={render}>
-        <TopBar render={render} />
-        <render.comp />
-        <StatusBar />
-      </Container>
-    </Store>
+    <div className={`app ${appconfig.theme}`}>
+      {popup}
+      {notification.comp}
+      <div className="sidenav">
+        <SideBar store={store} />
+      </div>
+      <div className="container-area">
+        <TopBar store={store} />
+        <render.comp store={store} />
+        <div className="statusbar">
+          {statusbar.toLowerCase()} | workspace : {workspace.active.config.name}
+        </div>
+      </div>
+    </div>
   );
 };
 
