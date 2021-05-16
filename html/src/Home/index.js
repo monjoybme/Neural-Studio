@@ -1,5 +1,5 @@
 import React from "react";
-import { StoreContext } from "../Store/index";
+import { Store, StoreContext } from "../Store/index";
 import { icons } from "../data/icons";
 import { GET, Loading, POST } from "../Utils";
 
@@ -185,14 +185,19 @@ const DownloadModel = (props) => {
 
 const Home = (props = { store: StoreContext }) => {
   let {
-    workspace,
-    workspaceState,
     graphdefState,
     appconfigState,
     popupState,
     layerGroupsState,
     layerGroups
   } = props.store;
+
+  let [ fl, flState ] = React.useState(true);
+
+  let [ workspace, workspaceState ] = React.useState({
+    appConfig : StoreContext.appConfig.get(),
+    config: StoreContext.workspaceConfig.get(),
+   })
 
   async function fetchWorkspace() {
     let active = await GET({
@@ -269,16 +274,16 @@ const Home = (props = { store: StoreContext }) => {
   }
 
   React.useEffect(() => {
-    if (workspace.ntbf) {
-      fetchWorkspace();
+    if ( fl ){
+      flState(false);
     }
-  });
+  }, [ fl, flState ]);
 
   return (
     <div className="home container">
       <div className="name">Active Worksapce</div>
       <div className="card active">
-        <div className="head">{workspace.active.config.name}</div>
+        <div className="head">{workspace.config.name}</div>
         <div className="footer">
           <div className="name">
             <icons.Save onClick={window.autosave} />
@@ -299,7 +304,7 @@ const Home = (props = { store: StoreContext }) => {
       <div className="name">Your Work</div>
       <div className="cards">
         <NewCard newWorkspace={newWorkspace} />
-        {workspace.all.map((work, i) => {
+        {/* {workspace.all.map((work, i) => {
           return (
             <WorkspaceCard
               {...props}
@@ -309,7 +314,7 @@ const Home = (props = { store: StoreContext }) => {
               key={i}
             />
           );
-        })}
+        })} */}
       </div>
     </div>
   );
