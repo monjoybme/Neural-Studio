@@ -1,16 +1,16 @@
 import React from "react";
 
-import Graph from "./GraphCanvas";
-import CodeEditor from "./CodeEditor";
-import Train from "./Training";
-import SummaryViewer from "./SummaryViewer";
-import Home from "./Home";
-
-import layerGroupsDefault from "./data/layers";
-import { StoreContext } from "./Store";
-import { icons } from "./data/icons";
-import { appConfig } from "./data/appconfig.js";
+import { TopBar, SideBar } from "./NavBar";
 import { POST, Notification } from "./Utils";
+import {
+  defaultSideNav,
+  defaultGraphdef,
+  defaultRender,
+  defaultTrain,
+  appConfig,
+  defaultWorkspce,
+} from "./Store";
+import deaultLayerGroups from "./data/layers";
 
 import "./style/App.scss";
 import "./style/Nav.scss";
@@ -20,151 +20,9 @@ import "./style/Code.scss";
 import "./style/Training.scss";
 import "./style/Summary.scss";
 
-const defaultSideNav = [
-  {
-    name: "Home",
-    path: "/",
-    selected: window.location.pathname === "/",
-    icon: icons.Home,
-    comp: Home,
-  },
-  {
-    name: "Graph",
-    path: "/graph",
-    selected: window.location.pathname === "/graph",
-    icon: icons.Graph,
-    comp: Graph,
-  },
-  {
-    name: "Code",
-    path: "/code",
-    selected: window.location.pathname === "/code",
-    icon: icons.Code,
-    comp: CodeEditor,
-  },
-  {
-    name: "Summary",
-    path: "/summary",
-    selected: window.location.pathname === "/summary",
-    icon: icons.Summary,
-    comp: SummaryViewer,
-  },
-  {
-    name: "Train",
-    path: "/train",
-    selected: window.location.pathname === "/train",
-    icon: icons.Train,
-    comp: Train,
-  },
-];
-
-const defaultRender = { 
-  name: "Home", 
-  comp: Home 
-};
-
-const defaultTrain = {
-  training: false,
-  hist: [],
-};
-
-const defaultWorkspce = {
-  ntbf: true,
-  active: {
-    config: {
-      name: "Workspace",
-    },
-  },
-  recent: [],
-  all: [],
-};
-
-const defaultGraphdef = {
-  train_config: {
-    session_id: undefined,
-  },
-};
-
-const PageCycle = defaultSideNav.map((btn, i) => {
-  return btn.name;
-});
-
-
-const SideBar = (props = { store: StoreContext }) => {
-  let Logo = icons.Logo;
-  let { sidenav, sidenavState, renderState } = props.store;
-
-  function loadComp(button) {
-    sidenav = sidenav.map((btn) => {
-      btn.selected = btn.name === button.name;
-      if (btn.selected) {
-        renderState({
-          ...btn,
-        });
-      }
-      return btn;
-    });
-    sidenavState([...sidenav]);
-  }
-
-  return (
-    <div className="nav">
-      <div className="title">
-        <Logo />
-      </div>
-      <div className="navigation">
-        {sidenav.map((button, i) => {
-          let Icon = button.icon;
-          return (
-            <div
-              key={i}
-              className={button.selected ? "btn selected" : "btn"}
-              onClick={(e) => loadComp(button)}
-            >
-              <Icon
-                fill={button.selected ? "white" : "rgba(255,255,255,0.3)"}
-              />
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-
-const TopBar = (props = { store: StoreContext }) => {
-  let { appconfig, appconfigState, render } = props.store;
-
-  return (
-    <div className="topbar">
-      <div className="title" id="context-title">
-        {render.name}
-      </div>
-      <div className="cmenupar"></div>
-      <div
-        className="switch"
-        onClick={() => {
-          if (appconfig.theme === "light") {
-            appconfig.theme = "dark";
-          } else {
-            appconfig.theme = "light";
-          }
-          appconfigState({ ...appconfig });
-        }}
-      >
-        <div className="holder">
-          <div className="button"></div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const App = (props) => {
-  let [graphdef, graphdefState] = React.useState({ ...defaultGraphdef  });
-  let [layerGroups, layerGroupsState] = React.useState({
-    ...layerGroupsDefault,
-  });
+  let [graphdef, graphdefState] = React.useState({ ...defaultGraphdef });
+  let [layerGroups, layerGroupsState] = React.useState({ ...deaultLayerGroups});
   let [sidenav, sidenavState] = React.useState([...defaultSideNav]);
   let [train, trainState] = React.useState({ ...defaultTrain });
   let [popup, popupState] = React.useState(<div className="popup"></div>);
@@ -172,9 +30,7 @@ const App = (props) => {
   let [workspace, workspaceState] = React.useState({ ...defaultWorkspce });
   let [render, renderState] = React.useState({ ...defaultRender });
   let [statusbar, statusbarState] = React.useState("notification bar");
-  let [notification, notificationState] = React.useState({
-    comp: undefined,
-  });
+  let [notification, notificationState] = React.useState({ comp: undefined });
 
   const store = {
     graphdef: graphdef,
@@ -196,6 +52,17 @@ const App = (props) => {
     canvasConfig: window.canvasConfig,
   };
 
+  let storeContext = {
+    graphdef:{
+      get: function(){
+        return graphdef;
+      },
+      set: function(data){
+        graphdefState({...data});
+      }
+    },
+  }
+
   window.autosave = async function () {
     let data = {
       graphdef: { ...graphdef },
@@ -211,10 +78,9 @@ const App = (props) => {
         .then((response) => response.json())
         .then((data) => {
           let time = new Date();
-          statusbarState(`autosave @ ${ time.toTimeString() }`);
+          statusbarState(`autosave @ ${time.toTimeString()}`);
         });
-    } catch (TypeError) {
-    }
+    } catch (TypeError) {}
   };
 
   window.downloadCode = async function (e) {
@@ -308,17 +174,6 @@ const App = (props) => {
         break;
 
       case 2:
-        let idx = Number(e.key) - 1;
-        sidenav = sidenav.map((btn) => {
-          btn.selected = btn.name === PageCycle[idx];
-          if (btn.selected) {
-            renderState({
-              ...btn,
-            });
-          }
-          return btn;
-        });
-        sidenavState([...sidenav]);
         break;
 
       default:
@@ -350,8 +205,7 @@ const App = (props) => {
     window.onkeyup = function (e) {
       window.__SHORTCUT__ = -1;
     };
-    
-    if ( !workspace.ntbf ){
+    if (!workspace.ntbf) {
       window.autosave();
     }
   });
