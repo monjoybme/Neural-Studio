@@ -6,7 +6,6 @@ from shutil import rmtree
 from .utils import Dict
 from .graph import GraphDef
 
-DEFAULT_CONFIG = Dict({'name': 'model', "description": 'Model Description !'})
 DEFAULT_GRAPHDEF = Dict({
     'train_config': {
         'session_id': None,
@@ -14,6 +13,7 @@ DEFAULT_GRAPHDEF = Dict({
         'model': None,
     }
 })
+
 DEFAULT_CANVAS_CONFIG = Dict({
     "activeLayer": None,
     "activeLine": None,
@@ -30,11 +30,14 @@ DEFAULT_CANVAS_CONFIG = Dict({
         "w": 0,
         "h": 0
     },
-    "customNodes":{
-        "definitions":[]
+    "customNodes": {
+        "definitions": [],
+        "imports": [],
     }
 })
+
 DEFAULT_APP_CONFIG = Dict({
+    "name": "Model",
     "theme": "light",
     "geometry": {
         "sideBar": {
@@ -46,12 +49,12 @@ DEFAULT_APP_CONFIG = Dict({
     },
     "canvas": {
         "toolbar": {
-            "width": 240,
+            "width": 280,
         }
     },
     "monitor": {
         "width": 400,
-        "padding": 5,
+        "padding": 10,
         "graph": {
             "height": 295,
             "width": 365
@@ -98,38 +101,57 @@ class Cache(object):
 
 class Workspace(Dict):
     __required__vars__ = [
-        ('config',  DEFAULT_CONFIG),
         ('graphdef', DEFAULT_GRAPHDEF),
         ('canvas_config', DEFAULT_CANVAS_CONFIG),
         ('app_config', DEFAULT_APP_CONFIG),
     ]
+    __vars__ = ['graphdef', 'canvas_config', 'app_config']
 
-    var_config = DEFAULT_CONFIG
-    var_graphdef = DEFAULT_GRAPHDEF
-    var_canvas_config = DEFAULT_CANVAS_CONFIG
-    var_app_config = DEFAULT_APP_CONFIG
+    graphdef = DEFAULT_GRAPHDEF
+    canvas_config = DEFAULT_CANVAS_CONFIG
+    app_config = DEFAULT_APP_CONFIG
 
     def __init__(self, path: str):
         self.__path__ = path
         if not pathlib.isdir(self.__path__):
             mkdir(self.__path__)
+
+        # Workspace name
         *_, self.__name__ = pathlib.split(self.__path__)
+
+        # Loading | Saving default variables
         for var, val in self.__required__vars__:
             file = pathlib.join(self.__path__, f"{var}.json")
             if pathlib.isfile(file,):
                 with open(file, "r") as file:
-                    self.__dict__[f"var_{var}"] = load(file,)
+                    self.__dict__[f"{var}"] = Dict(load(file,))
             else:
                 with open(file, "w+") as file:
-                    if var == 'config':
+                    if var == 'app_config':
                         val['name'] = self.__name__
                     dump(val.full_dict, file)
-                self.__dict__[f"var_{var}"] = val
+                self.__dict__[f"{var}"] = val
 
         super().__init__()
 
     def __repr__(self,):
         return f"""Workspace(\n\tname={self.__name__},\n\tpath={self.__path__}\n)"""
+
+    def __getitem__(self, key: str)->Dict:
+        return super().__getitem__(key)
+
+    def __setitem__(self, key: str, val: dict):
+        if isinstance(key, list):
+            super().__setitem__(key, val)
+            keys, = key
+            key, *_ = keys.split(":")
+            with open(pathlib.join(self.__path__, f"{key}.json"), "w+") as file:
+                dump(self.__dict__[key].full_dict, file)
+        else:
+            assert key in self.__vars__, "Please provide valid variable name."
+            self.__dict__[key] = Dict(val)
+            with open(pathlib.join(self.__path__, f"{key}.json"), "w+") as file:
+                dump(self.__dict__[key].full_dict, file)
 
     def save(self,):
         for var, val in self.get_vars():
@@ -138,12 +160,11 @@ class Workspace(Dict):
 
     def set(self, **kwargs):
         for key, val in kwargs.items():
-            self.__dict__[f"var_{key}"] = val
+            self.__dict__[f"{key}"] = val
 
     def get_vars(self, ) -> iter:
         for key, val in self.full_dict.items():
-            if key.startswith("var"):
-                yield key.replace("var_", ''), val
+            yield key, val
 
     def get_var_dict(self, ) -> dict:
         return dict(self.get_vars())
@@ -162,6 +183,7 @@ class WorkspaceManager(Dict):
 
         self.cache = Cache(self.root)
         self.active = False
+
         for w in listdir(pathlib.join(self.root, "workspace")):
             w_path = pathlib.join(self.root, "workspace", w)
             if pathlib.isdir(w_path):
@@ -170,7 +192,8 @@ class WorkspaceManager(Dict):
                     self.active = Workspace(w_path)
 
         if not self.active:
-            self.active = Workspace(pathlib.join(self.root, "workspace", "model"))
+            self.active = Workspace(pathlib.join(
+                self.root, "workspace", "model"))
             self.workspaces.add(self.active.idx)
             self.cache >> self.active.idx
 
@@ -213,12 +236,21 @@ class WorkspaceManager(Dict):
                 self.root, "workspace", w) != path}
             rmtree(path,)
 
-            if self.active[['var_config:name']] == name:
+            if self.active[['app_config:name']] == name:
                 self.active = self.open_workspace(self.cache.last)
                 if not self.active:
                     self.active = self.new_workspace("model")
             return True
         return False
+
+    def delete_multiple(self, w_list: list = [], d_all=False):
+        if d_all:
+            for w in self.workspaces:
+                self.delete_workspace(w)
+            return True, "All workspaces deleted successully"
+        for w in w_list:
+            self.delete_workspace(w)
+        return True, "Selected workspaces deleted successfully."
 
     def get_workspaces(self,):
         return [{"name": w} for w in self.workspaces]

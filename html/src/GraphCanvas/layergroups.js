@@ -1,7 +1,9 @@
 import React from 'react';
-import { StoreContext } from '../Store';
+import { metaStore, metaStoreContext } from '../Meta';
 
-const LayerGroupCollapsed = (props) => {
+const LayerGroupCollapsed = (
+  props = { store: metaStore, storeContext: metaStoreContext }
+) => {
   return (
     <div className="layers" key={props.i}>
       <div
@@ -16,8 +18,10 @@ const LayerGroupCollapsed = (props) => {
   );
 };
 
-const LayerGroupOpen = (props) => {
-  
+const LayerGroupOpen = (
+  props = { store: metaStore, storeContext: metaStoreContext }
+) => {
+
   return (
     <div className="layers" key={props.i}>
       <div className="name" id={props.id} onClick={props.toggleSection}>
@@ -45,7 +49,9 @@ const LayerGroupOpen = (props) => {
   );
 };
 
-const LayerGroups = (props={store:StoreContext}) => {
+const LayerGroups = (
+  props = { store: metaStore, storeContext: metaStoreContext }
+) => {
   let { layerGroups, layerGroupsState } = props.store;
 
   function toggleSection(e) {
@@ -64,8 +70,7 @@ const LayerGroups = (props={store:StoreContext}) => {
             id={layerGroup}
             layerGroup={layerGroups[layerGroup]}
             toggleSection={toggleSection}
-            
-            { ...props }
+            {...props}
           />
         ) : (
           <LayerGroupCollapsed
@@ -73,14 +78,11 @@ const LayerGroups = (props={store:StoreContext}) => {
             id={layerGroup}
             layerGroup={layerGroups[layerGroup]}
             toggleSection={toggleSection}
-            
-            { ...props }
+            {...props}
           />
         );
       })}
-      <div className="layers">
-
-      </div>
+      <div className="layers"></div>
     </div>
   );
 };

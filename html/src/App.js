@@ -1,15 +1,17 @@
 import React from "react";
 
 import { TopBar, SideBar } from "./NavBar";
-import { POST, Notification } from "./Utils";
+import { POST, Notification, GET, Loading } from "./Utils";
 import {
-  defaultSideNav,
-  defaultGraphdef,
-  defaultRender,
-  defaultTrain,
-  appConfig,
-  defaultWorkspce,
-} from "./Store";
+  metaSideNav,
+  metaGraphdef,
+  metaRender,
+  metaTrain,
+  metaAppConfig,
+  metaWorkspce,
+  metaStore,
+  metaStoreContext
+} from "./Meta";
 import deaultLayerGroups from "./data/layers";
 
 import "./style/App.scss";
@@ -20,21 +22,61 @@ import "./style/Code.scss";
 import "./style/Training.scss";
 import "./style/Summary.scss";
 
+const PopUp = (
+  props = { store: metaStore, storeContext: metaStoreContext }
+) => {
+  return (
+    <>
+      { props.store.popup }
+    </>
+  );
+};
+
+const NotificationPop = (props = { store: metaStore, storeContext:metaStoreContext } ) => {
+  return (
+    <>
+      { props.store.notification.comp }
+    </>
+  );
+};
+
+const StatusBar = (props = { store: metaStore, storeContext:metaStoreContext } ) => {
+  return (
+    <div className="statusbar">
+      {props.store.statusbar.toLowerCase()} | workspace :{" "}
+      {props.store.appConfig.name}
+    </div>
+  );
+};
+
+const Container = (props = { store: metaStore, storeContext:metaStoreContext } ) => {
+  return <div className="container-area">{props.children}</div>;
+};
+
+const Main = (props = { store: metaStore, storeContext:metaStoreContext } ) => {
+  return (
+    <div className={`app ${props.store.appConfig.theme}`}>{props.children}</div>
+  );
+};
+
 const App = (props) => {
-  let [graphdef, graphdefState] = React.useState({ ...defaultGraphdef });
-  let [layerGroups, layerGroupsState] = React.useState({ ...deaultLayerGroups});
-  let [sidenav, sidenavState] = React.useState([...defaultSideNav]);
-  let [train, trainState] = React.useState({ ...defaultTrain });
+  let [graphDef, graphDefState] = React.useState({ ...metaGraphdef });
+  let [workspace, workspaceState] = React.useState({ ...metaWorkspce });
+  let [appConfig, appConfigState] = React.useState({ ...metaAppConfig });
+  let [layerGroups, layerGroupsState] = React.useState({...deaultLayerGroups});
+
+  let [sidenav, sidenavState] = React.useState([...metaSideNav]);
+  let [render, renderState] = React.useState({ ...metaRender });
+  let [train, trainState] = React.useState({ ...metaTrain });
+
   let [popup, popupState] = React.useState(<div className="popup"></div>);
-  let [appconfig, appconfigState] = React.useState({ ...appConfig });
-  let [workspace, workspaceState] = React.useState({ ...defaultWorkspce });
-  let [render, renderState] = React.useState({ ...defaultRender });
-  let [statusbar, statusbarState] = React.useState("notification bar");
+  let [statusbar, statusbarState] = React.useState("status bar");
   let [notification, notificationState] = React.useState({ comp: undefined });
+  let [ firstLoad, firstLoadState ] = React.useState( true );
 
   const store = {
-    graphdef: graphdef,
-    graphdefState: graphdefState,
+    graphDef: graphDef,
+    graphDefState: graphDefState,
     layerGroups: layerGroups,
     layerGroupsState: layerGroupsState,
     sidenav: sidenav,
@@ -45,85 +87,179 @@ const App = (props) => {
     trainState: trainState,
     popup: popup,
     popupState: popupState,
-    appconfig: appconfig,
-    appconfigState: appconfigState,
+    appConfig: appConfig,
+    appConfigState: appConfigState,
     workspace: workspace,
     workspaceState: workspaceState,
     canvasConfig: window.canvasConfig,
+    statusbar: statusbar,
+    statusbarState: statusbarState,
+    notification: notification,
+    notificationState: notificationState,
   };
 
-  let storeContext = {
-    graphdef:{
-      get: function(){
-        return graphdef;
+  const storeContext = {
+    graphDef: {
+      name: "graphdef",
+      get: function () {
+        return graphDef;
       },
-      set: function(data){
-        graphdefState({...data});
-      }
+      set: function (data) {
+        graphDefState({ ...data });
+      },
+      pull: async function () {
+        await GET({
+          path: `/workspace/active/var/${this.name}`,
+        })
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            this.set(data);
+          });
+      },
+      push: async function () {
+        await POST({
+          path: `/workspace/active/var/${this.name}`,
+          data: graphDef
+        }).then( response=> response.json()).then(data=>{
+          
+        });
+      },
     },
-  }
+    appConfig: {
+      name: "app_config",
+      get: function () {
+        return appConfig;
+      },
+      set: function (data) {
+        appConfigState({ ...data });
+      },
+      pull: async function () {
+        await GET({
+          path: `/workspace/active/var/${this.name}`,
+        })
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            this.set(data);
+          });
+      },
+      push: async function () {
+        await POST({
+          path: `/workspace/active/var/${this.name}`,
+          data: appConfig,
+        })
+          .then((response) => response.json())
+          .then((data) => {});
+      },
+    },
+    canvasConfig: {
+      name: "canvas_config",
+      get: function () {
+        return window.canvasConfig;
+      },
+      set: function (data) {
+        window.canvasConfig = data;
+      },
+      pull: async function () {
+        await GET({
+          path: `/workspace/active/var/${this.name}`,
+        })
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            this.set(data);
+            layerGroupsState({
+              ...layerGroups,
+              custom_nodes: {
+                name: "Custom Node Definitions",
+                layers: data.customNodes.definitions,
+              },
+            });
+          });
+      },
+      push: async function () {
+        await POST({
+          path: `/workspace/active/var/${this.name}`,
+          data: window.canvasConfig,
+        })
+          .then((response) => response.json())
+          .then((data) => {});
+      },
+    },
+  };
 
-  window.autosave = async function () {
-    let data = {
-      graphdef: { ...graphdef },
-      app_config: { ...appconfig },
-      canvas_config: { ...window.canvasConfig },
-      config: { ...workspace.active.config },
-    };
-    try {
+  const appFunctions = {
+    autosave: async function () {
+      await this.pushStore(function(){
+        statusbarState(`autosave @ ${ new Date().toTimeString() }`)
+      });
+    },
+    downloadCode: async function (e) {
       await POST({
-        path: "/workspace/autosave",
-        data: data,
+        path: "/model/code",
+        data: graphDef,
       })
         .then((response) => response.json())
         .then((data) => {
-          let time = new Date();
-          statusbarState(`autosave @ ${time.toTimeString()}`);
+          let link = document.createElement("a");
+          link.href = `data:text/x-python,${encodeURIComponent(data.code)}`;
+          link.download = "train.py";
+          link.click();
         });
-    } catch (TypeError) {}
-  };
-
-  window.downloadCode = async function (e) {
-    POST({
-      path: "build",
-      data: graphdef,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        let link = document.createElement("a");
-        link.href = `data:text/x-python,${encodeURIComponent(data.code)}`;
-        link.download = "train.py";
-        link.click();
+    },
+    updateStatus: function (options = { text: "Notification" }) {
+      let { text } = options;
+      statusbarState(text);
+    },
+    notify: function (
+      options = { name: "test", message: "Hello", timeout: 3000 }
+    ) {
+      notificationState({ comp: undefined });
+      notificationState({
+        comp: (
+          <Notification
+            {...options}
+            notificationState={notificationState}
+            timeout={options.timeout ? options.timeout : 3000}
+          />
+        ),
       });
+    },
+    pullStore: async function (callback) {
+      await Object.entries(storeContext).map(async function ([key, val]) {
+        await val.pull();
+      });
+      if (callback) {
+        callback();
+      }
+    },
+    pushStore: async function (callback) {
+      await Object.entries(storeContext).map(async function ([key, val]) {
+        await val.push();
+      });
+      if (callback) {
+        callback();
+      }
+    },
   };
 
-  window.updateStatus = function (options = { text: "Notification" }) {
-    let { text } = options;
-    statusbarState(text);
-  };
+  let defaultProps = {
+    store:store,
+    storeContext:storeContext,
+    appFunctions: appFunctions
+  }
 
-  window.notify = function (
-    options = { name: "test", message: "Hello", timeout: 3000 }
-  ) {
-    notificationState({ comp: undefined });
-    notificationState({
-      comp: (
-        <Notification
-          {...options}
-          notificationState={notificationState}
-          timeout={options.timeout ? options.timeout : 3000}
-        />
-      ),
-    });
-  };
-
-  function keynap(e) {
+  function keymap(e) {
     switch (window.__SHORTCUT__) {
       case 0:
         switch (e.key) {
           case "s":
             e.preventDefault();
-            window.autosave();
+            appFunctions.autosave();
             break;
           case "e":
             break;
@@ -131,13 +267,13 @@ const App = (props) => {
             break;
           case "d":
             e.preventDefault();
-            window.downloadCode();
+            appFunctions.downloadCode();
             break;
           case "s":
-            window.notify({
+            appFunctions.notify({
               message: "HEllo",
             });
-            window.autosave();
+            appFunctions.autosave();
             break;
           case "1":
             e.preventDefault();
@@ -157,7 +293,7 @@ const App = (props) => {
             break;
           case "5":
             e.preventDefault();
-            graphdefState({});
+            graphDefState({});
             break;
           case "Shift":
             window.__SHORTCUT__ = 2;
@@ -201,30 +337,30 @@ const App = (props) => {
   }
 
   React.useEffect(function () {
-    window.onkeydown = keynap;
+    window.onkeydown = keymap;
     window.onkeyup = function (e) {
       window.__SHORTCUT__ = -1;
     };
-    if (!workspace.ntbf) {
-      window.autosave();
+    if ( firstLoad ){
+      appFunctions.pullStore().then(response=>{
+        firstLoadState(false);
+      });
     }
   });
 
-  return (
-    <div className={`app ${appconfig.theme}`}>
-      {popup}
-      {notification.comp}
-      <div className="sidenav">
-        <SideBar store={store} />
-      </div>
-      <div className="container-area">
-        <TopBar store={store} />
-        <render.comp store={store} />
-        <div className="statusbar">
-          {statusbar.toLowerCase()} | workspace : {workspace.active.config.name}
-        </div>
-      </div>
-    </div>
+  return firstLoad ? (
+    <Loading />
+  ) : (
+    <Main {...defaultProps}>
+      <SideBar {...defaultProps} />
+      <Container {...defaultProps}>
+        <TopBar {...defaultProps} />
+        <render.comp {...defaultProps} />
+        <StatusBar {...defaultProps} />
+      </Container>
+      <PopUp {...defaultProps} />
+      <NotificationPop {...defaultProps} />
+    </Main>
   );
 };
 

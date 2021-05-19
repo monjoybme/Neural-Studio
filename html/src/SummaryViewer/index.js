@@ -1,8 +1,8 @@
 import React from "react";
 import { Loading } from "../Utils";
-import { StoreContext } from "../Store";
+import { metaStore ,metaStoreContext } from "../Meta";
 
-const SummaryViewer = (props = { graphdef: {}, store: StoreContext }) => {
+const SummaryViewer = (props = { store: metaStore, storeContext:metaStoreContext }) => {
   let [summary, summaryState] = React.useState({
     data: [],
     fetched: false,

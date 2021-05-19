@@ -4,7 +4,7 @@ import Node from "./node";
 import Toolbar from "./toolbar";
 import LayerGroups from "./layergroups";
 
-import { StoreContext } from "../Store";
+import { metaAppFunctions, metaGraphdef, metaStore, metaStoreContext } from "../Meta";
 import { icons } from "../data/icons";
 import { POST } from "../Utils";
 
@@ -17,9 +17,68 @@ let cursors = {
   clean: "default",
 };
 
-const GraphEditor = (props = { store: StoreContext }) => {
-  let { graphdef, graphdefState, canvasConfig, layerGroups, layerGroupsState } = props.store;
+
+const TriangleMarker = (props) =>{
+  return (
+    <marker
+      xmlns="http://www.w3.org/2000/svg"
+      id="triangle"
+      viewBox="0 0 10 10"
+      refX="0"
+      refY="5"
+      markerUnits="strokeWidth"
+      markerWidth="4"
+      markerHeight="3"
+      orient="90deg"
+    >
+      <path d="M 0 0 L 10 5 L 0 10 z" />
+    </marker>
+  );
+}
+
+const CircleMarker = (props) =>{
+  return (
+    <marker
+      xmlns="http://www.w3.org/2000/svg"
+      id="circle"
+      viewBox="0 0 10 10"
+      refX="5"
+      refY="5"
+      markerUnits="strokeWidth"
+      markerWidth="4"
+      markerHeight="4"
+    >
+      <circle cx="5" cy="5" r="3" fill="black" />
+    </marker>
+  );
+}
+
+const DefaultLine = (props={ lineref:undefined }) =>{
+  return (
+    <line
+      id="dummy"
+      x1="0"
+      y1="0"
+      x2="0"
+      y2="0"
+      strokeWidth="0"
+      markerEnd="url(#triangle)"
+      ref={props.lineref}
+    />
+  )
+}
+
+const Tools = (props) => {
+  return <div className="tools">{props.children}</div>;
+};
+
+const GraphEditor = (
+  props = { store: metaStore , storeContext: metaStoreContext, appFunctions: metaAppFunctions }
+) => {
+  let { graphDef, graphDefState, canvasConfig, layerGroups, layerGroupsState } = props.store;
+
   let [menu, menuState] = React.useState({ comp: <div />, render: false });
+  let [load, loadState] = React.useState(true);
   let [toolbarButtons, toolbarButtonsState] = React.useState([
     {
       name: "edge",
@@ -42,9 +101,9 @@ const GraphEditor = (props = { store: StoreContext }) => {
       selected: false,
     },
   ]);
-  let [load, loadState] = React.useState(true);
+
   let canvasref = React.useRef();
-  let canvasTop = React.useRef(); 
+  let canvasTop = React.useRef();
   let dummyLine = React.useRef();
 
   function newLine(e) {
@@ -67,7 +126,8 @@ const GraphEditor = (props = { store: StoreContext }) => {
   }
 
   function layerIdGenerator(name = "Layer") {
-    let idx, namex = name.toLowerCase().replaceAll(" ", "_");
+    let idx,
+      namex = name.toLowerCase().replaceAll(" ", "_");
     if (canvasConfig.layerCount[name]) {
       canvasConfig.layerCount[name] = canvasConfig.layerCount[name] + 1;
     } else {
@@ -87,7 +147,7 @@ const GraphEditor = (props = { store: StoreContext }) => {
       let layer = window.copy(canvasConfig.activeLayer);
       let { name, id } = layerIdGenerator(layer.name);
 
-      graphdef[id] = {
+      graphDef[id] = {
         ...layer,
         name: name,
         id: id,
@@ -95,54 +155,53 @@ const GraphEditor = (props = { store: StoreContext }) => {
         connections: { inbound: [], outbound: [] },
         width: 0,
       };
-      graphdef[id].width = graphdef[id].name.length * 13;
-      graphdef[id].pos = {
+      graphDef[id].width = graphDef[id].name.length * 13;
+      graphDef[id].pos = {
         x:
           window.canvasConfig.viewBox.x +
           e.clientX -
           window.offsetX -
-          Math.floor(graphdef[id].width / 2) +
+          Math.floor(graphDef[id].width / 2) +
           10,
         y: window.canvasConfig.viewBox.y + e.clientY - window.offsetY - 15,
-        offsetX: Math.floor(graphdef[id].width / 2),
+        offsetX: Math.floor(graphDef[id].width / 2),
         offsetY: 15,
       };
 
-      if (graphdef.train_config === undefined) {
-        graphdef.train_config = {
+      if (graphDef.train_config === undefined) {
+        graphDef.train_config = {
           session_id: new Date().toTimeString(),
         };
       }
 
-
       switch (canvasConfig.activeLayer.type.object_class) {
         case "optimizers":
-          graphdef.train_config.optimizer = graphdef[id];
+          graphDef.train_config.optimizer = graphDef[id];
           break;
         case "build_tools":
           let comp = canvasConfig.activeLayer.type.name.toLowerCase();
-          if (graphdef.train_config[comp]) {
-            window.notify({
+          if (graphDef.train_config[comp]) {
+            props.appFunctions.notify({
               message: `${canvasConfig.activeLayer.type.name} node already exists for this graph ! `,
             });
-            delete graphdef[id];
+            delete graphDef[id];
           } else {
-            graphdef.train_config[comp] = graphdef[id];
+            graphDef.train_config[comp] = graphDef[id];
           }
           break;
         case "datasets":
-          graphdef[id].arguments.dataset.value =
-            graphdef[id].arguments.dataset.value.lastIndexOf("__id__") > 0
-              ? graphdef[id].arguments.dataset.value.replaceAll(/__id__/g, id)
-              : graphdef[id].arguments.dataset.value;
-          graphdef.train_config.dataset = graphdef[id];
+          graphDef[id].arguments.dataset.value =
+            graphDef[id].arguments.dataset.value.lastIndexOf("__id__") > 0
+              ? graphDef[id].arguments.dataset.value.replaceAll(/__id__/g, id)
+              : graphDef[id].arguments.dataset.value;
+          graphDef.train_config.dataset = graphDef[id];
           break;
         default:
           break;
       }
 
-      graphdefState({
-        ...graphdef,
+      graphDefState({
+        ...graphDef,
       });
     }
   }
@@ -222,27 +281,27 @@ const GraphEditor = (props = { store: StoreContext }) => {
     }
   }
 
-  function removeNode(activeElement){
+  function removeNode(activeElement) {
     let { id, connections } = activeElement;
     connections.inbound.forEach((lid) => {
-      graphdef[lid].connections.outbound.pop(id);
+      graphDef[lid].connections.outbound.pop(id);
     });
     connections.outbound.forEach((lid) => {
-      graphdef[lid].connections.inbound.pop(id);
+      graphDef[lid].connections.inbound.pop(id);
     });
-    delete graphdef[id];
+    delete graphDef[id];
   }
 
-  function deleteNode(e){
+  function deleteNode(e) {
     let { activeElement } = canvasConfig;
-    if ( activeElement ){
+    if (activeElement) {
       switch (activeElement.type.object_class) {
         case "layers":
           removeNode(activeElement);
           break;
-        case 'applications':
+        case "applications":
           removeNode(activeElement);
-          break
+          break;
         case "custom_def":
           layerGroups.custom_nodes.layers =
             layerGroups.custom_nodes.layers.filter((node, i) => {
@@ -258,53 +317,55 @@ const GraphEditor = (props = { store: StoreContext }) => {
           removeNode(activeElement);
           break;
         case "optimizers":
-          delete graphdef.train_config.optimizer;
+          delete graphDef.train_config.optimizer;
           break;
         case "build_tools":
-          let tool = graphdef[activeElement.id].type.name.toLowerCase();
-          if (graphdef.train_config[tool]){
-            delete graphdef.train_config[tool];
+          let tool = graphDef[activeElement.id].type.name.toLowerCase();
+          if (graphDef.train_config[tool]) {
+            delete graphDef.train_config[tool];
           }
           removeNode(activeElement);
           break;
-        case 'edge': 
-          activeElement.inbound.forEach(node=>{
-            graphdef[node].connections.outbound.pop(activeElement.node);
-          })
-          graphdef[activeElement.node].connections.inbound = [];
-          break
-        case 'datasets':
-          let unload = async function(){
+        case "edge":
+          activeElement.inbound.forEach((node) => {
+            graphDef[node].connections.outbound.pop(activeElement.node);
+          });
+          graphDef[activeElement.node].connections.inbound = [];
+          break;
+        case "datasets":
+          let unload = async function () {
             await POST({
-              path:"/dataset/unload"
-            }).then(response=>response.json()).then(data=>{
-              if( data.status ){
-                window.notify({ message:data.message  });
-                removeNode(activeElement);
-                graphdefState({ ...graphdef });
-              }
+              path: "/dataset/unload",
             })
-          }
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.status) {
+                  props.appFunctions.notify({ message: data.message });
+                  removeNode(activeElement);
+                  graphDefState({ ...graphDef });
+                }
+              });
+          };
           unload();
-          break
+          break;
         default:
-          window.notify({
+          props.appFunctions.notify({
             message: `Add delete method for : ${canvasConfig.activeElement.type.object_class}`,
           });
           break;
       }
-      graphdefState({ ...graphdef });
+      graphDefState({ ...graphDef });
     }
     canvasConfig.activeElement = undefined;
   }
 
-  function addEdge(from , to){
+  function addEdge(from, to) {
     if (from && to && from !== to) {
-      if (graphdef[from].connections.outbound.lastIndexOf(to) === -1) {
-        graphdef[from].connections.outbound.push(to);
+      if (graphDef[from].connections.outbound.lastIndexOf(to) === -1) {
+        graphDef[from].connections.outbound.push(to);
       }
-      if (graphdef[to].connections.inbound.lastIndexOf(from) === -1) {
-        graphdef[to].connections.inbound.push(from);
+      if (graphDef[to].connections.inbound.lastIndexOf(from) === -1) {
+        graphDef[to].connections.inbound.push(from);
       }
       canvasConfig.newEdge = undefined;
       canvasConfig.activeLine = undefined;
@@ -314,13 +375,13 @@ const GraphEditor = (props = { store: StoreContext }) => {
   function onMouseUp(e) {
     if (canvasConfig.activeElement) {
       if (canvasConfig.pos) {
-        graphdef[canvasConfig.activeElement.layer.id].pos = canvasConfig.pos;
-        graphdefState({
-          ...graphdef,
+        graphDef[canvasConfig.activeElement.layer.id].pos = canvasConfig.pos;
+        graphDefState({
+          ...graphDef,
         });
       }
     }
-    
+
     canvasConfig.activeElement = undefined;
     canvasConfig.pos = undefined;
     canvasConfig.pan = false;
@@ -333,6 +394,7 @@ const GraphEditor = (props = { store: StoreContext }) => {
     dummyLine.current.y2.baseVal.value = 1;
 
     if (menu.render) {
+      props.storeContext.graphDef.push();
       menuState({
         comp: <div />,
         render: false,
@@ -393,9 +455,9 @@ const GraphEditor = (props = { store: StoreContext }) => {
         canvasTop.current.onmousedown = undefined;
         canvasTop.current.onmousemove = undefined;
 
-        layerGroups.custom_nodes.layers = []
-        graphdefState({});
-        layerGroupsState({...layerGroups})
+        layerGroups.custom_nodes.layers = [];
+        graphDefState({ ...metaGraphdef });
+        layerGroupsState({ ...layerGroups });
         break;
       case "layer":
         canvasConfig.activeLayer = { ...options.layer };
@@ -414,13 +476,11 @@ const GraphEditor = (props = { store: StoreContext }) => {
   }
 
   let tools = {
-    addEdge:addEdge
-  }
+    addEdge: addEdge,
+  };
 
   React.useEffect(() => {
     window.setToolMode = setToolMode;
-    window.autosave();
-    
     if (
       canvasref.current.viewBox.baseVal.height === 0 &&
       canvasref.current.viewBox.baseVal.width === 0
@@ -443,18 +503,17 @@ const GraphEditor = (props = { store: StoreContext }) => {
 
     clearTimeout(window.__VIEWBOX__UPDATE__);
     window.__VIEWBOX__UPDATE__ = setTimeout(updateViewBoxService, 1);
-
     if (load) {
       setToolMode({ name: "normal" });
       loadState(false);
     }
-
+    props.storeContext.graphDef.push();
   }, [setToolMode, load]);
 
   return (
     <div className="container graph-canvas">
       {menu.comp}
-      <div className="tools">
+      <Tools>
         <Toolbar
           {...props}
           toolbarButtons={toolbarButtons}
@@ -462,65 +521,35 @@ const GraphEditor = (props = { store: StoreContext }) => {
           setToolMode={setToolMode}
         />
         <LayerGroups {...props} setToolMode={setToolMode} />
-      </div>
+      </Tools>
       <div className="canvas-top" id="canvasTop" ref={canvasTop}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 0 0"
           className="canvas"
-          ref={canvasref}
           id="canvas"
           onMouseUp={onMouseUp}
+          ref={canvasref}
         >
-          <marker
-            xmlns="http://www.w3.org/2000/svg"
-            id="triangle"
-            viewBox="0 0 10 10"
-            refX="0"
-            refY="5"
-            markerUnits="strokeWidth"
-            markerWidth="4"
-            markerHeight="3"
-            orient="90deg"
-          >
-            <path d="M 0 0 L 10 5 L 0 10 z" />
-          </marker>
-          <marker
-            xmlns="http://www.w3.org/2000/svg"
-            id="circle"
-            viewBox="0 0 10 10"
-            refX="5"
-            refY="5"
-            markerUnits="strokeWidth"
-            markerWidth="4"
-            markerHeight="4"
-          >
-            <circle cx="5" cy="5" r="3" fill="black" />
-          </marker>
-          <line
-            id="dummy"
-            x1="0"
-            y1="0"
-            x2="0"
-            y2="0"
-            strokeWidth="0"
-            markerEnd="url(#triangle)"
-            ref={dummyLine}
-          />
-          {Object.keys(graphdef).map((layer, i) => {
-            if (layer === "train_config") {
-              return undefined;
+          <TriangleMarker />
+          <CircleMarker />
+          <DefaultLine lineref={dummyLine} />
+          {Object.keys(graphDef).map((layer, i) => {
+            switch (layer) {
+              case "train_config":
+                return undefined;
+              default:
+                return (
+                  <Node
+                    {...props}
+                    {...graphDef[layer]}
+                    menu={menu}
+                    menuState={menuState}
+                    tools={tools}
+                    key={i}
+                  />
+                );
             }
-            return (
-              <Node
-                {...graphdef[layer]}
-                {...props}
-                menu={menu}
-                menuState={menuState}
-                key={i}
-                tools={tools}
-              />
-            );
           })}
         </svg>
       </div>

@@ -157,7 +157,7 @@ class Trainer(object):
     def __init__(self, workspace_manager: WorkspaceManager):
         self.workspace_manager: WorkspaceManager = workspace_manager
         self.session_id = workspace_manager[[
-            'active:var_graphdef:train_config:session_id']]
+            'active:graphdef:train_config:session_id']]
         globals()['tfgui'] = TfGui(self,)
         self.tfgui = globals()['tfgui']
 
@@ -193,9 +193,9 @@ class Trainer(object):
     def update_dataset(self, dataset: str = None, idx: str = None, from_workspace: bool = False) -> object:
         if from_workspace:
             dataset = self.workspace_manager[[
-                'active:var_graphdef:train_config:dataset:arguments:dataset:value']]
+                'active:graphdef:train_config:dataset:arguments:dataset:value']]
             idx = self.workspace_manager[[
-                'active:var_graphdef:train_config:dataset:id']]
+                'active:graphdef:train_config:dataset:id']]
         if self.__dataset__code__ == dataset:
             return True, "No update !"
         self.__dataset__code__ = dataset
@@ -220,7 +220,7 @@ class Trainer(object):
         })
 
     def build(self,):
-        self.graph = GraphDef(self.workspace_manager[['active:var_graphdef']])
+        self.graph = GraphDef(self.workspace_manager[['active:graphdef']])
         build_status, message = self.graph.build()
         if not build_status:
             return build_status, message

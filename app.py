@@ -11,7 +11,7 @@ from tf_gui.graph import GraphDef
 
 from json import dump, JSONDecodeError
 from os import chdir, path as pathlib, mkdir
-from shutil import rmtree
+from shutil import register_unpack_format, rmtree
 from glob import glob
 
 
@@ -113,6 +113,21 @@ async def workspace(request: Request,):
         "message": "Method Not Allowed !"
     })
 
+
+@app.route("/workspace/active/var/<str:var>",)
+async def workspace(request: Request,var:str ):
+    if request.headers.method == "GET":
+        return await json_response(workspace_mamager.active[var].full_dict)
+    elif request.headers.method == 'POST':
+        var_data = await request.get_json()
+        workspace_mamager.active[var] = var_data
+        return await json_response({
+            "status":True
+        })
+
+    return await json_response({
+        "message": "Method Not Allowed !"
+    })
 
 @app.route("/workspace/recent",)
 async def workspace_recent(request: Request,):
@@ -227,7 +242,7 @@ async def download_name(request: Request, name: str):
 @app.route("/model/code",)
 async def buiild(request: Request):
     if request.headers.method == 'GET':
-        graph = GraphDef(workspace_mamager.active.var_graphdef)
+        graph = GraphDef(workspace_mamager.active.graphdef)
         status, message = graph.build()
         if status:
             return await text_response(graph.to_code())
@@ -291,11 +306,22 @@ async def train_start(request: Request):
                 "message":"A training session is already running, please wait or stop the session."
             })
         trainer.logs = []
-        trainer.build()
+        status, message = trainer.build()
+        if not status:
+            return await json_response({
+                "message": message,
+                "status": status
+            })
         trainer.compile()
+        if not status:
+            return await json_response({
+                "message": message,
+                "status": status
+            })
         trainer.start()
         return await json_response({
-            "status": "Training Started"
+            "message": "Training Started",
+            "status":True
         })
 
     return await json_response(data={"message": "Method Not Allowed"}, code=402)

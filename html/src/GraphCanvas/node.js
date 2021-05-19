@@ -1,32 +1,39 @@
 import React from "react";
-import { StoreContext } from "../Store";
+import { metaStore, metaStoreContext, metaAppFunctions } from "../Meta";
 import Menu from "./menu";
 
-const Node = (props={
-  id:"LayerId",
-  name:"LayerName",
-  arguments:{
+const propMeta = {
+    id: "LayerId",
+    name: "LayerName",
+    arguments: {},
+    width: 0,
+    pos: {
+      x: 0,
+      y: 0,
+      offsetX: 0,
+      offsetY: 0,
+    },
+    connections: {
+      inbound: [],
+      outbound: [],
+    },
+  }
 
-  },
-  width:0,
-  pos:{
-    x:0,
-    y:0,
-    offsetX:0,
-    offsetY:0,
-  },
-  connections:{
-    inbound:[],
-    outbound:[]
-  },
-  store:StoreContext
-}) => {
+const Node = (
+  props = {
+    ...propMeta,
+    menu: undefined,
+    menuState: function (_ = { comp: undefined, render: false }) {},
+    store: metaStore,
+    storeContext: metaStoreContext,
+    appFunctions: metaAppFunctions,
+  }
+) => {
+  let { id, pos, connections, width } = props;
+  let { graphDef, graphDefState, canvasConfig } = props.store;
+
   let height = 30;
-  let { id,  pos, connections,width } = props;
-  let { graphdef, graphdefState, canvasConfig  } = props.store;
-  let nodeRef = React.useRef(<svg />)
-
-  width = id.length * 13;
+  let nodeRef = React.useRef(<svg />);
 
   function onMouseDown(e) {
     e.preventDefault();
@@ -36,9 +43,9 @@ const Node = (props={
           layer: props,
           text: document.getElementById(`${id}-text`),
           rect: document.getElementById(`${id}-rect`),
-          ref:{ 
-            x:pos.x - ( e.clientX - window.offsetX  ),
-            y:pos.y - ( e.clientY - window.offsetY  ),
+          ref: {
+            x: pos.x - (e.clientX - window.offsetX),
+            y: pos.y - (e.clientY - window.offsetY),
           },
           edges_in: connections.inbound.map((layer, i) => {
             return document.getElementById(`${layer}-${id}`);
@@ -49,19 +56,19 @@ const Node = (props={
         };
         break;
       case "edge":
-        if (e.button){
+        if (e.button) {
           canvasConfig.newEdge = {
-            longLine:true,
-            queue: [{ from : undefined, to: id }]
+            longLine: true,
+            queue: [{ from: undefined, to: id }],
           };
-        }else{
-          canvasConfig.newEdge = { 
-            longLine:false,
+        } else {
+          canvasConfig.newEdge = {
+            longLine: false,
             from: id,
           };
         }
         break;
-      case 'delete':
+      case "delete":
         canvasConfig.activeElement = props;
         break;
       default:
@@ -69,21 +76,21 @@ const Node = (props={
     }
   }
 
-  function onMouseOver(e){
-    switch(canvasConfig.mode){
+  function onMouseOver(e) {
+    switch (canvasConfig.mode) {
       case "edge":
-        if (canvasConfig.newEdge){
-          if (canvasConfig.newEdge.longLine){
+        if (canvasConfig.newEdge) {
+          if (canvasConfig.newEdge.longLine) {
             let { queue } = canvasConfig.newEdge;
             canvasConfig.newEdge.queue.push({
               from: queue[queue.length - 1].to,
-              to:id
+              to: id,
             });
           }
         }
-        break
+        break;
       default:
-        break
+        break;
     }
   }
 
@@ -91,18 +98,18 @@ const Node = (props={
     e.preventDefault();
     switch (canvasConfig.mode) {
       case "edge":
-        if (canvasConfig.newEdge.longLine){
-          canvasConfig.newEdge.queue.forEach(edge =>{
+        if (canvasConfig.newEdge.longLine) {
+          canvasConfig.newEdge.queue.forEach((edge) => {
             let { from, to } = edge;
             props.tools.addEdge(from, to);
-          })
-        }else{
+          });
+        } else {
           let to = id;
           let { from } = canvasConfig.newEdge;
           props.tools.addEdge(from, to);
         }
-        graphdefState({
-          ...graphdef,
+        graphDefState({
+          ...graphDef,
         });
         canvasConfig.newEdge = undefined;
         canvasConfig.activeLine = undefined;
@@ -116,12 +123,8 @@ const Node = (props={
     switch (canvasConfig.mode) {
       case "normal":
         props.menuState({
-          comp: (
-            <Menu
-              {...props}
-            />
-          ),
-          render:true
+          comp: <Menu {...props} />,
+          render: true,
         });
         break;
       default:
@@ -129,15 +132,15 @@ const Node = (props={
     }
   }
 
-  function edgeOnMouseDown(e){
-    if ( canvasConfig.mode === 'delete' ){
+  function edgeOnMouseDown(e) {
+    if (canvasConfig.mode === "delete") {
       canvasConfig.activeElement = {
-        type:{
-          object_class:"edge"
+        type: {
+          object_class: "edge",
         },
-        inbound : connections.inbound,
-        node:id
-      }
+        inbound: connections.inbound,
+        node: id,
+      };
     }
   }
 
@@ -166,7 +169,7 @@ const Node = (props={
         {id}
       </text>
       {connections.inbound.map((layer, i) => {
-        let pos_out = graphdef[layer];
+        let pos_out = graphDef[layer];
         if (pos_out) {
           return (
             <line

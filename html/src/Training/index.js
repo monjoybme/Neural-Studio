@@ -5,19 +5,14 @@ import { MonitorMany, MonitorOne } from './monitor';
 import { EpochLog, ErrorLog, NotificationLog } from './logs';
 
 import { icons } from "../data/icons";
-import { StoreContext } from "../Store";
+import { metaAppFunctions, metaStore, metaStoreContext } from "../Meta";
 import { GET } from "../Utils";
 
-
-
-
 const Training = (
-  props = {
-    store: StoreContext,
-  }
+  props = { store: metaStore, storeContext: metaStoreContext, appFunctions: metaAppFunctions }
 ) => {
-
-  let { graphdef, graphdefState, train, trainState } = props.store;
+  let { graphDef, graphDefState, train, trainState } = props.store;
+  let [monitorMode, monitorModeState] = React.useState(false);
   let [status, statusState] = React.useState({
     data: train.hist !== undefined ? train.hist : [],
     ended: false,
@@ -52,8 +47,8 @@ const Training = (
           training: false,
           hist: undefined,
         });
-        graphdef.train_config.session_id = (new Date()).toTimeString();
-        graphdefState({...graphdef})
+        graphDef.train_config.session_id = new Date().toTimeString();
+        graphDefState({ ...graphDef });
       },
       icon: icons.Delete,
     },
@@ -61,7 +56,7 @@ const Training = (
 
   async function getStatus() {
     await GET({
-      path:"/train/status"
+      path: "/train/status",
     })
       .then((respomse) => respomse.json())
       .then((data) => {
@@ -91,7 +86,7 @@ const Training = (
 
   async function trainModel(e) {
     if (train.training) {
-      window.notify({
+      props.appFunctions.notify({
         message: "Training Already Running",
       });
     } else {
@@ -103,17 +98,17 @@ const Training = (
         ended: false,
         updating: false,
       });
-      window.notify({
+      props.appFunctions.notify({
         message: "Training Started !",
       });
       await fetch("http://localhost/train/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...graphdef }),
+        body: JSON.stringify({ ...graphDef }),
       })
         .then((response) => response.json())
         .then((data) => {
-          // console.log(data.status);  
+          props.appFunctions.notify({ message: data.message })
         });
     }
   }
@@ -130,13 +125,13 @@ const Training = (
       if (halt.state) {
         halt.name = "Resume";
         halt.state = false;
-        window.notify({
+        props.appFunctions.notify({
           message: "Training paused !",
         });
       } else {
         halt.name = "Pause";
         halt.state = true;
-        window.notify({
+        props.appFunctions.notify({
           message: "Training resumed !",
         });
       }
@@ -144,7 +139,7 @@ const Training = (
         ...halt,
       });
     } else {
-      window.notify({
+      props.appFunctions.notify({
         message: "Can't halt, Training has not started !",
       });
     }
@@ -161,24 +156,27 @@ const Training = (
             training: false,
             hist: data.logs,
           });
-          window.notify({
+          props.appFunctions.notify({
             message: "Training has stopped !",
           });
         });
     } else {
-      window.notify({
+      props.appFunctions.notify({
         message: "Can't stop, Training has not started !",
       });
     }
   }
 
   React.useEffect(() => {
-    if (train.training && status.updating === false && status.ended === false && status.ended !== undefined) {
+    if (
+      train.training &&
+      status.updating === false &&
+      status.ended === false &&
+      status.ended !== undefined
+    ) {
       getStatus();
     }
   });
-
-  let [ monitorMode, monitorModeState ] = React.useState(false);
 
   return (
     <div className="container training">
@@ -195,30 +193,30 @@ const Training = (
             })}
           </div>
         </div>
-        {graphdef.train_config ? (
+        {graphDef.train_config ? (
           <div className="params">
-            {graphdef.train_config.train ? (
+            {graphDef.train_config.train ? (
               <div className="property">
                 <Menu
-                  {...graphdef.train_config.train}
+                  {...graphDef.train_config.train}
                   {...props}
                   train={true}
                 />
               </div>
             ) : undefined}
-            {graphdef.train_config.compile ? (
+            {graphDef.train_config.compile ? (
               <div className="property">
                 <Menu
-                  {...graphdef.train_config.compile}
+                  {...graphDef.train_config.compile}
                   {...props}
                   train={true}
                 />
               </div>
             ) : undefined}
-            {graphdef.train_config.optimizer ? (
+            {graphDef.train_config.optimizer ? (
               <div className="property">
                 <Menu
-                  {...graphdef.train_config.optimizer}
+                  {...graphDef.train_config.optimizer}
                   {...props}
                   train={true}
                 />
@@ -243,14 +241,16 @@ const Training = (
         })}
       </div>
       <div className="monitor-container">
-        <div className="title" onClick={ e => monitorModeState( ~monitorMode ) }>
-          Loss Monitor ({ monitorMode ? 'Combined' : 'Separate' })
+        <div className="title" onClick={(e) => monitorModeState(~monitorMode)}>
+          Loss Monitor ({monitorMode ? "Combined" : "Separate"})
         </div>
-        {status.data.length 
-          ? monitorMode 
-              ? <MonitorOne data={status.data} {...props} /> 
-              : <MonitorMany data={status.data} {...props} />
-          : undefined}
+        {status.data.length ? (
+          monitorMode ? (
+            <MonitorOne data={status.data} {...props} />
+          ) : (
+            <MonitorMany data={status.data} {...props} />
+          )
+        ) : undefined}
       </div>
       <div id="check"> </div>
     </div>

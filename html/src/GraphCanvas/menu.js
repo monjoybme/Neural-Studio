@@ -3,46 +3,79 @@ import Editor from "@monaco-editor/react";
 import Options from "../data/options";
 
 import { POST } from "../Utils";
+import { metaStore, metaStoreContext, metaAppFunctions } from "../Meta";
 
-const TextProperty = (props) => {
-  let { graphdef, graphdefState } = props.store;
-  let property = graphdef[props.layer_id].arguments[props.name];
+const propMeta = {
+  id: "LayerId",
+  name: "LayerName",
+  arguments: {},
+  width: 0,
+  pos: {
+    x: 0,
+    y: 0,
+    offsetX: 0,
+    offsetY: 0,
+  },
+  connections: {
+    inbound: [],
+    outbound: [],
+  },
+};
+
+const TextProperty = (
+  props = {
+    ...propMeta,
+    menu: undefined,
+    menuState: function (_ = { comp: undefined, render: false }) {},
+    store: metaStore,
+    storeContext: metaStoreContext,
+    appFunctions: metaAppFunctions,
+    train: false,
+  }
+) => {
+  let graphDef  =  props.storeContext.graphDef.get();
+  let property = graphDef[props.layer_id].arguments[props.name];
 
   return (
     <div className="property">
       <div className="name"> {props.name} </div>
       <input
-        name={props.layer_id + props.name}
-        id={props.layer_id + props.name}
+        name={`${props.layer_id}${props.name}`}
+        id={`${props.layer_id}${props.name}`}
         defaultValue={property.value}
         onKeyUp={(e) => {
-          graphdef[props.layer_id].arguments[props.name].value = e.target.value;
-          graphdefState({
-            ...graphdef,
-          });
+          graphDef[props.layer_id].arguments[props.name].value = e.target.value;
         }}
       />
     </div>
   );
 };
 
-const ListProperty = (props) => {
-  let { graphdef, graphdefState } = props.store;
-  let property = graphdef[props.layer_id].arguments[props.name];
+const ListProperty = (
+  props = {
+    ...propMeta,
+    menu: undefined,
+    menuState: function (_ = { comp: undefined, render: false }) {},
+    store: metaStore,
+    storeContext: metaStoreContext,
+    appFunctions: metaAppFunctions,
+    train: false,
+  }
+) => {
+  let graphDef = props.storeContext.graphDef.get();
+  let property = graphDef[props.layer_id].arguments[props.name];
   let options = Options[property.options];
 
   return (
     <div className="property">
       <div className="name"> {props.name} </div>
       <select
-        name={props.layer_id + props.name}
-        id={props.layer_id + props.name}
+        name={`${props.layer_id}${props.name}`}
+        id={`${props.layer_id}${props.name}`}
         defaultValue={property.value}
         onChange={(e) => {
-          graphdef[props.layer_id].arguments[props.name].value = e.target.value;
-          graphdefState({
-            ...graphdef,
-          });
+          graphDef[props.layer_id].arguments[props.name].value = e.target.value;
+          props.storeContext.graphDef.set(graphDef);
         }}
       >
         {options.map((option, i) => {
@@ -57,107 +90,107 @@ const ListProperty = (props) => {
   );
 };
 
-const CheckboxProperty = (props) => {
-  let { graphdef, graphdefState } = props.store;
-  let property = graphdef[props.layer_id].arguments[props.name];
-  
-  let [ options, optionsState ] = React.useState({ 
-    data : Options[property.options].map((option,)=>{
-        return {
-          name:option,
-          selected:graphdef[props.layer_id].arguments[ props.name ].value.lastIndexOf(option) > -1
-        }
-      })
-    }
-  );
-  
-  function selectBox(name="Box") {
-    if (
-      graphdef[props.layer_id].arguments[props.name].value.lastIndexOf(
-        name
-      ) > -1
-    ) {
-      graphdef[props.layer_id].arguments[props.name].value.pop(name);
+const CheckboxProperty = (
+  props = {
+    ...propMeta,
+    menu: undefined,
+    menuState: function (_ = { comp: undefined, render: false }) {},
+    store: metaStore,
+    storeContext: metaStoreContext,
+    appFunctions: metaAppFunctions,
+    train: false,
+  }
+) => {
+  let graphDef  = props.storeContext.graphDef.get();
+  let property = graphDef[props.layer_id].arguments[props.name];
+
+  let [options, optionsState] = React.useState({
+    data: Options[property.options].map((option) => {
+      return {
+        name: option,
+        selected:
+          graphDef[props.layer_id].arguments[props.name].value.lastIndexOf(
+            option
+          ) > -1,
+      };
+    }),
+  });
+
+  function selectBox(name = "Box") {
+    if ( graphDef[props.layer_id].arguments[props.name].value.lastIndexOf(name) > -1 ) {
+      graphDef[props.layer_id].arguments[props.name].value.pop(name);
     } else {
-      graphdef[props.layer_id].arguments[props.name].value.push(name);
+      graphDef[props.layer_id].arguments[props.name].value.push(name);
     }
-
-    options.data = options.data.map((option,)=>{
-      if ( option.name === name ){
-        option.selected = ! option.selected
-      } 
-      return option
-    })
-
-    optionsState({
-      ...options
-    })
-
-    graphdefState({
-      ...graphdef,
+    options.data = options.data.map((option) => {
+      if (option.name === name) {
+        option.selected = !option.selected;
+      }
+      return option;
     });
 
+    optionsState({
+      ...options,
+    });
+    props.storeContext.graphDef.set( graphDef );
   }
 
-  const CheckBox = (props={name:"Name", selected:false, onClick:function( name="Box" ){  } }) =>{
+  const CheckBox = (
+    props = {
+      name: "Name",
+      selected: false,
+      onClick: function (name = "Box") {},
+    }
+  ) => {
     return (
-      <div className="checkbox" onClick={e=>props.onClick(props.name)} >
-        <div className={props.selected ? "box selected" : "box"}>
-          
-        </div>
-        <div>
-          { props.name }          
-        </div>
+      <div className="checkbox" onClick={(e) => props.onClick(props.name)}>
+        <div className={props.selected ? "box selected" : "box"}></div>
+        <div>{props.name}</div>
       </div>
     );
-  }
+  };
 
   return (
     <div className="property" style={{ height: "auto" }}>
       <div className="name"> {props.name} </div>
       <div className="checkboxes">
         {options.data.map((option, i) => {
-          return <CheckBox {...option} key={i} onClick={selectBox} />
+          return <CheckBox {...option} key={i} onClick={selectBox} />;
         })}
       </div>
     </div>
   );
 };
 
-const Layer = (props) => {
-  let { graphdef, graphdefState } = props.store;
+const Layer = (
+  props = {
+    ...propMeta,
+    menu: undefined,
+    menuState: function (_ = { comp: undefined, render: false }) {},
+    store: metaStore,
+    storeContext: metaStoreContext,
+    appFunctions: metaAppFunctions,
+    train: false,
+  }
+) => {
+  let  graphDef = props.storeContext.graphDef.get();
   return (
     <div className="menu">
-      {
-        props.train 
-          ?
-        undefined
-          : 
-        <div className="name">{props.name}</div>
-      }
-      <div className="properties">        
-        {
-          props.train 
-           ?
-          undefined 
-            :
-          (
-              <div className="property">
-                <div className="name"> {props.name} </div>
-                <input
-                  name="id"
-                  defaultValue={props.name}
-                  onKeyUp={(e) => {
-                    graphdef[props.id].name = e.target.value;
-                    graphdefState({
-                      ...graphdef,
-                    });
-                  }}
-                />
-              </div>
-              
-          )
-        }
+      {props.train ? undefined : <div className="name">{props.name}</div>}
+      <div className="properties">
+        {props.train ? undefined : (
+          <div className="property">
+            <div className="name"> {props.name} </div>
+            <input
+              name="id"
+              defaultValue={props.name}
+              onKeyUp={(e) => {
+                graphDef[props.id].name = e.target.value;
+                props.storeContext.graphDef.set( graphDef )
+              }}
+            />
+          </div>
+        )}
         {Object.keys(props.arguments).map((property, i) => {
           switch (props.arguments[property].render) {
             case "text":
@@ -167,7 +200,6 @@ const Layer = (props) => {
                   layer_id={props.id}
                   name={property}
                   key={i}
-
                 />
               );
             case "list":
@@ -177,7 +209,6 @@ const Layer = (props) => {
                   layer_id={props.id}
                   name={property}
                   key={i}
-                  
                 />
               );
             case "checkbox":
@@ -187,7 +218,6 @@ const Layer = (props) => {
                   layer_id={props.id}
                   name={property}
                   key={i}
-                  
                 />
               );
             default:
@@ -199,38 +229,47 @@ const Layer = (props) => {
   );
 };
 
-const Dataset = (props) => {
+const Dataset = (
+  props = {
+    ...propMeta,
+    menu: undefined,
+    menuState: function (_ = { comp: undefined, render: false }) {},
+    store: metaStore,
+    storeContext: metaStoreContext,
+    appFunctions: metaAppFunctions,
+  }
+) => {
   let { id, name } = props;
-  let { graphdef, graphdefState, appconfig } = props.store;
+  let  graphDef = props.storeContext.graphDef.get();
+  let  appConfig = props.storeContext.appConfig.get();
 
   function updateCode(e) {
-    graphdef[id].arguments.dataset.value = e;
-    graphdefState({
-      ...graphdef,
-    });
-  }
-  
-  async function updateDataset(e){
-    await POST({
-      path:"/dataset/checkpoint",
-      data:{
-        dataset:graphdef[id].arguments.dataset.value,
-        id:id,
-      }
-    }).then(response=>response.json()).then(data=>{
-      window.notify({
-        message:data.message,
-        timeout:5000
-      });
-      if (data.status){
-        props.menuState(<div></div>);
-      }
-    })
+    graphDef[id].arguments.dataset.value = e;
+    props.storeContext.graphDef.set(graphDef);
   }
 
-  React.useEffect(() => {
-    
-  });
+  async function updateDataset(e) {
+    await props.storeContext.graphDef.push();
+    await POST({
+      path: "/dataset/checkpoint",
+      data: {
+        dataset: graphDef[id].arguments.dataset.value,
+        id: id,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        props.appFunctions.notify({
+          message: data.message,
+          timeout: 5000,
+        });
+        if (data.status) {
+          props.menuState(<div></div>);
+        }
+      });
+  }
+
+  React.useEffect(() => {});
 
   return (
     <div className="dataset">
@@ -250,26 +289,36 @@ const Dataset = (props) => {
             : props.arguments.dataset.value
         }
         onChange={updateCode}
-        theme={"vs-" + appconfig.theme}
+        theme={"vs-" + appConfig.theme}
       />
     </div>
   );
 };
 
-const CustomNode = (props) => {
-  let { graphdef, graphdefState, appconfig, layerGroups, layerGroupsState } = props.store;
+const CustomNode = (
+  props = {
+    ...propMeta,
+    menu: undefined,
+    menuState: function (_ = { comp: undefined, render: false }) {},
+    store: metaStore,
+    storeContext: metaStoreContext,
+    appFunctions: metaAppFunctions,
+  }
+) => {
+  let { graphDef, graphDefState, appConfig, layerGroups, layerGroupsState } = props.store;
+
   function updateCode(e) {
-    graphdef[props.id].arguments.code.value = e;
-    graphdefState({
-      ...graphdef,
+    graphDef[props.id].arguments.code.value = e;
+    graphDefState({
+      ...graphDef,
     });
   }
 
   function updateName(e) {
-    graphdef[props.id].name = e.target.value;
-    graphdef[props.id].width = e.target.value.length * 10;
-    graphdefState({
-      ...graphdef,
+    graphDef[props.id].name = e.target.value;
+    graphDef[props.id].width = e.target.value.length * 10;
+    graphDefState({
+      ...graphDef,
     });
   }
 
@@ -277,24 +326,23 @@ const CustomNode = (props) => {
     await POST({
       path: "/custom/node/build",
       data: {
-        code: graphdef[props.id].arguments.code.value,
+        code: graphDef[props.id].arguments.code.value,
       },
     })
       .then((response) => response.json())
       .then((data) => {
-        layerGroups.custom_nodes.layers = layerGroups.custom_nodes.layers.filter(
-          (layer) => {
-            return layer.name !== graphdef[props.id].name ;
-          }
-        );
+        layerGroups.custom_nodes.layers =
+          layerGroups.custom_nodes.layers.filter((layer) => {
+            return layer.name !== graphDef[props.id].name;
+          });
         window.canvasConfig.customNodes.definitions =
-          window.canvasConfig.customNodes.definitions.filter((node)=>{
-            return node.name !== graphdef[props.id].name
-          })
+          window.canvasConfig.customNodes.definitions.filter((node) => {
+            return node.name !== graphDef[props.id].name;
+          });
 
         delete data.arguments["inbound"];
         let nodeDef = {
-          name: graphdef[props.id].name,
+          name: graphDef[props.id].name,
           type: {
             name: data.id,
             object_class: "CustomNode",
@@ -304,8 +352,8 @@ const CustomNode = (props) => {
         layerGroups.custom_nodes.layers.push(nodeDef);
 
         window.canvasConfig.customNodes.definitions.push(nodeDef);
-        graphdefState({
-          ...graphdef,
+        graphDefState({
+          ...graphDef,
         });
 
         layerGroupsState({
@@ -314,20 +362,18 @@ const CustomNode = (props) => {
 
         props.menuState({
           comp: <div></div>,
-        })
+        });
       });
   }
 
-  React.useEffect(()=>{
-    // console.log(graphdef[props.id])
-  },[])
+  React.useEffect(() => {
+    // console.log(graphDef[props.id])
+  }, []);
 
   return (
     <div className="customNode dataset">
       <div className="head">
-        <div className="name">
-          {props.name}
-        </div>
+        <div className="name">{props.name}</div>
         <div className="btn" onClick={saveAndExit}>
           Save
         </div>
@@ -335,11 +381,11 @@ const CustomNode = (props) => {
       <div className="body">
         <Editor
           defaultLanguage="python"
-          theme={"vs-" + appconfig.theme}
+          theme={"vs-" + appConfig.theme}
           onChange={updateCode}
           defaultValue={props.arguments.code.value}
         />
-        <div className="menu" style={{position:"relative"}}>
+        <div className="menu" style={{ position: "relative" }}>
           <div className="name">Options</div>
           <div className="properties">
             <div className="property">
@@ -353,7 +399,17 @@ const CustomNode = (props) => {
   );
 };
 
-const Menu = (props) => {
+const Menu = (
+  props = {
+    ...propMeta,
+    menu: undefined,
+    menuState: function (_ = { comp: undefined, render: false }) {},
+    store: metaStore,
+    storeContext: metaStoreContext,
+    appFunctions: metaAppFunctions,
+    train : false
+  }
+) => {
   let { type } = props;
 
   switch (type.object_class) {

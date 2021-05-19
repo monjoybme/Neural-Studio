@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { icons } from '../data/icons';
-import { StoreContext } from '../Store';
+import { metaAppFunctions, metaStore, metaStoreContext } from '../Meta';
 
-const SideBar = (props = { store: StoreContext }) => {
+const SideBar = ( props = { store: metaStore, storeContext:metaStoreContext }) => {
   let Logo = icons.Logo;
   let { sidenav, sidenavState, renderState } = props.store;
 
@@ -21,32 +21,36 @@ const SideBar = (props = { store: StoreContext }) => {
   }
 
   return (
-    <div className="nav">
-      <div className="title">
-        <Logo />
-      </div>
-      <div className="navigation">
-        {sidenav.map((button, i) => {
-          let Icon = button.icon;
-          return (
-            <div
-              key={i}
-              className={button.selected ? "btn selected" : "btn"}
-              onClick={(e) => loadComp(button)}
-            >
-              <Icon
-                fill={button.selected ? "white" : "rgba(255,255,255,0.3)"}
-              />
-            </div>
-          );
-        })}
+    <div className="sidenav">
+      <div className="nav">
+        <div className="title">
+          <Logo />
+        </div>
+        <div className="navigation">
+          {sidenav.map((button, i) => {
+            let Icon = button.icon;
+            return (
+              <div
+                key={i}
+                className={button.selected ? "btn selected" : "btn"}
+                onClick={(e) => loadComp(button)}
+              >
+                <Icon
+                  fill={button.selected ? "white" : "rgba(255,255,255,0.3)"}
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
 };
 
-const TopBar = (props = { store: StoreContext }) => {
-  let { appconfig, appconfigState, render } = props.store;
+const TopBar = (
+  props = { store: metaStore, storeContext: metaStoreContext, appFunctions : metaAppFunctions }
+) => {
+  let { appConfig, appConfigState, render } = props.store;
 
   return (
     <div className="topbar">
@@ -57,12 +61,13 @@ const TopBar = (props = { store: StoreContext }) => {
       <div
         className="switch"
         onClick={() => {
-          if (appconfig.theme === "light") {
-            appconfig.theme = "dark";
+          if (appConfig.theme === "light") {
+            appConfig.theme = "dark";
           } else {
-            appconfig.theme = "light";
+            appConfig.theme = "light";
           }
-          appconfigState({ ...appconfig });
+          props.storeContext.appConfig.set(appConfig);
+          props.storeContext.appConfig.push(function(){})
         }}
       >
         <div className="holder">

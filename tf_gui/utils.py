@@ -46,7 +46,15 @@ class Dict:
         return self.__dict__[key]
 
     def __setitem__(self, key: str, value: Any):
-        self.__dict__[key] = value
+        if type(key) == list:
+            keys, = key;
+            key,*keys,dk = keys.split(":")
+            elem = self[key]
+            for k in keys:
+                elem = elem[k]
+            elem[dk] = value
+        else:
+            self.__dict__[key] = value
 
     @property
     def idx(self, ):
