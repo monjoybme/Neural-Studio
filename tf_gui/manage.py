@@ -14,6 +14,19 @@ DEFAULT_GRAPHDEF = Dict({
     }
 })
 
+DEFAULT_APP_CONFIG = Dict({
+    "name": "Model",
+    "theme": "light",
+    "global":{
+        "topbar":{
+            "height":60,
+        },
+        "sidebar":{
+            "width":60,
+        }
+    }
+})
+
 DEFAULT_CANVAS_CONFIG = Dict({
     "activeLayer": None,
     "activeLine": None,
@@ -36,32 +49,9 @@ DEFAULT_CANVAS_CONFIG = Dict({
     }
 })
 
-DEFAULT_APP_CONFIG = Dict({
-    "name": "Model",
-    "theme": "light",
-    "geometry": {
-        "sideBar": {
-            "width": 70
-        },
-        "topBar": {
-            "height": 60
-        }
-    },
-    "canvas": {
-        "toolbar": {
-            "width": 280,
-        }
-    },
-    "monitor": {
-        "width": 400,
-        "padding": 10,
-        "graph": {
-            "height": 295,
-            "width": 365
-        }
-    }
-})
+DEFAULT_TRAIN_CONFIG = Dict({
 
+})
 
 class Cache(object):
     def __init__(self, root: str):
