@@ -1,9 +1,16 @@
 import React from "react";
-import { metaAppConfig, metaAppFunctions, metaStore, metaStoreContext } from "../Meta/index";
+import {
+  metaAppConfig,
+  metaAppFunctions,
+  metaStore,
+  metaStoreContext,
+} from "../Meta/index";
 import { icons } from "../data/icons";
 import { GET, Loading, POST } from "../Utils";
 
-const WorkspaceCard = (props = { name: "Hello", store: metaStore, storeContext:metaStoreContext }) => {
+const WorkspaceCard = (
+  props = { name: "Hello", store: metaStore, storeContext: metaStoreContext }
+) => {
   function loadMenu(e) {
     props.store.popupState(
       <div
@@ -29,9 +36,11 @@ const WorkspaceCard = (props = { name: "Hello", store: metaStore, storeContext:m
     );
   }
   return (
-    <div className="card" onDoubleClick={(e) => props.openWorkspace({ name: props.name })} >
-      <div className="image">
-      </div>
+    <div
+      className="card"
+      onDoubleClick={(e) => props.openWorkspace({ name: props.name })}
+    >
+      <div className="image"></div>
       <div className="footer">
         <div className="name">
           {props.name}
@@ -107,7 +116,11 @@ const NewCard = (
 };
 
 const DownloadModel = (
-  props = { store: metaStore, storeContext: metaStoreContext, appFunctions:metaAppFunctions }
+  props = {
+    store: metaStore,
+    storeContext: metaStoreContext,
+    appFunctions: metaAppFunctions,
+  }
 ) => {
   async function downloadModel(
     options = { format: "Format", download: "download.format" }
@@ -187,25 +200,28 @@ const DownloadModel = (
   );
 };
 
-const Home = (props = { store: metaStore, storeContext: metaStoreContext, appFunctions: metaAppFunctions }) => {
-  let {
-    popupState,
-    appConfig,
-  } = props.store;
+const Home = (
+  props = {
+    store: metaStore,
+    storeContext: metaStoreContext,
+    appFunctions: metaAppFunctions,
+  }
+) => {
+  let { popupState, appConfig } = props.store;
 
   let [yourWorkData, yourWorkDataState] = React.useState([]);
 
-   async function pullData() {
-     await GET({
-       path: "/workspace/all",
-     })
-       .then((response) => response.json())
-       .then((data) => {
-         yourWorkDataState([...data.data]);
-       });
-   }
+  async function pullData() {
+    await GET({
+      path: "/workspace/all",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        yourWorkDataState([...data.data]);
+      });
+  }
 
-  async function newWorkspace(name = "model") {
+  async function newWorkspace(name) {
     await props.appFunctions.autosave();
     await POST({
       path: "/workspace/new",
@@ -214,10 +230,16 @@ const Home = (props = { store: metaStore, storeContext: metaStoreContext, appFun
       },
     })
       .then((response) => response.json())
-      .then((data) => {
+      .then(async function(data) {
+        props.appFunctions.loadState(true);
+        Object.entries(props.storeContext).map(([key, val])=>{
+          val.set({});
+        })
         props.appFunctions.pullStore();
-        pullData();
-    });
+        await pullData().then(response=>{
+          props.appFunctions.loadState(false);
+        });
+      });
   }
 
   async function openWorkspace(options = { name: "workspace" }) {
@@ -227,10 +249,14 @@ const Home = (props = { store: metaStore, storeContext: metaStoreContext, appFun
       data: {},
     })
       .then((response) => response.json())
-      .then(async function(data){
-        await props.appFunctions.pullStore();
-        pullData();
-        props.appFunctions.notify({ message: `${ options.name } Loaded.` });
+      .then(async function (data) {
+        props.appFunctions.loadState(true);
+        await props.appFunctions.pullStore().then(async function(response){
+          await pullData().then(async function(response){
+            props.appFunctions.notify({ message: `${options.name} Loaded.` });
+            props.appFunctions.loadState(false);
+          })
+        });
       });
   }
 
@@ -249,7 +275,6 @@ const Home = (props = { store: metaStore, storeContext: metaStoreContext, appFun
       });
   }
 
-
   React.useEffect(() => {
     if (!yourWorkData.length) {
       pullData();
@@ -263,8 +288,8 @@ const Home = (props = { store: metaStore, storeContext: metaStoreContext, appFun
         <div className="head">{appConfig.name}</div>
         <div className="footer">
           <div className="name">
-            <icons.Save onClick={e => props.appFunctions.autosave() } />
-            <icons.Code onClick={e => props.appFunctions.downloadCode() } />
+            <icons.Save onClick={(e) => props.appFunctions.autosave()} />
+            <icons.Code onClick={(e) => props.appFunctions.downloadCode()} />
             <icons.Download
               onClick={(e) => {
                 popupState(<DownloadModel {...props} />);

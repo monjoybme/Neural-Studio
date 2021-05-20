@@ -113,32 +113,26 @@ class Workspace(Dict):
 
     def __init__(self, path: str):
         self.__path__ = path
-        if not pathlib.isdir(self.__path__):
-            mkdir(self.__path__)
-
-        # Workspace name
         *_, self.__name__ = pathlib.split(self.__path__)
 
-        # Loading | Saving default variables
-        for var, val in self.__required__vars__:
-            file = pathlib.join(self.__path__, f"{var}.json")
-            if pathlib.isfile(file,):
-                with open(file, "r") as file:
-                    self.__dict__[f"{var}"] = Dict(load(file,))
-            else:
+        if not pathlib.isdir(self.__path__):
+            mkdir(self.__path__)
+            for var, val in self.__required__vars__:
+                file = pathlib.join(self.__path__, f"{var}.json")
+                if var == 'app_config':
+                    val['name'] = self.__name__
                 with open(file, "w+") as file:
-                    if var == 'app_config':
-                        val['name'] = self.__name__
                     dump(val.full_dict, file)
-                self.__dict__[f"{var}"] = val
+
+        for var in self.__vars__:
+            file = pathlib.join(self.__path__, f"{var}.json")
+            with open(file, "r") as file:
+                self.__dict__[f"{var}"] = Dict(load(file,))
 
         super().__init__()
 
     def __repr__(self,):
         return f"""Workspace(\n\tname={self.__name__},\n\tpath={self.__path__}\n)"""
-
-    def __getitem__(self, key: str)->Dict:
-        return super().__getitem__(key)
 
     def __setitem__(self, key: str, val: dict):
         if isinstance(key, list):

@@ -194,8 +194,7 @@ class Trainer(object):
         if from_workspace:
             dataset = self.workspace_manager[[
                 'active:graphdef:train_config:dataset:arguments:dataset:value']]
-            idx = self.workspace_manager[[
-                'active:graphdef:train_config:dataset:id']]
+            idx = self.workspace_manager[['active:graphdef:train_config:dataset:id']]
         if self.__dataset__code__ == dataset:
             return True, "No update !"
         self.__dataset__code__ = dataset
@@ -239,7 +238,7 @@ class Trainer(object):
         for level in self.graph.__levels__:
             for layer in level:
                 layer = self.graph[layer]
-                if layer[['type:object_class']] in ['layers', 'CustomNode']:
+                if layer[['type:object_class']] in ['layers', 'CustomNode', 'applications']:
                     exec_var, error = execute_code(
                         layer.to_code(self.graph, train=True))
                     if not exec_var:

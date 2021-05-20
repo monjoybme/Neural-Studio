@@ -5,6 +5,12 @@ const applications = {
       name: "DenseNet121",
       type: { name: "DenseNet121", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -17,6 +23,12 @@ const applications = {
       name: "DenseNet169",
       type: { name: "DenseNet169", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -29,6 +41,12 @@ const applications = {
       name: "DenseNet201",
       type: { name: "DenseNet201", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -41,6 +59,12 @@ const applications = {
       name: "EfficientNetB0",
       type: { name: "EfficientNetB0", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -53,6 +77,12 @@ const applications = {
       name: "EfficientNetB1",
       type: { name: "EfficientNetB1", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -65,6 +95,12 @@ const applications = {
       name: "EfficientNetB2",
       type: { name: "EfficientNetB2", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -77,6 +113,12 @@ const applications = {
       name: "EfficientNetB3",
       type: { name: "EfficientNetB3", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -89,6 +131,12 @@ const applications = {
       name: "EfficientNetB4",
       type: { name: "EfficientNetB4", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -101,6 +149,12 @@ const applications = {
       name: "EfficientNetB5",
       type: { name: "EfficientNetB5", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -113,6 +167,12 @@ const applications = {
       name: "EfficientNetB6",
       type: { name: "EfficientNetB6", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -125,6 +185,12 @@ const applications = {
       name: "EfficientNetB7",
       type: { name: "EfficientNetB7", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -137,6 +203,12 @@ const applications = {
       name: "InceptionResNetV2",
       type: { name: "InceptionResNetV2", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -149,6 +221,12 @@ const applications = {
       name: "InceptionV3",
       type: { name: "InceptionV3", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -161,6 +239,12 @@ const applications = {
       name: "MobileNet",
       type: { name: "MobileNet", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -173,6 +257,12 @@ const applications = {
       name: "MobileNetV2",
       type: { name: "MobileNetV2", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -185,6 +275,12 @@ const applications = {
       name: "MobileNetV3Large",
       type: { name: "MobileNetV3Large", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -197,6 +293,12 @@ const applications = {
       name: "MobileNetV3Small",
       type: { name: "MobileNetV3Small", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -209,6 +311,12 @@ const applications = {
       name: "NASNetLarge",
       type: { name: "NASNetLarge", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -221,6 +329,12 @@ const applications = {
       name: "NASNetMobile",
       type: { name: "NASNetMobile", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -233,6 +347,12 @@ const applications = {
       name: "ResNet101",
       type: { name: "ResNet101", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -245,6 +365,12 @@ const applications = {
       name: "ResNet101V2",
       type: { name: "ResNet101V2", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -257,6 +383,12 @@ const applications = {
       name: "ResNet152",
       type: { name: "ResNet152", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -269,6 +401,12 @@ const applications = {
       name: "ResNet152V2",
       type: { name: "ResNet152V2", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -281,6 +419,12 @@ const applications = {
       name: "ResNet50",
       type: { name: "ResNet50", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -293,6 +437,12 @@ const applications = {
       name: "ResNet50V2",
       type: { name: "ResNet50V2", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -305,6 +455,12 @@ const applications = {
       name: "VGG16",
       type: { name: "VGG16", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -317,6 +473,12 @@ const applications = {
       name: "VGG19",
       type: { name: "VGG19", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",
@@ -329,6 +491,12 @@ const applications = {
       name: "Xception",
       type: { name: "Xception", object_class: "applications" },
       arguments: {
+        include_top :{
+          value:"False",
+          type:"bool",
+          render:"list",
+          options:"bool"
+        },
         weights: {
           value: "imagenet",
           type: "str",

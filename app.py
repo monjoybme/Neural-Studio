@@ -23,8 +23,8 @@ trainer = Trainer(workspace_mamager)
 
 try:
     trainer.update_dataset(from_workspace=True)
-except KeyError as e:
-    print (f'Warning : error loading {e}')
+except Exception as e:
+    print (f'Warning : {e}')
     pass
 
 def generate_args(code) -> dict:
@@ -171,7 +171,8 @@ async def workspace_autosave(request: Request,):
 async def workspace_new(request: Request,):
     if request.headers.method == "POST":
         data = await request.get_json()
-        workspace_mamager.new_workspace(**data)
+        w = workspace_mamager.new_workspace(**data)
+        assert w.idx == workspace_mamager.active.idx
         return await json_response({
             "data": workspace_mamager.active.get_var_dict(),
         },)

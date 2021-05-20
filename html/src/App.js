@@ -245,6 +245,7 @@ const App = (props) => {
         callback();
       }
     },
+    loadState: firstLoadState
   };
 
   let defaultProps = {
@@ -336,20 +337,30 @@ const App = (props) => {
     }
   }
 
+  const LoadingData = (props) =>{
+    return (
+      <div style={{display:"flex", justifyContent:"center", alignItems:"center", height:"100vh", width:"100vw"}}>
+        <Loading />
+      </div>
+    )
+  }
+
   React.useEffect(function () {
     window.onkeydown = keymap;
     window.onkeyup = function (e) {
       window.__SHORTCUT__ = -1;
     };
     if ( firstLoad ){
-      appFunctions.pullStore().then(response=>{
+      appFunctions.pullStore(function(){
         firstLoadState(false);
       });
+    }else {
+      appFunctions.autosave();
     }
   });
 
   return firstLoad ? (
-    <Loading />
+    <LoadingData />    
   ) : (
     <Main {...defaultProps}>
       <SideBar {...defaultProps} />

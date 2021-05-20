@@ -32,8 +32,8 @@ window.copy = function (object) {
 };
 window.__UPDATE__OFFSET__ = setInterval(function () {
   window.offsetX =
-    appConfig.canvas.toolbar.width + appConfig.geometry.sideBar.width;
-  window.offsetY = appConfig.geometry.topBar.height;
+    280 + 60;
+  window.offsetY = 60;
 }, 1000);
 
 ReactDOM.render(

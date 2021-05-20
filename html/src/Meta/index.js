@@ -192,6 +192,7 @@ let metaAppFunctions =  {
   updateStatus: function (options = { text: "Notification" }) { },
   notify: function ( options = { name: "test", message: "Hello", timeout: 3000 } ) { },
   pullStore: async function () { },
+  loadState: function(){}
 }
 
 export {
