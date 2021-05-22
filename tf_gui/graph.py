@@ -202,7 +202,7 @@ class CompileMeta(Dict):
 ) #end-{self['id']}"""
 
 
-class TrainMeta(Dict):
+class FitMeta(Dict):
     def __init__(self, config: dict):
         self.name: str = "Train"
         self.id: str = "train"
@@ -268,51 +268,51 @@ class GraphDef(Dict):
         self.__input__ = []
         self.__custom__nodes__ = []
         self.__callbacks__ = []
-        for idx, layer in self:
-            try:
-                if layer[["type:object_class"]] == 'layers':
-                    self[idx] = LayerMeta(layer.dict)
-                    if layer[['type:name']] == 'Input':
-                        self.__input__.append(idx)
-                elif layer[['type:object_class']] == 'CustomNode':
-                    self[idx] = CustomNodeMeta(layer.dict)
-                elif layer[['type:object_class']] == 'applications':
-                    self[idx] = ApplicationMeta(layer.dict)
-                elif layer[["type:object_class"]] == 'callbacks':
-                    self[idx] = LayerMeta(layer.dict)
-                    self.__callbacks__.append(self[idx])
-                elif layer[["type:object_class"]] == 'optimizers':
-                    self[idx] = LayerMeta(layer.dict)
-                    self.__optimizer__ = self[idx]
-                elif layer[['type:name']] == 'Model':
-                    self[idx] = ModelMeta(layer.dict)
-                    self.__model__ = self[idx]
+        for idx, layer in self.nodes:
+            if layer[["type:object_class"]] == 'layers':
+                self.nodes[idx] = LayerMeta(layer.dict)
+                if layer[['type:name']] == 'Input':
+                    self.__input__.append(idx)
+            elif layer[['type:object_class']] == 'CustomNode':
+                self.nodes[idx] = CustomNodeMeta(layer.dict)
+            elif layer[['type:object_class']] == 'applications':
+                self.nodes[idx] = ApplicationMeta(layer.dict)
+            elif layer[["type:object_class"]] == 'callbacks':
+                self.nodes[idx] = LayerMeta(layer.dict)
+                self.__callbacks__.append(self.nodes[idx])
+            elif layer[["type:object_class"]] == 'optimizers':
+                self.nodes[idx] = LayerMeta(layer.dict)
+                self.__optimizer__ = self.nodes[idx]
+            elif layer[["type:object_class"]] == 'build_tools':
+                if layer[['type:name']] == 'Model':
+                    self.nodes[idx] = ModelMeta(layer.dict)
+                    self.__model__ = self.nodes[idx]
                 elif layer[['type:name']] == 'Compile':
-                    self[idx] = CompileMeta(layer.dict)
-                    self.__compile__ = self[idx]
-                elif layer[['type:name']] == 'Train':
-                    self[idx] = TrainMeta(layer.dict)
-                    self.__train__ = self[idx]
-                elif layer[['type:object_class']] == 'custom_def':
-                    self.__custom__nodes__.append(LayerMeta(layer.dict))
+                    self.nodes[idx] = CompileMeta(layer.dict)
+                    self.__compile__ = self.nodes[idx]
+                elif layer[['type:name']] == 'Fit':
+                    self.nodes[idx] = FitMeta(layer.dict)
+                    self.__train__ = self.nodes[idx]
                 else:
                     pass
-                self.__layers__.append(idx)
-            except KeyError as e:
+            elif layer[['type:object_class']] == 'custom_def':
+                self.__custom__nodes__.append(LayerMeta(layer.dict))
+            else:
                 pass
+            self.__layers__.append(idx)
 
         if not len(self.__input__):
             return False, "Please add input node."
 
         self.__skip__ = []
-        self.__levels__ = [set() for i in self.__layers__]
+        self.__levels__ = [set() for _ in self.__layers__]
 
         def setLevel(node, di=0):
             if node not in self.__skip__:
                 self.__levels__[di].add(node)
                 self.__skip__.append(node)
-            if self[[f'{node}:connections:outbound']]:
-                for next_node in self[[f'{node}:connections:outbound']]:
+            if self[[f'nodes:{node}:connections:outbound']]:
+                for next_node in self[[f'nodes:{node}:connections:outbound']]:
                     setLevel(next_node, di+1)
 
         for node in self.__input__:
@@ -332,10 +332,10 @@ class GraphDef(Dict):
         for level in self.__levels__:
             for layer in level:
                 try:
-                    layers += self[layer].to_code(self, )
+                    layers += self.nodes[layer].to_code(self, )
                     layers += NEWLINE * 2
-                except:
-                    return f"Error processing {layer}"
+                except Exception as e:
+                    return layer, e
         custom_nodes = [node[['arguments:code:value']]
                         for node in self.__custom__nodes__]
         return CODE_TEMPLATE.format(

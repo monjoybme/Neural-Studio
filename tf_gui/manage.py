@@ -6,28 +6,45 @@ from shutil import rmtree
 from .utils import Dict
 from .graph import GraphDef
 
-DEFAULT_GRAPHDEF = Dict({
-    'train_config': {
-        'session_id': None,
-        'compile': None,
-        'model': None,
-    }
-})
-
-DEFAULT_APP_CONFIG = Dict({
-    "name": "Model",
+APP = Dict({
+    "name": "model",
     "theme": "light",
-    "global":{
-        "topbar":{
-            "height":60,
+    "global": {
+        "topbar": {
+            "height": 60,
         },
-        "sidebar":{
-            "width":60,
+        "sidebar": {
+            "width": 60
         }
     }
 })
 
-DEFAULT_CANVAS_CONFIG = Dict({
+GRAPH = Dict({
+    "nodes": {
+
+    },
+    "train_config": {
+        "session_id": None,
+        "model": None,
+        "compile": None,
+        "fit": None,
+        "optimizer": None,
+        "loss": None,
+        "dataset": None
+    },
+    "custom_nodes": [
+
+    ],
+})
+
+HOME = Dict({
+    "active": {
+        "name": "model",
+    },
+    "your_work": []
+})
+
+CANVAS = Dict({
     "activeLayer": None,
     "activeLine": None,
     "newEdge": None,
@@ -49,8 +66,12 @@ DEFAULT_CANVAS_CONFIG = Dict({
     }
 })
 
-DEFAULT_TRAIN_CONFIG = Dict({
+DATASET = Dict({
+    "name":None
+})
 
+TRAIN = Dict({
+    "logs":[]
 })
 
 class Cache(object):
@@ -91,15 +112,19 @@ class Cache(object):
 
 class Workspace(Dict):
     __required__vars__ = [
-        ('graphdef', DEFAULT_GRAPHDEF),
-        ('canvas_config', DEFAULT_CANVAS_CONFIG),
-        ('app_config', DEFAULT_APP_CONFIG),
+        ('app', APP),
+        ('graph', GRAPH),
+        ('canvas', CANVAS),
+        ('dataset', DATASET),
+        ('train',TRAIN)
     ]
-    __vars__ = ['graphdef', 'canvas_config', 'app_config']
+    __vars__ = [ 'app', 'graph', 'canvas', 'dataset', 'train' ]
 
-    graphdef = DEFAULT_GRAPHDEF
-    canvas_config = DEFAULT_CANVAS_CONFIG
-    app_config = DEFAULT_APP_CONFIG
+    train = TRAIN
+    dataset = DATASET
+    graph = GRAPH
+    canvas = CANVAS
+    app = APP
 
     def __init__(self, path: str):
         self.__path__ = path
@@ -109,7 +134,7 @@ class Workspace(Dict):
             mkdir(self.__path__)
             for var, val in self.__required__vars__:
                 file = pathlib.join(self.__path__, f"{var}.json")
-                if var == 'app_config':
+                if var == 'app':
                     val['name'] = self.__name__
                 with open(file, "w+") as file:
                     dump(val.full_dict, file)
@@ -220,7 +245,7 @@ class WorkspaceManager(Dict):
                 self.root, "workspace", w) != path}
             rmtree(path,)
 
-            if self.active[['app_config:name']] == name:
+            if self.active[['app:name']] == name:
                 self.active = self.open_workspace(self.cache.last)
                 if not self.active:
                     self.active = self.new_workspace("model")

@@ -119,12 +119,16 @@ async def workspace(request: Request,var:str ):
     if request.headers.method == "GET":
         return await json_response(workspace_mamager.active[var].full_dict)
     elif request.headers.method == 'POST':
-        var_data = await request.get_json()
-        workspace_mamager.active[var] = var_data
-        return await json_response({
-            "status":True
-        })
-
+        try:
+            var_data = await request.get_json()
+            workspace_mamager.active[var] = var_data
+            return await json_response({
+                "status":True
+            })
+        except Exception as e:
+            return await json_response({
+                "status":False
+            })
     return await json_response({
         "message": "Method Not Allowed !"
     })
@@ -174,7 +178,7 @@ async def workspace_new(request: Request,):
         w = workspace_mamager.new_workspace(**data)
         assert w.idx == workspace_mamager.active.idx
         return await json_response({
-            "data": workspace_mamager.active.get_var_dict(),
+            "status":True
         },)
 
     return await json_response({
@@ -185,9 +189,11 @@ async def workspace_new(request: Request,):
 @app.route("/workspace/open/<str:name>",)
 async def workspace_open(request: Request, name: str):
     if request.headers.method == "POST":
+        workspace_mamager.open_workspace(name)
+        assert workspace_mamager.active.idx == name
         return await json_response({
-            "status": bool(workspace_mamager.open_workspace(name)),
-        }, )
+            "status": True,
+        },)
 
     return await json_response({
         "message": "Method Not Allowed !"
@@ -206,7 +212,6 @@ async def workspace_new(request: Request, name: str):
     }, status_code=400)
 
 # download endpoints
-
 
 @app.route("/download",)
 async def download_model(request: Request):
@@ -243,7 +248,7 @@ async def download_name(request: Request, name: str):
 @app.route("/model/code",)
 async def buiild(request: Request):
     if request.headers.method == 'GET':
-        graph = GraphDef(workspace_mamager.active.graphdef)
+        graph = GraphDef(workspace_mamager.active.graph)
         status, message = graph.build()
         if status:
             return await text_response(graph.to_code())
@@ -257,7 +262,7 @@ async def buiild(request: Request):
 
 @app.route("/model/summary",)
 async def summary_viewer(request: Request):
-    if request.headers.method == 'POST':
+    if request.headers.method == 'GET':
             return await json_response({
                 "summary": trainer.summary
             })

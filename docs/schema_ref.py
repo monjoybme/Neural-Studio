@@ -1,4 +1,4 @@
-APP_CONFIG = {
+APP = {
     "name":"model",
     "theme":"light",
     "global":{
@@ -22,6 +22,7 @@ GRAPH = {
         "fit":None,
         "optimizer":None,
         "loss":None,
+        "dataset":None
     },
     "custom_nodes":[
 

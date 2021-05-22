@@ -157,7 +157,7 @@ class Trainer(object):
     def __init__(self, workspace_manager: WorkspaceManager):
         self.workspace_manager: WorkspaceManager = workspace_manager
         self.session_id = workspace_manager[[
-            'active:graphdef:train_config:session_id']]
+            'active:graph:train_config:session_id']]
         globals()['tfgui'] = TfGui(self,)
         self.tfgui = globals()['tfgui']
 
@@ -193,8 +193,8 @@ class Trainer(object):
     def update_dataset(self, dataset: str = None, idx: str = None, from_workspace: bool = False) -> object:
         if from_workspace:
             dataset = self.workspace_manager[[
-                'active:graphdef:train_config:dataset:arguments:dataset:value']]
-            idx = self.workspace_manager[['active:graphdef:train_config:dataset:id']]
+                'active:graph:train_config:dataset:arguments:dataset:value']]
+            idx = self.workspace_manager[['active:graph:train_config:dataset:id']]
         if self.__dataset__code__ == dataset:
             return True, "No update !"
         self.__dataset__code__ = dataset
@@ -219,7 +219,7 @@ class Trainer(object):
         })
 
     def build(self,):
-        self.graph = GraphDef(self.workspace_manager[['active:graphdef']])
+        self.graph = GraphDef(self.workspace_manager[['active:graph']])
         build_status, message = self.graph.build()
         if not build_status:
             return build_status, message
@@ -237,7 +237,7 @@ class Trainer(object):
 
         for level in self.graph.__levels__:
             for layer in level:
-                layer = self.graph[layer]
+                layer = self.graph.nodes[layer]
                 if layer[['type:object_class']] in ['layers', 'CustomNode', 'applications']:
                     exec_var, error = execute_code(
                         layer.to_code(self.graph, train=True))
