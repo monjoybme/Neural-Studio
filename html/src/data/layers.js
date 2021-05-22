@@ -3515,8 +3515,8 @@ const layers = {
         },
       },
       {
-        name: "Train",
-        type: { name: "Train", object_class: "build_tools" },
+        name: "Fit",
+        type: { name: "Fit", object_class: "build_tools" },
         arguments: {
           batch_size: {
             value: "8",

@@ -26,6 +26,8 @@
       @extend .grid-center;
       svg {
         fill: $secondary;
+        height: 24px !important;
+        width: 24px !important;
         opacity: 0.3;
       }
     }

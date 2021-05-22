@@ -5,10 +5,10 @@ import { metaAppFunctions, metaStore, metaStoreContext } from '../Meta';
 
 const SideBar = ( props = { store: metaStore, storeContext:metaStoreContext }) => {
   let Logo = icons.Logo;
-  let { sidenav, sidenavState, renderState } = props.store;
+  let { nav, navState, renderState } = props.store;
 
   function loadComp(button) {
-    sidenav = sidenav.map((btn) => {
+    nav = nav.map((btn) => {
       btn.selected = btn.name === button.name;
       if (btn.selected) {
         renderState({
@@ -17,7 +17,7 @@ const SideBar = ( props = { store: metaStore, storeContext:metaStoreContext }) =
       }
       return btn;
     });
-    sidenavState([...sidenav]);
+    navState([...nav]);
   }
 
   return (
@@ -27,7 +27,7 @@ const SideBar = ( props = { store: metaStore, storeContext:metaStoreContext }) =
           <Logo />
         </div>
         <div className="navigation">
-          {sidenav.map((button, i) => {
+          {nav.map((button, i) => {
             let Icon = button.icon;
             return (
               <div
@@ -50,7 +50,7 @@ const SideBar = ( props = { store: metaStore, storeContext:metaStoreContext }) =
 const TopBar = (
   props = { store: metaStore, storeContext: metaStoreContext, appFunctions : metaAppFunctions }
 ) => {
-  let { appConfig, appConfigState, render } = props.store;
+  let { app, appState, render } = props.store;
 
   return (
     <div className="topbar">
@@ -61,13 +61,12 @@ const TopBar = (
       <div
         className="switch"
         onClick={() => {
-          if (appConfig.theme === "light") {
-            appConfig.theme = "dark";
+          if (app.theme === "light") {
+            app.theme = "dark";
           } else {
-            appConfig.theme = "light";
+            app.theme = "light";
           }
-          props.storeContext.appConfig.set(appConfig);
-          props.storeContext.appConfig.push(function(){})
+          appState({...app});
         }}
       >
         <div className="holder">

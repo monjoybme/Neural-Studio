@@ -1,29 +1,25 @@
 import React from "react";
 
 import { TopBar, SideBar } from "./NavBar";
-import { POST, Notification, GET, Loading } from "./Utils";
+import { POST, Notification, GET, Loading, pull } from "./Utils";
 import {
   metaSideNav,
-  metaGraphdef,
-  metaRender,
-  metaTrain,
-  metaAppConfig,
-  metaWorkspce,
+  metaApp,
   metaStore,
-  metaStoreContext
+  metaRender,
 } from "./Meta";
-import deaultLayerGroups from "./data/layers";
 
 import "./style/App.scss";
 import "./style/Nav.scss";
 import "./style/Home.scss";
+import './style/Dataset.scss';
 import "./style/Canvas.scss";
 import "./style/Code.scss";
 import "./style/Training.scss";
 import "./style/Summary.scss";
 
 const PopUp = (
-  props = { store: metaStore, storeContext: metaStoreContext }
+  props = { store: metaStore }
 ) => {
   return (
     <>
@@ -32,7 +28,7 @@ const PopUp = (
   );
 };
 
-const NotificationPop = (props = { store: metaStore, storeContext:metaStoreContext } ) => {
+const NotificationPop = (props = { store: metaStore } ) => {
   return (
     <>
       { props.store.notification.comp }
@@ -40,168 +36,55 @@ const NotificationPop = (props = { store: metaStore, storeContext:metaStoreConte
   );
 };
 
-const StatusBar = (props = { store: metaStore, storeContext:metaStoreContext } ) => {
+const StatusBar = (props = { store: metaStore } ) => {
   return (
     <div className="statusbar">
       {props.store.statusbar.toLowerCase()} | workspace :{" "}
-      {props.store.appConfig.name}
+      {props.store.app.name}
     </div>
   );
 };
 
-const Container = (props = { store: metaStore, storeContext:metaStoreContext } ) => {
+const Container = (props = { store: metaStore } ) => {
   return <div className="container-area">{props.children}</div>;
 };
 
-const Main = (props = { store: metaStore, storeContext:metaStoreContext } ) => {
+const Main = (props = { store: metaStore } ) => {
   return (
-    <div className={`app ${props.store.appConfig.theme}`}>{props.children}</div>
+    <div className={`app ${props.store.app.theme}`}>{props.children}</div>
   );
 };
 
 const App = (props) => {
-  let [graphDef, graphDefState] = React.useState({ ...metaGraphdef });
-  let [workspace, workspaceState] = React.useState({ ...metaWorkspce });
-  let [appConfig, appConfigState] = React.useState({ ...metaAppConfig });
-  let [layerGroups, layerGroupsState] = React.useState({...deaultLayerGroups});
-
-  let [sidenav, sidenavState] = React.useState([...metaSideNav]);
-  let [render, renderState] = React.useState({ ...metaRender });
-  let [train, trainState] = React.useState({ ...metaTrain });
-
-  let [popup, popupState] = React.useState(<div className="popup"></div>);
+  let [app, appState] = React.useState(metaApp);
+  let [nav, navState] = React.useState(metaSideNav);
+  let [popup, popupState] = React.useState(<></>);
   let [statusbar, statusbarState] = React.useState("status bar");
-  let [notification, notificationState] = React.useState({ comp: undefined });
-  let [ firstLoad, firstLoadState ] = React.useState( true );
+  let [notification, notificationState] = React.useState(<></>);
+  let [render, renderState] = React.useState(metaRender);
+  let [load, loadState] = React.useState(true);
 
   const store = {
-    graphDef: graphDef,
-    graphDefState: graphDefState,
-    layerGroups: layerGroups,
-    layerGroupsState: layerGroupsState,
-    sidenav: sidenav,
-    sidenavState: sidenavState,
-    render: render,
-    renderState: renderState,
-    train: train,
-    trainState: trainState,
-    popup: popup,
+    app:app,
+    appState:appState,
+    nav: nav, 
+    navState: navState,
+    popup: popup, 
     popupState: popupState,
-    appConfig: appConfig,
-    appConfigState: appConfigState,
-    workspace: workspace,
-    workspaceState: workspaceState,
-    canvasConfig: window.canvasConfig,
-    statusbar: statusbar,
+    statusbar: statusbar, 
     statusbarState: statusbarState,
-    notification: notification,
+    notification: notification, 
     notificationState: notificationState,
-  };
-
-  const storeContext = {
-    graphDef: {
-      name: "graphdef",
-      get: function () {
-        return graphDef;
-      },
-      set: function (data) {
-        graphDefState({ ...data });
-      },
-      pull: async function () {
-        await GET({
-          path: `/workspace/active/var/${this.name}`,
-        })
-          .then((response) => {
-            return response.json();
-          })
-          .then((data) => {
-            this.set(data);
-          });
-      },
-      push: async function () {
-        await POST({
-          path: `/workspace/active/var/${this.name}`,
-          data: graphDef
-        }).then( response=> response.json()).then(data=>{
-          
-        });
-      },
-    },
-    appConfig: {
-      name: "app_config",
-      get: function () {
-        return appConfig;
-      },
-      set: function (data) {
-        appConfigState({ ...data });
-      },
-      pull: async function () {
-        await GET({
-          path: `/workspace/active/var/${this.name}`,
-        })
-          .then((response) => {
-            return response.json();
-          })
-          .then((data) => {
-            this.set(data);
-          });
-      },
-      push: async function () {
-        await POST({
-          path: `/workspace/active/var/${this.name}`,
-          data: appConfig,
-        })
-          .then((response) => response.json())
-          .then((data) => {});
-      },
-    },
-    canvasConfig: {
-      name: "canvas_config",
-      get: function () {
-        return window.canvasConfig;
-      },
-      set: function (data) {
-        window.canvasConfig = data;
-      },
-      pull: async function () {
-        await GET({
-          path: `/workspace/active/var/${this.name}`,
-        })
-          .then((response) => {
-            return response.json();
-          })
-          .then((data) => {
-            this.set(data);
-            layerGroupsState({
-              ...layerGroups,
-              custom_nodes: {
-                name: "Custom Node Definitions",
-                layers: data.customNodes.definitions,
-              },
-            });
-          });
-      },
-      push: async function () {
-        await POST({
-          path: `/workspace/active/var/${this.name}`,
-          data: window.canvasConfig,
-        })
-          .then((response) => response.json())
-          .then((data) => {});
-      },
-    },
+    render: render, 
+    renderState: renderState,
+    load: load, 
+    loadState: loadState,
   };
 
   const appFunctions = {
-    autosave: async function () {
-      await this.pushStore(function(){
-        statusbarState(`autosave @ ${ new Date().toTimeString() }`)
-      });
-    },
     downloadCode: async function (e) {
-      await POST({
+      await GET({
         path: "/model/code",
-        data: graphDef,
       })
         .then((response) => response.json())
         .then((data) => {
@@ -229,28 +112,14 @@ const App = (props) => {
         ),
       });
     },
-    pullStore: async function (callback) {
-      await Object.entries(storeContext).map(async function ([key, val]) {
-        await val.pull();
-      });
-      if (callback) {
-        callback();
-      }
+    getappconfig: function(){
+      return app
     },
-    pushStore: async function (callback) {
-      await Object.entries(storeContext).map(async function ([key, val]) {
-        await val.push();
-      });
-      if (callback) {
-        callback();
-      }
-    },
-    loadState: firstLoadState
+    loadState: loadState
   };
 
   let defaultProps = {
     store:store,
-    storeContext:storeContext,
     appFunctions: appFunctions
   }
 
@@ -294,7 +163,7 @@ const App = (props) => {
             break;
           case "5":
             e.preventDefault();
-            graphDefState({});
+            window.setToolMode({ mode: "clean", name: "delete" });
             break;
           case "Shift":
             window.__SHORTCUT__ = 2;
@@ -339,7 +208,7 @@ const App = (props) => {
 
   const LoadingData = (props) =>{
     return (
-      <div style={{display:"flex", justifyContent:"center", alignItems:"center", height:"100vh", width:"100vw"}}>
+      <div style={{display:"flex", justifyContent:"center", alignItems:"center"}} className='container loaddata'>
         <Loading />
       </div>
     )
@@ -350,23 +219,24 @@ const App = (props) => {
     window.onkeyup = function (e) {
       window.__SHORTCUT__ = -1;
     };
-    if ( firstLoad ){
-      appFunctions.pullStore(function(){
-        firstLoadState(false);
-      });
+    if ( load ){
+      pull({
+        name:"app",
+      }).then(function(response){
+        appState({...response});
+        loadState(false);
+      })
     }else {
-      appFunctions.autosave();
+      // appFunctions.autosave();
     }
   });
 
-  return firstLoad ? (
-    <LoadingData />    
-  ) : (
+  return (
     <Main {...defaultProps}>
       <SideBar {...defaultProps} />
       <Container {...defaultProps}>
         <TopBar {...defaultProps} />
-        <render.comp {...defaultProps} />
+        {load ? <LoadingData /> : <render.comp {...defaultProps} />}
         <StatusBar {...defaultProps} />
       </Container>
       <PopUp {...defaultProps} />

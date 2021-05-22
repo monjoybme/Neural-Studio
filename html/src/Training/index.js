@@ -11,7 +11,7 @@ import { GET } from "../Utils";
 const Training = (
   props = { store: metaStore, storeContext: metaStoreContext, appFunctions: metaAppFunctions }
 ) => {
-  let { graphDef, graphDefState, train, trainState } = props.store;
+  let {graph, graphState, train, trainState } = props.store;
   let [monitorMode, monitorModeState] = React.useState(false);
   let [status, statusState] = React.useState({
     data: train.hist !== undefined ? train.hist : [],
@@ -47,12 +47,13 @@ const Training = (
           training: false,
           hist: undefined,
         });
-        graphDef.train_config.session_id = new Date().toTimeString();
-        graphDefState({ ...graphDef });
+        graph.train_config.session_id = new Date().toTimeString();
+        graphState({ ...graph });
       },
       icon: icons.Delete,
     },
   ];
+  let [load, loadStatus] = React.useState(true);
 
   async function getStatus() {
     await GET({
@@ -104,7 +105,7 @@ const Training = (
       await fetch("http://localhost/train/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...graphDef }),
+        body: JSON.stringify({ ...graph }),
       })
         .then((response) => response.json())
         .then((data) => {
@@ -176,6 +177,13 @@ const Training = (
     ) {
       getStatus();
     }
+    if ( load ){
+      props.storeContext.graph.pull().then(function(){
+        loadStatus(false);
+      })
+    }else{
+      props.storeContext.graph.push();
+    }
   });
 
   return (
@@ -193,30 +201,30 @@ const Training = (
             })}
           </div>
         </div>
-        {graphDef.train_config ? (
+        {graph.train_config ? (
           <div className="params">
-            {graphDef.train_config.train ? (
+            {graph.train_config.fit ? (
               <div className="property">
                 <Menu
-                  {...graphDef.train_config.train}
+                  {...graph.train_config.fit}
                   {...props}
                   train={true}
                 />
               </div>
             ) : undefined}
-            {graphDef.train_config.compile ? (
+            {graph.train_config.compile ? (
               <div className="property">
                 <Menu
-                  {...graphDef.train_config.compile}
+                  {...graph.train_config.compile}
                   {...props}
                   train={true}
                 />
               </div>
             ) : undefined}
-            {graphDef.train_config.optimizer ? (
+            {graph.train_config.optimizer ? (
               <div className="property">
                 <Menu
-                  {...graphDef.train_config.optimizer}
+                  {...graph.train_config.optimizer}
                   {...props}
                   train={true}
                 />

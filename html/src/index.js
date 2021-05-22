@@ -3,10 +3,9 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { appConfig } from './data/appconfig';
 
 window.__FIRST__LOAD__ = true;
-window.canvasConfig = {
+window.canvas = {
   activeLayer: undefined,
   activeLine:undefined,
   newEdge:undefined,
@@ -30,7 +29,8 @@ window.canvasConfig = {
 window.copy = function (object) {
   return JSON.parse(JSON.stringify(object));
 };
-window.__UPDATE__OFFSET__ = setInterval(function () {
+
+setInterval(function () {
   window.offsetX =
     280 + 60;
   window.offsetY = 60;

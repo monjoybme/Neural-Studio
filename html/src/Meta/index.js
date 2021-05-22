@@ -1,19 +1,32 @@
 import React from "react";
+
+import Home from "../Home";
+import Dataset from "../Dataset";
 import Graph from "../GraphCanvas";
 import CodeEditor from "../CodeEditor";
 import Train from "../Training";
 import SummaryViewer from "../SummaryViewer";
-import Home from "../Home";
 
+import layerGroups from "../data/layers";
+import datasets from '../data/datasets';
 import { icons } from "../data/icons";
 
-let metaSideNav = [
+export const metaDatasets = { ...datasets };
+
+export const metaSideNav = [
   {
     name: "Home",
     path: "/",
     selected: window.location.pathname === "/",
     icon: icons.Home,
     comp: Home,
+  },
+  {
+    name: "Dataset",
+    path: "/dataset",
+    selected: window.location.pathname === "/dataset",
+    icon: icons.Dataset,
+    comp: Dataset,
   },
   {
     name: "Graph",
@@ -45,39 +58,16 @@ let metaSideNav = [
   },
 ];
 
-let metaRender = {
+export const  metaPopop = <></>
+
+export const  metaRoute = {
   name: "Home",
   comp: Home,
 };
 
-let metaTrain = {
-  training: false,
-  hist: [],
-};
-
-let metaWorkspce = {
-  ntbf: true,
-  active: {
-    config: {
-      name: "Workspace",
-    },
-  },
-  recent: [],
-  all: [],
-};
-
-let metaGraphdef = {
-  train_config: {
-    session_id: null,
-    train : null,
-    compile : null,
-    optimizer : null,
-    dataset : null
-  },
-};
-
-let metaAppConfig = {
-  theme: "dark",
+export const  metaApp = {
+  name:"model",
+  theme: "light",
   geometry: {
     sideBar: {
       width: 70,
@@ -101,7 +91,14 @@ let metaAppConfig = {
   },
 };
 
-let metaCanvasConfig = {
+export const  metaHome = {
+  active: {
+    name: "model",
+  },
+  user_work: [],
+};
+
+export const  metaCanvas = {
   activeLayer: null,
   activeLine: null,
   newEdge: null,
@@ -123,87 +120,132 @@ let metaCanvasConfig = {
   },
 };
 
-let metaStoreContext = {
-  graphDef: {
-    name: "graphdef",
-    get: function () {
-      return metaGraphdef;
-    },
-    set: function (data) {
-      
-    },
-    pull: async function () {
-      
-    },
-    push: async function () {},
-  },
-  appConfig: {
-    name: "app_config",
-    get: function () {
-      return metaAppConfig;
-    },
-    set: function (data) {
-
-    },
-    pull: async function () {
-    },
-    push: async function () {},
-  },
-  canvasConfig: {
-    name: "canvas_config",
-    get: function () {
-      return metaCanvasConfig;
-    },
-    set: function (data) {
-    },
-    pull: async function () {
-    },
-    push: async function () {},
-  },
+export const  metaTrain = {
+  training: false,
+  hist: [],
 };
 
-let metaStore = {
-  graphDef: metaGraphdef,
-  graphDefState: function (graphDef = metaGraphdef) {},
-  layerGroups: [],
-  layerGroupsState: function (layerGroups = []) {},
-  sidenav: metaSideNav,
-  sidenavState: function (sidenav = metaSideNav) {},
-  render: metaRender,
-  renderState: function (render = metaRender) {},
-  train: metaTrain,
-  trainState: function (train = metaTrain) {},
-  popup: {},
-  popupState: function (popup = {}) {},
-  appConfig: metaAppConfig,
-  appConfigState: function (appConfig = metaAppConfig) {},
-  workspace: metaWorkspce,
-  workspaceState: function (workspace = metaWorkspce) {},
-  canvasConfig: metaCanvasConfig,
-  statusbar: "Hello",
-  statusbarState: function (statusbar = "Hello") {},
-  notification: "Hello",
-  notificationState: function (notification = "Hello") {},
+export const  metaDataset = {
+
 };
 
-let metaAppFunctions =  {
-  autosave: async function () { },
-  downloadCode: async function (e) { },
-  updateStatus: function (options = { text: "Notification" }) { },
-  notify: function ( options = { name: "test", message: "Hello", timeout: 3000 } ) { },
-  pullStore: async function () { },
-  loadState: function(){}
+export const  metaGraph = {
+  train_config: {
+    session_id: null,
+    model: null,
+    compile: null,
+    fit: null,
+    optimizer: null,
+    loss: null,
+    dataset: null,
+  },
+  nodes:{
+
+  },
+  custom_nodes : [
+    
+  ]
+};
+
+export const metaRender = {
+  name:"Home",
+  comp: Home
 }
 
-export {
-  metaStore,
-  metaStoreContext,
-  metaAppFunctions,
-  metaGraphdef,
-  metaRender,
-  metaTrain,
-  metaSideNav,
-  metaWorkspce,
-  metaAppConfig,
-  metaCanvasConfig
+export const metaStore = {
+  app: metaApp,
+  appState: function (data = metaApp) {},
+  graph: metaGraph,
+  graphState: function (data = metaGraph) {},
+  home: metaHome,
+  homeState: function (data = metaHome) {},
+  canvas: metaCanvas,
+  canvasState: function (data = metaCanvas) {},
+  dataset: metaDataset,
+  datasetState: function (data = metaDataset) {},
+  train: metaTrain,
+  trainState: function (data = metaTrain) {},
+  popup: metaPopop,
+  popupState: function (data = metaPopop) {},
+  nav: metaSideNav,
+  navState: function (data = metaSideNav) {},
+  statusbar: "status",
+  statusbarState: function (data = "status") {},
+  notification: "hello",
+  notificationState: function ( data = "hello") {},
+  load: false,
+  loadState: function ( data = false) {},
+  render : metaRender,
+  renderState : function( data = metaRender ) {}
 };
+
+export const metaStoreContext = {
+  graph: {
+    name: "graph",
+    get: function () {
+      return metaGraph;
+    },
+    set: function (data) { },
+    pull: async function () { },
+    push: async function () { },
+  },
+  app: {
+    name: "app",
+    get: function () {
+      return metaApp;
+    },
+    set: function (data) { },
+    pull: async function () { },
+    push: async function () {
+    },
+  },
+  home: {
+    name: "home",
+    get: function () {
+      return metaHome;
+    },
+    set: function (data) {},
+    pull: async function () {},
+    push: async function () {},
+  },
+  canvas: {
+    name: "canvas",
+    get: function () {
+      return metaCanvas;
+    },
+    set: function (data) {},
+    pull: async function () {},
+    push: async function () {},
+  },
+  dataset: {
+    name: "dataset",
+    get: function () {
+      return metaDataset;
+    },
+    set: function (data) {},
+    pull: async function () {},
+    push: async function () {},
+  },
+  train: {
+    name: "train",
+    get: function () {
+      return metaTrain;
+    },
+    set: function (data) {},
+    pull: async function () {},
+    push: async function () {},
+  },
+};
+
+export const  metaAppFunctions = {
+  autosave: async function () {},
+  downloadCode: async function (e) {},
+  updateStatus: function (options = { text: "Notification" }) {},
+  notify: function (
+    options = { name: "test", message: "Hello", timeout: 3000 }
+  ) {},
+  pullStore: async function () {},
+  loadState: function () {},
+};
+
+export const metaLayerGroups = { ...layerGroups }

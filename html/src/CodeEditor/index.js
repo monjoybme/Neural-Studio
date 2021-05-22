@@ -6,7 +6,7 @@ import { GET, } from "../Utils";
 const CodeEditor = (
   props = { store: metaStore, storeContext: metaStoreContext }
 ) => {
-  let { appConfig } = props.store;
+  let { app } = props.store;
   let [code, codeState] = React.useState({
     data: undefined,
     fetched: true,
@@ -37,7 +37,7 @@ const CodeEditor = (
           defaultLanguage="python"
           defaultValue={code.data}
           onValidate={(e) => console.log(e)}
-          theme={"vs-" + appConfig.theme}
+          theme={"vs-" + app.theme}
         />
       )}
     </div>

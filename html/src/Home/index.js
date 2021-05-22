@@ -1,12 +1,12 @@
 import React from "react";
 import {
-  metaAppConfig,
   metaAppFunctions,
+  metaHome,
   metaStore,
   metaStoreContext,
 } from "../Meta/index";
 import { icons } from "../data/icons";
-import { GET, Loading, POST } from "../Utils";
+import { GET, Loading, POST, pull } from "../Utils";
 
 const WorkspaceCard = (
   props = { name: "Hello", store: metaStore, storeContext: metaStoreContext }
@@ -15,7 +15,7 @@ const WorkspaceCard = (
     props.store.popupState(
       <div
         className="workspace-card-context"
-        style={{ top: e.clientY, left: e.clientX }}
+        style={{ top: e.clientY - 5, left: e.clientX - 5, cursor:"default" }}
         onMouseLeave={(e) => props.store.popupState(<div></div>)}
       >
         <div
@@ -207,22 +207,31 @@ const Home = (
     appFunctions: metaAppFunctions,
   }
 ) => {
-  let { popupState, appConfig } = props.store;
+  let { popupState } = props.store;
+  let [home, homeState] = React.useState(metaHome);
+  let [load, loadState] = React.useState(true);
 
-  let [yourWorkData, yourWorkDataState] = React.useState([]);
-
-  async function pullData() {
-    await GET({
-      path: "/workspace/all",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        yourWorkDataState([...data.data]);
-      });
+  async function pullHome(){
+    pull({
+      name: "app",
+    }).then(function (response) {
+      GET({
+        path: "/workspace/all",
+      })
+        .then((w_all) => w_all.json())
+        .then((w_all) => {
+          homeState({
+            active: {
+              name: response.name,
+            },
+            user_work: w_all.data,
+          });
+        });
+    });
   }
 
   async function newWorkspace(name) {
-    await props.appFunctions.autosave();
+    popupState(undefined);
     await POST({
       path: "/workspace/new",
       data: {
@@ -231,61 +240,71 @@ const Home = (
     })
       .then((response) => response.json())
       .then(async function(data) {
-        props.appFunctions.loadState(true);
-        Object.entries(props.storeContext).map(([key, val])=>{
-          val.set({});
-        })
-        props.appFunctions.pullStore();
-        await pullData().then(response=>{
-          props.appFunctions.loadState(false);
-        });
+        if ( data.status ){
+          await pullHome();
+        }
       });
   }
 
   async function openWorkspace(options = { name: "workspace" }) {
-    await props.appFunctions.autosave();
+    popupState(undefined);
     await POST({
       path: `/workspace/open/${options.name}`,
       data: {},
     })
       .then((response) => response.json())
       .then(async function (data) {
-        props.appFunctions.loadState(true);
-        await props.appFunctions.pullStore().then(async function(response){
-          await pullData().then(async function(response){
-            props.appFunctions.notify({ message: `${options.name} Loaded.` });
-            props.appFunctions.loadState(false);
-          })
-        });
+        await pullHome();
       });
   }
 
   async function deleteWorkspace(options = { name: "workspace" }) {
-    POST({
-      path: `/workspace/delete/${encodeURIComponent(options.name)}`,
-      data: {},
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.status) {
-          props.appFunctions.pullStore();
-          pullData();
-        }
-        popupState(undefined);
+    popupState(undefined);
+    if ( options.name === home.active.name ){
+      props.appFunctions.notify({
+        message: "Cannot delete active workspace."
+      })
+    }else{
+      await POST({
+        path: `/workspace/delete/${encodeURIComponent(options.name)}`,
+        data: {},
+      })
+        .then((response) => response.json())
+        .then(async function(data) {
+          if (data.status) {
+            pullHome();
+          }
       });
+    }
   }
 
   React.useEffect(() => {
-    if (!yourWorkData.length) {
-      pullData();
+    if ( load ){
+      pull({
+        name: "app",
+      }).then(function (response) {
+        GET({
+          path: "/workspace/all",
+        })
+          .then((w_all) => w_all.json())
+          .then((w_all) => {
+            homeState({
+              active: {
+                name: response.name,
+              },
+              user_work: w_all.data,
+            });
+            loadState(false);
+          });
+      });
     }
-  }, [yourWorkData]);
+  });
 
   return (
     <div className="home container">
       <div className="name">Active Worksapce</div>
       <div className="card active">
-        <div className="head">{appConfig.name}</div>
+        <div className="head">{home.active.name}</div>
         <div className="footer">
           <div className="name">
             <icons.Save onClick={(e) => props.appFunctions.autosave()} />
@@ -297,7 +316,7 @@ const Home = (
             />
             <icons.Delete
               onClick={(e) => {
-                deleteWorkspace({ name: appConfig?.name });
+                deleteWorkspace({ name: home.active.name });
               }}
             />
           </div>
@@ -306,7 +325,7 @@ const Home = (
       <div className="name">Your Work</div>
       <div className="cards">
         <NewCard newWorkspace={newWorkspace} />
-        {yourWorkData.map((work, i) => {
+        {home.user_work.map((work, i) => {
           return (
             <WorkspaceCard
               {...props}

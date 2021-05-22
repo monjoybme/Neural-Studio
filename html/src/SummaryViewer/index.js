@@ -1,5 +1,5 @@
 import React from "react";
-import { Loading } from "../Utils";
+import { GET, Loading } from "../Utils";
 import { metaStore ,metaStoreContext } from "../Meta";
 
 const SummaryViewer = (props = { store: metaStore, storeContext:metaStoreContext }) => {
@@ -7,15 +7,12 @@ const SummaryViewer = (props = { store: metaStore, storeContext:metaStoreContext
     data: [],
     fetched: false,
   });
-  let { graphdef } = props.store;
 
   async function getModel(e) {
-    await fetch("http://localhost/model/summary", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...graphdef }),
+    await GET({
+      path: "/model/summary",
     })
-      .then((response) => response.json())
+     .then((response) => response.json())
       .then((data) => {
         summaryState({
           data: data.summary,

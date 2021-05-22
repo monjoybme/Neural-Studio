@@ -21,26 +21,26 @@ const propMeta = {
 
 const Node = (
   props = {
-    ...propMeta,
+    node:propMeta,
     menu: undefined,
     menuState: function (_ = { comp: undefined, render: false }) {},
-    store: metaStore,
-    storeContext: metaStoreContext,
+    graph: {},
+    graphState: function(){},
     appFunctions: metaAppFunctions,
   }
 ) => {
-  let { id, pos, connections, width } = props;
-  let { graphDef, graphDefState, canvasConfig } = props.store;
-
-  let height = 30;
+  let { id, pos, connections, width, } = props.node;
+  let { graph, graphState } = props;
   let nodeRef = React.useRef(<svg />);
 
+  let height = 30;
+  
   function onMouseDown(e) {
     e.preventDefault();
-    switch (canvasConfig.mode) {
+    switch (window.canvas.mode) {
       case "move":
-        canvasConfig.activeElement = {
-          layer: props,
+        window.canvas.activeElement = {
+          layer: props.node,
           text: document.getElementById(`${id}-text`),
           rect: document.getElementById(`${id}-rect`),
           ref: {
@@ -57,19 +57,19 @@ const Node = (
         break;
       case "edge":
         if (e.button) {
-          canvasConfig.newEdge = {
+          window.canvas.newEdge = {
             longLine: true,
             queue: [{ from: undefined, to: id }],
           };
         } else {
-          canvasConfig.newEdge = {
+          window.canvas.newEdge = {
             longLine: false,
             from: id,
           };
         }
         break;
       case "delete":
-        canvasConfig.activeElement = props;
+        window.canvas.activeElement = props;
         break;
       default:
         break;
@@ -77,12 +77,12 @@ const Node = (
   }
 
   function onMouseOver(e) {
-    switch (canvasConfig.mode) {
+    switch (window.canvas.mode) {
       case "edge":
-        if (canvasConfig.newEdge) {
-          if (canvasConfig.newEdge.longLine) {
-            let { queue } = canvasConfig.newEdge;
-            canvasConfig.newEdge.queue.push({
+        if (window.canvas.newEdge) {
+          if (window.canvas.newEdge.longLine) {
+            let { queue } = window.canvas.newEdge;
+            window.canvas.newEdge.queue.push({
               from: queue[queue.length - 1].to,
               to: id,
             });
@@ -96,23 +96,23 @@ const Node = (
 
   function onMouseUp(e) {
     e.preventDefault();
-    switch (canvasConfig.mode) {
+    switch (window.canvas.mode) {
       case "edge":
-        if (canvasConfig.newEdge.longLine) {
-          canvasConfig.newEdge.queue.forEach((edge) => {
+        if (window.canvas.newEdge.longLine) {
+          window.canvas.newEdge.queue.forEach((edge) => {
             let { from, to } = edge;
             props.tools.addEdge(from, to);
           });
         } else {
           let to = id;
-          let { from } = canvasConfig.newEdge;
+          let { from } = window.canvas.newEdge;
           props.tools.addEdge(from, to);
         }
-        graphDefState({
-          ...graphDef,
+        graphState({
+          ...graph,
         });
-        canvasConfig.newEdge = undefined;
-        canvasConfig.activeLine = undefined;
+        window.canvas.newEdge = undefined;
+        window.canvas.activeLine = undefined;
         break;
       default:
         break;
@@ -120,10 +120,10 @@ const Node = (
   }
 
   function onClick(e) {
-    switch (canvasConfig.mode) {
+    switch (window.canvas.mode) {
       case "normal":
         props.menuState({
-          comp: <Menu {...props} />,
+          comp: <Menu {...props.node} graph={ graph } graphState={ graphState } />,
           render: true,
         });
         break;
@@ -133,8 +133,8 @@ const Node = (
   }
 
   function edgeOnMouseDown(e) {
-    if (canvasConfig.mode === "delete") {
-      canvasConfig.activeElement = {
+    if (window.canvas.mode === "delete") {
+      window.canvas.activeElement = {
         type: {
           object_class: "edge",
         },
@@ -144,7 +144,7 @@ const Node = (
     }
   }
 
-  return (
+  return ( 
     <g x={pos.x} y={pos.y} ref={nodeRef} onMouseEnter={onMouseOver}>
       <rect
         x={pos.x}
@@ -169,7 +169,7 @@ const Node = (
         {id}
       </text>
       {connections.inbound.map((layer, i) => {
-        let pos_out = graphDef[layer];
+        let pos_out = graph.nodes[layer];
         if (pos_out) {
           return (
             <line

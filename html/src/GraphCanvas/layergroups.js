@@ -1,5 +1,5 @@
 import React from 'react';
-import { metaStore, metaStoreContext } from '../Meta';
+import { metaLayerGroups, metaStore, metaStoreContext } from '../Meta';
 
 const LayerGroupCollapsed = (
   props = { store: metaStore, storeContext: metaStoreContext }
@@ -50,25 +50,25 @@ const LayerGroupOpen = (
 };
 
 const LayerGroups = (
-  props = { store: metaStore, storeContext: metaStoreContext }
+  props = { layergroups: metaLayerGroups, layergroupsState: function(){} }
 ) => {
-  let { layerGroups, layerGroupsState } = props.store;
+  let { layergroups, layergroupsState } = props;
 
   function toggleSection(e) {
-    layerGroups[e.target.id].visible = ~layerGroups[e.target.id].visible;
-    layerGroupsState({
-      ...layerGroups,
+    layergroups[e.target.id].visible = ~layergroups[e.target.id].visible;
+    layergroupsState({
+      ...layergroups,
     });
   }
 
   return (
     <div className="layergroups">
-      {Object.keys(layerGroups).map((layerGroup, i) => {
-        return layerGroups[layerGroup].visible ? (
+      {Object.keys(layergroups).map((layerGroup, i) => {
+        return layergroups[layerGroup].visible ? (
           <LayerGroupOpen
             key={i}
             id={layerGroup}
-            layerGroup={layerGroups[layerGroup]}
+            layerGroup={layergroups[layerGroup]}
             toggleSection={toggleSection}
             {...props}
           />
@@ -76,7 +76,7 @@ const LayerGroups = (
           <LayerGroupCollapsed
             key={i}
             id={layerGroup}
-            layerGroup={layerGroups[layerGroup]}
+            layerGroup={layergroups[layerGroup]}
             toggleSection={toggleSection}
             {...props}
           />

@@ -305,6 +305,10 @@ html body {
     background: $lightBg;
     color: $lightColorPr;
   }
+
+  .loaddata {
+    background: $lightFr;
+  }
 }
 
 .dark {
@@ -313,5 +317,8 @@ html body {
     border: $darkBorder2;
     background: $darkBg;
     color: $darkColorPr;
+  }
+  .loaddata {
+    background: $darkFr;
   }
 }
