@@ -302,6 +302,19 @@ async def dataset_checkpoint(request: Request):
         "message": "Method Not Allowed."
     }, code=402)
 
+@app.route("/dataset/data")
+async def dataset_checkpoint(request: Request):
+    if request.headers.method == 'POST':
+        data = await request.get_json()
+        return await json_response({
+            "message":data,
+            "status":status
+        })
+
+    return await json_response({
+        "message": "Method Not Allowed."
+    }, code=402)
+
 # training endpoints
 
 @app.route("/train/start",)
