@@ -1,7 +1,7 @@
 import React from "react";
 
 import { TopBar, SideBar } from "./NavBar";
-import { POST, Notification, GET, Loading, pull } from "./Utils";
+import { POST, Notification, GET, Loading, pull, push } from "./Utils";
 import {
   metaSideNav,
   metaApp,
@@ -129,7 +129,6 @@ const App = (props) => {
         switch (e.key) {
           case "s":
             e.preventDefault();
-            appFunctions.autosave();
             break;
           case "e":
             break;
@@ -138,12 +137,6 @@ const App = (props) => {
           case "d":
             e.preventDefault();
             appFunctions.downloadCode();
-            break;
-          case "s":
-            appFunctions.notify({
-              message: "HEllo",
-            });
-            appFunctions.autosave();
             break;
           case "1":
             e.preventDefault();
@@ -215,21 +208,34 @@ const App = (props) => {
   }
 
   React.useEffect(function () {
-    window.onkeydown = keymap;
-    window.onkeyup = function (e) {
-      window.__SHORTCUT__ = -1;
-    };
     if ( load ){
-      pull({
-        name:"app",
-      }).then(function(response){
-        appState({...response});
+      window.onkeydown = keymap;
+      window.onkeyup = function (e) {
+        window.__SHORTCUT__ = -1;
+      };
+    }else {
+      
+    }
+  }, [load, ]);
+
+  React.useEffect(function(){
+    if (app.fetch){
+      pull({ name: "app"}).then(app_data=>{
+        appState({
+          ...app_data,
+          fetch: false
+        })
+      })
+    }else{
+      console.log("[PUSH] app")
+      push({
+        name: "app",
+        data: app
+      }).then(_=>{
         loadState(false);
       })
-    }else {
-      // appFunctions.autosave();
     }
-  });
+  }, [app, ])
 
   return (
     <Main {...defaultProps}>

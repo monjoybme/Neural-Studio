@@ -30,16 +30,11 @@ export const push = async function (
   options = {
     name: "var",
     data: null,
-  }
-) {
+  }) {
   return await POST({
     path: `/workspace/active/var/${options.name}`,
     data: options.data,
-  })
-    .then((response) => response.json())
-    .then(function (data) {
-        return data;
-    });
+  }).then((response) => response.json())
 };
 
 export const pull = async function (
@@ -49,11 +44,7 @@ export const pull = async function (
 ) {
   return await GET({
     path: `/workspace/active/var/${options.name}`
-  })
-    .then((response) => response.json())
-    .then(function (data) {
-      return data;
-    });
+  }).then((response) => response.json())
 };
 
 export const Loading = (props) => {

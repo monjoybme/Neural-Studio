@@ -5,9 +5,9 @@ from shutil import rmtree
 
 from .utils import Dict
 from .graph import GraphDef
+from .dataset import DATASETS
 
 APP = Dict({
-    "name": "model",
     "theme": "light",
     "global": {
         "topbar": {
@@ -67,7 +67,13 @@ CANVAS = Dict({
 })
 
 DATASET = Dict({
-    "name":None
+    "name":None,
+    "meta":{
+        "type":"Dataset",
+        "config":{
+            "path":None, # optional, required in CSVDataset
+        }
+    }
 })
 
 TRAIN = Dict({
@@ -113,18 +119,20 @@ class Cache(object):
 class Workspace(Dict):
     __required__vars__ = [
         ('app', APP),
+        ('home', HOME),
         ('graph', GRAPH),
         ('canvas', CANVAS),
         ('dataset', DATASET),
         ('train',TRAIN)
     ]
-    __vars__ = [ 'app', 'graph', 'canvas', 'dataset', 'train' ]
+    __vars__ = ['app', 'home',  'graph', 'canvas', 'dataset', 'train']
 
     train = TRAIN
     dataset = DATASET
     graph = GRAPH
     canvas = CANVAS
     app = APP
+    home = HOME
 
     def __init__(self, path: str):
         self.__path__ = path
@@ -134,8 +142,7 @@ class Workspace(Dict):
             mkdir(self.__path__)
             for var, val in self.__required__vars__:
                 file = pathlib.join(self.__path__, f"{var}.json")
-                if var == 'app':
-                    val['name'] = self.__name__
+                if var == 'home': val[['active:name']] = self.__name__
                 with open(file, "w+") as file:
                     dump(val.full_dict, file)
 
@@ -213,6 +220,11 @@ class WorkspaceManager(Dict):
         for w in self.workspaces:
             yield w
 
+    def add_dataset(self, name:str, metadata:dict = { "type":"dataset" } ):
+        pass
+
+    
+
     def new_workspace(self, name: str) -> Workspace:
         workspace = Workspace(
             path=pathlib.join(self.root, "workspace", name)
@@ -245,7 +257,7 @@ class WorkspaceManager(Dict):
                 self.root, "workspace", w) != path}
             rmtree(path,)
 
-            if self.active[['app:name']] == name:
+            if self.active[['home:active:name']] == name:
                 self.active = self.open_workspace(self.cache.last)
                 if not self.active:
                     self.active = self.new_workspace("model")

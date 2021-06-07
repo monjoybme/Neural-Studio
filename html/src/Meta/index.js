@@ -66,6 +66,7 @@ export const  metaRoute = {
 };
 
 export const  metaApp = {
+  fetch: true,
   name:"model",
   theme: "light",
   geometry: {
@@ -95,7 +96,8 @@ export const  metaHome = {
   active: {
     name: "model",
   },
-  user_work: [],
+  your_work: [],
+  fetch: true
 };
 
 export const  metaCanvas = {

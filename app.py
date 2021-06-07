@@ -1,6 +1,5 @@
 import inspect
 import re
-from sys import flags, modules, path
 import zipfile
 
 from tf_gui.web import App, Request, json_response, text_response, send_file
@@ -8,12 +7,11 @@ from tf_gui.web import App, Request, json_response, text_response, send_file
 from tf_gui.trainer import Trainer
 from tf_gui.manage import Workspace, WorkspaceManager
 from tf_gui.graph import GraphDef
+from tf_gui.dataset import DATASETS, Dataset
 
-from json import dump, JSONDecodeError
-from os import chdir, path as pathlib, mkdir
-from shutil import register_unpack_format, rmtree
+from os import chdir, path as pathlib, mkdir, listdir
+from shutil import rmtree
 from glob import glob
-
 
 ROOT_PATH = pathlib.abspath("./")
 
@@ -21,11 +19,6 @@ app = App()
 workspace_mamager = WorkspaceManager()
 trainer = Trainer(workspace_mamager)
 
-try:
-    trainer.update_dataset(from_workspace=True)
-except Exception as e:
-    print (f'Warning : {e}')
-    pass
 
 def generate_args(code) -> dict:
     exec(code)
@@ -102,8 +95,9 @@ download_options = {
 
 # Workspace Endpoints
 
+
 @app.route("/workspace/active",)
-async def workspace(request: Request,):
+async def workspace_active(request: Request,):
     if request.headers.method == "GET":
         return await json_response({
             "data": workspace_mamager.active.get_var_dict(),
@@ -115,7 +109,7 @@ async def workspace(request: Request,):
 
 
 @app.route("/workspace/active/var/<str:var>",)
-async def workspace(request: Request,var:str ):
+async def workspace_active_var(request: Request, var: str):
     if request.headers.method == "GET":
         return await json_response(workspace_mamager.active[var].full_dict)
     elif request.headers.method == 'POST':
@@ -123,15 +117,24 @@ async def workspace(request: Request,var:str ):
             var_data = await request.get_json()
             workspace_mamager.active[var] = var_data
             return await json_response({
-                "status":True
+                "status": True
             })
         except Exception as e:
+            print(f"Error {e}, while updating {var}")
             return await json_response({
-                "status":False
+                "status": False
             })
     return await json_response({
         "message": "Method Not Allowed !"
     })
+
+
+@app.route("/workspace/active/var/<str:var>/<str:key>",)
+async def workspace_active_var_key(request: Request, var: str, key: str):
+    return await json_response({
+        "data": workspace_mamager.active[var][[key.replace("-", ":")]]
+    })
+
 
 @app.route("/workspace/recent",)
 async def workspace_recent(request: Request,):
@@ -148,42 +151,21 @@ async def workspace_recent(request: Request,):
 @app.route("/workspace/all",)
 async def workspace_all(request: Request,):
     if request.headers.method == "GET":
-        return await json_response({
-            "data": workspace_mamager.get_workspaces(),
-        },)
+        return await json_response(workspace_mamager.get_workspaces())
 
     return await json_response({
         "message": "Method Not Allowed !"
     }, status_code=400)
-
-
-@app.route("/workspace/autosave",)
-async def workspace_autosave(request: Request,):
-    if request.headers.method == "POST":
-        data = await request.get_json()
-        workspace_mamager.active.set(**data)
-        workspace_mamager.active.save()
-        return await json_response({
-            "data": workspace_mamager.get_workspaces(),
-        })
-    return await json_response({
-        "message": "Method Not Allowed !"
-    })
 
 
 @app.route("/workspace/new",)
 async def workspace_new(request: Request,):
-    if request.headers.method == "POST":
-        data = await request.get_json()
-        w = workspace_mamager.new_workspace(**data)
-        assert w.idx == workspace_mamager.active.idx
-        return await json_response({
-            "status":True
-        },)
-
+    data = await request.get_json()
+    workspace = workspace_mamager.new_workspace(**data)
+    assert workspace.idx == workspace_mamager.active.idx
     return await json_response({
-        "message": "Method Not Allowed !"
-    }, status_code=400)
+        "status": True
+    })
 
 
 @app.route("/workspace/open/<str:name>",)
@@ -212,6 +194,7 @@ async def workspace_new(request: Request, name: str):
     }, status_code=400)
 
 # download endpoints
+
 
 @app.route("/download",)
 async def download_model(request: Request):
@@ -263,15 +246,24 @@ async def buiild(request: Request):
 @app.route("/model/summary",)
 async def summary_viewer(request: Request):
     if request.headers.method == 'GET':
-            return await json_response({
-                "summary": trainer.summary
-            })
+        return await json_response({
+            "summary": trainer.summary
+        })
     return await json_response({
         "message": "Method Not Allowed"
-    },code=402)
+    }, code=402)
 
 # dataset api endpoints
 
+
+@app.route("/dataset/init")
+async def dataset_start(request: Request):
+    data = await request.get_json()
+    dataset: Dataset = DATASETS[data['meta']['type']]
+    dataset: Dataset = dataset(**data)
+    return await json_response({
+        "sample": dataset.sample()
+    })
 
 @app.route("/dataset/checkpoint")
 async def dataset_checkpoint(request: Request):
@@ -281,48 +273,71 @@ async def dataset_checkpoint(request: Request):
         idx = data['id']
         status, message = trainer.update_dataset(dataset, idx)
         return await json_response({
-            "message":message,
-            "status":status
+            "message": message,
+            "status": status
         })
 
     return await json_response({
         "message": "Method Not Allowed."
     }, code=402)
+
 
 @app.route("/dataset/unload")
 async def dataset_checkpoint(request: Request):
     if request.headers.method == 'POST':
         status, message = trainer.unload_dataset()
         return await json_response({
-            "message":message,
-            "status":status
+            "message": message,
+            "status": status
         })
 
     return await json_response({
         "message": "Method Not Allowed."
     }, code=402)
+
 
 @app.route("/dataset/data")
 async def dataset_checkpoint(request: Request):
     if request.headers.method == 'POST':
         data = await request.get_json()
         return await json_response({
-            "message":data,
-            "status":status
+            "message": data,
+            "status": status
         })
 
     return await json_response({
         "message": "Method Not Allowed."
     }, code=402)
 
+
+@app.route("/dataset/path")
+async def dataset_checkpoint(request: Request):
+    data = await request.get_json()
+    path = data['path']
+    if not path:
+        return await json_response([])
+
+    elif pathlib.isfile(path):
+        return await json_response([])
+
+    elif pathlib.isdir(path):
+        return await json_response(list(map(lambda x: pathlib.join(path, x), listdir(path))))
+
+    else:
+        d, p = pathlib.split(path)
+        if pathlib.isdir(d):
+            return await json_response(list(map(lambda x: pathlib.join(d, x) if p in x else None, listdir(d))))
+        return await json_response([])
+
 # training endpoints
+
 
 @app.route("/train/start",)
 async def train_start(request: Request):
     if request.headers.method == 'POST':
         if trainer.isTraining:
             return await json_response({
-                "message":"A training session is already running, please wait or stop the session."
+                "message": "A training session is already running, please wait or stop the session."
             })
         trainer.logs = []
         status, message = trainer.build()
@@ -340,10 +355,11 @@ async def train_start(request: Request):
         trainer.start()
         return await json_response({
             "message": "Training Started",
-            "status":True
+            "status": True
         })
 
     return await json_response(data={"message": "Method Not Allowed"}, code=402)
+
 
 @app.route("/train/halt",)
 async def train_halt(request: Request):
@@ -393,6 +409,7 @@ async def status(request: Request):
     })
 
 # custom node endpoints
+
 
 @app.route("/custom/node/build")
 async def node_build(request: Request):
