@@ -2,8 +2,9 @@
 
 $sidebarWidth : 60px;
 $topbarHeight : 60px;
-$notificationBarHeight : 20px;
+$statusBarHeight : 20px;
 $lossmonitorWidth : 460px;
+$notificationHeight : 60px;
 
 // Colors
 
@@ -120,32 +121,8 @@ $lightBorder3 : 0.01rem solid rgba(119, 119, 119, 0.3);
   font-style: italic;
 }
 
-$orange0 : #f15f11;
-$orange1 : #c76d0cd4;
-$orange2 : #f18f0eb9;
-$orange3 : #f18f0e75;
-
-$bgLight : #fff;
-$bgDark : #333;
-
-$bgsLight : #fafafa;
-$bgsDark : #555;
-
-$colorDark : #333;
-$colorLight : white;
-
-$svgActive : #f15f11;
-$svgDark : #ddd;
-$svgLight : #333;
-
-// Borders
-
-$borderLight : 1px solid rgba(240, 240, 240, 0.4);
-$borderDark : 1px solid rgba(40, 40, 40, 0.4);
-
-$border1: 0.001rem solid $orange1;
-
 // Geometry
+
 
 
 // mixins
@@ -182,11 +159,6 @@ input:focus {
   outline: none;
 }
 
-:focus {
-  outline: none;
-  border: none;
-}
-
 html body {
   overflow: hidden;
 }
@@ -200,7 +172,7 @@ html body {
 }
  
 ::-webkit-scrollbar-thumb {
-  background-color: $orange1;
+  background-color: $primary;
   border-radius: 3px;
 }
 
@@ -244,7 +216,7 @@ html body {
 }
 
 .container {
-  height: calc( 100% - ( #{$topbarHeight} + #{$notificationBarHeight} ) );
+  height: calc( 100% - ( #{$topbarHeight} + #{$statusBarHeight} ) );
   width: 100%;
   overflow: hidden;
 }
@@ -259,10 +231,89 @@ html body {
   transform: translate( -50%, -50%);
 }
 
+@keyframes load_notification {
+  0%{
+    transform: translateX( 100% );
+  }  
+  90%{
+    transform: translateX( -32px );
+  }
+  100%{
+    transform: translateX( 0% );
+  }
+}
+
+.notification {
+  position: absolute;
+
+  bottom: $statusBarHeight + 10px;
+  right: 10px;
+  z-index: 999999;
+
+  min-height: $notificationHeight;
+  min-width: 280px;
+  max-width: 280px;
+
+  animation: load_notification 500ms;
+  @include flex(row,flex-start ,center );
+
+  .message {
+    height: $notificationHeight;
+    width: 100%;
+    padding: 5px 5px 5px 10px;
+
+    @extend .heading-4;
+  }
+
+  .close{
+    width: 25px;
+    padding:2.5px;
+    height: $notificationHeight;
+    svg{
+      height: 20px;
+      width: 20px;
+    }
+  }
+
+}
+
+@keyframes unload_notification {
+  0%{
+    transform: translateX(0px);
+  }
+  45%{
+    transform: translateX(-48px);
+  }
+  100%{
+    transform: translateX( 110% );
+  }
+}
+
+.nout {
+  animation: unload_notification 510ms;
+}
+
 .light {
-  background: $bgLight;
+  background: $lightBg;
+  .notification{
+    border: $lightBorder2;
+    background: $lightBg;
+    color: $lightColorPr;
+  }
+
+  .loaddata {
+    background: $lightFr;
+  }
 }
 
 .dark {
-  background: $bgDark;
+  background: $darkBg;
+  .notification{
+    border: $darkBorder2;
+    background: $darkBg;
+    color: $darkColorPr;
+  }
+  .loaddata {
+    background: $darkFr;
+  }
 }

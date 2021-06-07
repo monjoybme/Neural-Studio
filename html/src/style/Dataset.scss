@@ -1,0 +1,251 @@
+@import "./App.scss";
+
+.dataset-container {
+  background: $lightFr;
+  min-width: calc(100vw - 60px);
+  max-width: calc(100vw - 60px);
+  .selector {
+    height: 100%;
+    width: 100%;
+    padding: 10px;
+    @include flex(column, flex-start, flex-start);
+
+    .search {
+      height: 40px;
+      width: 100%;
+      border-radius: 3px;
+      padding: 10px;
+      border: $lightBorder2;
+      background: $lightBg;
+
+      @include flex(row, flex-start, center);
+
+      svg {
+        height: 18px !important;
+        width: 18px !important;
+      }
+
+      input {
+        margin-left: 7px;
+        width: -webkit-fill-available;
+        color: $lightColorPr;
+
+        @include flex(row, center, flex-start);
+        @extend .heading-4;
+      }
+    }
+
+    .datasets {
+      border: $lightBorder2;
+      background: $lightBg;
+      margin-top: 10px;
+
+      width: 100%;
+
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minMax(280px, 1fr));
+      grid-gap: 10px;
+
+      padding: 10px;
+
+      .card {
+        height: 60px;
+        width: 100%;
+
+        padding: 10px;
+        border: $lightBorder2;
+        cursor: pointer;
+
+        @include flex(row, flex-start, center);
+        @extend .heading-4;
+      }
+    }
+  }
+
+  .datasetviewer {
+    height: 100%;
+    width: 100%;
+
+    padding: 10px;
+    @include flex(column, flex-start, center);
+  }
+
+  .csvdataset {
+    height: 100%;
+    width: 100%;
+
+    .top {
+      width: 100%;
+      height: 40px;
+      padding: 10px;
+      background: $lightBg;
+      border: $lightBorder2;
+      border-radius: 2px;
+
+      @include flex(row, space-between, center);
+
+      .name {
+        @extend .heading-3;
+      }
+
+      button {
+          @extend .heading-4;
+          cursor: pointer;
+          width: 80px;
+        }
+    }
+
+    .utils {
+      width: 100%;
+      margin-top: 10px;
+      background: $lightBg;
+      border: $lightBorder2;
+      border-radius: 2px;
+
+      .pathinput {
+        padding: 10px;
+        height: 40px;
+
+        input {
+          @extend .heading-4;
+          width: 95%;
+        }
+
+        button {
+          @extend .heading-4;
+          cursor: pointer;
+          width: 5%;
+        }
+      }
+    }
+
+    .viewer {
+      width: 100%;
+      min-height: 250px;
+
+      margin-top: 10px;
+      background: $lightBg;
+
+      border: $lightBorder2;
+      border-radius: 2px;
+
+      overflow-x: scroll;
+      overflow-y: hidden;
+
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding-bottom: 0px;
+
+      .columns {
+        border-bottom: $lightBorder3;
+        background: #f7f7f7;
+        width: 100%;
+
+        .column {
+          height: 40px;
+          font-weight: 700;
+          border-right: $lightBorder3;
+
+          @include flex();
+          @extend .heading-4;
+        }
+      }
+
+      .rows {
+        width: 100%;
+        .row {
+          width: 100%;
+          .column {
+            height: 40px;
+            border-right: $lightBorder3;
+
+            @include flex(row, center, center);
+            @extend .heading-4;
+          }
+        }
+      }
+    }
+
+    .features {
+      width: 100%;
+      height: 180px;
+      margin-top: 10px;
+
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 10px;
+
+      .selector {
+        width: 100%;
+        height: 100%;
+        padding: 5px;
+        background: $lightBg;
+        border: $lightBorder2;
+
+        overflow-y: scroll;
+        display: flex;
+        flex-flow: row wrap;
+        align-content: space-between;
+        justify-content: flex-start;
+
+        .title {
+          width: 100%;
+          height: 30px;
+          border-bottom: $lightBorder2;
+          margin-bottom: 5px;
+
+          @include flex();
+        }
+
+        .checkbox {
+          padding: 5px;
+          @include flex(row, flex-start, center);
+
+          .box {
+            border: 2px solid $darkFr;
+            height: 16px;
+            width: 16px;
+
+            margin-right: 5px;
+            cursor: pointer;
+          }
+
+          .selected {
+            padding: 3px;
+            background: $lightBg;
+            border: 2px solid $darkFr;
+
+            .check {
+                background: $darkFr;
+                height: 100%;
+                width: 100%;
+            }
+          }
+        }
+      }
+    }
+
+    .preprocessor {
+        background: $lightBg;
+        border: $lightBorder2;
+
+        margin-top: 10px;
+        width: 100%;
+        height: -webkit-fill-available;
+
+        .title {
+            height: 40px;
+            padding:0px 10px;
+            border-bottom: $lightBorder2;
+
+            @include flex(row, flex-start, center);
+            @extend .heading-4;
+        }
+
+        section {
+            height: calc(90% - 40px) !important;
+        }
+    }
+  }
+}

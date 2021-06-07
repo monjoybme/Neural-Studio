@@ -5,9 +5,8 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 window.__FIRST__LOAD__ = true;
-window.layers = {}
-window.canvasConfig = {
-  ctiveLayer: undefined,
+window.canvas = {
+  activeLayer: undefined,
   activeLine:undefined,
   newEdge:undefined,
   pos:undefined,
@@ -21,11 +20,21 @@ window.canvasConfig = {
     y:0,
     w:0,
     h:0
+  },
+  customNodes:{
+    nodeCount:{},
+    definitions:[]
   }
 }
 window.copy = function (object) {
   return JSON.parse(JSON.stringify(object));
 };
+
+setInterval(function () {
+  window.offsetX =
+    280 + 60;
+  window.offsetY = 60;
+}, 1000);
 
 ReactDOM.render(
   <React.StrictMode>

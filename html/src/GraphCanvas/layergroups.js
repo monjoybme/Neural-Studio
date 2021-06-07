@@ -1,7 +1,9 @@
 import React from 'react';
-import { StoreContext } from '../Store';
+import { metaLayerGroups, metaStore, metaStoreContext } from '../Meta';
 
-const LayerGroupCollapsed = (props) => {
+const LayerGroupCollapsed = (
+  props = { store: metaStore, storeContext: metaStoreContext }
+) => {
   return (
     <div className="layers" key={props.i}>
       <div
@@ -16,8 +18,10 @@ const LayerGroupCollapsed = (props) => {
   );
 };
 
-const LayerGroupOpen = (props) => {
-  
+const LayerGroupOpen = (
+  props = { store: metaStore, storeContext: metaStoreContext }
+) => {
+
   return (
     <div className="layers" key={props.i}>
       <div className="name" id={props.id} onClick={props.toggleSection}>
@@ -45,39 +49,40 @@ const LayerGroupOpen = (props) => {
   );
 };
 
-const LayerGroups = (props={store:StoreContext}) => {
-  let { layerGroups, layerGroupsState } = props.store;
+const LayerGroups = (
+  props = { layergroups: metaLayerGroups, layergroupsState: function(){} }
+) => {
+  let { layergroups, layergroupsState } = props;
 
   function toggleSection(e) {
-    layerGroups[e.target.id].visible = ~layerGroups[e.target.id].visible;
-    layerGroupsState({
-      ...layerGroups,
+    layergroups[e.target.id].visible = ~layergroups[e.target.id].visible;
+    layergroupsState({
+      ...layergroups,
     });
   }
 
   return (
     <div className="layergroups">
-      {Object.keys(layerGroups).map((layerGroup, i) => {
-        return layerGroups[layerGroup].visible ? (
+      {Object.keys(layergroups).map((layerGroup, i) => {
+        return layergroups[layerGroup].visible ? (
           <LayerGroupOpen
             key={i}
             id={layerGroup}
-            layerGroup={layerGroups[layerGroup]}
+            layerGroup={layergroups[layerGroup]}
             toggleSection={toggleSection}
-            
-            { ...props }
+            {...props}
           />
         ) : (
           <LayerGroupCollapsed
             key={i}
             id={layerGroup}
-            layerGroup={layerGroups[layerGroup]}
+            layerGroup={layergroups[layerGroup]}
             toggleSection={toggleSection}
-            
-            { ...props }
+            {...props}
           />
         );
       })}
+      <div className="layers"></div>
     </div>
   );
 };

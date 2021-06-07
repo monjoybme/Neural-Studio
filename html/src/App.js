@@ -1,241 +1,134 @@
 import React from "react";
 
-import Graph from "./GraphCanvas";
-import CodeEditor from "./CodeEditor";
-import Train from "./Training";
-import SummaryViewer from "./SummaryViewer";
-import Home from "./Home";
+import { TopBar, SideBar } from "./NavBar";
+import { POST, Notification, GET, Loading, pull, push } from "./Utils";
+import {
+  metaSideNav,
+  metaApp,
+  metaStore,
+  metaRender,
+} from "./Meta";
 
-import layerGroupsDefault from "./data/layers";
-import { StoreContext } from "./Store";
-import { icons } from "./data/icons";
-import { appConfig } from "./data/appconfig.js";
-import { POST } from "./Utils";
+import "./style/App.scss";
+import "./style/Nav.scss";
+import "./style/Home.scss";
+import './style/Dataset.scss';
+import "./style/Canvas.scss";
+import "./style/Code.scss";
+import "./style/Training.scss";
+import "./style/Summary.scss";
 
-
-import './style/App.scss';
-import './style/Nav.scss';
-import './style/Home.scss';
-import './style/Canvas.scss';
-import './style/Code.scss';
-import './style/Training.scss';
-import './style/Summary.scss';
-
-clearInterval(window.__UPDATE_OFFSET__);
-window.__UPDATE_OFFSET__ =  setInterval(function () {
-  window.offsetX = appConfig.canvas.toolbar.width + appConfig.geometry.sideBar.width;
-  window.offsetY = appConfig.geometry.topBar.height;
-}, 1000);
-
-
-const defaultSideNav = [
-  {
-    name: "Home",
-    path: "/",
-    selected: window.location.pathname === "/",
-    icon: icons.Home,
-    comp: Home,
-  },
-  {
-    name: "Graph",
-    path: "/graph",
-    selected: window.location.pathname === "/graph",
-    icon: icons.Graph,
-    comp: Graph,
-  },
-  {
-    name: "Code",
-    path: "/code",
-    selected: window.location.pathname === "/code",
-    icon: icons.Code,
-    comp: CodeEditor,
-  },
-  {
-    name: "Summary",
-    path: "/summary",
-    selected: window.location.pathname === "/summary",
-    icon: icons.Summary,
-    comp: SummaryViewer,
-  },
-  {
-    name: "Train",
-    path: "/train",
-    selected: window.location.pathname === "/train",
-    icon: icons.Train,
-    comp: Train,
-  },
-];
-
-const defaultRender = { name: "Home", comp: Home };
-
-const defaultTrain = {
-  training: false,
-  hist: [],
-};
-
-const defaultWorkspce = {
-  ntbf: true,
-  active: {
-    config: {
-      name: "Workspce",
-    },
-  },
-  recent: [],
-  all: [],
-};
-
-const PageCycle = defaultSideNav.map((btn, i)=>{
-  return btn.name;
-})
-
-const SideBar = (props = { store: StoreContext }) => {
-  let Logo = icons.Logo;
-  let { sidenav, sidenavState, renderState } = props.store;
-
-  function loadComp(button) {
-    sidenav = sidenav.map((btn) => {
-      btn.selected = btn.name === button.name;
-      if (btn.selected) {
-        renderState({
-          ...btn,
-        });
-      }
-      return btn;
-    });
-    sidenavState([...sidenav]);
-  }
-
+const PopUp = (
+  props = { store: metaStore }
+) => {
   return (
-    <div className="nav">
-      <div className="title">
-        <Logo />
-      </div>
-      <div className="navigation">
-        {sidenav.map((button, i) => {
-          let Icon = button.icon;
-          return (
-            <div
-              key={i}
-              className={button.selected ? "btn selected" : "btn"}
-              onClick={(e) => loadComp(button)}
-            >
-              <Icon
-                fill={button.selected ? "white" : "rgba(255,255,255,0.3)"}
-              />
-            </div>
-          );
-        })}
-      </div>
+    <>
+      { props.store.popup }
+    </>
+  );
+};
+
+const NotificationPop = (props = { store: metaStore } ) => {
+  return (
+    <>
+      { props.store.notification.comp }
+    </>
+  );
+};
+
+const StatusBar = (props = { store: metaStore } ) => {
+  return (
+    <div className="statusbar">
+      {props.store.statusbar.toLowerCase()} | workspace :{" "}
+      {props.store.app.name}
     </div>
   );
 };
 
-const TopBar = (props = { store: StoreContext }) => {
-  let { appconfig, appconfigState, render } = props.store;
+const Container = (props = { store: metaStore } ) => {
+  return <div className="container-area">{props.children}</div>;
+};
 
+const Main = (props = { store: metaStore } ) => {
   return (
-    <div className="topbar">
-      <div className="title" id="context-title">
-        {render.name}
-      </div>
-      <div className="cmenupar"></div>
-      <div
-        className="switch"
-        onClick={() => {
-          if (appconfig.theme === "light") {
-            appconfig.theme = "dark";
-          } else {
-            appconfig.theme = "light";
-          }
-          appconfigState({ ...appconfig });
-        }}
-      >
-        <div className="holder">
-          <div className="button"></div>
-        </div>
-      </div>
-    </div>
+    <div className={`app ${props.store.app.theme}`}>{props.children}</div>
   );
 };
 
 const App = (props) => {
-  let [graphdef, graphdefState] = React.useState({});
-  let [layerGroups, layerGroupsState] = React.useState({...layerGroupsDefault, });
-  let [sidenav, sidenavState] = React.useState([...defaultSideNav]);
-  let [train, trainState] = React.useState({ ...defaultTrain });
-  let [popup, popupState] = React.useState(<div className='popup'></div>);
-  let [appconfig, appconfigState] = React.useState({ ...appConfig });
-  let [workspace, workspaceState] = React.useState({ ...defaultWorkspce });
-  let [render, renderState] = React.useState({ ...defaultRender });
-  let [ notification, notificationState ] = React.useState("notification bar")
-  
+  let [app, appState] = React.useState(metaApp);
+  let [nav, navState] = React.useState(metaSideNav);
+  let [popup, popupState] = React.useState(<></>);
+  let [statusbar, statusbarState] = React.useState("status bar");
+  let [notification, notificationState] = React.useState(<></>);
+  let [render, renderState] = React.useState(metaRender);
+  let [load, loadState] = React.useState(true);
+
   const store = {
-    graphdef: graphdef,
-    graphdefState: graphdefState,
-    layerGroups: layerGroups,
-    layerGroupsState: layerGroupsState,
-    sidenav: sidenav,
-    sidenavState: sidenavState,
-    render: render,
-    renderState: renderState,
-    train: train,
-    trainState: trainState,
-    popup: popup,
+    app:app,
+    appState:appState,
+    nav: nav, 
+    navState: navState,
+    popup: popup, 
     popupState: popupState,
-    appconfig: appconfig,
-    appconfigState: appconfigState,
-    workspace: workspace,
-    workspaceState: workspaceState,
-    canvasConfig:window.canvasConfig,
+    statusbar: statusbar, 
+    statusbarState: statusbarState,
+    notification: notification, 
+    notificationState: notificationState,
+    render: render, 
+    renderState: renderState,
+    load: load, 
+    loadState: loadState,
   };
 
-  window.autosave = async function () {
-    let data = {
-      graphdef: { ...graphdef },
-      app_config: { ...appconfig },
-      canvas_config: { ...window.canvasConfig },
-      config:{ ...workspace.active.config },
-      __workspace__: workspace.active.config.name
-    };
-    try {
-      await POST({
-        path: "workspace/autosave",
-        data: data,
+  const appFunctions = {
+    downloadCode: async function (e) {
+      await GET({
+        path: "/model/code",
       })
         .then((response) => response.json())
         .then((data) => {
-          let time = new Date();
-          notificationState(`autosave @ ${ time.toTimeString() }`);
+          let link = document.createElement("a");
+          link.href = `data:text/x-python,${encodeURIComponent(data.code)}`;
+          link.download = "train.py";
+          link.click();
         });
-    } catch (TypeError) {
-    }
-  };
-
-  window.downloadCode = async function (e) {
-    POST({
-      path:'build',
-      data:graphdef
-    }).then((response) => response.json())
-      .then((data) => {
-        let link = document.createElement("a");
-        link.href = `data:text/x-python,${encodeURIComponent(data.code)}`;
-        link.download = "train.py";
-        link.click();
+    },
+    updateStatus: function (options = { text: "Notification" }) {
+      let { text } = options;
+      statusbarState(text);
+    },
+    notify: function (
+      options = { name: "test", message: "Hello", timeout: 3000 }
+    ) {
+      notificationState({ comp: undefined });
+      notificationState({
+        comp: (
+          <Notification
+            {...options}
+            notificationState={notificationState}
+            timeout={options.timeout ? options.timeout : 3000}
+          />
+        ),
       });
+    },
+    getappconfig: function(){
+      return app
+    },
+    loadState: loadState
   };
 
-  window.notify = function( options={ text:"Notification" } ){
-    let { text } = options;
-    notificationState(text)
+  let defaultProps = {
+    store:store,
+    appFunctions: appFunctions
   }
 
-  function keynap (e) { 
+  function keymap(e) {
     switch (window.__SHORTCUT__) {
       case 0:
         switch (e.key) {
           case "s":
             e.preventDefault();
-            window.autosave();
             break;
           case "e":
             break;
@@ -243,55 +136,44 @@ const App = (props) => {
             break;
           case "d":
             e.preventDefault();
-            window.downloadCode();
+            appFunctions.downloadCode();
             break;
           case "1":
             e.preventDefault();
-            window.setToolMode({ mode: "Normal", name:"normal"  });
+            window.setToolMode({ mode: "Normal", name: "normal" });
             break;
           case "2":
             e.preventDefault();
-            window.setToolMode({ mode: "Edge", name:"edge"  });
+            window.setToolMode({ mode: "Edge", name: "edge" });
             break;
           case "3":
             e.preventDefault();
-            window.setToolMode({ mode: "Move", name:"move"  });
+            window.setToolMode({ mode: "Move", name: "move" });
             break;
           case "4":
             e.preventDefault();
-            window.setToolMode({ mode: "Delete", name:"delete"  });
+            window.setToolMode({ mode: "Delete", name: "delete" });
             break;
           case "5":
             e.preventDefault();
-            graphdefState({});
+            window.setToolMode({ mode: "clean", name: "delete" });
             break;
           case "Shift":
             window.__SHORTCUT__ = 2;
             break;
-          case 'Tab':
+          case "Tab":
             e.preventDefault();
-            break
+            break;
           default:
             break;
         }
-        break
-      
-      case 1: 
-        break
-      
+        break;
+
+      case 1:
+        break;
+
       case 2:
-        let idx = Number(e.key) - 1;
-        sidenav = sidenav.map((btn) => {
-          btn.selected = btn.name === PageCycle[idx];
-          if (btn.selected) {
-            renderState({
-              ...btn,
-            });
-          }
-          return btn;
-        });
-        sidenavState([...sidenav]);
-        break
+        break;
 
       default:
         switch (e.key) {
@@ -301,45 +183,71 @@ const App = (props) => {
           case "Shift":
             window.__SHORTCUT__ = 1;
             break;
-          case 'Alt':
+          case "Alt":
             window.__SHORTCUT__ = 2;
-            break
+            break;
           case "Escape":
-            popupState(<div className='popup'></div>);
+            popupState(<div className="popup"></div>);
             if (render.name === "Graph") {
-              window.setToolMode({ name: 'normal'});
+              window.setToolMode({ name: "normal" });
             }
             break;
           default:
             break;
         }
-        break
+        break;
     }
-  };
+  }
+
+  const LoadingData = (props) =>{
+    return (
+      <div style={{display:"flex", justifyContent:"center", alignItems:"center"}} className='container loaddata'>
+        <Loading />
+      </div>
+    )
+  }
 
   React.useEffect(function () {
-    window.onkeydown = keynap;
-    window.onkeyup = function (e) {
-      window.__SHORTCUT__ = -1;
-    };
-    window.autosave();
-  });
+    if ( load ){
+      window.onkeydown = keymap;
+      window.onkeyup = function (e) {
+        window.__SHORTCUT__ = -1;
+      };
+    }else {
+      
+    }
+  }, [load, ]);
+
+  React.useEffect(function(){
+    if (app.fetch){
+      pull({ name: "app"}).then(app_data=>{
+        appState({
+          ...app_data,
+          fetch: false
+        })
+      })
+    }else{
+      console.log("[PUSH] app")
+      push({
+        name: "app",
+        data: app
+      }).then(_=>{
+        loadState(false);
+      })
+    }
+  }, [app, ])
 
   return (
-    <div className={`app ${appconfig.theme}`}>
-      {popup}
-      <div className="sidenav">
-        <SideBar store={store} />
-      </div>
-      <div className="container-area">
-        <TopBar store={store} />
-        <render.comp store={store} />
-        <div className="notifications">
-          {notification.toLowerCase()} | workspace :{" "}
-          {workspace.active.config.name}
-        </div>
-      </div>
-    </div>
+    <Main {...defaultProps}>
+      <SideBar {...defaultProps} />
+      <Container {...defaultProps}>
+        <TopBar {...defaultProps} />
+        {load ? <LoadingData /> : <render.comp {...defaultProps} />}
+        <StatusBar {...defaultProps} />
+      </Container>
+      <PopUp {...defaultProps} />
+      <NotificationPop {...defaultProps} />
+    </Main>
   );
 };
 

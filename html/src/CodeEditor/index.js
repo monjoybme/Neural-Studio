@@ -1,56 +1,47 @@
 import React from "react";
 import Editor from "@monaco-editor/react";
-import { StoreContext } from "../Store";
+import { metaStore, metaStoreContext } from "../Meta";
+import { GET, } from "../Utils";
 
-const CodeEditor = (props={store:StoreContext}) => {
-
-  let { appconfig, graphdef } = props.store;
-  let [code,codeState] = React.useState({
-    data:"",
-    fetched:true
-  })
-
+const CodeEditor = (
+  props = { store: metaStore, storeContext: metaStoreContext }
+) => {
+  let { app } = props.store;
+  let [code, codeState] = React.useState({
+    data: undefined,
+    fetched: true,
+  });
   async function buildCode(e) {
-    await fetch(
-      "http://localhost/build",
-      {
-        method:"POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...graphdef })
-      }
-    )
-    .then(response=>response.json())
-    .then(data=>{
-      codeState({
-        data:data.code,
-        fetched:false
-      })
+    await GET({
+      path: "/model/code",
     })
+      .then((response) => response.text())
+      .then((data) => {
+        codeState({
+          data: data,
+          fetched: false,
+        });
+      });
   }
 
-
-  React.useEffect(()=>{
-    if ( code.data.length === 0 ){
-      buildCode()
+  React.useEffect(() => {
+    if (code.data === undefined) {
+      buildCode();
     }
-    clearTimeout(window.__UPDATE_TIMEOUT__)
-  },)
+  }, [code]);
 
-    return (
-      <div className="container">
-      {
-        code.fetched ?
-          undefined
-        :
-          <Editor
-            defaultLanguage="python"
-            defaultValue={code.data}
-            onValidate={e=>console.log(e)}
-            theme={"vs-"+appconfig.theme}
-          />         
-      }
-      </div>
-    );
-  };
+  return (
+    <div className="container">
+      {code.fetched ? undefined : (
+        <Editor
+          defaultLanguage="python"
+          defaultValue={code.data}
+          onValidate={(e) => console.log(e)}
+          theme={"vs-" + app.theme}
+        />
+      )}
+    </div>
+  );
+};
   
   export default CodeEditor;

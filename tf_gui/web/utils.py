@@ -1,62 +1,65 @@
-from .__imports__ import (
-            dumps,loads,pathlib,stat,asyncio
-        )
-
-from .headers import Header,ResponseHeader
-from .mime_types import mimes
-
+import asyncio
 import aiofiles as io
 import time
 
-def text_response(
+from json import dumps
+from os import path as pathlib, stat
+
+from .headers import *
+
+async def text_response(
         text:str,
-        status_code:int=200,
-        message:str='OK'
-    )->str:
-    response = ResponseHeader()
-    response.status_code = status_code
-    response.message =  message
-    response.content_length = len(text)
-    response.content_type = 'text/plain; charset=utf-8'
-    return response / text
+        code:int=200,
+        response:ResponseHeader=None
+    )->bytes:
+    """Returns a response object with a text/plain response."""
+    if response is None:
+        response = ResponseHeader() | code
+    
+    response.update(
+        access_control_allow_origin(),
+        content_length(len(text)),
+        content_type(mime_types['.text']),
+    )
+    return response @ text
 
-def json_response(
+async def json_response(
         data:dict,
-        status_code:int=200,
-        message:str='OK'
-    )->str:
+        response:ResponseHeader=None,
+        code:int=200,
+    )->bytes:
+
+    if response is None:
+        response = ResponseHeader() | code
+        
     data = dumps(data)
-    response = ResponseHeader()
-    response.status_code = status_code
-    response.message = message
-    response.content_length = len(data)
-    response.content_type = 'application/json; charset=utf-8'
-    return response / data
+    response.update(
+        access_control_allow_origin(),
+        content_type(mime_types.get('.json')),
+        content_length(len(data)),
+    )
+    return response @ data
 
 
-async def send_file(file:str,request,headers:dict=dict(),chunk_size=1024):  
+async def send_file(file:str,request:RequestHeader, response:ResponseHeader = None ,headers:List[dict]=[],chunk_size=1024)->bool:  
     *_,name = pathlib.split(file)
     *_, ext = name.split(".")
+    if response is None:
+        header = ResponseHeader() | 200
 
-    head = ResponseHeader()
-    head.status_code = 200
-    head.message = 'OK'
-    head.access_control_allow_origin = "*"
-    head.connection = "Keep-Alive"
-    head.keep_alive = "timeout=1, max=999"
-    head.content_length = stat(file).st_size
-    head.content_disposition = f"attachment; {name}"
-
+    header.update(
+        access_control_allow_origin(),
+        connection(),
+        keep_alive(1, 999),
+        content_length(stat(file).st_size),
+        content_disposition(name)
+    )
+    header.update(*headers)
     try:
-        head.content_type = mimes[ext]
+        header += content_type(mime_types.get(ext))
     except KeyError as e:
-        print (e)
-        head.content_type = 'application/octet-stream'
-
-    for key,val in headers.items():
-        head[key.title().replace("_","-")] = val
-
-    request.writer.write(head.encode())
+        header += content_type('application/octet-stream')
+    request.writer.write(header.encode())
     async with io.open(file, mode='rb') as fstream:
         while True:
             send_bit = await fstream.read(chunk_size)
@@ -64,7 +67,11 @@ async def send_file(file:str,request,headers:dict=dict(),chunk_size=1024):
                 request.writer.write(send_bit)
             else:
                 break
-
     request.writer.close()
     return False
 
+async def redirect(url:str, code:int= 302, response:ResponseHeader = None)->bytes:
+    if response is None:
+        response = ResponseHeader() | code
+    response += location(url,)
+    return response @ f"Redirecting to : {url}"

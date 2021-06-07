@@ -26,6 +26,8 @@
       @extend .grid-center;
       svg {
         fill: $secondary;
+        height: 24px !important;
+        width: 24px !important;
         opacity: 0.3;
       }
     }
@@ -91,8 +93,8 @@
   }
 }
 
-.notifications {
-  height: $notificationBarHeight;
+.statusbar {
+  height: $statusBarHeight;
   width: 100%;
   border-top : $lightBorder1;
 
@@ -136,7 +138,7 @@
       transform: translateX(0px);
     }
   }
-  .notifications {
+  .statusbar {
         color: $lightColorPr;
         background: $lightBg;
     }
@@ -176,7 +178,7 @@
     }
   }
 
-  .notifications {
+  .statusbar {
     color: $darkColorPr;
     background: $darkBg;
     border-top: $darkBorder2;

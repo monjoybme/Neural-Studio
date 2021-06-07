@@ -1,14 +1,21 @@
 import React from "react";
-import { StoreContext } from "../Store/index";
+import {
+  metaAppFunctions,
+  metaHome,
+  metaStore,
+  metaStoreContext,
+} from "../Meta/index";
 import { icons } from "../data/icons";
-import { GET, Loading, POST } from "../Utils";
+import { GET, Loading, POST, pull, push } from "../Utils";
 
-const WorkspaceCard = (props = { name: "Hello" }) => {
+const WorkspaceCard = (
+  props = { name: "Hello", store: metaStore, storeContext: metaStoreContext }
+) => {
   function loadMenu(e) {
     props.store.popupState(
       <div
         className="workspace-card-context"
-        style={{ top: e.clientY, left: e.clientX }}
+        style={{ top: e.clientY - 5, left: e.clientX - 5, cursor: "default" }}
         onMouseLeave={(e) => props.store.popupState(<div></div>)}
       >
         <div
@@ -29,9 +36,11 @@ const WorkspaceCard = (props = { name: "Hello" }) => {
     );
   }
   return (
-    <div className="card" onDoubleClick={(e) => props.openWorkspace({ name: props.name })} >
-      <div className="image">
-      </div>
+    <div
+      className="card"
+      onDoubleClick={(e) => props.openWorkspace({ name: props.name })}
+    >
+      <div className="image"></div>
       <div className="footer">
         <div className="name">
           {props.name}
@@ -42,7 +51,7 @@ const WorkspaceCard = (props = { name: "Hello" }) => {
   );
 };
 
-const New = (props) => {
+const New = (props = { store: metaStore, storeContext: metaStoreContext }) => {
   let { newworkspace, newworkspaceState } = props;
   function handleKey(e) {
     switch (e.key) {
@@ -79,7 +88,9 @@ const New = (props) => {
   );
 };
 
-const NewCard = (props) => {
+const NewCard = (
+  props = { store: metaStore, storeContext: metaStoreContext }
+) => {
   let [newworkspace, newworkspaceState] = React.useState({
     active: false,
     name: "",
@@ -104,7 +115,13 @@ const NewCard = (props) => {
   );
 };
 
-const DownloadModel = (props) => {
+const DownloadModel = (
+  props = {
+    store: metaStore,
+    storeContext: metaStoreContext,
+    appFunctions: metaAppFunctions,
+  }
+) => {
   async function downloadModel(
     options = { format: "Format", download: "download.format" }
   ) {
@@ -183,94 +200,98 @@ const DownloadModel = (props) => {
   );
 };
 
-const Home = (props = { store: StoreContext }) => {
-  let {
-    workspace,
-    workspaceState,
-    graphdefState,
-    appconfigState,
-    popupState,
-  } = props.store;
+const Home = (
+  props = {
+    store: metaStore,
+    storeContext: metaStoreContext,
+    appFunctions: metaAppFunctions,
+  }
+) => {
+  let { popupState } = props.store;
+  let [home, homeState] = React.useState(metaHome);
 
-  async function fetchWorkspace() {
-    let active = await GET({
-      path: "workspace/active",
-    }).then((response) => response.json());
-
-    let all = await GET({
-      path: "workspace/all",
-    }).then((response) => response.json());
-
-    workspaceState({
-      ntbf: false,
-      all: all.data,
-      active: active.data,
-    });
-
-    graphdefState({
-      ...active.data.graphdef,
-    });
-    appconfigState({
-      ...active.data.app_config,
-    });
-    window.canvasConfig = active.data.canvas_config;
-    window.canvasConfig.mode = "normal";
+  async function pullHome() {
+   pull({
+     name: "home",
+   }).then(async (homeData) => {
+     await GET({
+       path: "/workspace/all",
+     })
+       .then((response) => response.json())
+       .then((your_work) => {
+         homeState({ ...homeData, your_work: your_work });
+       });
+   });
   }
 
-  async function newWorkspace(name = "model") {
+  async function newWorkspace(name) {
+    popupState(undefined);
     await POST({
-      path: "workspace/new",
+      path: "/workspace/new",
       data: {
         name: name,
       },
     })
       .then((response) => response.json())
-      .then((data) => {
-        fetchWorkspace();
+      .then(async function (data) {
+        if (data.status) {
+          await pullHome();
+        }
       });
   }
 
   async function openWorkspace(options = { name: "workspace" }) {
-    POST({
-      path: `workspace/open/${options.name}`,
+    popupState(undefined);
+    await POST({
+      path: `/workspace/open/${options.name}`,
       data: {},
     })
       .then((response) => response.json())
-      .then((data) => {
-        popupState(undefined);
-        fetchWorkspace();
+      .then(async function (data) {
+        await pullHome();
       });
   }
 
   async function deleteWorkspace(options = { name: "workspace" }) {
-    POST({
-      path: `workspace/delete/${encodeURIComponent(options.name)}`,
-      data: {},
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.status) {
-          fetchWorkspace();
-        }
-        popupState(undefined);
+    popupState(undefined);
+    if (options.name === home.active.name) {
+      props.appFunctions.notify({
+        message: "Cannot delete active workspace.",
       });
+    } else {
+      await POST({
+        path: `/workspace/delete/${encodeURIComponent(options.name)}`,
+        data: {},
+      })
+        .then((response) => response.json())
+        .then(async function (data) {
+          if (data.status) {
+            pullHome();
+          }
+        });
+    }
   }
 
   React.useEffect(() => {
-    if (workspace.ntbf) {
-      fetchWorkspace();
+    if (home.fetch){
+      pullHome();
+    }else{
+      push({
+        name:"home",
+        data: home
+      })
     }
-  });
+  }, []);
 
   return (
     <div className="home container">
       <div className="name">Active Worksapce</div>
       <div className="card active">
-        <div className="head">{workspace.active.config.name}</div>
+        <div className="head">{home.active.name}</div>
         <div className="footer">
           <div className="name">
-            <icons.Save onClick={window.autosave} />
-            <icons.Code onClick={window.downloadCode} />
+            <icons.Save onClick={(e) => props.appFunctions.autosave()} />
+            <icons.Code onClick={(e) => props.appFunctions.downloadCode()} />
             <icons.Download
               onClick={(e) => {
                 popupState(<DownloadModel {...props} />);
@@ -278,7 +299,7 @@ const Home = (props = { store: StoreContext }) => {
             />
             <icons.Delete
               onClick={(e) => {
-                deleteWorkspace({ name: workspace.active.config.name });
+                deleteWorkspace({ name: home.active.name });
               }}
             />
           </div>
@@ -287,7 +308,7 @@ const Home = (props = { store: StoreContext }) => {
       <div className="name">Your Work</div>
       <div className="cards">
         <NewCard newWorkspace={newWorkspace} />
-        {workspace.all.map((work, i) => {
+        {home.your_work.map((work, i) => {
           return (
             <WorkspaceCard
               {...props}

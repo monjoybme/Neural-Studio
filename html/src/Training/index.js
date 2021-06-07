@@ -5,18 +5,14 @@ import { MonitorMany, MonitorOne } from './monitor';
 import { EpochLog, ErrorLog, NotificationLog } from './logs';
 
 import { icons } from "../data/icons";
-import { StoreContext } from "../Store";
-
-
-
+import { metaAppFunctions, metaStore, metaStoreContext } from "../Meta";
+import { GET } from "../Utils";
 
 const Training = (
-  props = {
-    store: StoreContext,
-  }
+  props = { store: metaStore, storeContext: metaStoreContext, appFunctions: metaAppFunctions }
 ) => {
-
-  let { graphdef, graphdefState, train, trainState } = props.store;
+  let {graph, graphState, train, trainState } = props.store;
+  let [monitorMode, monitorModeState] = React.useState(false);
   let [status, statusState] = React.useState({
     data: train.hist !== undefined ? train.hist : [],
     ended: false,
@@ -51,16 +47,17 @@ const Training = (
           training: false,
           hist: undefined,
         });
-        graphdef.train_config.session_id = (new Date()).toTimeString();
-        graphdefState({...graphdef})
+        graph.train_config.session_id = new Date().toTimeString();
+        graphState({ ...graph });
       },
       icon: icons.Delete,
     },
   ];
+  let [load, loadStatus] = React.useState(true);
 
   async function getStatus() {
-    await fetch("http://localhost/status", {
-      method: "GET",
+    await GET({
+      path: "/train/status",
     })
       .then((respomse) => respomse.json())
       .then((data) => {
@@ -69,6 +66,9 @@ const Training = (
           ended: data.logs[data.logs.length - 1].data.ended || false,
           updating: true,
         });
+        if (data.logs[data.logs.length - 1].data.epochEnd) {
+          console.logs("Epoch End");
+        }
         if (data.logs[data.logs.length - 1].data.ended) {
           trainState({
             training: false,
@@ -87,8 +87,8 @@ const Training = (
 
   async function trainModel(e) {
     if (train.training) {
-      window.notify({
-        text: "Training Already Running",
+      props.appFunctions.notify({
+        message: "Training Already Running",
       });
     } else {
       trainState({
@@ -99,17 +99,17 @@ const Training = (
         ended: false,
         updating: false,
       });
-      window.notify({
-        text: "Training Started !",
+      props.appFunctions.notify({
+        message: "Training Started !",
       });
       await fetch("http://localhost/train/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...graphdef }),
+        body: JSON.stringify({ ...graph }),
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log(data.status);  
+          props.appFunctions.notify({ message: data.message })
         });
     }
   }
@@ -126,22 +126,22 @@ const Training = (
       if (halt.state) {
         halt.name = "Resume";
         halt.state = false;
-        window.notify({
-          text: "Training paused !",
+        props.appFunctions.notify({
+          message: "Training paused !",
         });
       } else {
         halt.name = "Pause";
         halt.state = true;
-        window.notify({
-          text: "Training resumed !",
+        props.appFunctions.notify({
+          message: "Training resumed !",
         });
       }
       haltState({
         ...halt,
       });
     } else {
-      window.notify({
-        text: "Can't halt, Training has not started !",
+      props.appFunctions.notify({
+        message: "Can't halt, Training has not started !",
       });
     }
   }
@@ -157,26 +157,34 @@ const Training = (
             training: false,
             hist: data.logs,
           });
-          window.notify({
-            text: "Training has stopped !",
+          props.appFunctions.notify({
+            message: "Training has stopped !",
           });
         });
     } else {
-      window.notify({
-        text: "Can't stop, Training has not started !",
+      props.appFunctions.notify({
+        message: "Can't stop, Training has not started !",
       });
     }
   }
 
   React.useEffect(() => {
-    var elem = document.getElementById("logs");
-    elem.scrollTop = elem.scrollHeight;
-    if (train.training && status.updating === false && status.ended === false && status.ended !== undefined) {
+    if (
+      train.training &&
+      status.updating === false &&
+      status.ended === false &&
+      status.ended !== undefined
+    ) {
       getStatus();
     }
+    if ( load ){
+      props.storeContext.graph.pull().then(function(){
+        loadStatus(false);
+      })
+    }else{
+      props.storeContext.graph.push();
+    }
   });
-
-  let [ monitorMode, monitorModeState ] = React.useState(false);
 
   return (
     <div className="container training">
@@ -193,30 +201,30 @@ const Training = (
             })}
           </div>
         </div>
-        {graphdef.train_config ? (
+        {graph.train_config ? (
           <div className="params">
-            {graphdef.train_config.train ? (
+            {graph.train_config.fit ? (
               <div className="property">
                 <Menu
-                  {...graphdef.train_config.train}
+                  {...graph.train_config.fit}
                   {...props}
                   train={true}
                 />
               </div>
             ) : undefined}
-            {graphdef.train_config.compile ? (
+            {graph.train_config.compile ? (
               <div className="property">
                 <Menu
-                  {...graphdef.train_config.compile}
+                  {...graph.train_config.compile}
                   {...props}
                   train={true}
                 />
               </div>
             ) : undefined}
-            {graphdef.train_config.optimizer ? (
+            {graph.train_config.optimizer ? (
               <div className="property">
                 <Menu
-                  {...graphdef.train_config.optimizer}
+                  {...graph.train_config.optimizer}
                   {...props}
                   train={true}
                 />
@@ -241,14 +249,16 @@ const Training = (
         })}
       </div>
       <div className="monitor-container">
-        <div className="title" onClick={ e => monitorModeState( ~monitorMode ) }>
-          Loss Monitor ({ monitorMode ? 'Combined' : 'Separate' })
+        <div className="title" onClick={(e) => monitorModeState(~monitorMode)}>
+          Loss Monitor ({monitorMode ? "Combined" : "Separate"})
         </div>
-        {status.data.length 
-          ? monitorMode 
-              ? <MonitorOne data={status.data} {...props} /> 
-              : <MonitorMany data={status.data} {...props} />
-          : undefined}
+        {status.data.length ? (
+          monitorMode ? (
+            <MonitorOne data={status.data} {...props} />
+          ) : (
+            <MonitorMany data={status.data} {...props} />
+          )
+        ) : undefined}
       </div>
       <div id="check"> </div>
     </div>
