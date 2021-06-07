@@ -1,7 +1,6 @@
 import React from "react";
 
 import Home from "../Home";
-import Dataset from "../Dataset";
 import Graph from "../GraphCanvas";
 import CodeEditor from "../CodeEditor";
 import Train from "../Training";
@@ -20,13 +19,6 @@ export const metaSideNav = [
     selected: window.location.pathname === "/",
     icon: icons.Home,
     comp: Home,
-  },
-  {
-    name: "Dataset",
-    path: "/dataset",
-    selected: window.location.pathname === "/dataset",
-    icon: icons.Dataset,
-    comp: Dataset,
   },
   {
     name: "Graph",
