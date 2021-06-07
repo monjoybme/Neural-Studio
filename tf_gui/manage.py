@@ -5,7 +5,7 @@ from shutil import rmtree
 
 from .utils import Dict
 from .graph import GraphDef
-from .dataset import DATASETS
+from .dataset import DATASETS, Dataset
 
 APP = Dict({
     "theme": "light",
@@ -187,7 +187,9 @@ class Workspace(Dict):
 
 
 class WorkspaceManager(Dict):
+    
     workspaces: Set[str] = set()
+    dataset:Dataset = None
 
     def __init__(self, root='.tfstudio'):
         self.root = pathlib.abspath(root)
@@ -218,12 +220,7 @@ class WorkspaceManager(Dict):
 
     def __iter__(self,):
         for w in self.workspaces:
-            yield w
-
-    def add_dataset(self, name:str, metadata:dict = { "type":"dataset" } ):
-        pass
-
-    
+            yield w    
 
     def new_workspace(self, name: str) -> Workspace:
         workspace = Workspace(

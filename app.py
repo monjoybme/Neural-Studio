@@ -1,13 +1,16 @@
 import inspect
 import re
+from sys import exec_prefix
 import zipfile
 
 from tf_gui.web import App, Request, json_response, text_response, send_file
-
 from tf_gui.trainer import Trainer
 from tf_gui.manage import Workspace, WorkspaceManager
 from tf_gui.graph import GraphDef
 from tf_gui.dataset import DATASETS, Dataset
+
+from tensorflow import keras
+from sklearn.model_selection import train_test_split
 
 from os import chdir, path as pathlib, mkdir, listdir
 from shutil import rmtree
@@ -19,6 +22,9 @@ app = App()
 workspace_mamager = WorkspaceManager()
 trainer = Trainer(workspace_mamager)
 
+if workspace_mamager.active.dataset.name:
+    Dataset = DATASETS[workspace_mamager.active.dataset['meta']['type']]
+    workspace_mamager.dataset = Dataset(**workspace_mamager.active.dataset.full_dict)
 
 def generate_args(code) -> dict:
     exec(code)
@@ -94,7 +100,6 @@ download_options = {
 }
 
 # Workspace Endpoints
-
 
 @app.route("/workspace/active",)
 async def workspace_active(request: Request,):
@@ -257,14 +262,30 @@ async def summary_viewer(request: Request):
 
 
 @app.route("/dataset/init")
-async def dataset_start(request: Request):
+async def dataset_init(request: Request):
     data = await request.get_json()
     dataset: Dataset = DATASETS[data['meta']['type']]
     dataset: Dataset = dataset(**data)
+    workspace_mamager.dataset = dataset
     return await json_response({
         "sample": dataset.sample()
     })
 
+@app.route("/dataset/preprocess")
+async def dataset_preprocess(request: Request):
+    exec(workspace_mamager.dataset.meta['preprocessor'])
+    func = locals()['dataset_proprocessor']
+    try:
+        workspace_mamager.dataset.apply(func)
+        return await json_response({
+            "status": True
+        })
+    except Exception as e:
+        return await json_response({
+            "status": False,
+            "message": str(e)
+        })
+    
 @app.route("/dataset/checkpoint")
 async def dataset_checkpoint(request: Request):
     if request.headers.method == 'POST':

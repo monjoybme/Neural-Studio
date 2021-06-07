@@ -115,7 +115,6 @@ const GraphEditor = (
   let canvastopRef = React.useRef();
   let dummyLineRef = React.useRef();
 
-
   function newLine(e) {
     e.preventDefault();
     let line = document.getElementById("dummy");
@@ -205,7 +204,7 @@ const GraphEditor = (
           break;
       }
 
-      graph.train_config.session_id =  new Date().toTimeString()
+      graph.train_config.session_id = new Date().toTimeString();
       graphState({
         ...graph,
       });
@@ -235,8 +234,10 @@ const GraphEditor = (
       window.canvas.activeElement.rect.y.baseVal.value = window.canvas.pos.y;
 
       window.canvas.activeElement.text.x.baseVal[0].value =
-        window.canvas.pos.x + Math.floor(window.canvas.activeElement.layer.width * (1 / 5));
-      window.canvas.activeElement.text.y.baseVal[0].value = window.canvas.pos.y + 19;
+        window.canvas.pos.x +
+        Math.floor(window.canvas.activeElement.layer.width * (1 / 5));
+      window.canvas.activeElement.text.y.baseVal[0].value =
+        window.canvas.pos.y + 19;
 
       window.canvas.activeElement.edges_in.forEach((edge) => {
         edge.x1.baseVal.value =
@@ -376,7 +377,8 @@ const GraphEditor = (
   function onMouseUp(e) {
     if (window.canvas.activeElement) {
       if (window.canvas.pos) {
-        graph.nodes[window.canvas.activeElement.layer.id].pos = window.canvas.pos;
+        graph.nodes[window.canvas.activeElement.layer.id].pos =
+          window.canvas.pos;
         graphState({
           ...graph,
         });
@@ -417,19 +419,23 @@ const GraphEditor = (
 
   function updateViewBoxService() {
     if (canvastopRef.current) {
-      if ( canvastopRef.current.scrollHeight !== window.canvas.viewBox.h || canvastopRef.current.scrollWidth !== window.canvas.viewBox.w ) {
+      if (
+        canvastopRef.current.scrollHeight !== window.canvas.viewBox.h ||
+        canvastopRef.current.scrollWidth !== window.canvas.viewBox.w
+      ) {
         updateViewBox();
       }
       setTimeout(updateViewBoxService, 10);
     } else {
-      console.log("Stopped viewbox update.")
+      console.log("Stopped viewbox update.");
     }
   }
 
   function setToolMode(options = { name: "Mode", layer: { name: "Layer" } }) {
     console.log(`Setting ${options.name} mode`);
     window.canvas.mode = options.name;
-    document.getElementById("canvastopRef").style.cursor = cursors[options.name];
+    document.getElementById("canvastopRef").style.cursor =
+      cursors[options.name];
     switch (options.name) {
       case "normal":
         canvasRef.current.onmousedown = undefined;
@@ -495,25 +501,25 @@ const GraphEditor = (
     if (load) {
       loadState(false);
       pull({
-        name:"graph",
-      }).then(function(graphData){
+        name: "graph",
+      }).then(function (graphData) {
         window.__graph = window.copy(graphData);
         pull({
-          name:"canvas",
-        }).then(function(canvasData){
+          name: "canvas",
+        }).then(function (canvasData) {
           window.canvaas = canvasData;
           updateViewBox();
           updateViewBoxService();
-          setToolMode({ name:"normal" });
-          graphState({...graphData});
-        })
-      })
-    }else{
-      if ( graph !== window.__graph ){
+          setToolMode({ name: "normal" });
+          graphState({ ...graphData });
+        });
+      });
+    } else {
+      if (graph !== window.__graph) {
         push({
-          name:"graph",
-          data: graph
-        })
+          name: "graph",
+          data: graph,
+        });
         window.__graph = window.copy(graph);
       }
     }
@@ -527,7 +533,11 @@ const GraphEditor = (
           toolbarButtonsState={toolbarButtonsState}
           setToolMode={setToolMode}
         />
-        <LayerGroups layergroups={layergroups} layergroupsState={layergroupsState} setToolMode={setToolMode} />
+        <LayerGroups
+          layergroups={layergroups}
+          layergroupsState={layergroupsState}
+          setToolMode={setToolMode}
+        />
       </Tools>
       <div className="canvas-top" id="canvastopRef" ref={canvastopRef}>
         <svg
@@ -542,19 +552,18 @@ const GraphEditor = (
           <CircleMarker />
           <DefaultLine lineref={dummyLineRef} />
           {Object.keys(graph.nodes).map((layer, i) => {
-              return (
-                <Node
-                  node={graph.nodes[layer]}
-                  menu={menu}
-                  menuState={menuState}
-                  graph={graph}
-                  graphState={graphState}
-                  tools={tools}
-
-                  key={i}
-                  {...props}
-                />
-              );
+            return (
+              <Node
+                node={graph.nodes[layer]}
+                menu={menu}
+                menuState={menuState}
+                graph={graph}
+                graphState={graphState}
+                tools={tools}
+                key={i}
+                {...props}
+              />
+            );
           })}
         </svg>
       </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import Editor from "@monaco-editor/react";
 
-import { POST, GET, push } from '../Utils';
+import { POST, GET, push, Notification } from '../Utils';
 
 
 let csvPreProcCode = `def dataset_proprocessor(dataset)->None:
@@ -92,9 +92,23 @@ const CSVDataset = (
         });
     }
 
+    async function applyPreprocessor(){
+      await GET({
+        path:"/dataset/preprocess",
+      }).then(response => response.json()).then(data=>{
+        if (data.status){
+          console.log("Applied")
+        }else{
+          console.log(data.message)
+        }
+      })
+    }
+
   React.useEffect(() => {
-    dataset.meta.preprocessor = csvPreProcCode;
-    datasetState(dataset);
+    if(dataset.meta.preprocessor === '#preprocessorcode'){
+      dataset.meta.preprocessor = csvPreProcCode;
+      datasetState(dataset);
+    }
   },[]);
 
   React.useEffect(()=>{
@@ -109,16 +123,15 @@ const CSVDataset = (
 
   return (
     <div className="datasetviewer csvdataset">
-    
       <div className="top">
         <div className="name">{props.name}</div>
         <div>
-          <button onClick={props.deleteDataset} >delete</button>
+          <button onClick={props.deleteDataset}>delete</button>
         </div>
       </div>
       <div className="utils">
         <div className="pathinput">
-          <datalist id="paths" style={{height: "100px"}} >
+          <datalist id="paths" style={{ height: "100px" }}>
             {paths.map((path, i) => {
               return <option value={path} key={i} />;
             })}
@@ -146,7 +159,10 @@ const CSVDataset = (
           }}
         >
           {dataset.meta.config.view.sample.columns
-            .slice(dataset.meta.config.view.index.start, dataset.meta.config.view.index.end)
+            .slice(
+              dataset.meta.config.view.index.start,
+              dataset.meta.config.view.index.end
+            )
             .map((column, i) => {
               return (
                 <div className="column" key={i}>
@@ -172,7 +188,10 @@ const CSVDataset = (
                 }}
               >
                 {row
-                  .slice(dataset.meta.config.view.index.start, dataset.meta.config.view.index.end)
+                  .slice(
+                    dataset.meta.config.view.index.start,
+                    dataset.meta.config.view.index.end
+                  )
                   .map((column, j) => {
                     return (
                       <div className="column" key={j}>
@@ -184,20 +203,22 @@ const CSVDataset = (
             );
           })}
         </div>
-      </div> 
+      </div>
       <div className="preprocessor">
-        <div className="title">Preprocessor Function</div>
+        <div className="top">
+          <div className="name">Preprocessor Function</div>
+          <button onClick={applyPreprocessor}>apply</button>
+        </div>
         <Editor
           defaultLanguage="python"
           defaultValue={dataset.meta.preprocessor}
-          onChange={e=>{
-              dataset.meta.preprocessor = e;
-              datasetState({...dataset});
+          onChange={(e) => {
+            dataset.meta.preprocessor = e;
+            datasetState({ ...dataset });
           }}
           // theme={"vs-" + app.theme}
         />
       </div>
-    
     </div>
   );
 };

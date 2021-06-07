@@ -138,6 +138,10 @@ const App = (props) => {
             e.preventDefault();
             appFunctions.downloadCode();
             break;
+          case "Escape":
+            e.preventDefault();
+            window.setToolMode({ mode: "Normal", name: "normal" });
+            break;
           case "1":
             e.preventDefault();
             window.setToolMode({ mode: "Normal", name: "normal" });
@@ -156,7 +160,7 @@ const App = (props) => {
             break;
           case "5":
             e.preventDefault();
-            window.setToolMode({ mode: "clean", name: "delete" });
+            window.setToolMode({ mode: "clean", name: "clean" });
             break;
           case "Shift":
             window.__SHORTCUT__ = 2;
