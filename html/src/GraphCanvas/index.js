@@ -523,7 +523,8 @@ const GraphEditor = (
         window.__graph = window.copy(graph);
       }
     }
-  }, [setToolMode, load]);
+  },[]);
+
   return (
     <div className="container graph-canvas">
       {menu.comp}

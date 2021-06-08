@@ -1,6 +1,5 @@
 import inspect
 import re
-from sys import exec_prefix
 import zipfile
 
 from tf_gui.web import App, Request, json_response, text_response, send_file
@@ -8,6 +7,7 @@ from tf_gui.trainer import Trainer
 from tf_gui.manage import Workspace, WorkspaceManager
 from tf_gui.graph import GraphDef
 from tf_gui.dataset import DATASETS, Dataset
+from tf_gui.utils import Dict
 
 from tensorflow import keras
 from sklearn.model_selection import train_test_split
@@ -25,6 +25,12 @@ trainer = Trainer(workspace_mamager)
 if workspace_mamager.active.dataset.name:
     Dataset = DATASETS[workspace_mamager.active.dataset['meta']['type']]
     workspace_mamager.dataset = Dataset(**workspace_mamager.active.dataset.full_dict)
+
+globals().update({
+    "__tfgui__globals__": Dict({
+        "workspace_manager": workspace_mamager
+    })
+})
 
 def generate_args(code) -> dict:
     exec(code)

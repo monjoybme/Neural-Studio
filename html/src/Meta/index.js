@@ -3,7 +3,7 @@ import React from "react";
 import Home from "../Home";
 import Dataset from "../Dataset";
 import Graph from "../GraphCanvas";
-import CodeEditor from "../CodeEditor";
+// import CodeEditor from "../CodeEditor";
 import Train from "../Training";
 import SummaryViewer from "../SummaryViewer";
 
@@ -35,13 +35,13 @@ export const metaSideNav = [
     icon: icons.Graph,
     comp: Graph,
   },
-  {
-    name: "Code",
-    path: "/code",
-    selected: window.location.pathname === "/code",
-    icon: icons.Code,
-    comp: CodeEditor,
-  },
+  // {
+  //   name: "Code",
+  //   path: "/code",
+  //   selected: window.location.pathname === "/code",
+  //   icon: icons.Code,
+  //   comp: CodeEditor,
+  // },
   {
     name: "Summary",
     path: "/summary",
