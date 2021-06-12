@@ -815,7 +815,7 @@ def content_length(length: int, *args, **kwargs) -> str:
     }
 
 
-def connection(state: str = 'Keep-Alive', *args, **kwargs) -> str:
+def connection(state: str = 'keep-alive', *args, **kwargs) -> str:
     """Connection
     Header-Type : general
         The Connection general header controls whether or not the network connection stays open 
@@ -857,10 +857,16 @@ def content_type(ctype: str = 'text/plain', charset:str="charset=UTF-8", *args, 
     ```
     https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
     """
-    return {
-        "name": "Content-Type",
-        "value": f"{ctype}, {charset}"
-    }
+    try:
+        return {
+            "name": "Content-Type",
+            "value": f"{mime_types[ctype]}, {charset}"
+        }
+    except KeyError:
+        return {
+            "name": "Content-Type",
+            "value": f"text/plain, {charset}"
+        }
 
 def content_disposition(filename:str, disposition:str='attachment',*args, **kwargs) -> str:
     """Content-Disposition
@@ -1087,7 +1093,7 @@ class ResponseHeader(object):
         return self
 
     def __matmul__(self, data: str) -> bytes:
-        return self.encode() + data.encode()
+        return self.encode() + str(data).encode()
 
     def update(self, *fields):
         for field in fields:

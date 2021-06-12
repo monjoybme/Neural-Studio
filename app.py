@@ -22,9 +22,14 @@ app = App()
 workspace_mamager = WorkspaceManager()
 trainer = Trainer(workspace_mamager)
 
-if workspace_mamager.active.dataset.name:
+try:
     Dataset = DATASETS[workspace_mamager.active.dataset['meta']['type']]
     workspace_mamager.dataset = Dataset(**workspace_mamager.active.dataset.full_dict)
+except AttributeError:
+    print ("[warning] Error updating dataset.")
+except KeyError:
+    print ("[warning] Error updating dataset.")
+
 
 globals().update({
     "__tfgui__globals__": Dict({
@@ -119,7 +124,7 @@ async def workspace_active(request: Request,):
     })
 
 
-@app.route("/workspace/active/var/<str:var>",)
+@app.route("/workspace/active/<str:var>",)
 async def workspace_active_var(request: Request, var: str):
     if request.headers.method == "GET":
         return await json_response(workspace_mamager.active[var].full_dict)
@@ -140,12 +145,21 @@ async def workspace_active_var(request: Request, var: str):
     })
 
 
-@app.route("/workspace/active/var/<str:var>/<str:key>",)
-async def workspace_active_var_key(request: Request, var: str, key: str):
-    return await json_response({
-        "data": workspace_mamager.active[var][[key.replace("-", ":")]]
-    })
-
+@app.route("/var/<path:key>",)
+async def workspace_active_var_key(request: Request, key: str):
+    if request.headers.method == 'GET':
+        try:
+            key = key.replace("/var/", "").replace("/", ":")
+            var = workspace_mamager.active[[key]]
+            return await json_response({
+                "data": var.full_dict if isinstance(var, Dict) else var
+            })
+        except KeyError:
+            return await json_response({
+                "data": None,
+            })
+    elif request.headers.method == 'POST':
+        pass
 
 @app.route("/workspace/recent",)
 async def workspace_recent(request: Request,):
@@ -463,6 +477,10 @@ async def node_build(request: Request):
     return await json_response({
         "message": "Method not allowed",
     }, status_code=400)
+
+@app.route("/test/<path:key>")
+async def route(request:Request, key: str)->bytes:
+    return await text_response(key)
 
 if __name__ == "__main__":
     app.serve(

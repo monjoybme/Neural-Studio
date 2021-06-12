@@ -22,6 +22,7 @@ from typing import List, Tuple
 from .builder import build_code
 from .manage import WorkspaceManager, Workspace
 from .graph import GraphDef, LayerMeta
+from .dataset import Dataset
 
 
 def execute_code(exec_code: str) -> Tuple[dict, str]:
@@ -31,37 +32,6 @@ def execute_code(exec_code: str) -> Tuple[dict, str]:
         return locals(), None
     except Exception as e:
         return {}, str(e)
-
-
-class Dataset:
-    """
-    Dataset will be used in training 
-
-    The dataset object needs to have following attributes
-
-    train_x : np.ndarray -> Training features
-    train_y : np.ndarray -> Training labels 
-    test_x : np.ndarray -> Testing features
-    test_y : np.ndarray -> Testing labels
-
-    validate : bool -> Weather use validation data or not
-
-    batch_size : int -> Batch size
-    epochs : int -> Number of epochs
-    batches : int -> Number of batches ( Will be calculated automatically )
-    """
-    train_x = None
-    test_x = None
-    train_y = None
-    test_y = None
-
-    validate = True
-
-    def __init__(self) -> None:
-        """
-        Load dataset and set required variables.
-        """
-        pass
 
 
 class TfGui(keras.callbacks.Callback):
@@ -157,9 +127,11 @@ class Trainer(object):
     def __init__(self, workspace_manager: WorkspaceManager):
         self.workspace_manager: WorkspaceManager = workspace_manager
         self.session_id = workspace_manager[[
-            'active:graph:train_config:session_id']]
-        globals()['tfgui'] = TfGui(self,)
-        self.tfgui = globals()['tfgui']
+            'active:canvas:graph:train_config:session_id']]
+        self.tfgui = TfGui(self,)
+        globals().update({
+            'tfgui_callback': self.tfgui
+        })
 
     @property
     def dataset(self,):
@@ -191,20 +163,7 @@ class Trainer(object):
         pass
 
     def update_dataset(self, dataset: str = None, idx: str = None, from_workspace: bool = False) -> object:
-        if from_workspace:
-            dataset = self.workspace_manager[[
-                'active:graph:train_config:dataset:arguments:dataset:value']]
-            idx = self.workspace_manager[['active:graph:train_config:dataset:id']]
-        if self.__dataset__code__ == dataset:
-            return True, "No update !"
-        self.__dataset__code__ = dataset
-        exec_var, error = execute_code(self.__dataset__code__)
-        if exec_var:
-            self.session_var.update(exec_var)
-            self.__dataset__name__ = idx
-            self.__dataset__ = self.session_var[idx]
-            return True, "Dataset updated succesfully"
-        return False, error
+        pass
 
     def unload_dataset(self, ):
         self.__dataset__code__ = '__dataset__code__'
@@ -219,7 +178,7 @@ class Trainer(object):
         })
 
     def build(self,):
-        self.graph = GraphDef(self.workspace_manager[['active:graph']])
+        self.graph = GraphDef(self.workspace_manager[['active:canvas:graph']])
         build_status, message = self.graph.build()
         if not build_status:
             return build_status, message
@@ -243,7 +202,7 @@ class Trainer(object):
                         layer.to_code(self.graph, train=True))
                     if not exec_var:
                         self.update_log("error", {
-                            "message": error, 
+                            "message": error,
                             "code": layer.to_code(self.graph, train=True),
                             "ended": True
                         })
@@ -254,7 +213,7 @@ class Trainer(object):
             self.graph.__model__.to_code(self.graph, train=True))
         if not exec_var:
             self.update_log("error", {
-                "message": error, 
+                "message": error,
                 "code": self.graph.__model__.to_code(self.graph, train=True),
                 "ended": True
             })
@@ -288,7 +247,7 @@ class Trainer(object):
             self.graph.__compile__.to_code(self.graph, train=True))
         if not exec_var:
             self.update_log("error", {
-                "message": error, 
+                "message": error,
                 "code": self.graph.__compile__.to_code(self.graph, train=True),
                 "ended": True
             })
@@ -321,7 +280,7 @@ class Trainer(object):
                     if not exec_var:
                         self.update_log("error", {
                             "message": error,
-                            "code":self.graph.__compile__.to_code(self.graph, train=True), 
+                            "code": self.graph.__compile__.to_code(self.graph, train=True),
                             "ended": True
                         })
                         self.isTraining = False
@@ -331,7 +290,7 @@ class Trainer(object):
                 self.graph.__train__.to_code(self.graph, train=True),)
             if not exec_var:
                 self.update_log("error", {
-                    "message": error, 
+                    "message": error,
                     "code": self.graph.__train__.to_code(self.graph, train=True),
                     "ended": True
                 })

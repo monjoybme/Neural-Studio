@@ -29,9 +29,6 @@ from os import path as pathlib
 TABSPACE = '    '
 NEWLINE = '\n'
 
-TABSPACE = '    '
-NEWLINE = '\n'
-
 def set_argument(argument:str, config:dict):
     value = config['value']
     try: value = eval(value)
@@ -237,7 +234,7 @@ class FitMeta(Dict):
     batch_size={self[['arguments:batch_size:value']]},
     epochs={self[['arguments:epochs:value']]},
     validation_data=( {graphdef.dataset['id']}.test_x, {graphdef.dataset['id']}.test_y ),
-    callbacks=[ tfgui, {', '.join(callback_ids)} ],
+    callbacks=[ tfgui_callback, {', '.join(callback_ids)} ],
     verbose=0
 ) #end-{self['id']}
 """
