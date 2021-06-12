@@ -4,6 +4,8 @@ import os
 import sys
 
 from json import loads
+from inspect import getfullargspec, iscoroutinefunction
+from typing import Any
 
 from .headers import *
 from .utils import *
@@ -12,13 +14,12 @@ ROOT_FOLDER = os.path.abspath("./")
 STATIC_FOLDER = os.path.abspath("./static")
 
 
-def print_start(host: str, port: int, size: int = 32):
-    print(
-        f"""╔{'═'*(size)}╗
+def print_start(host: str, port: int, size: int = 32)->None:
+    print(f"""╔{'═'*(size)}╗
 ║ PyRex Running{' '*(size-14)}║
 ║ Host : {host}{' '*(size-8-len(host))}║
-║ Port : {port}{' '*(size-8-len(port.__str__()))}║
-║ URL  : http://{host}:{port}{' '*(size-15-1-len(host)-len(port.__str__()))}║
+║ Port : {port}{' '*(size-8-len(str(port)))}║
+║ URL  : http://{host}:{port}{' '*(size-16-len(host)-len(str(port)))}║
 ╚{'═'*(size)}╝""")
 
 
@@ -36,6 +37,20 @@ def cors(origin: str) -> bytes:
     )
     return header.encode()
 
+async def response_dict(data: dict,response: ResponseHeader=None, code: int=200)->bytes:
+    return await json_response(data, code, response)
+
+async def response_str(data: str,response: ResponseHeader=None, code: int=200)->bytes:
+    return await text_response(data, code, response)
+
+async def response_none(response)->Any:
+    return response
+
+response_refs = {
+    dict: response_dict,
+    str: response_str,
+    None: response_none
+}
 
 class Router:
     routes = []
@@ -50,7 +65,7 @@ class Router:
             'str': '[a-zA-Z0-9_\-\.]+',
             'int': '\d+',
             'bool': '[a-zA-Z01]+',
-            'path': '[a-zA-Z_\/]+'
+            'path': '[a-zA-Z\/]+'
         }
 
         self.dtype_obj = {
@@ -101,16 +116,36 @@ class Router:
 
     def get(self, url):
         url, *parameters = url.split("?")
-        for pattern, func, var in self:
+        for pattern, func, var, ser_func in self:
             if pattern.match(url):
                 return (
                     func,
                     self.get_variables(url, var),
-                    self.get_parameters(parameters)
+                    self.get_parameters(parameters),
+                    ser_func
                 )
-        return False, None, None
+        return False, None, None, None
 
-    def register(self, url, func):
+    def inspect_func(self, func, fvar):
+        specs = getfullargspec(func)
+        args = specs.args
+        defs = specs.defaults
+        ants = specs.annotations
+
+        assert iscoroutinefunction(
+            func), "route handle should be a coroutine object"
+        assert len(
+            args), f"Please provide request as a argument in the route definition `{func.__name__}`"
+        assert "request" in args, f"Please provide `request` as a argument in the route definition  `{func.__name__}`"
+        for var, _, _ in fvar:
+            if var is not None:
+                assert var in args, f"Please provide `{var}` as a argument in the route definition `{func.__name__}`"
+        assert "return" in ants, f"Please provide default return type in route `{func.__name__}`"
+
+        return ants['return']
+
+    def register(self, url: str, func: callable) -> None:
+        assert url.startswith("/"), "Route should start with `/`"
         assert url not in self._routes, f"Route {url} registered."
         url_pattern = ''
         url_var = []
@@ -122,9 +157,10 @@ class Router:
 
         url_pattern = url_pattern if len(url_pattern) else url
         url_pattern += '$'
-        self += [re.compile(url_pattern), func, url_var]
-        self._routes.append(url)
 
+        ser_func = self.inspect_func(func, url_var)
+        self += [re.compile(url_pattern), func, url_var, ser_func]
+        self._routes.append(url)
 
 class Request(object):
     headers: RequestHeader = None
@@ -187,9 +223,10 @@ class App(object):
         if header.method == 'OPTIONS':
             response = cors(header.origin['value'])
         else:
-            handle, var, query = self.router.get(header.path)
+            handle, var, query, ser_func = self.router.get(header.path)
             if handle:
                 response = await handle(Request(header, reader, writer, self.loop), **var)
+                response = await response_refs.get(ser_func)(response)
             else:
                 response = await json_response({"message": f"Path {header.path} not found."}, code=404)
 

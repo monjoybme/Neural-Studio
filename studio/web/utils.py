@@ -6,7 +6,6 @@ from json import dumps
 from os import path as pathlib, stat
 
 from .headers import *
-from .views import View
 
 async def text_response(
         text:str,
@@ -26,8 +25,8 @@ async def text_response(
 
 async def json_response(
         data:dict,
-        response:ResponseHeader=None,
         code:int=200,
+        response: ResponseHeader = None,
     )->bytes:
 
     if response is None:
@@ -76,15 +75,3 @@ async def redirect(url:str, code:int= 302, response:ResponseHeader = None)->byte
         response = ResponseHeader() | code
     response += location(url,)
     return response @ f"Redirecting to : {url}"
-
-
-async def render_view(
-    view: View,
-    code: int = 200,
-    response: ResponseHeader = None
-) -> bytes:
-    """Returns a response object with a text/html response."""
-    if response is None:
-        response = ResponseHeader() | code
-    
-    return response @ view

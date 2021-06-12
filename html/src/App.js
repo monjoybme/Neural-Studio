@@ -235,7 +235,7 @@ const App = (props) => {
       push({
         name: "app",
         data: app
-      }).then(_=>{
+      }).then(response=>{
         loadState(false);
       })
     }

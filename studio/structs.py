@@ -1,24 +1,23 @@
 from typing import Any
-import typing
 
-TABSPACE = '    '
+TABSPACE = ' '*4
 NEWLINE = '\n'
 
 
-class Dict:
+class DataDict:
     def __init__(self, data_dict: dict = {}, iterable: iter = [], level: int = 1, **kwargs):
         self.__level__ = level
         for key, value in data_dict.items() if isinstance(data_dict, dict) else data_dict:
             if type(value) == dict:
-                value = Dict(level=level + 1, **value)
+                value = DataDict(data_dict=value, level=level + 1)
             self.__dict__[key] = value
         for key, value in iterable:
             if type(value) == dict:
-                value = Dict(level=level + 1, **value)
+                value = DataDict(data_dict=value, level=level + 1)
             self.__dict__[key] = value
         for key, value in kwargs.items():
             if type(value) == dict:
-                value = Dict(level=level + 1, **value)
+                value = DataDict(data_dict=value, level=level + 1)
             self.__dict__[key] = value
 
     def __iter__(self, ):
@@ -27,7 +26,7 @@ class Dict:
                 yield key, value
 
     def __repr__(self, ):
-        repr_val = (self.__level__ - 1) * TABSPACE + '{\n'
+        repr_val = '{\n'
         indent = self.__level__ * TABSPACE
         for key, val in self:
             repr_val += f"{indent}{key} : {val},\n"
@@ -47,8 +46,8 @@ class Dict:
 
     def __setitem__(self, key: str, value: Any):
         if type(key) == list:
-            keys, = key;
-            key,*keys,dk = keys.split(":")
+            keys, = key
+            key, *keys, dk = keys.split(":")
             elem = self[key]
             for k in keys:
                 elem = elem[k]
@@ -60,15 +59,10 @@ class Dict:
     def idx(self, ):
         return self.__name__
 
-    @property
-    def dict(self, ):
-        return dict(self)
-
-    @property
-    def full_dict(self, ):
+    def to_dict(self, ):
         out = dict()
         for key, val in self:
-            if isinstance(val, Dict):
-                val = val.full_dict
+            if isinstance(val, DataDict):
+                val = val.to_dict()
             out[key] = val
         return out

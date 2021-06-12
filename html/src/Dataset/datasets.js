@@ -105,7 +105,7 @@ const CSVDataset = (
     }
 
   React.useEffect(() => {
-    if(dataset.meta.preprocessor === '#preprocessorcode'){
+    if (dataset.meta.preprocessor === "#preprocessorcode") {
       dataset.meta.preprocessor = csvPreProcCode;
       datasetState(dataset);
     }
