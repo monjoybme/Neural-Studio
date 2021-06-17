@@ -10,7 +10,7 @@
       height: $topbarHeight;
       overflow: hidden;
       border-bottom: $darkBorder1;
-      .buttons {
+      .controls {
         width: 100%;
         height: 100%;
         @include flex(row, space-around, center);
@@ -269,6 +269,7 @@
     background: $darkFr;
     border-right: $darkBorder2;
   }
+  
   .monitor-container{
     border-left: $darkBorder2;
     .title{

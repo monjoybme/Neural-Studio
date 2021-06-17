@@ -2,57 +2,39 @@ import React from "react";
 
 import { TopBar, SideBar } from "./NavBar";
 import { POST, Notification, GET, Loading, pull, push } from "./Utils";
-import {
-  metaSideNav,
-  metaApp,
-  metaStore,
-  metaRender,
-} from "./Meta";
+import { metaSideNav, metaApp, metaStore, metaRender } from "./Meta";
 
 import "./style/App.scss";
 import "./style/Nav.scss";
 import "./style/Home.scss";
-import './style/Dataset.scss';
+import "./style/Dataset.scss";
 import "./style/Canvas.scss";
 import "./style/Code.scss";
 import "./style/Training.scss";
 import "./style/Summary.scss";
 
-const PopUp = (
-  props = { store: metaStore }
-) => {
-  return (
-    <>
-      { props.store.popup }
-    </>
-  );
+const PopUp = (props = { store: metaStore }) => {
+  return <>{props.store.popup}</>;
 };
 
-const NotificationPop = (props = { store: metaStore } ) => {
-  return (
-    <>
-      { props.store.notification.comp }
-    </>
-  );
+const NotificationPop = (props = { store: metaStore }) => {
+  return <>{props.store.notification.comp}</>;
 };
 
-const StatusBar = (props = { store: metaStore } ) => {
+const StatusBar = (props = { store: metaStore }) => {
   return (
     <div className="statusbar">
-      {props.store.statusbar.toLowerCase()} | workspace :{" "}
-      {props.store.app.name}
+      {props.store.statusbar.toLowerCase()} | workspace : {props.store.app.name}
     </div>
   );
 };
 
-const Container = (props = { store: metaStore } ) => {
+const Container = (props = { store: metaStore }) => {
   return <div className="container-area">{props.children}</div>;
 };
 
-const Main = (props = { store: metaStore } ) => {
-  return (
-    <div className={`app ${props.store.app.theme}`}>{props.children}</div>
-  );
+const Main = (props = { store: metaStore }) => {
+  return <div className={`app ${props.store.app.theme}`}>{props.children}</div>;
 };
 
 const App = (props) => {
@@ -65,19 +47,19 @@ const App = (props) => {
   let [load, loadState] = React.useState(true);
 
   const store = {
-    app:app,
-    appState:appState,
-    nav: nav, 
+    app: app,
+    appState: appState,
+    nav: nav,
     navState: navState,
-    popup: popup, 
+    popup: popup,
     popupState: popupState,
-    statusbar: statusbar, 
+    statusbar: statusbar,
     statusbarState: statusbarState,
-    notification: notification, 
+    notification: notification,
     notificationState: notificationState,
-    render: render, 
+    render: render,
     renderState: renderState,
-    load: load, 
+    load: load,
     loadState: loadState,
   };
 
@@ -112,134 +94,139 @@ const App = (props) => {
         ),
       });
     },
-    getappconfig: function(){
-      return app
+    getappconfig: function () {
+      return app;
     },
-    loadState: loadState
+    loadState: loadState,
   };
 
   let defaultProps = {
-    store:store,
-    appFunctions: appFunctions
-  }
+    store: store,
+    appFunctions: appFunctions,
+  };
 
-  function keymap(e) {
-    switch (window.__SHORTCUT__) {
-      case 0:
-        switch (e.key) {
-          case "s":
-            e.preventDefault();
-            break;
-          case "e":
-            break;
-          case "o":
-            break;
-          case "d":
-            e.preventDefault();
-            appFunctions.downloadCode();
-            break;
-          case "Escape":
-            e.preventDefault();
-            window.setToolMode({ mode: "Normal", name: "normal" });
-            break;
-          case "1":
-            e.preventDefault();
-            window.setToolMode({ mode: "Normal", name: "normal" });
-            break;
-          case "2":
-            e.preventDefault();
-            window.setToolMode({ mode: "Edge", name: "edge" });
-            break;
-          case "3":
-            e.preventDefault();
-            window.setToolMode({ mode: "Move", name: "move" });
-            break;
-          case "4":
-            e.preventDefault();
-            window.setToolMode({ mode: "Delete", name: "delete" });
-            break;
-          case "5":
-            e.preventDefault();
-            window.setToolMode({ mode: "clean", name: "clean" });
-            break;
-          case "Shift":
-            window.__SHORTCUT__ = 2;
-            break;
-          case "Tab":
-            e.preventDefault();
-            break;
-          default:
-            break;
-        }
-        break;
-
-      case 1:
-        break;
-
-      case 2:
-        break;
-
-      default:
-        switch (e.key) {
-          case "Control":
-            window.__SHORTCUT__ = 0;
-            break;
-          case "Shift":
-            window.__SHORTCUT__ = 1;
-            break;
-          case "Alt":
-            window.__SHORTCUT__ = 2;
-            break;
-          case "Escape":
-            popupState(<div className="popup"></div>);
-            if (render.name === "Graph") {
-              window.setToolMode({ name: "normal" });
-            }
-            break;
-          default:
-            break;
-        }
-        break;
-    }
-  }
-
-  const LoadingData = (props) =>{
+  const LoadingData = (props) => {
     return (
-      <div style={{display:"flex", justifyContent:"center", alignItems:"center"}} className='container loaddata'>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+        className="container loaddata"
+      >
         <Loading />
       </div>
-    )
-  }
+    );
+  };
 
   React.useEffect(function () {
-    if ( load ){
-      window.onkeydown = keymap;
-      window.onkeyup = function (e) {
-        window.__SHORTCUT__ = -1;
-      };
-    }else {
-      
-    }
-  }, [load, ]);
+    window.onkeydown = function (e) {
+      switch (window.__SHORTCUT__) {
+        case 0:
+          switch (e.key) {
+            case "s":
+              e.preventDefault();
+              break;
+            case "e":
+              break;
+            case "o":
+              break;
+            case "d":
+              e.preventDefault();
+              appFunctions.downloadCode();
+              break;
+            case "Escape":
+              e.preventDefault();
+              window.setToolMode({ mode: "Normal", name: "normal" });
+              break;
+            case "1":
+              e.preventDefault();
+              window.setToolMode({ mode: "Normal", name: "normal" });
+              break;
+            case "2":
+              e.preventDefault();
+              window.setToolMode({ mode: "Edge", name: "edge" });
+              break;
+            case "3":
+              e.preventDefault();
+              window.setToolMode({ mode: "Move", name: "move" });
+              break;
+            case "4":
+              e.preventDefault();
+              window.setToolMode({ mode: "Delete", name: "delete" });
+              break;
+            case "5":
+              e.preventDefault();
+              window.setToolMode({ mode: "clean", name: "clean" });
+              break;
+            case "Shift":
+              window.__SHORTCUT__ = 2;
+              break;
+            case "Tab":
+              e.preventDefault();
+              break;
+            default:
+              break;
+          }
+          break;
 
-  React.useEffect(function(){
-    if (app.fetch){
-      pull({ name: "app"}).then(app_data=>{
-        appState({
-          ...app_data,
-          fetch: false
-        })
-      })
-    }else{
-      console.log("[PUSH] app")
-      push({
-        name: "app",
-        data: app
-      }).then(response=>{
-        loadState(false);
-      })
-    }
-  }, [app, ])
+        case 1:
+          break;
+
+        case 2:
+          break;
+
+        default:
+          switch (e.key) {
+            case "Control":
+              window.__SHORTCUT__ = 0;
+              break;
+            case "Shift":
+              window.__SHORTCUT__ = 1;
+              break;
+            case "Alt":
+              window.__SHORTCUT__ = 2;
+              break;
+            case "Escape":
+              popupState(<div className="popup"></div>);
+              console.log(render.name);
+              if (render.name === "Graph") {
+                window.setToolMode({ name: "normal" });
+              }
+              break;
+            default:
+              break;
+          }
+          break;
+      }
+    };
+    window.onkeyup = function (e) {
+      window.__SHORTCUT__ = -1;
+    };
+  });
+
+  React.useEffect(
+    function () {
+      if (app.fetch) {
+        pull({ name: "app" }).then((app_data) => {
+          appState({
+            ...app_data,
+            fetch: false,
+          });
+        });
+      } else {
+        console.log("[PUSH] app");
+        push({
+          name: "app",
+          data: app,
+        }).then((response) => {
+          loadState(false);
+        });
+      }
+    },
+    [app]
+  );
 
   return (
     <Main {...defaultProps}>

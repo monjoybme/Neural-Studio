@@ -75,7 +75,7 @@ const ListProperty = (
         defaultValue={property.value}
         onChange={(e) => {
           graph.nodes[props.layer_id].arguments[props.name].value = e.target.value;
-          props.storeContext.graph.set(graph);
+          graphState({...graph});
         }}
       >
         {options.map((option, i) => {

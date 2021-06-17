@@ -87,7 +87,6 @@ const GraphEditor = (
   let [graph, graphState] = React.useState(metaGraph);
   let [layergroups, layergroupsState] = React.useState(metaLayerGroups);
   let [menu, menuState] = React.useState({ comp: <div />, render: false });
-  let [load, loadState] = React.useState(true);
   let [toolbarButtons, toolbarButtonsState] = React.useState([
     {
       name: "edge",
@@ -335,20 +334,8 @@ const GraphEditor = (
           graph.nodes[activeElement.node].connections.inbound = [];
           break;
         case "datasets":
-          let unload = async function () {
-            await POST({
-              path: "/dataset/unload",
-            })
-              .then((response) => response.json())
-              .then((data) => {
-                if (data.status) {
-                  props.appFunctions.notify({ message: data.message });
-                  removeNode(activeElement);
-                  graphState({ ...graph });
-                }
-              });
-          };
-          unload();
+          removeNode(activeElement);
+          graphState({ ...graph });
           break;
         default:
           props.appFunctions.notify({
@@ -495,35 +482,36 @@ const GraphEditor = (
   let tools = {
     addEdge: addEdge,
   };
+  
 
-  React.useEffect(() => {
+  React.useEffect(()=>{
+    updateViewBox();
+    updateViewBoxService();
+    setToolMode({name:"normal"});
     window.setToolMode = setToolMode;
-    if (load) {
-      loadState(false);
+  }, [])
+
+  React.useEffect(()=>{
+    if ( graph.fetch ){
       pull({
-        name: "graph",
-      }).then(function (graphData) {
-        window.__graph = window.copy(graphData);
-        pull({
-          name: "canvas",
-        }).then(function (canvasData) {
-          window.canvaas = canvasData;
-          updateViewBox();
-          updateViewBoxService();
-          setToolMode({ name: "normal" });
-          graphState({ ...graphData });
-        });
-      });
-    } else {
-      if (graph !== window.__graph) {
-        push({
-          name: "graph",
-          data: graph,
-        });
-        window.__graph = window.copy(graph);
-      }
+        name: "canvas"
+      }).then(response=>{
+        let _graph = response.graph;
+        delete response.graph;
+        window.canvas = response;
+        graphState({..._graph, fetch: false})
+      })
+    }else{
+      console.log("[PUSH] Canvas");
+      push({
+        name:"canvas",
+        data:{
+          ...window.canvas,
+          graph: {...graph}
+        }
+      })
     }
-  },[]);
+  }, [graph])
 
   return (
     <div className="container graph-canvas">

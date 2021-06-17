@@ -29,18 +29,21 @@ from os import path as pathlib
 TABSPACE = '    '
 NEWLINE = '\n'
 
-def set_argument(argument:str, config:dict):
+
+def set_argument(argument: str, config: dict):
     value = config['value']
-    try: value = eval(value)
-    except: pass
+    try:
+        value = eval(value)
+    except:
+        pass
     value = (
         (
-            None 
-                if value == 'None' 
-                else f"'{value}'"
-        ) 
-            if config['type'] == 'text' 
-            else value
+            None
+            if value == 'None'
+            else f"'{value}'"
+        )
+        if config['type'] == 'text'
+        else value
     )
     return f"    {argument}={value.__repr__()},"
 
@@ -53,17 +56,18 @@ class LayerMeta(DataDict):
         super().__init__(config)
         self.__name__ = f"Layer {{ {self.name} }}"
 
-    def to_code(self, graphdef: DataDict, train:bool=False) -> str:
-        arguments = NEWLINE.join([set_argument(arg, cnf) for arg, cnf in self['arguments']]) 
+    def to_code(self, graphdef: DataDict, train: bool = False) -> str:
+        arguments = NEWLINE.join([set_argument(arg, cnf)
+                                  for arg, cnf in self['arguments']])
         inbound = (
             (
                 (
                     f"""([ {', '.join(self[['connections:inbound']])} ])"""
-                        if len(self[['connections:inbound']]) > 1
-                        else f"""({self[['connections:inbound']][0]})"""
+                    if len(self[['connections:inbound']]) > 1
+                    else f"""({self[['connections:inbound']][0]})"""
                 )
-                    if len(self[['connections:inbound']])
-                    else ''
+                if len(self[['connections:inbound']])
+                else ''
             )
             if self[['type:name']] != 'Input'
             else ''
@@ -84,6 +88,7 @@ class ApplicationMeta(DataDict):
                                   for arg, cnf in self['arguments']])
         inbound, *_ = self[['connections:inbound']]
         return f"""{self['id']} = applications.{self[['type:name']]}(\n{TABSPACE}input_tensor={inbound},\n{arguments}\n).output #end-{self['id']}"""
+
 
 class CustomNodeMeta(DataDict):
     def __init__(self, config: dict, ):
@@ -122,7 +127,7 @@ class DatasetMeta(DataDict):
         super().__init__(dataset)
         self.__name__ = f"Dataset {{ {self.name} }}"
 
-    def to_code(self, grapdef:DataDict=None , train:bool=False) -> str:
+    def to_code(self, grapdef: DataDict = None, train: bool = False) -> str:
         return self.arguments.dataset.value
 
 
@@ -134,8 +139,9 @@ class ModelMeta(DataDict):
         super().__init__(config)
         self.__name__ = f"Model {{ {self.name} }}"
 
-    def to_code(self, graphdef: DataDict, train:bool=False) -> str:
+    def to_code(self, graphdef: DataDict, train: bool = False) -> str:
         return f"""{self['id']} = keras.Model(\n{TABSPACE}[ {', '.join(graphdef.__input__)}, ],\n{TABSPACE}[ {', '.join(self[['connections:inbound']])}, ]\n) #end-{self['id']}"""
+
 
 class CompileMeta(DataDict):
     def __init__(self, config: dict):
@@ -168,7 +174,7 @@ class CompileMeta(DataDict):
         super().__init__(config)
         self.__name__ = f"Compile {{ {self.name} }}"
 
-    def to_code(self, graphdef: DataDict, train:bool=False) -> str:
+    def to_code(self, graphdef: DataDict, train: bool = False) -> str:
         metrics = self[['arguments:metrics:value']]
         metrics = "[\"" + '", "'.join(metrics) + \
             "\"]" if len(metrics) else 'None'
@@ -223,7 +229,7 @@ class FitMeta(DataDict):
         super().__init__(config)
         self.__name__ = f"Train {{ {self.name} }}"
 
-    def to_code(self, graphdef: DataDict, train:bool=False) -> str:
+    def to_code(self, graphdef: DataDict, train: bool = False) -> str:
         callbacks = (NEWLINE * 2).join([callback.to_code(graphdef)
                                         for callback in graphdef.__callbacks__])
         callback_ids = [callback['id'] for callback in graphdef.__callbacks__]
@@ -267,33 +273,33 @@ class GraphDef(DataDict):
         self.__callbacks__ = []
         for idx, layer in self.nodes:
             if layer[["type:object_class"]] == 'layers':
-                self.nodes[idx] = LayerMeta(layer.dict)
+                self.nodes[idx] = LayerMeta(dict(layer))
                 if layer[['type:name']] == 'Input':
                     self.__input__.append(idx)
             elif layer[['type:object_class']] == 'CustomNode':
-                self.nodes[idx] = CustomNodeMeta(layer.dict)
+                self.nodes[idx] = CustomNodeMeta(dict(layer))
             elif layer[['type:object_class']] == 'applications':
-                self.nodes[idx] = ApplicationMeta(layer.dict)
+                self.nodes[idx] = ApplicationMeta(dict(layer))
             elif layer[["type:object_class"]] == 'callbacks':
-                self.nodes[idx] = LayerMeta(layer.dict)
+                self.nodes[idx] = LayerMeta(dict(layer))
                 self.__callbacks__.append(self.nodes[idx])
             elif layer[["type:object_class"]] == 'optimizers':
-                self.nodes[idx] = LayerMeta(layer.dict)
+                self.nodes[idx] = LayerMeta(dict(layer))
                 self.__optimizer__ = self.nodes[idx]
             elif layer[["type:object_class"]] == 'build_tools':
                 if layer[['type:name']] == 'Model':
-                    self.nodes[idx] = ModelMeta(layer.dict)
+                    self.nodes[idx] = ModelMeta(dict(layer))
                     self.__model__ = self.nodes[idx]
                 elif layer[['type:name']] == 'Compile':
-                    self.nodes[idx] = CompileMeta(layer.dict)
+                    self.nodes[idx] = CompileMeta(dict(layer))
                     self.__compile__ = self.nodes[idx]
                 elif layer[['type:name']] == 'Fit':
-                    self.nodes[idx] = FitMeta(layer.dict)
+                    self.nodes[idx] = FitMeta(dict(layer))
                     self.__train__ = self.nodes[idx]
                 else:
                     pass
             elif layer[['type:object_class']] == 'custom_def':
-                self.__custom__nodes__.append(LayerMeta(layer.dict))
+                self.__custom__nodes__.append(LayerMeta(dict(layer)))
             else:
                 pass
             self.__layers__.append(idx)

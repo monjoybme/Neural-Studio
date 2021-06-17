@@ -18,13 +18,15 @@ from os import  path as pathlib, listdir
 # root path
 ROOT_PATH = pathlib.abspath("./")
 
+# defining globals
 app = App()
 workspace_mamager = WorkspaceManager()
 trainer = Trainer(workspace_mamager)
 
+# loading dataset from cached data 
 try:
     Dataset = DATASETS.get(workspace_mamager.active.dataset['meta']['type'])
-    workspace_mamager.dataset = Dataset(**workspace_mamager.active.dataset.full_dict)
+    workspace_mamager.dataset = Dataset(**workspace_mamager.active.dataset.to_dict())
 except AttributeError:
     print ("[warning] Error updating dataset.")
 except KeyError:
@@ -36,6 +38,23 @@ globals().update({
         "workspace_manager": workspace_mamager
     })
 })
+
+# sys endpoints
+
+@app.route("/sys/path")
+async def sys_path(request: Request)->dict:
+    path = (await request.get_json()).get('path')
+    if not path:
+        return []
+    elif pathlib.isfile(path):
+        return []
+    elif pathlib.isdir(path):
+        return list(map(lambda x: pathlib.join(path, x), listdir(path)))
+    else:
+        d, p = pathlib.split(path)
+        if pathlib.isdir(d):
+            return list(map(lambda x: pathlib.join(d, x) if p in x else None, listdir(d)))
+        return []
 
 # Workspace Endpoints
 
@@ -99,14 +118,10 @@ async def workspace_open(request: Request, name: str)->dict:
 
 @app.route("/workspace/delete/<str:name>")
 async def workspace_new(request: Request, name: str)->dict:
-    if request.headers.method == "POST":
-        return await json_response({
-            "status": workspace_mamager.delete_workspace(name),
-        })
+    return {
+        "status": workspace_mamager.delete_workspace(name),
+    }
 
-    return await json_response({
-        "message": "Method Not Allowed !"
-    }, status_code=400)
 
 # download endpoints
 
@@ -140,61 +155,25 @@ async def workspace_new(request: Request, name: str)->dict:
 #     }, status_code=400)
 
 
-# # model api endpoints
+# dataset endpoints
 
-# @app.route("/model/code")
-# async def buiild(request: Request):
-#     if request.headers.method == 'GET':
-#         graph = GraphDef(workspace_mamager.active.graph)
-#         status, message = graph.build()
-#         if status:
-#             return await text_response(graph.to_code())
-#         return await text_response(message)
-#     return await json_response(
-#         data={
-#             "message": "Method Not Allowed"
-#         },
-#     )
+@app.route("/dataset/add")
+async def dataset_init(request: Request)->dict:
+    data = await request.get_json()
+    workspace_mamager.dataset = DATASETS.get(data['meta']['type'])(**data)
+    return {
+        "sample": workspace_mamager.dataset.sample()
+    }
 
+@app.route("/dataset/preprocess")
+async def dataset_preprocess(request: Request)->dict:
+    exec(workspace_mamager.dataset.meta['preprocessor'])
+    func = locals().get('dataset_proprocessor')
+    try:
+        return workspace_mamager.dataset.apply(func)
+    except Exception as e:
+        return { "status": False, "message": str(e) }
 
-# @app.route("/model/summary")
-# async def summary_viewer(request: Request):
-#     if request.headers.method == 'GET':
-#         return await json_response({
-#             "summary": trainer.summary
-#         })
-#     return await json_response({
-#         "message": "Method Not Allowed"
-#     }, code=402)
-
-# # dataset api endpoints
-
-
-# @app.route("/dataset/init")
-# async def dataset_init(request: Request):
-#     data = await request.get_json()
-#     dataset: Dataset = DATASETS[data['meta']['type']]
-#     dataset: Dataset = dataset(**data)
-#     workspace_mamager.dataset = dataset
-#     return await json_response({
-#         "sample": dataset.sample()
-#     })
-
-# @app.route("/dataset/preprocess")
-# async def dataset_preprocess(request: Request):
-#     exec(workspace_mamager.dataset.meta['preprocessor'])
-#     func = locals()['dataset_proprocessor']
-#     try:
-#         workspace_mamager.dataset.apply(func)
-#         return await json_response({
-#             "status": True
-#         })
-#     except Exception as e:
-#         return await json_response({
-#             "status": False,
-#             "message": str(e)
-#         })
-    
 # @app.route("/dataset/checkpoint")
 # async def dataset_checkpoint(request: Request):
 #     if request.headers.method == 'POST':
@@ -240,24 +219,22 @@ async def workspace_new(request: Request, name: str)->dict:
 #     }, code=402)
 
 
-# @app.route("/dataset/path")
-# async def dataset_checkpoint(request: Request):
-#     data = await request.get_json()
-#     path = data['path']
-#     if not path:
-#         return await json_response([])
 
-#     elif pathlib.isfile(path):
-#         return await json_response([])
+# model api endpoints
 
-#     elif pathlib.isdir(path):
-#         return await json_response(list(map(lambda x: pathlib.join(path, x), listdir(path))))
+@app.route("/model/code")
+async def buiild(request: Request)->dict:
+    graph = GraphDef(workspace_mamager.active.canvas.graph)
+    status, message = graph.build()
+    if status:
+        return { "code": graph.to_code() }
+    return await text_response(message)    
 
-#     else:
-#         d, p = pathlib.split(path)
-#         if pathlib.isdir(d):
-#             return await json_response(list(map(lambda x: pathlib.join(d, x) if p in x else None, listdir(d))))
-#         return await json_response([])
+
+@app.route("/model/summary")
+async def summary_viewer(request: Request)->dict:
+    return { "summary": trainer.summary }
+
 
 # # training endpoints
 

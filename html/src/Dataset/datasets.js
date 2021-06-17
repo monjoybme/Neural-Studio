@@ -1,8 +1,7 @@
 import React from 'react';
 import Editor from "@monaco-editor/react";
 
-import { POST, GET, push, Notification } from '../Utils';
-
+import { POST, GET, push, Notification, Loading } from '../Utils';
 
 let csvPreProcCode = `def dataset_proprocessor(dataset)->None:
     """
@@ -64,31 +63,34 @@ const CSVDataset = (
   let [dataset, datasetState] = React.useState({
     ...props,
   })
+  let [load, loadState] = React.useState(false);
 
     async function addDataset() {
+      loadState(true);
       await POST({
-        path: "/dataset/init",
+        path: "/dataset/add",
         data: { ...dataset },
       })
         .then((response) => response.json())
         .then((data) => {
             dataset.meta.config.view.sample = data.sample;
             datasetState({ ...dataset });
+            loadState(false);
         });
     }
 
     async function fetchPath(e) {
       await POST({
-        path: "/dataset/path",
+        path: "/sys/path",
         data: {
           path: e.target.value,
         },
       })
         .then((response) => response.json())
-        .then((data) => {
-          pathsState(data);
+        .then((data) => {        
           dataset.meta.config.path = e.target.value;
           datasetState({ ...dataset });
+          pathsState(data);
         });
     }
 
@@ -105,6 +107,7 @@ const CSVDataset = (
     }
 
   React.useEffect(() => {
+    console.log(dataset.meta.preprocessor)
     if (dataset.meta.preprocessor === "#preprocessorcode") {
       dataset.meta.preprocessor = csvPreProcCode;
       datasetState(dataset);
@@ -146,63 +149,71 @@ const CSVDataset = (
         </div>
       </div>
       <div className="viewer">
-        <div
-          className="columns"
-          style={{
-            display: "grid",
-            gridTemplateColumns: `repeat(${
-              dataset.meta.config.view.sample.columns.slice(
-                dataset.meta.config.view.index.start,
-                dataset.meta.config.view.index.end
-              ).length
-            }, 10%)`,
-          }}
-        >
-          {dataset.meta.config.view.sample.columns
-            .slice(
-              dataset.meta.config.view.index.start,
-              dataset.meta.config.view.index.end
-            )
-            .map((column, i) => {
-              return (
-                <div className="column" key={i}>
-                  {column}
-                </div>
-              );
-            })}
-        </div>
-        <div className="rows">
-          {dataset.meta.config.view.sample.values.map((row, i) => {
-            return (
-              <div
-                className="row"
-                key={i}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: `repeat(${
-                    row.slice(
-                      dataset.meta.config.view.index.start,
-                      dataset.meta.config.view.index.end
-                    ).length
-                  }, 10%)`,
-                }}
-              >
-                {row
-                  .slice(
+        {load ? (
+          <div style={{display:"flex", justifyContent:"center", alignItems:"center", height:"100%", width:"100%"}}>
+            <Loading />
+          </div>
+        ) : (
+          <>
+            <div
+              className="columns"
+              style={{
+                display: "grid",
+                gridTemplateColumns: `repeat(${
+                  dataset.meta.config.view.sample.columns.slice(
                     dataset.meta.config.view.index.start,
                     dataset.meta.config.view.index.end
-                  )
-                  .map((column, j) => {
-                    return (
-                      <div className="column" key={j}>
-                        {column}
-                      </div>
-                    );
-                  })}
-              </div>
-            );
-          })}
-        </div>
+                  ).length
+                }, 10%)`,
+              }}
+            >
+              {dataset.meta.config.view.sample.columns
+                .slice(
+                  dataset.meta.config.view.index.start,
+                  dataset.meta.config.view.index.end
+                )
+                .map((column, i) => {
+                  return (
+                    <div className="column" key={i}>
+                      {column}
+                    </div>
+                  );
+                })}
+            </div>
+            <div className="rows">
+              {dataset.meta.config.view.sample.values.map((row, i) => {
+                return (
+                  <div
+                    className="row"
+                    key={i}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: `repeat(${
+                        row.slice(
+                          dataset.meta.config.view.index.start,
+                          dataset.meta.config.view.index.end
+                        ).length
+                      }, 10%)`,
+                    }}
+                  >
+                    {row
+                      .slice(
+                        dataset.meta.config.view.index.start,
+                        dataset.meta.config.view.index.end
+                      )
+                      .map((column, j) => {
+                        return (
+                          <div className="column" key={j}>
+                            {column}
+                          </div>
+                        );
+                      })}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
       <div className="preprocessor">
         <div className="top">

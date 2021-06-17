@@ -182,14 +182,14 @@ class Request(object):
         self.writer = writer
         self.loop = loop
 
-    async def get_json(self,):
+    async def get_json(self,)->dict:
         if self._content:
             return loads(self._content)
         self._content = await self.reader.readexactly(n=int(self.headers.content_length['value']))
         return loads(self._content)
 
     @property
-    async def content(self,):
+    async def content(self,)->bytes:
         if self._content:
             return self._content
         self._content = await self.reader.readexactly(n=int(self.headers.content_length['value']))

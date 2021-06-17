@@ -146,7 +146,8 @@ export const  metaGraph = {
   },
   custom_nodes : [
     
-  ]
+  ],
+  fetch: true
 };
 
 export const metaRender = {

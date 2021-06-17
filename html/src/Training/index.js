@@ -5,13 +5,16 @@ import { MonitorMany, MonitorOne } from './monitor';
 import { EpochLog, ErrorLog, NotificationLog } from './logs';
 
 import { icons } from "../data/icons";
-import { metaAppFunctions, metaStore, metaStoreContext } from "../Meta";
-import { GET } from "../Utils";
+import { metaAppFunctions, metaGraph, metaStore, metaStoreContext, metaTrain } from "../Meta";
+import { GET, pull, push } from "../Utils";
 
 const Training = (
   props = { store: metaStore, storeContext: metaStoreContext, appFunctions: metaAppFunctions }
 ) => {
-  let {graph, graphState, train, trainState } = props.store;
+
+  let [graph, graphState] = React.useState(metaGraph);
+  let [train, trainState] = React.useState(metaTrain);
+
   let [monitorMode, monitorModeState] = React.useState(false);
   let [status, statusState] = React.useState({
     data: train.hist !== undefined ? train.hist : [],
@@ -22,7 +25,7 @@ const Training = (
     name: "Pause",
     state: true,
   });
-  let buttons = [
+  let controls = [
     {
       name: "Start",
       func: trainModel,
@@ -168,30 +171,53 @@ const Training = (
     }
   }
 
-  React.useEffect(() => {
-    if (
-      train.training &&
-      status.updating === false &&
-      status.ended === false &&
-      status.ended !== undefined
-    ) {
-      getStatus();
-    }
-    if ( load ){
-      props.storeContext.graph.pull().then(function(){
-        loadStatus(false);
+  React.useState(()=>{
+    if(graph.fetch){
+      pull({
+        name: "canvas"
+      }).then(response=>{
+        let _graph = response.graph;
+        delete response.graph;
+
+        window.canvas = response;
+        graphState({..._graph, fetch: false})
       })
     }else{
-      props.storeContext.graph.push();
+      console.log("[PUSH] Canvas");
+      push({
+        name: "canvas",
+        data:{
+          ...window.canvas,
+          graph: graph
+        }
+      })
     }
+  }, [graph])
+
+  React.useEffect(() => {
+    // if (
+    //   train.training &&
+    //   status.updating === false &&
+    //   status.ended === false &&
+    //   status.ended !== undefined
+    // ) {
+    //   getStatus();
+    // }
+    // if ( load ){
+    //   props.storeContext.graph.pull().then(function(){
+    //     loadStatus(false);
+    //   })
+    // }else{
+    //   props.storeContext.graph.push();
+    // }
   });
 
   return (
     <div className="container training">
       <div className="tuner">
         <div className="toolbar">
-          <div className="buttons">
-            {buttons.map((button, i) => {
+          <div className="controls">
+            {controls.map((button, i) => {
               let Icon = button.icon;
               return (
                 <div className="btn" key={i} onClick={button.func}>
@@ -203,7 +229,7 @@ const Training = (
         </div>
         {graph.train_config ? (
           <div className="params">
-            {graph.train_config.fit ? (
+            {/* {graph.train_config.fit ? (
               <div className="property">
                 <Menu
                   {...graph.train_config.fit}
@@ -211,8 +237,8 @@ const Training = (
                   train={true}
                 />
               </div>
-            ) : undefined}
-            {graph.train_config.compile ? (
+            ) : undefined} */}
+            {/* {graph.train_config.compile ? (
               <div className="property">
                 <Menu
                   {...graph.train_config.compile}
@@ -220,8 +246,8 @@ const Training = (
                   train={true}
                 />
               </div>
-            ) : undefined}
-            {graph.train_config.optimizer ? (
+            ) : undefined} */}
+            {/* {graph.train_config.optimizer ? (
               <div className="property">
                 <Menu
                   {...graph.train_config.optimizer}
@@ -229,7 +255,7 @@ const Training = (
                   train={true}
                 />
               </div>
-            ) : undefined}
+            ) : undefined} */}
           </div>
         ) : undefined}
       </div>
