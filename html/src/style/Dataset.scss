@@ -234,6 +234,11 @@
         width: 100%;
         height: -webkit-fill-available;
 
+        .top {
+          border: none;
+          border-bottom: $lightBorder2;
+        }
+
         .title {
             height: 40px;
             padding:0px 10px;
