@@ -1,6 +1,22 @@
 import inspect
 import re
 import zipfile
+import base64
+
+import cv2
+import pandas as pd
+import numpy as np
+import tensorflow as tf
+
+from tensorflow import keras
+from tensorflow.keras import layers, callbacks, optimizers, losses, applications
+
+from glob import glob
+from gc import collect
+from concurrent.futures import ThreadPoolExecutor
+from os import path as pathlib, listdir
+from tqdm.cli import tqdm
+from sklearn.model_selection import train_test_split
 
 from studio.web import App, Request, json_response, text_response, send_file
 from studio.trainer import Trainer
@@ -10,34 +26,35 @@ from studio.dataset import DATASETS, Dataset
 from studio.structs import DataDict
 from studio.utils import download_options, generate_args
 
-from tensorflow import keras
-from sklearn.model_selection import train_test_split
-
-from os import  path as pathlib, listdir
 
 # root path
 ROOT_PATH = pathlib.abspath("./")
 
 # defining globals
 app = App()
-workspace_mamager = WorkspaceManager()
-trainer = Trainer(workspace_mamager)
+workspace_manager = WorkspaceManager()
+trainer = Trainer(workspace_manager)
+
+# updating training session 
+trainer.update_session(globals())
 
 # loading dataset from cached data 
 try:
-    Dataset = DATASETS.get(workspace_mamager.active.dataset['meta']['type'])
-    workspace_mamager.dataset = Dataset(**workspace_mamager.active.dataset.to_dict())
+    Dataset = DATASETS.get(workspace_manager.active.dataset[['meta:type']])
+    dataset = Dataset(**workspace_manager.active.dataset.to_dict())
+    exec(workspace_manager.active[['dataset:meta:preprocessor']])
+    func = locals().get('dataset_proprocessor')
+    try:
+        dataset.apply(func)
+    except Exception as e:
+        print (f"[warning] {e}")
+    trainer.update_session({
+        "dataset": dataset
+    })
 except AttributeError:
     print ("[warning] Error updating dataset.")
 except KeyError:
     print ("[warning] Error updating dataset.")
-
-
-globals().update({
-    "__tfgui__globals__": DataDict({
-        "workspace_manager": workspace_mamager
-    })
-})
 
 # sys endpoints
 
@@ -61,18 +78,18 @@ async def sys_path(request: Request)->dict:
 @app.route("/workspace/active")
 async def workspace_active(request: Request)->dict:
     return {
-        "data": workspace_mamager.active.to_dict()
+        "data": workspace_manager.active.to_dict()
     }
 
 
 @app.route("/workspace/active/<str:var>")
 async def workspace_active_var(request: Request, var: str)->dict:
     if request.headers.method == "GET":
-        return workspace_mamager.active[var].to_dict()
+        return workspace_manager.active[var].to_dict()
     elif request.headers.method == 'POST':
         try:
             var_data = await request.get_json()
-            workspace_mamager.active[var] = var_data
+            workspace_manager.active[var] = var_data
             return { "status": True }
         except Exception as e:
             return { "status": False, "message": str(e) }
@@ -84,7 +101,7 @@ async def workspace_active_var(request: Request, var: str)->dict:
 async def workspace_active_var_key(request: Request, key: str)->dict:
     if request.headers.method == 'GET':
         try:
-            var = workspace_mamager.active[[key.replace("/var/", "").replace("/", ":")]]
+            var = workspace_manager.active[[key.replace("/var/", "").replace("/", ":")]]
             return { "data": var.to_dict() if isinstance(var, DataDict) else var }
         except KeyError:
             return { "data": None }
@@ -93,25 +110,25 @@ async def workspace_active_var_key(request: Request, key: str)->dict:
 
 @app.route("/workspace/recent")
 async def workspace_recent(request: Request)->dict:
-    return {"data": workspace_mamager.cache.recent}
+    return {"data": workspace_manager.cache.recent}
 
 @app.route("/workspace/all")
 async def workspace_all(request: Request)->dict:
-    return workspace_mamager.get_workspaces()
+    return workspace_manager.get_workspaces()
 
 @app.route("/workspace/new")
 async def workspace_new(request: Request)->dict:
     data = await request.get_json()
-    workspace = workspace_mamager.new_workspace(**data)
-    assert workspace.idx == workspace_mamager.active.idx
+    workspace = workspace_manager.new_workspace(**data)
+    assert workspace.idx == workspace_manager.active.idx
     return {
         "status": True
     }
 
 @app.route("/workspace/open/<str:name>")
 async def workspace_open(request: Request, name: str)->dict:
-    workspace_mamager.open_workspace(name)
-    assert workspace_mamager.active.idx == name
+    workspace_manager.open_workspace(name)
+    assert workspace_manager.active.idx == name
     return {
         "status": True,
     }
@@ -119,7 +136,7 @@ async def workspace_open(request: Request, name: str)->dict:
 @app.route("/workspace/delete/<str:name>")
 async def workspace_new(request: Request, name: str)->dict:
     return {
-        "status": workspace_mamager.delete_workspace(name),
+        "status": workspace_manager.delete_workspace(name),
     }
 
 
@@ -130,7 +147,7 @@ async def workspace_new(request: Request, name: str)->dict:
 #     if request.headers.method == 'POST':
 #         data = await request.get_json()
 #         prep_func = download_options[data['format']]
-#         status = prep_func(workspace_mamager.active, trainer)
+#         status = prep_func(workspace_manager.active, trainer)
 #         return await json_response(status)
 
 #     return await json_response({
@@ -143,7 +160,7 @@ async def workspace_new(request: Request, name: str)->dict:
 #     if request.headers.method == 'GET':
 #         return await send_file(
 #             pathlib.join(
-#                 workspace_mamager.active.path,
+#                 workspace_manager.active.path,
 #                 "outputs",
 #                 name
 #             ),
@@ -160,71 +177,29 @@ async def workspace_new(request: Request, name: str)->dict:
 @app.route("/dataset/add")
 async def dataset_init(request: Request)->dict:
     data = await request.get_json()
-    workspace_mamager.dataset = DATASETS.get(data['meta']['type'])(**data)
+    dataset = DATASETS.get(data['meta']['type'])(**data)
+    trainer.update_session({
+        "dataset":dataset
+    })
     return {
-        "sample": workspace_mamager.dataset.sample()
+        "sample": dataset.sample()
     }
 
 @app.route("/dataset/preprocess")
 async def dataset_preprocess(request: Request)->dict:
-    exec(workspace_mamager.dataset.meta['preprocessor'])
+    exec(workspace_manager.active[['dataset:meta:preprocessor']])
     func = locals().get('dataset_proprocessor')
+    dataset = trainer.session.get("dataset")
     try:
-        return workspace_mamager.dataset.apply(func)
+        return dataset.apply(func)
     except Exception as e:
         return { "status": False, "message": str(e) }
-
-# @app.route("/dataset/checkpoint")
-# async def dataset_checkpoint(request: Request):
-#     if request.headers.method == 'POST':
-#         data = await request.get_json()
-#         dataset = data['dataset']
-#         idx = data['id']
-#         status, message = trainer.update_dataset(dataset, idx)
-#         return await json_response({
-#             "message": message,
-#             "status": status
-#         })
-
-#     return await json_response({
-#         "message": "Method Not Allowed."
-#     }, code=402)
-
-
-# @app.route("/dataset/unload")
-# async def dataset_checkpoint(request: Request):
-#     if request.headers.method == 'POST':
-#         status, message = trainer.unload_dataset()
-#         return await json_response({
-#             "message": message,
-#             "status": status
-#         })
-
-#     return await json_response({
-#         "message": "Method Not Allowed."
-#     }, code=402)
-
-
-# @app.route("/dataset/data")
-# async def dataset_checkpoint(request: Request):
-#     if request.headers.method == 'POST':
-#         data = await request.get_json()
-#         return await json_response({
-#             "message": data,
-#             "status": status
-#         })
-
-#     return await json_response({
-#         "message": "Method Not Allowed."
-#     }, code=402)
-
-
 
 # model api endpoints
 
 @app.route("/model/code")
 async def buiild(request: Request)->dict:
-    graph = GraphDef(workspace_mamager.active.canvas.graph)
+    graph = GraphDef(workspace_manager.active.canvas.graph)
     status, message = graph.build()
     if status:
         return { "code": graph.to_code() }
@@ -236,37 +211,27 @@ async def summary_viewer(request: Request)->dict:
     return { "summary": trainer.summary }
 
 
-# # training endpoints
+# training endpoints
 
 
-# @app.route("/train/start")
-# async def train_start(request: Request):
-#     if request.headers.method == 'POST':
-#         if trainer.isTraining:
-#             return await json_response({
-#                 "message": "A training session is already running, please wait or stop the session."
-#             })
-#         trainer.logs = []
-#         status, message = trainer.build()
-#         if not status:
-#             return await json_response({
-#                 "message": message,
-#                 "status": status
-#             })
-#         trainer.compile()
-#         if not status:
-#             return await json_response({
-#                 "message": message,
-#                 "status": status
-#             })
-#         trainer.start()
-#         return await json_response({
-#             "message": "Training Started",
-#             "status": True
-#         })
-
-#     return await json_response(data={"message": "Method Not Allowed"}, code=402)
-
+@app.route("/train/start")
+async def train_start(request: Request)->dict:
+    if trainer.is_training:
+        return await json_response({
+            "message": "A training session is already running, please wait or stop the session."
+        })
+    trainer.logs = []
+    
+    status, message = trainer.build()
+    if not status:
+        return { "message": message, "status": status }
+    
+    status,message = trainer.compile()
+    if not status:
+        return { "message": message, "status": status }
+    
+    status, message = trainer.start()
+    return {"message": message, "status": status}
 
 # @app.route("/train/halt")
 # async def train_halt(request: Request):
@@ -308,12 +273,9 @@ async def summary_viewer(request: Request)->dict:
 #         )
 
 
-# @app.route("/train/status")
-# async def status(request: Request):
-#     return await json_response({
-#         "status": True,
-#         "logs": trainer.logs
-#     })
+@app.route("/train/status")
+async def status(request: Request)->dict:
+    return { "logs": trainer.logs }
 
 # # custom node endpoints
 
@@ -347,5 +309,5 @@ async def summary_viewer(request: Request)->dict:
 
 if __name__ == "__main__":
     app.serve(
-        port=80
+        port=80,
     )

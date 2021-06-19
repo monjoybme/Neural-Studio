@@ -175,21 +175,18 @@ class Request(object):
         headers: RequestHeader,
         reader: asyncio.StreamReader,
         writer: asyncio.StreamWriter,
-        loop,
+        loop: asyncio.BaseEventLoop,
     ):
         self.headers = headers
         self.reader = reader
         self.writer = writer
         self.loop = loop
 
-    async def get_json(self,)->dict:
-        if self._content:
-            return loads(self._content)
-        self._content = await self.reader.readexactly(n=int(self.headers.content_length['value']))
-        return loads(self._content)
+    async def get_json(self,):
+        return loads( await self.content )
 
     @property
-    async def content(self,)->bytes:
+    async def content(self,):
         if self._content:
             return self._content
         self._content = await self.reader.readexactly(n=int(self.headers.content_length['value']))
@@ -236,14 +233,9 @@ class App(object):
             writer.close()
         return -1
 
-    def serve(self, host: str = 'localhost', port: int = 8080):
-        self.loop.create_task(
-            asyncio.start_server(
-                self.handle_request,
-                host,
-                port,
-            )
-        )
+    def serve(self, host: str = 'localhost', port: int = 8080, ssl_ctx=None):
+        self.loop.create_task(asyncio.start_server( self.handle_request, host, port, ssl= ssl_ctx ))
+        
         try:
             print_start(host, port)
             self.loop.run_forever()

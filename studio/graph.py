@@ -235,22 +235,22 @@ class FitMeta(DataDict):
         callback_ids = [callback['id'] for callback in graphdef.__callbacks__]
         if train:
             return f"""{graphdef.__model__['id']}.fit(
-    x={graphdef.dataset['id']}.train_x,
-    y={graphdef.dataset['id']}.train_y,
+    x=dataset.train_x,
+    y=dataset.train_y,
     batch_size={self[['arguments:batch_size:value']]},
     epochs={self[['arguments:epochs:value']]},
-    validation_data=( {graphdef.dataset['id']}.test_x, {graphdef.dataset['id']}.test_y ),
+    validation_data=( dataset.test_x, dataset.test_y ),
     callbacks=[ tfgui_callback, {', '.join(callback_ids)} ],
     verbose=0
 ) #end-{self['id']}
 """
 
         return f"""{callbacks}{ NEWLINE * 2 if len(callbacks) else '' }{graphdef.__model__['id']}.fit(
-    x={graphdef.dataset['id']}.train_x,
-    y={graphdef.dataset['id']}.train_y,
+    x=dataset.train_x,
+    y=dataset.train_y,
     batch_size={self[['arguments:batch_size:value']]},
     epochs={self[['arguments:epochs:value']]},
-    validation_data=( {graphdef.dataset['id']}.test_x, {graphdef.dataset['id']}.test_y ),
+    validation_data=( dataset.test_x, dataset.test_y ),
     callbacks=[ tfgui, {', '.join(callback_ids)} ],
     verbose=0
 ) #end-{self['id']}

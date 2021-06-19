@@ -45,6 +45,7 @@ const TextProperty = (
         defaultValue={property.value}
         onKeyUp={(e) => {
           graph.nodes[props.layer_id].arguments[props.name].value = e.target.value;
+          graphState({ ...graph });
         }}
       />
     </div>
@@ -132,7 +133,7 @@ const CheckboxProperty = (
     optionsState({
       ...options,
     });
-    props.storeContext.graph.set( graph );
+    graphState({ ...graph });
   }
 
   const CheckBox = (
@@ -186,7 +187,7 @@ const Layer = (
               defaultValue={props.name}
               onKeyUp={(e) => {
                 graph.nodes[props.id].name = e.target.value;
-                props.storeContext.graph.set( graph )
+                graphState({ ...graph })
               }}
             />
           </div>
@@ -239,12 +240,12 @@ const Dataset = (
     appFunctions: metaAppFunctions,
   }
 ) => {
-  let { id, name, graph } = props;
+  let { id, name, graph, graphState } = props;
   let  { app } = props.store;
 
   function updateCode(e) {
     graph.nodes[id].arguments.dataset.value = e;
-    props.storeContext.graph.set(graph);
+    graphState({ ...graph });
   }
 
   async function updateDataset(e) {

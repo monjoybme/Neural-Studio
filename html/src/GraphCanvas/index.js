@@ -174,6 +174,7 @@ const GraphEditor = (
         offsetY: 15,
       };
 
+      console.log(window.canvas.activeLayer.type.object_class)
       switch (window.canvas.activeLayer.type.object_class) {
         case "optimizers":
           graph.train_config.optimizer = node;

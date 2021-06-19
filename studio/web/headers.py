@@ -860,7 +860,7 @@ def content_type(ctype: str = 'text/plain', charset:str="charset=UTF-8", *args, 
     try:
         return {
             "name": "Content-Type",
-            "value": f"{mime_types[ctype]}, {charset}"
+            "value": f"{mime_types.get(ctype)}, {charset}"
         }
     except KeyError:
         return {
@@ -1114,7 +1114,7 @@ class RequestHeader(object):
         pass
 
     def __repr__(self,) -> str:
-        return f"""RequestHeader(\n    method="{self.method},\n    path="{self.path},"\n)"""
+        return f"""RequestHeader(\n    method="{self.method}",\n    path="{self.path}",\n)"""
 
     def __str__(self,) -> str:
         return self.__repr__()

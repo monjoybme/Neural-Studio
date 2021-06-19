@@ -68,7 +68,8 @@ DATASET = DataDict({
         "config":{
             "path":None, # optional, required in CSVDataset
         }
-    }
+    },
+    "preprocessor":"#preprocessor"
 })
 
 TRAIN = DataDict({
