@@ -69,7 +69,7 @@ const Node = (
         }
         break;
       case "delete":
-        window.canvas.activeElement = props;
+        window.canvas.activeElement = props.node;
         break;
       default:
         break;

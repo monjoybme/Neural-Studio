@@ -1,3 +1,1 @@
-<img src="docs/logo.svg">
-
-### Tensorflow Studio
+### Neural Studio

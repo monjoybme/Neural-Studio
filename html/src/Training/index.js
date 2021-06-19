@@ -5,13 +5,15 @@ import { MonitorMany, MonitorOne } from './monitor';
 import { EpochLog, ErrorLog, NotificationLog } from './logs';
 
 import { icons } from "../data/icons";
-import { metaAppFunctions, metaStore, metaStoreContext } from "../Meta";
-import { GET } from "../Utils";
+import { metaAppFunctions, metaGraph, metaStore, metaStoreContext, metaTrain } from "../Meta";
+import { GET, pull, push } from "../Utils";
 
 const Training = (
   props = { store: metaStore, storeContext: metaStoreContext, appFunctions: metaAppFunctions }
 ) => {
-  let {graph, graphState, train, trainState } = props.store;
+  let [graph, graphState] = React.useState(metaGraph);
+  let [train, trainState] = React.useState(metaTrain);
+
   let [monitorMode, monitorModeState] = React.useState(false);
   let [status, statusState] = React.useState({
     data: train.hist !== undefined ? train.hist : [],
@@ -22,7 +24,7 @@ const Training = (
     name: "Pause",
     state: true,
   });
-  let buttons = [
+  let controls = [
     {
       name: "Start",
       func: trainModel,
@@ -53,7 +55,7 @@ const Training = (
       icon: icons.Delete,
     },
   ];
-  let [load, loadStatus] = React.useState(true);
+  let [istraining, istrainingState] = React.useState({ state: false});
 
   async function getStatus() {
     await GET({
@@ -67,13 +69,10 @@ const Training = (
           updating: true,
         });
         if (data.logs[data.logs.length - 1].data.epochEnd) {
-          console.logs("Epoch End");
+          console.log("Epoch End");
         }
         if (data.logs[data.logs.length - 1].data.ended) {
-          trainState({
-            training: false,
-            hist: data.logs,
-          });
+          istrainingState({ state: false});
         } else {
           if (document.getElementById("check")) {
             setTimeout(getStatus, 10);
@@ -91,9 +90,7 @@ const Training = (
         message: "Training Already Running",
       });
     } else {
-      trainState({
-        training: true,
-      });
+      istrainingState({state: true});
       statusState({
         data: [],
         ended: false,
@@ -109,7 +106,8 @@ const Training = (
       })
         .then((response) => response.json())
         .then((data) => {
-          props.appFunctions.notify({ message: data.message })
+          props.appFunctions.notify({ message: data.message });
+          getStatus();
         });
     }
   }
@@ -168,30 +166,42 @@ const Training = (
     }
   }
 
+  React.useState(()=>{
+    console.log("ello")
+  }, [])
+
+  React.useState(() => {
+    if (graph.fetch) {
+      pull({
+        name: "canvas",
+      }).then((response) => {
+        let _graph = response.graph;
+        delete response.graph;
+        window.canvas = response;
+        graphState({ ..._graph, fetch: false });
+      });
+    }
+  }, [graph]);
+
   React.useEffect(() => {
-    if (
-      train.training &&
-      status.updating === false &&
-      status.ended === false &&
-      status.ended !== undefined
-    ) {
-      getStatus();
+    if (!graph.fetch) {
+      console.log("[PUSH] Canvas");
+      push({
+        name: "canvas",
+        data: {
+          ...window.canvas,
+          graph: graph,
+        },
+      });
     }
-    if ( load ){
-      props.storeContext.graph.pull().then(function(){
-        loadStatus(false);
-      })
-    }else{
-      props.storeContext.graph.push();
-    }
-  });
+  }, [graph]);
 
   return (
     <div className="container training">
       <div className="tuner">
         <div className="toolbar">
-          <div className="buttons">
-            {buttons.map((button, i) => {
+          <div className="controls">
+            {controls.map((button, i) => {
               let Icon = button.icon;
               return (
                 <div className="btn" key={i} onClick={button.func}>
@@ -203,11 +213,12 @@ const Training = (
         </div>
         {graph.train_config ? (
           <div className="params">
-            {graph.train_config.fit ? (
+            {graph.train_config.fit !== null ? (
               <div className="property">
                 <Menu
                   {...graph.train_config.fit}
-                  {...props}
+                  graph={graph}
+                  graphState={graphState}
                   train={true}
                 />
               </div>
@@ -216,7 +227,8 @@ const Training = (
               <div className="property">
                 <Menu
                   {...graph.train_config.compile}
-                  {...props}
+                  graph={graph}
+                  graphState={graphState}
                   train={true}
                 />
               </div>
@@ -225,7 +237,8 @@ const Training = (
               <div className="property">
                 <Menu
                   {...graph.train_config.optimizer}
-                  {...props}
+                  graph={graph}
+                  graphState={graphState}
                   train={true}
                 />
               </div>

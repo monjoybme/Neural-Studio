@@ -42,7 +42,8 @@ class Dataset:
         self.test_y = None
 
     def apply(self, func: callable):
-        return func(self,)
+        _ = func(self)
+        return { "status": True }
 
     def set_features(self, features: List[str] = [], callback: callable = None) -> bool:
         """

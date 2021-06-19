@@ -22,10 +22,8 @@ const SummaryViewer = (props = { store: metaStore, storeContext:metaStoreContext
   }
 
   React.useEffect(() => {
-    if (!summary.fetched) {
-      getModel();
-    }
-  });
+    getModel();
+  },[]);
 
   return (
     <div className="container summary">

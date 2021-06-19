@@ -1,13 +1,13 @@
-from os import name, path as pathlib, mkdir, chdir, listdir
+from os import path as pathlib, mkdir, chdir, listdir
 from json import dump, load
-from typing import List, Set
+from typing import  Set
 from shutil import rmtree
 
-from .utils import Dict
+from .structs import DataDict
 from .graph import GraphDef
-from .dataset import DATASETS
+from .dataset import DATASETS, Dataset
 
-APP = Dict({
+APP = DataDict({
     "theme": "light",
     "global": {
         "topbar": {
@@ -19,32 +19,14 @@ APP = Dict({
     }
 })
 
-GRAPH = Dict({
-    "nodes": {
-
-    },
-    "train_config": {
-        "session_id": None,
-        "model": None,
-        "compile": None,
-        "fit": None,
-        "optimizer": None,
-        "loss": None,
-        "dataset": None
-    },
-    "custom_nodes": [
-
-    ],
-})
-
-HOME = Dict({
+HOME = DataDict({
     "active": {
         "name": "model",
     },
     "your_work": []
 })
 
-CANVAS = Dict({
+CANVAS = DataDict({
     "activeLayer": None,
     "activeLine": None,
     "newEdge": None,
@@ -60,23 +42,37 @@ CANVAS = Dict({
         "w": 0,
         "h": 0
     },
-    "customNodes": {
-        "definitions": [],
-        "imports": [],
+    "graph": {
+        "nodes": {
+
+        },
+        "train_config": {
+            "session_id": None,
+            "model": None,
+            "compile": None,
+            "fit": None,
+            "optimizer": None,
+            "loss": None,
+            "dataset": None
+        },
+        "custom_nodes": [
+
+        ],
     }
 })
 
-DATASET = Dict({
+DATASET = DataDict({
     "name":None,
     "meta":{
         "type":"Dataset",
         "config":{
             "path":None, # optional, required in CSVDataset
         }
-    }
+    },
+    "preprocessor":"#preprocessor"
 })
 
-TRAIN = Dict({
+TRAIN = DataDict({
     "logs":[]
 })
 
@@ -116,23 +112,21 @@ class Cache(object):
         return self.recent[0]
 
 
-class Workspace(Dict):
+class Workspace(DataDict):
     __required__vars__ = [
         ('app', APP),
         ('home', HOME),
-        ('graph', GRAPH),
-        ('canvas', CANVAS),
         ('dataset', DATASET),
+        ('canvas', CANVAS),
         ('train',TRAIN)
     ]
-    __vars__ = ['app', 'home',  'graph', 'canvas', 'dataset', 'train']
+    __vars__ = ['app', 'home',  'dataset', 'canvas',  'train']
 
-    train = TRAIN
-    dataset = DATASET
-    graph = GRAPH
-    canvas = CANVAS
     app = APP
     home = HOME
+    dataset = DATASET
+    canvas = CANVAS
+    train = TRAIN
 
     def __init__(self, path: str):
         self.__path__ = path
@@ -144,12 +138,12 @@ class Workspace(Dict):
                 file = pathlib.join(self.__path__, f"{var}.json")
                 if var == 'home': val[['active:name']] = self.__name__
                 with open(file, "w+") as file:
-                    dump(val.full_dict, file)
+                    dump(val.to_dict(), file)
 
         for var in self.__vars__:
             file = pathlib.join(self.__path__, f"{var}.json")
             with open(file, "r") as file:
-                self.__dict__[f"{var}"] = Dict(load(file,))
+                self.__dict__[f"{var}"] = DataDict(load(file,))
 
         super().__init__()
 
@@ -162,12 +156,12 @@ class Workspace(Dict):
             keys, = key
             key, *_ = keys.split(":")
             with open(pathlib.join(self.__path__, f"{key}.json"), "w+") as file:
-                dump(self.__dict__[key].full_dict, file)
+                dump(self.__dict__[key].to_dict(), file)
         else:
             assert key in self.__vars__, "Please provide valid variable name."
-            self.__dict__[key] = Dict(val)
+            self.__dict__[key] = DataDict(val)
             with open(pathlib.join(self.__path__, f"{key}.json"), "w+") as file:
-                dump(self.__dict__[key].full_dict, file)
+                dump(self.__dict__[key].to_dict(), file)
 
     def save(self,):
         for var, val in self.get_vars():
@@ -179,15 +173,17 @@ class Workspace(Dict):
             self.__dict__[f"{key}"] = val
 
     def get_vars(self, ) -> iter:
-        for key, val in self.full_dict.items():
+        for key, val in self.to_dict().items():
             yield key, val
 
     def get_var_dict(self, ) -> dict:
         return dict(self.get_vars())
 
 
-class WorkspaceManager(Dict):
+class WorkspaceManager(DataDict):
+    
     workspaces: Set[str] = set()
+    dataset:Dataset = None
 
     def __init__(self, root='.tfstudio'):
         self.root = pathlib.abspath(root)
@@ -218,12 +214,7 @@ class WorkspaceManager(Dict):
 
     def __iter__(self,):
         for w in self.workspaces:
-            yield w
-
-    def add_dataset(self, name:str, metadata:dict = { "type":"dataset" } ):
-        pass
-
-    
+            yield w    
 
     def new_workspace(self, name: str) -> Workspace:
         workspace = Workspace(

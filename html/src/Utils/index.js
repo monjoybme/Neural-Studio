@@ -32,7 +32,7 @@ export const push = async function (
     data: null,
   }) {
   return await POST({
-    path: `/workspace/active/var/${options.name}`,
+    path: `/workspace/active/${options.name}`,
     data: options.data,
   }).then((response) => response.json())
 };
@@ -43,7 +43,7 @@ export const pull = async function (
   }
 ) {
   return await GET({
-    path: `/workspace/active/var/${options.name}`
+    path: `/workspace/active/${options.name}`
   }).then((response) => response.json())
 };
 
@@ -77,9 +77,6 @@ export const Notification = (
   return (
     <div className="notification message" ref={ref}>
       <div className="message">{props.message}</div>
-      {/* <div className="close">
-            <icons.Close />
-        </div> */}
     </div>
   );
 };

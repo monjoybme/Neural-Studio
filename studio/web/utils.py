@@ -7,6 +7,12 @@ from os import path as pathlib, stat
 
 from .headers import *
 
+class Request(object):
+    headers: RequestHeader = None
+    writer: asyncio.StreamWriter = None
+    reader: asyncio.StreamReader = None
+    loop = asyncio.BaseEventLoop
+
 async def text_response(
         text:str,
         code:int=200,
@@ -17,16 +23,15 @@ async def text_response(
         response = ResponseHeader() | code
     
     response.update(
-        access_control_allow_origin(),
         content_length(len(text)),
-        content_type(mime_types['.text']),
+        content_type(mime_types['.text'])
     )
     return response @ text
 
 async def json_response(
         data:dict,
-        response:ResponseHeader=None,
         code:int=200,
+        response: ResponseHeader = None,
     )->bytes:
 
     if response is None:
@@ -41,9 +46,10 @@ async def json_response(
     return response @ data
 
 
-async def send_file(file:str,request:RequestHeader, response:ResponseHeader = None ,headers:List[dict]=[],chunk_size=1024)->bool:  
+async def send_file(file:str,request:Request, response:ResponseHeader = None ,headers:List[dict]=[], dispose: bool = True)->bool:  
     *_,name = pathlib.split(file)
     *_, ext = name.split(".")
+    transport = request.writer.transport
     if response is None:
         header = ResponseHeader() | 200
 
@@ -52,21 +58,16 @@ async def send_file(file:str,request:RequestHeader, response:ResponseHeader = No
         connection(),
         keep_alive(1, 999),
         content_length(stat(file).st_size),
-        content_disposition(name)
+        content_type(ext)
     )
+
+    if dispose: header += content_disposition(name)
     header.update(*headers)
-    try:
-        header += content_type(mime_types.get(ext))
-    except KeyError as e:
-        header += content_type('application/octet-stream')
-    request.writer.write(header.encode())
-    async with io.open(file, mode='rb') as fstream:
-        while True:
-            send_bit = await fstream.read(chunk_size)
-            if send_bit and not request.writer.is_closing():
-                request.writer.write(send_bit)
-            else:
-                break
+    transport.write(header.encode())
+    with open(file, "rb") as fp:
+        await request.loop.sendfile(transport, fp)
+
+    transport.close()
     request.writer.close()
     return False
 

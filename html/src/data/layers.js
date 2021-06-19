@@ -1,10 +1,9 @@
-import datasets from "./datasets";
+// import datasets from "./datasets";
 import optimizers from "./optimizers";
 import callbaacks from "./callbacks";
 import applications from "./applications";
 
 const layers = {
-  datasets:datasets,
   core_layers: {
     name: "Core layers",
     layers: [
