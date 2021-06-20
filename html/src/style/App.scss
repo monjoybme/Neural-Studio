@@ -134,15 +134,15 @@ $lightBorder3 : 0.01rem solid rgba(119, 119, 119, 0.3);
   flex-direction: $direction;
 }
 
-@mixin height($min:100%, $requireed : 100%, $max : 100%) {
+@mixin height($min:100%, $required : 100%, $max : 100%) {
   min-height: $min;
-  height: $requireed;
+  height: $required;
   max-height: $max;
 }
 
-@mixin width($min:100%, $requireed : 100%, $max : 100%) {
+@mixin width($min:100%, $required : 100%, $max : 100%) {
   min-width: $min;
-  width: $requireed;
+  width: $required;
   max-width: $max;
 }
 
