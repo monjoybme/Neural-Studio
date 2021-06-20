@@ -257,9 +257,9 @@
             background: $darkBg ;
             color: $darkColorPr;
 
-            border: $darkBorder2;
+            // border: $darkBorder2;
             .name {
-                background: $darkFr;
+                background: $darkBg;
                 border-top: $darkBorder2;
                 @extend .heading-medium;
             }
