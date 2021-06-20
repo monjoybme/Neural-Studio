@@ -11,6 +11,7 @@ import { GET, pull, push } from "../Utils";
 const Training = (
   props = { store: metaStore, storeContext: metaStoreContext, appFunctions: metaAppFunctions }
 ) => {
+  let epoch = 0;
   let [graph, graphState] = React.useState(metaGraph);
   let [train, trainState] = React.useState(metaTrain);
 
@@ -68,8 +69,10 @@ const Training = (
           ended: data.logs[data.logs.length - 1].data.ended || false,
           updating: true,
         });
-        if (data.logs[data.logs.length - 1].data.epochEnd) {
-          console.log("Epoch End");
+        if (data.logs[data.logs.length - 1].data.epoch !== epoch) {
+          let logs = document.getElementById("logs");
+          logs.scrollTop = logs.scrollHeight;
+          epoch = data.logs[data.logs.length - 1].data.epoch;
         }
         if (data.logs[data.logs.length - 1].data.ended) {
           istrainingState({ state: false});
@@ -91,6 +94,7 @@ const Training = (
       });
     } else {
       istrainingState({state: true});
+      epoch = 0;
       statusState({
         data: [],
         ended: false,
