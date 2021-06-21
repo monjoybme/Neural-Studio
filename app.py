@@ -14,7 +14,7 @@ from tensorflow.keras import layers, callbacks, optimizers, losses, applications
 from glob import glob
 from gc import collect
 from concurrent.futures import ThreadPoolExecutor
-from os import path as pathlib, listdir
+from os import name, path as pathlib, listdir
 from tqdm.cli import tqdm
 from sklearn.model_selection import train_test_split
 
@@ -25,7 +25,7 @@ from studio.graph import GraphDef
 from studio.dataset import DATASETS, Dataset
 from studio.structs import DataDict
 from studio.utils import download_options, generate_args
-
+from studio.logging import Logger
 
 # root path
 ROOT_PATH = pathlib.abspath("./")
@@ -34,8 +34,10 @@ ROOT_PATH = pathlib.abspath("./")
 app = App()
 workspace_manager = WorkspaceManager()
 trainer = Trainer(workspace_manager)
+logger = Logger(name="main")
 
 # updating training session 
+logger.log("updating globals")
 trainer.update_session(globals())
 
 # loading dataset from cached data 
@@ -47,14 +49,14 @@ try:
     try:
         dataset.apply(func)
     except Exception as e:
-        print (f"[warning] {e}")
+        logger.warning(e)
     trainer.update_session({
         "dataset": dataset
     })
 except AttributeError:
-    print ("[warning] Error updating dataset.")
+    logger.warning("Error updating dataset.")
 except KeyError:
-    print ("[warning] Error updating dataset.")
+    logger.warning("[warning] Error updating dataset.")
 
 # sys endpoints
 
@@ -77,9 +79,7 @@ async def sys_path(request: Request)->dict:
 
 @app.route("/workspace/active")
 async def workspace_active(request: Request)->dict:
-    return {
-        "data": workspace_manager.active.to_dict()
-    }
+    return {"data": workspace_manager.active.to_dict() }
 
 
 @app.route("/workspace/active/<str:var>")
@@ -92,7 +92,7 @@ async def workspace_active_var(request: Request, var: str)->dict:
             workspace_manager.active[var] = var_data
             return { "status": True }
         except Exception as e:
-            return { "status": False, "message": str(e) }
+            return { "status": False, "message": repr(e) }
     else:
         return { "message": "Method Not Allowed !" }
 
@@ -177,13 +177,14 @@ async def workspace_new(request: Request, name: str)->dict:
 @app.route("/dataset/add")
 async def dataset_init(request: Request)->dict:
     data = await request.get_json()
-    dataset = DATASETS.get(data['meta']['type'])(**data)
-    trainer.update_session({
-        "dataset":dataset
-    })
-    return {
-        "sample": dataset.sample()
-    }
+    try:
+        dataset = DATASETS.get(data['meta']['type'])(**data)
+        trainer.update_session({
+            "dataset":dataset
+        })
+        return {"status":True, "sample": dataset.sample()}
+    except Exception as e:
+        return {"status":False, "message": repr(e)}
 
 @app.route("/dataset/preprocess")
 async def dataset_preprocess(request: Request)->dict:
@@ -193,7 +194,7 @@ async def dataset_preprocess(request: Request)->dict:
     try:
         return dataset.apply(func)
     except Exception as e:
-        return { "status": False, "message": str(e) }
+        return { "status": False, "message": repr(e) }
 
 # model api endpoints
 

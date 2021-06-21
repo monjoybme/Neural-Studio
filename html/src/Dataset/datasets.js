@@ -27,13 +27,178 @@ let csvPreProcCode = `def dataset_proprocessor(dataset)->None:
     pass
 `;
 
-const ImageDataset = (
+let imagesPreProcCode = `def dataset_proprocessor(dataset)->None:
+    """
+    This function will be used to preprocess your dataset.
+
+    You need to set following variables 
+
+    dataset.train_x = np.ndarray
+    dataset.train_y = np.ndarray
+    dataset.test_x = np.ndarray
+    dataset.test_y = np.ndarray
+
+    dataset object will have following variables
+
+    name: str
+    metadata: dict {
+      datatype: str,
+      model: str
+    }
+    path: str
+    dataframe: pd.Dataframe
+    """
+    pass
+`;
+
+const ImageDatasetFromDirectory = (
   props = {
-    name: "Dataset",
-    metadata: { datatype: "data", model: "classification" },
+    name: "Image Dataset From Directory",
+    meta: {
+      type: "image",
+      config: {
+        path: undefined,
+        view: {
+          folders: [],
+        },
+        folders: {
+          train: "None",
+          test: "None",
+          val: "None",
+        },
+      },
+      preprocessor: "#preprocessorcode",
+    },
+    deleteDataset: function () {},
   }
 ) => {
-  return <div className="datasetviewer imageclassification">{props.name}</div>;
+  let [paths, pathsState] = React.useState([]);
+  let [dataset, datasetState] = React.useState({
+    ...props,
+  });
+  let [load, loadState] = React.useState(false);
+
+  async function addDataset() {
+    loadState(true);
+    await POST({
+      path: "/dataset/add",
+      data: { ...dataset },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        dataset.meta.config.view.sample = data.sample;
+        datasetState({ ...dataset });
+        loadState(false);
+      });
+  }
+
+  async function fetchPath(e) {
+    await POST({
+      path: "/sys/path",
+      data: {
+        path: e.target.value,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        dataset.meta.config.path = e.target.value;
+        datasetState({ ...dataset });
+        pathsState(data);
+      });
+  }
+
+  async function getFolders(e) {
+    await POST({
+      path: "/sys/path",
+      data: {
+        path: dataset.meta.config.path,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        dataset.meta.config.view.folders = ["None", ...data];
+        datasetState({ ...dataset });
+      });
+  }
+
+  return (
+    <div className="datasetviewer imagedatasetfromdirectory">
+      <div className="top">
+        <div className="name">{props.name}</div>
+        <div>
+          <button onClick={props.deleteDataset}>delete</button>
+        </div>
+      </div>
+      <div className="utils">
+        <div className="pathinput">
+          <datalist id="paths" style={{ height: "100px" }}>
+            {paths.map((path, i) => {
+              return <option value={path} key={i} />;
+            })}
+          </datalist>
+          <input
+            placeholder="Enter file path"
+            onChange={fetchPath}
+            list={"paths"}
+            defaultValue={dataset.meta.config.path}
+          />
+          <button onClick={getFolders}>get folders</button>
+        </div>
+      </div>
+      <div className="folder-selector">
+        <div className="select">
+          <div className="name">Train Folder</div>
+          <select>
+            {dataset.meta.config.view.folders.map((folder, i) => {
+              folder = folder.split("\\");
+              folder = folder[folder.length - 1];
+              return (
+                <option key={i} value={folder}>
+                  {folder}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+        <div className="select">
+          <div className="name">Test Folder</div>
+          <select>
+            {dataset.meta.config.view.folders.map((folder, i) => {
+              folder = folder.split("\\");
+              folder = folder[folder.length - 1];
+              return (
+                <option key={i} value={folder}>
+                  {folder}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+        <div className="select">
+          <div className="name">Validation Folder</div>
+          <select>
+            {dataset.meta.config.view.folders.map((folder, i) => {
+              folder = folder.split("\\");
+              folder = folder[folder.length - 1];
+              return (
+                <option key={i} value={folder}>
+                  {folder}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+        <div className="read">
+            <button onClick={addDataset}>
+              read
+            </button>
+        </div>
+        <div className="viewer">
+            
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const CSVDataset = (
@@ -235,7 +400,8 @@ const CSVDataset = (
 };
 
 const datasetList = {
-    csv: CSVDataset
+    csv: CSVDataset,
+    imagedatasetfromdirectory: ImageDatasetFromDirectory
 }
 
 export default datasetList;

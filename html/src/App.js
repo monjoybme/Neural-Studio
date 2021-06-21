@@ -12,6 +12,7 @@ import "./style/Canvas.scss";
 import "./style/Code.scss";
 import "./style/Training.scss";
 import "./style/Summary.scss";
+import "./style/Utils.scss";
 
 const PopUp = (props = { store: metaStore }) => {
   return <>{props.store.popup}</>;
@@ -107,14 +108,7 @@ const App = (props) => {
 
   const LoadingData = (props) => {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-        className="container loaddata"
-      >
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }} className="container loaddata" >
         <Loading />
       </div>
     );

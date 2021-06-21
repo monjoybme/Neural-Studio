@@ -44,7 +44,7 @@ $toolbarWidth : 280px;
             width: 100%;
             @include flex( column,);
             .name {
-                min-height: calc( #{$topbarHeight} - 2px ) !important;
+                min-height: calc( #{$topbarHeight} - 1px ) !important;
                 height: auto !important;
                 width: 100%;
               
@@ -354,7 +354,7 @@ $toolbarWidth : 280px;
 .dark {
 
     .tools {
-        border-right: $darkBorder2;
+        // border-right: $darkBorder2;
         background: $darkFr;
         .toolbar {
             border-bottom: $darkBorder2;

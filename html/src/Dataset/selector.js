@@ -6,23 +6,41 @@ import { icons } from "../data/icons";
 const metaDatasets = [
   {
     name: "CSV Dataset",
-    meta:{
+    meta: {
       type: "csv",
-      config:{
+      config: {
         path: undefined,
-        view:{
-            index:{
-                start: 0,
-                end: 10,
-            },
-            sample:{
-                columns:[],
-                values:[]         
-            }
-        }
+        view: {
+          index: {
+            start: 0,
+            end: 10,
+          },
+          sample: {
+            columns: [],
+            values: [],
+          },
+        },
       },
-      preprocessor:"#preprocessorcode"
-    }
+      preprocessor: "#preprocessorcode",
+    },
+  },
+  {
+    name: "Image Dataset From Directory",
+    meta: {
+      type: "imagedatasetfromdirectory",
+      config: {
+        path: undefined,
+        view: {
+          folders: ["None"],
+        },
+        folders: {
+          train: "None",
+          test: "None",
+          val: "None",
+        },
+      },
+      preprocessor: "#preprocessorcode",
+    },
   },
 ];
 

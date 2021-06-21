@@ -2,8 +2,6 @@ import React from "react";
 import { icons } from "../data/icons";
 import { ReactComponent as Logo } from "../data/images/logo.svg";
 
-import "./utils.css";
-
 export const PORT = 80;
 export const HOST = "localhost";
 export const ROOT = `http://${HOST}:${PORT}`;
@@ -40,8 +38,7 @@ export const push = async function (
 export const pull = async function (
   options = {
     name: "var",
-  }
-) {
+  }) {
   return await GET({
     path: `/workspace/active/${options.name}`
   }).then((response) => response.json())

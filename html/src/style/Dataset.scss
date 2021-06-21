@@ -253,4 +253,192 @@
         }
     }
   }
+
+  .imagedatasetfromdirectory{
+     height: 100%;
+    width: 100%;
+
+    .top {
+      width: 100%;
+      height: 40px;
+      padding: 10px;
+      background: $lightBg;
+      border: $lightBorder2;
+      border-radius: 2px;
+
+      @include flex(row, space-between, center);
+
+      .name {
+        @extend .heading-3;
+      }
+
+      button {
+          @extend .heading-4;
+          cursor: pointer;
+          width: 80px;
+        }
+    }
+
+    .utils {
+      width: 100%;
+      margin-top: 10px;
+      background: $lightBg;
+      border: $lightBorder2;
+      border-radius: 2px;
+
+      .pathinput {
+        padding: 10px;
+        height: 40px;
+        width: 100%;
+        display: flex;
+
+        input {
+          @extend .heading-4;
+          min-width: 94%;
+        }
+
+        button {
+          @extend .heading-4;
+          cursor: pointer;
+          min-width: 6%;
+        }
+      }
+    }
+
+    .folder-selector{
+      width: 100%;
+      height: 40px;
+
+      background: $lightBg;
+      border: $lightBorder2;
+      margin-top: 10px;
+      padding: 0px 10px;
+
+      @include flex(row, space-between, center);
+
+      .select {
+        display: flex;
+        @include width(25%, 180px, 25%);
+
+        .name {
+          width: 30%;
+          @extend .heading-4;
+        }
+
+        select {
+          @include width(20%, 180px, 50%);
+        }
+      }
+    }
+
+  }
+}
+
+.dark {
+.dataset-container {
+  *{
+    color: $darkColorPr;
+  }
+  button{
+    background: $darkTr;
+    border: none;
+  }
+  background: $darkFr;
+  .selector {
+
+    .search {
+      background: $darkBg;
+      input {
+        background: $darkBg;
+      }
+    }
+
+    .datasets {
+      background: $darkBg;
+      .card {
+        background: $darkTr;
+      }
+    }
+  }
+
+  .datasetviewer {
+
+  }
+
+  .csvdataset {
+
+    .top {
+      background: $darkBg;
+      .name {
+        @extend .heading-3;
+      }
+    }
+
+    .utils {
+      background: $darkBg;
+
+      .pathinput {
+        background: $darkBg;
+        input {
+          background: $darkBg;
+        }
+
+        button {
+          @extend .heading-4;
+          cursor: pointer;
+          width: 5%;
+        }
+      }
+    }
+
+    .viewer {
+      background: $darkBg;
+
+      .columns {
+        border-bottom: $lightBorder3;
+        background: $darkTr;
+
+        .column {
+          border-right: $lightBorder3;
+        }
+      }
+
+      .rows {
+        width: 100%;
+        .row {
+          width: 100%;
+          .column {
+            border-right: $lightBorder3;
+          }
+        }
+      }
+    }
+
+
+    .preprocessor {
+        background: $darkBg;
+        border: $lightBorder2;
+
+        .top {
+
+        }
+
+        .title {
+            height: 40px;
+            padding:0px 10px;
+            border-bottom: $lightBorder2;
+
+            @include flex(row, flex-start, center);
+            @extend .heading-4;
+        }
+
+       .margin-view-overlays {
+        background: $darkBg !important;
+      }
+      .scroll-decoration{
+        visibility: hidden;
+      }
+    }
+  }
+}
 }

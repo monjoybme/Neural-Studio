@@ -6,6 +6,7 @@ from shutil import rmtree
 from .structs import DataDict
 from .graph import GraphDef
 from .dataset import DATASETS, Dataset
+from .logging import Logger
 
 APP = DataDict({
     "theme": "light",
@@ -195,6 +196,8 @@ class WorkspaceManager(DataDict):
 
         self.cache = Cache(self.root)
         self.active = False
+        self.logger = Logger("manager")
+        self.logger.success(f"Workspace initialized @ {self.root}")
 
         for w in listdir(pathlib.join(self.root, "workspace")):
             w_path = pathlib.join(self.root, "workspace", w)
@@ -217,12 +220,11 @@ class WorkspaceManager(DataDict):
             yield w    
 
     def new_workspace(self, name: str) -> Workspace:
-        workspace = Workspace(
-            path=pathlib.join(self.root, "workspace", name)
-        )
+        workspace = Workspace(path=pathlib.join(self.root, "workspace", name))
         self.workspaces.add(workspace.idx)
         self.cache >> workspace.idx
         self.active = workspace
+        self.logger.success(f"create '{name}'")
         return workspace
 
     def open_workspace(self, name: str) -> Workspace:
@@ -237,6 +239,7 @@ class WorkspaceManager(DataDict):
             self.active = workspace
             self.cache >> workspace.idx
             return workspace
+        self.logger.log(f"open '{name}'")
         return workspace
 
     def delete_workspace(self, name: str) -> None:
