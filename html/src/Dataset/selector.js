@@ -32,6 +32,9 @@ const metaDatasets = [
         path: undefined,
         view: {
           folders: ["None"],
+          sample:{
+            "images": ""
+          }
         },
         folders: {
           train: "None",

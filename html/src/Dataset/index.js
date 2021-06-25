@@ -30,10 +30,7 @@ const Dataset = (
         datasetState(datasetData);
       });
     }else{
-      push({
-        name: "dataset",
-        data: dataset
-      })
+      
     }
   }, [dataset,])
 

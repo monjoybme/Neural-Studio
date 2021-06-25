@@ -963,10 +963,26 @@ def set_cookie(cookie: str, *args, **kwargs) -> str:
     }
 
 
+def sec_websocket_accept(key: str, *args, **kwargs) -> str:
+    """Sec-WebSocket-Accept
+    Header-Type : response
+
+        The Sec-WebSocket-Accept header is used in the websocket opening handshake. It would appear 
+    in the response headers. That is, this is header is sent from server to client to inform that 
+    server is willing to initiate a websocket connection.
+
+    https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Sec-WebSocket-Accept
+    """
+    return {
+        "name": "Sec-WebSocket-Accept",
+        "value": key
+    }
+
 def transfer_encoding(encoding: str = "chunked", *args, **kwargs) -> str:
     """Transfer-Encoding
     Header-Type : general
-        The Transfer-Encoding header specifies the form of encoding used to safely transfer the payload body to the user.
+        The Transfer-Encoding header specifies the form of encoding used to safely transfer 
+    the payload body to the user.
 
     encoding: chunked | compress | deflate | gzip | identity
 
@@ -977,13 +993,29 @@ def transfer_encoding(encoding: str = "chunked", *args, **kwargs) -> str:
         "value": encoding
     }
 
+def upgrade(name: str)->str:
+    """Upgrade
+    Header-Type : response
+        The HTTP 1.1 (only) Upgrade header can be used to upgrade an already established 
+    client/server connection to a different protocol (over the same transport protocol). 
+    For example, it can be used by a client to upgrade a connection from HTTP 1.1 to HTTP 2.0, 
+    or an HTTP or HTTPS connection into a WebSocket.
+
+    https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Upgrade
+    """
+    return {
+        "name": "Upgrade",
+        "value": name
+    }
+
 
 def vary(variables: list = ['*'], *args, **kwargs) -> str:
     """Vary
     Header-Type : response
-        The Vary HTTP response header determines how to match future request headers to decide whether a cached response 
-    can be used rather than requesting a fresh one from the origin server. It is used by the server to indicate which 
-    headers it used when selecting a representation of a resource in a content negotiation algorithm.
+        The Vary HTTP response header determines how to match future request headers to decide 
+    whether a cached response can be used rather than requesting a fresh one from the origin server. 
+    It is used by the server to indicate which headers it used when selecting a representation of 
+    a resource in a content negotiation algorithm.
 
 
     https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary
@@ -1022,8 +1054,10 @@ def abc_field(*args, **kwargs) -> str:
 
 
 class Cookies(object):
-    def __init__(string: str = ""):
-        pass
+    """Cookies object is as a cookie storage for session. 
+    """
+    def __init__(self, string: str = ""):
+        self.string = string
 
     def __repr__(self, ):
         c = [f"{val['name']}," for _, val in self.__dict__.items()
@@ -1054,7 +1088,34 @@ class Cookies(object):
 
 
 class ResponseHeader(object):
-    protocol = "HTTP/1.1"
+    """ResponseHeader implements the HTTP response header to create standard response header.
+    It can be used to create standard response headers to be used by web server object. 
+    
+    example:
+    
+        # To Create a response header
+        header = ResponseHeader()
+        
+        # add response code
+        header = header | code # eg. 100, 101, 200, 404
+
+        # update header
+        header += content_length(128)
+
+        # or
+        header.update(
+            content_length(128),
+            connection("keep-alive")
+        )
+
+        # attach data
+        header @ byte_string
+
+    CHANGELOG:
+        1.0.0 :
+            added response header
+    """
+    protocol = "HTTP/1.0"
     status_code = None
     status_message = None
 
@@ -1110,6 +1171,33 @@ class ResponseHeader(object):
 
 
 class RequestHeader(object):
+    """RequestHeader implements standard HTTP request header protocol. It can be used by both
+    server and client. Server can use it to parse incoming requests and client applications can
+    use it to make requests to servers.
+
+    example:
+        # to parse incoming request
+        header = RequestHeader().parse(header_string)
+
+        # to make a request header
+        header = RequestHeader()
+
+         # update header
+        header += content_length(128)
+
+        # or
+        header.update(
+            content_length(128),
+            connection("keep-alive")
+        )
+
+        # attach data
+        header @ byte_string
+
+    CHANGELOG:
+        1.0.0:  
+            added request header
+    """
     def __init__(self,):
         pass
 

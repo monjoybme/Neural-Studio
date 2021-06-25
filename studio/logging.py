@@ -1,6 +1,6 @@
 import os
 
-from sys import stdout
+from sys import stdout, exc_info
 from datetime import datetime
 
 
@@ -60,3 +60,9 @@ class Logger:
 
     def success(self, msg: str) -> None:
         self.log(msg, sucess)
+
+    def sys_error(self, e) -> None:
+        exc_type, exc_obj, exc_tb = exc_info()
+        _, file = os.path.split(exc_tb.tb_frame.f_code.co_filename)
+        msg = f"{repr(e)} @ line {exc_tb.tb_lineno}, {file}"
+        self.log(msg, error)

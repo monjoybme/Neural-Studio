@@ -1,5 +1,5 @@
 from justwatch.proctypes import Process
-from justwatch.skip import endswith, folder
+from justwatch.skip import endswith, folder,contains
 from justwatch.watcher import Watcher
 from justwatch.handlers import HandleAll
 from justwatch import Path
@@ -20,7 +20,8 @@ watcher = Watcher(
             folder("watch.py"),
             folder(".tfstudio"),
             endswith(".pyc"),
-            folder(".git")
+            folder(".git"),
+            contains("tmp")
         ]
     ),
     path= Path("./")

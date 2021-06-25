@@ -1,6 +1,14 @@
 from  typing import Dict, List, Tuple, Union, Any
 
 class DataDict(object):
+    """
+    DataDict object implements a easy to use dictionary interface.
+
+    Args
+    ---------------
+    :param datalist: list, a list containing key, value pairs.
+    :param datadict: dict, a dict containing key, value paired python dictionary.
+    """
     def __init__(self, datalist: List[tuple]=[], datadict: dict={}, **datakwargs,  ) -> None:
         super().__init__()
 

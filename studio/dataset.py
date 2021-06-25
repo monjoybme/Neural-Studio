@@ -189,7 +189,7 @@ class ImageDatasetFromDirectory(Dataset):
     def read_image_set_with_bar(self, image_set: List[str]) -> np.ndarray:
         images = np.zeros(
             shape=(len(image_set), *self.image_size), dtype=np.uint8)
-        with tqdm(total=len(image_set)) as bar:
+        with tqdm(total=len(image_set), desc="[dataset]") as bar:
             with ThreadPoolExecutor(max_workers=32, ) as executor:
                 def set_image(args):
                     try:

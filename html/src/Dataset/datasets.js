@@ -89,6 +89,7 @@ const ImageDatasetFromDirectory = (
         dataset.meta.config.view.sample = data.sample;
         datasetState({ ...dataset });
         loadState(false);
+        console.log(data);
       });
   }
 
@@ -121,6 +122,13 @@ const ImageDatasetFromDirectory = (
       });
   }
 
+  React.useEffect(()=>{
+    push({
+      name: "dataset",
+      data: dataset,
+    });
+  }, [dataset,]);
+
   return (
     <div className="datasetviewer imagedatasetfromdirectory">
       <div className="top">
@@ -145,56 +153,96 @@ const ImageDatasetFromDirectory = (
           <button onClick={getFolders}>get folders</button>
         </div>
       </div>
-      <div className="folder-selector">
-        <div className="select">
-          <div className="name">Train Folder</div>
-          <select>
-            {dataset.meta.config.view.folders.map((folder, i) => {
-              folder = folder.split("\\");
-              folder = folder[folder.length - 1];
-              return (
-                <option key={i} value={folder}>
-                  {folder}
-                </option>
-              );
-            })}
-          </select>
+
+      <div className="arguments">
+        <div className="folder-selector">
+          <div className="head">
+            <div className="name">Select Paths</div>
+          </div>
+          <div className="select">
+            <div className="name">Train Folder</div>
+            <select
+              onChange={(e) => {
+                dataset.meta.config.folders.train = e.target.value;
+                datasetState({ ...dataset });
+              }}
+              defaultValue={dataset.meta.config.folders.train}
+            >
+              {dataset.meta.config.view.folders.map((folder, i) => {
+                folder = folder.split("\\");
+                folder = folder[folder.length - 1];
+                return (
+                  <option key={i} value={folder}>
+                    {folder}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+          <div className="select">
+            <div className="name">Test Folder</div>
+            <select
+              onChange={(e) => {
+                dataset.meta.config.folders.test = e.target.value;
+                datasetState({ ...dataset });
+              }}
+              defaultValue={dataset.meta.config.folders.test}
+            >
+              {dataset.meta.config.view.folders.map((folder, i) => {
+                folder = folder.split("\\");
+                folder = folder[folder.length - 1];
+                return (
+                  <option key={i} value={folder}>
+                    {folder}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+          <div className="select">
+            <div className="name">Validation Folder</div>
+            <select
+              onChange={(e) => {
+                dataset.meta.config.folders.val = e.target.value;
+                datasetState({ ...dataset });
+              }}
+              defaultValue={dataset.meta.config.folders.val}
+            >
+              {dataset.meta.config.view.folders.map((folder, i) => {
+                folder = folder.split("\\");
+                folder = folder[folder.length - 1];
+                return (
+                  <option key={i} value={folder}>
+                    {folder}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+          <div className="viewer"></div>
         </div>
-        <div className="select">
-          <div className="name">Test Folder</div>
-          <select>
-            {dataset.meta.config.view.folders.map((folder, i) => {
-              folder = folder.split("\\");
-              folder = folder[folder.length - 1];
-              return (
-                <option key={i} value={folder}>
-                  {folder}
-                </option>
-              );
-            })}
-          </select>
-        </div>
-        <div className="select">
-          <div className="name">Validation Folder</div>
-          <select>
-            {dataset.meta.config.view.folders.map((folder, i) => {
-              folder = folder.split("\\");
-              folder = folder[folder.length - 1];
-              return (
-                <option key={i} value={folder}>
-                  {folder}
-                </option>
-              );
-            })}
-          </select>
-        </div>
-        <div className="read">
-            <button onClick={addDataset}>
-              read
-            </button>
-        </div>
-        <div className="viewer">
-            
+        <div className="params">
+          <div className="head">Image Parameters</div>
+          <div className="grid">
+            <div className="param">
+              <div className="name">Image Size</div>
+              <input placeholder="size" />
+            </div>
+            <div className="param">
+              <div className="name">Resize Size</div>
+              <select>
+                <option value="True">True</option>
+                <option value="False">False</option>
+              </select>
+            </div>
+            <div className="param">
+              <div className="name">Show Progress</div>
+              <select>
+                <option value="True">True</option>
+                <option value="False">False</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -272,7 +320,6 @@ const CSVDataset = (
     }
 
   React.useEffect(() => {
-    console.log(dataset.meta.preprocessor)
     if (dataset.meta.preprocessor === "#preprocessorcode") {
       dataset.meta.preprocessor = csvPreProcCode;
       datasetState(dataset);
@@ -283,6 +330,7 @@ const CSVDataset = (
     if (dataset.deleteDataset){
         delete dataset.deleteDataset;
     }
+    console.log("Hello")
     push({
         name: "dataset",
         data: dataset
