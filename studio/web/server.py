@@ -2,39 +2,45 @@ import asyncio
 import re
 import os
 import sys
+import numpy as np
 
 from json import loads
 from inspect import getfullargspec, iscoroutinefunction
-from typing import Any
+from typing import Any, Tuple, Union, Callable
 
 from .headers import *
 from .utils import *
+from .types import FuncTypeDef, type_abc
 
 ROOT_FOLDER = os.path.abspath("./")
 STATIC_FOLDER = os.path.abspath("./static")
 
 
-def print_start(host: str, port: int, size: int = 32)->None:
-    print(f"""╔{'═'*(size)}╗
+def print_start(host: str, port: int, size: int = 32) -> None:
+    os.system("cls|clear")
+    print(
+        f"""╔{'═'*(size)}╗
 ║ PyRex Running{' '*(size-14)}║
 ║ Host : {host}{' '*(size-8-len(host))}║
 ║ Port : {port}{' '*(size-8-len(str(port)))}║
 ║ URL  : http://{host}:{port}{' '*(size-16-len(host)-len(str(port)))}║
 ╚{'═'*(size)}╝""")
 
-
 def cors(origin: str) -> bytes:
     """ 
-    cors function provides functionality to authenticate preflight requests made by browsers.
+    cors function provides functionality to authenticate preflight requests made 
+    by browsers.
 
     :param origin : str
 
-    Cross-Origin Resource Sharing (CORS) is an HTTP-header based mechanism that allows a server 
-    to indicate any other origins (domain, scheme, or port) than its own from which a browser should 
-    permit loading of resources. CORS also relies on a mechanism by which browsers make a “preflight” 
-    request to the server hosting the cross-origin resource, in order to check that the server will 
-    permit the actual request. In that preflight, the browser sends headers that indicate the HTTP 
-    method and headers that will be used in the actual request. 
+    Cross-Origin Resource Sharing (CORS) is an HTTP-header based mechanism that 
+    allows a server to indicate any other origins (domain, scheme, or port) than 
+    its own from which a browser should permit loading of resources. CORS also 
+    relies on a mechanism by which browsers make a “preflight” request to the 
+    server hosting the cross-origin resource, in order to check that the server 
+    will permit the actual request. In that preflight, the browser sends headers 
+    that indicate the HTTP method and headers that will be used in the actual 
+    request. 
     """
     header = ResponseHeader() | 204
     header.update(
@@ -49,46 +55,117 @@ def cors(origin: str) -> bytes:
     )
     return header.encode()
 
-async def response_dict(data: dict,response: ResponseHeader=None, code: int=200)->bytes:
-    """response_dict is a return typedef wrapper for server responses.
 
-    response_dict can be used to serialize responses which are json encodable, eg. list, dict. 
-    """
-    return await json_response(data, code, response)
+async def not_found_error(request,  **kwargs) -> bytes:
+    return await json_response({"message": f"path {request.headers.path} not found!"})
 
-async def response_str(data: str,response: ResponseHeader=None, code: int=200)->bytes:
-    """response_str is a return typedef wrapper for server responses.
 
-    response_str can be used to serialize responses with str datatype.
-    """
-    return await text_response(data, code, response)
+async def not_allowed_error(request,  **kwargs) -> bytes:
+    return await method_not_allowed(message=f"method {request.headers.method} not allowed for {request.headers.path}")
 
-async def response_none(response)->Any:
-    """response_none is a return typedef wrapper for server responses.
 
-    response_none can be used to serialize responses which have no resonse type defined.
-    """
-    return response
+def test_random_routes(
+    n: int = 1000,
+    min_length: int = 1,
+    max_length: int = 16
+) -> list:
+    route_verbs = [
+        '/home',
+        '/user',
+        '/about',
+        '/admin',
+        '/data',
+        '/store',
+        '/hello',
+        '/world',
+        '/foo',
+        '/bar',
+        '/api',
+        '/v1',
+        '/v2',
+    ]
 
-# response typedef wrapper
-response_typedef = {
-    dict: response_dict,
-    str: response_str,
-    None: response_none
-}
+    methods = [
+        'GET',
+        'POST',
+        'PUT',
+        'PATCH',
+        'DELETE'
+    ]
+
+    routes = []
+    verb_size = np.arange(min_length, max_length)
+    while len(routes) < n:
+        path = "".join(np.random.choice(
+            route_verbs, size=np.random.choice(verb_size)))
+        for method in np.random.choice(
+                methods, size=np.random.choice([0, 1, 2]), replace=False):
+            routes.append((method, path))
+
+    return routes
+
+
+class Route:
+    def __init__(self,
+                 view_func: callable,
+                 url_var: dict,
+                 func_def: FuncTypeDef
+                 ) -> None:
+        """Route implements interface for storing route information.
+
+        Args
+        ---------------
+        :param view_func: callable, view function for the route
+        :param url_var: dict, a dictionary containing meta data for inurl 
+                        variables
+        :param func_def: FuncTypeDef, a interface containing view function 
+                         metadata.
+        :param methods: list, 
+                        list of methods allowed for view function.
+        """
+        self.view_func = view_func
+        self.url_var = url_var
+        self.func_def = func_def
+
+
+class RouteCollection:
+    path: re.Pattern
+    methods: dict
+
+    def __init__(self, path: re.Pattern):
+        self.path = path
+        self.methods = {
+            "GET": False,
+            "POST": False,
+            "PUT": False,
+            "DELETE": False,
+            "PATCH": False
+        }
+
+    def __getitem__(self, method: str) -> Route:
+        return self.methods[method]
+
+    def __setitem__(self, method: str, view: callable):
+        self.methods[method] = view
+
+    def __iter__(self, ) -> Tuple[str, Union[Route, bool]]:
+        for method, route in self.methods.items():
+            yield method, route
+
 
 class Router:
-    """Router object is used by server object to register end points and retrive endpoints 
-    for incoming requests. Router also parses inurl variables and url queries. 
+    """Router object is used by server object to register end points and retrive 
+    endpoints for incoming requests. Router also parses inurl variables and url 
+    queries. 
 
     example:
         router = Router()
         router.register("/path", view_function)
 
         view_function, inurl_variables, query, serialization_wrapper = router.get("/path")
+
     """
-    routes = []
-    _routes = []
+    _routes = {}
 
     def __init__(self,):
         self.url_re = re.compile(r"<\w+:\w+>")
@@ -109,18 +186,35 @@ class Router:
             'path': str
         }
 
-    def __setitem__(self, key, value):
-        self.routes[key] = value
+    def __setitem__(self, path: str, collection: RouteCollection):
+        self._routes[path] = collection
 
-    def __getitem__(self, key):
-        return self.routes[key]
+    def __getitem__(self, path: str) -> RouteCollection:
+        return self._routes[path]
 
-    def __iter__(self,):
-        for key in self.routes:
-            yield key
+    def __iter__(self,) -> Tuple[str, RouteCollection]:
+        for path, collection in self._routes.items():
+            yield path, collection
+
+    def __repr__(self, ) -> str:
+        repr_out = ""
+        for i, (path, collection) in enumerate(self):
+            repr_out += f"{i+1}. {path}\n"
+            for method, route in collection:
+                if route:
+                    var_dict = dict([(var, typed)
+                                     for var, _, typed in route.url_var if var])
+                    repr_out += (
+                        f"{'    '}{method}{' '*(7-len(method))}" +
+                        f"{var_dict} -> " +
+                        f"{route.view_func.__name__} -> " +
+                        f"{route.func_def.__class__.__name__}\n"
+                    )
+            repr_out += '\n'
+        return repr_out
 
     def __add__(self, val):
-        self.routes.append(val)
+        self._routes.append(val)
         return self
 
     def get_dtype(self, path, var):
@@ -131,8 +225,8 @@ class Router:
 
     def get_queries(self, query: list) -> dict:
         """
-        get_queries function takes query string and return a dictionary of key, values pairs 
-        parsed from query string.
+        get_queries function takes query string and return a dictionary of key, 
+        values pairs parsed from query string.
 
         example:
             query_string = "firstname=john&lastname=doe"
@@ -144,15 +238,15 @@ class Router:
         query, = query
         return dict([
             q.split("=")
-                for q
-                in query.split("&")
-                if q
+            for q
+            in query.split("&")
+            if q
         ])
 
     def get_variables(self, url: str, var: str) -> dict:
         """
-        get_variables function takes url string and registered inurl variables and returns 
-        a dictionary object of key, value pairs parsed from url.
+        get_variables function takes url string and registered inurl variables 
+        and returns a dictionary object of key, value pairs parsed from url.
 
         example:
             # url pattern : /api/v1/user/<str:name>
@@ -166,48 +260,31 @@ class Router:
             if var
         ])
 
-    def get(self, url):
+    def inspect_func(self,  view, fvar) -> FuncTypeDef:
         """
-        return view_function, inurl_variables, query_variables,  serialization_wrapper for provided url.
+        check for attributes required for a view function and returns return 
+        type for view_function.
         """
-        url, *parameters = url.split("?")
-        for pattern, func, var, ser_func in self:
-            if pattern.match(url):
-                return (
-                    func,
-                    self.get_variables(url, var),
-                    self.get_queries(parameters,),
-                    ser_func
-                )
-        return False, None, None, None
-
-    def inspect_func(self, func, fvar):
-        """
-        check for attributes required for a view function and returns return type for view_function.
-        """
-        specs = getfullargspec(func)
+        specs = getfullargspec(view)
         args = specs.args
         defs = specs.defaults
         ants = specs.annotations
 
-        assert iscoroutinefunction(
-            func), "route handle should be a coroutine object"
-        assert len(
-            args), f"Please provide request as a argument in the route definition `{func.__name__}`"
-        assert "request" in args, f"Please provide `request` as a argument in the route definition  `{func.__name__}`"
+        assert iscoroutinefunction(view), ("route handle should be a coroutine object")
+        assert len(args), f"Please provide request as a argument in the route definition `{ view.__name__}`"
+        assert "request" in args, f"Please provide `request` as a argument in the route definition  `{ view.__name__}`"
         for var, _, _ in fvar:
             if var is not None:
-                assert var in args, f"Please provide `{var}` as a argument in the route definition `{func.__name__}`"
-        assert "return" in ants, f"Please provide default return type in route `{func.__name__}`"
+                assert var in args, f"Please provide `{var}` as a argument in the route definition `{ view.__name__}`"
+        assert "return" in ants, f"Please provide default return type in route `{ view.__name__}`"
 
         return ants['return']
 
-    def register(self, url: str, func: callable) -> None:
+    def register(self, url: str,  view: callable, methods: list = ['GET']) -> None:
         """
         register function can be used to register and validate view function for server object.
         """
         assert url.startswith("/"), "Route should start with `/`"
-        assert url not in self._routes, f"Route {url} registered."
         url_pattern = ''
         url_var = []
 
@@ -219,17 +296,59 @@ class Router:
         url_pattern = url_pattern if len(url_pattern) else url
         url_pattern += '$'
 
-        ser_func = self.inspect_func(func, url_var)
-        self += [re.compile(url_pattern), func, url_var, ser_func]
-        self._routes.append(url)
+        func_def = self.inspect_func(view, url_var)
+
+        if url in self._routes:
+            for method in methods:
+                assert not self[url][method], f"path {url} already registered with method {method}"
+                self[url][method] = Route(view, url_var, func_def)
+        else:
+            self[url] = RouteCollection(re.compile(url_pattern))
+            for method in methods:
+                self[url][method] = Route(view, url_var, func_def)
+
+    def get(self, url: str, view: callable) -> None:
+        self.register(url, view, methods=['GET'])
+
+    def post(self, url: str, view: callable) -> None:
+        self.register(url, view, methods=['POST'])
+
+    def put(self, url: str, view: callable) -> None:
+        self.register(url, view, methods=['PUT'])
+
+    def delete(self, url: str, view: callable) -> None:
+        self.register(url, view, methods=['DELETE'])
+
+    def patch(self, url: str, view: callable) -> None:
+        self.register(url, view, methods=['PATCH'])
+
+    def parse(self, method: str, url: str) -> Tuple[callable, dict, dict, FuncTypeDef]:
+        """
+        return view_function, inurl_variables, query_variables,  serialization_wrapper for provided url.
+        """
+        url, *parameters = url.split("?")
+        for path, collection in self:
+            if collection.path.match(url):
+                if collection[method]:
+                    route = collection[method]
+                    return (
+                        route.view_func,
+                        self.get_variables(url, route.url_var),
+                        self.get_queries(parameters),
+                        route.func_def
+                    )
+                else:
+                    return not_allowed_error, {}, {}, type_abc()
+        return not_found_error, {}, {}, type_abc()
 
     def add_lith(self, lith):
         """
         add_lith updates the current routes with Lith object.
         """
-        self._routes += lith._router._routes
+        self._routes.update(lith._routes)
 
-class Lith:
+
+class Lith(Router):
     """
     Lith object provides functionality to create view functions outside of server object. It can be used
     to modularise complex service architectures.
@@ -276,24 +395,45 @@ class Lith:
         # this will register paths as following.
         # / -> home_index view function
         # /user -> home_user view function
-        
+
     """
     _router = Router()
-    def __init__(self, name: str , use_prefix: bool=True):
+
+    def __init__(self, name: str, use_prefix: bool = True):
+        super().__init__()
         self.name = name
         self.use_prefix = use_prefix
 
-    def __add_route__(self, func):
+    def __route__wrapper(self,  view):
         """
-        
+        decorator wrapper for route registration
         """
         if self.use_prefix:
-            self.__route__ = f"/{self.name}{self.__route__}"
-        self._router.register(self.__route__, func)
+            self._view_meta['url'] = f"/{self.name}{self._view_meta['url']}"
+        self._view_meta['view'] = view
+        self.register(**self._view_meta)
 
-    def route(self, path: str, *args, **kwargs):
-        self.__route__ = path
-        return self.__add_route__
+    def route(self, url: str, methods: list = ['GET']):
+        self._view_meta = {
+            "url": url,
+            "methods": methods
+        }
+        return self.__route__wrapper
+
+    def get(self, url: str,):
+        return self.route(url, methods=['GET'])
+
+    def post(self, url: str,):
+        return self.route(url, methods=['POST'])
+
+    def put(self, url: str,):
+        return self.route(url, methods=['PUT'])
+
+    def patch(self, url: str,):
+        return self.route(url, methods=['PATCH'])
+
+    def delete(self, url: str,):
+        return self.route(url, methods=['DELETE'])
 
 
 class Request(object):
@@ -321,6 +461,7 @@ class Request(object):
     loop = None
 
     _content = None
+    _json = None
 
     def __init__(
         self,
@@ -334,16 +475,19 @@ class Request(object):
         self.writer = writer
         self.loop = loop
 
-    async def get_json(self,)->dict:
+    async def get_json(self,) -> dict:
         """
         Returns
         ---------------
             a dictionary parsed from request data.
         """
-        return loads( await self.content )
+        if not self._json:
+            self._json = loads(await self.content)
+
+        return self._json
 
     @property
-    async def content(self,)->str:
+    async def content(self,) -> str:
         """
         Returns
         ---------------
@@ -358,7 +502,7 @@ class Request(object):
 class App(object):
     """
     App object implements an ASGI server that acts as central for the service architecture.
-    
+
     Attributes
     ---------------
 
@@ -371,18 +515,41 @@ class App(object):
 
 
     """
+
     def __init__(self, ):
         self.loop = asyncio.get_event_loop()
         self.router = Router()
 
-    def __add_route__(self, func):
-        self.router.register(self.__route__, func)
+    def __route__wrapper(self,  view):
+        """
+        decorator wrapper for route registration
+        """
+        self._view_meta['view'] = view
+        self.router.register(**self._view_meta)
 
-    def route(self, path: str, *args, **kwargs):
-        self.__route__ = path
-        return self.__add_route__
+    def route(self, url: str, methods: list = ['GET']):
+        self._view_meta = {
+            "url": url,
+            "methods": methods
+        }
+        return self.__route__wrapper
 
-    def add_lith(self, lith: Lith)->None:
+    def get(self, url: str,):
+        return self.route(url, methods=['GET'])
+
+    def post(self, url: str,):
+        return self.route(url, methods=['POST'])
+
+    def put(self, url: str,):
+        return self.route(url, methods=['PUT'])
+
+    def patch(self, url: str,):
+        return self.route(url, methods=['PATCH'])
+
+    def delete(self, url: str,):
+        return self.route(url, methods=['DELETE'])
+
+    def add_lith(self, lith: Lith) -> None:
         """
         Updates current end point routes with provided Lith object.
 
@@ -392,7 +559,7 @@ class App(object):
         """
         self.router.add_lith(lith)
 
-    async def handle_request(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter)->None:
+    async def handle_request(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         """
         Handles incoming requests by parsing headers, retriving view functions, generating response
         and sending responses.
@@ -416,12 +583,10 @@ class App(object):
         if header.method == 'OPTIONS':
             response = cors(header.origin['value'])
         else:
-            handle, var, query, ser_func = self.router.get(header.path)
-            if handle:
-                response = await handle(Request(header, reader, writer, self.loop), **var)
-                response = await response_typedef.get(ser_func)(response)
-            else:
-                response = await json_response({"message": f"Path {header.path} not found."}, code=404)
+            handle, var, query, func_type_def = self.router.parse(header.method,header.path)
+            response = await func_type_def.wrapper(
+                await handle(request=Request(header, reader, writer, self.loop), **var)
+            )
 
         if response:
             writer.write(response)
@@ -429,7 +594,7 @@ class App(object):
             writer.close()
         return -1
 
-    def serve(self, host: str = 'localhost', port: int = 8080)->None:
+    def serve(self, host: str = 'localhost', port: int = 8080) -> None:
         """
         Creates a asynchronus server and serves it until interruption.
 

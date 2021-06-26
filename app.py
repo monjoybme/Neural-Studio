@@ -18,7 +18,7 @@ from os import name, path as pathlib, listdir
 from tqdm.cli import tqdm
 from sklearn.model_selection import train_test_split
 
-from studio.web import App, Request, json_response, text_response, send_file, Lith
+from studio.web import App, Request, json_response, text_response, Lith, types
 from studio.trainer import Trainer
 from studio.manage import Workspace, WorkspaceManager
 from studio.graph import GraphDef
@@ -38,11 +38,12 @@ ROOT_PATH = pathlib.abspath("./")
 # defining globals
 app = App()
 
-sys_lith = Lith("sys")
-workspace_lith = Lith("workspace")
-dataset_lith = Lith("dataset")
-model_lith = Lith("model")
-train_lith = Lith("train")
+lith_sys = Lith("sys")
+lith_workspace = Lith("workspace")
+lith_dataset = Lith("dataset")
+lith_model = Lith("model")
+lith_train = Lith("train")
+lith_custom = Lith("custom")
 
 workspace_manager = WorkspaceManager()
 trainer = Trainer(workspace_manager)
@@ -71,8 +72,8 @@ except Exception as e:
     logger.sys_error(f"Error updating dataset, {repr(e)}")
 
 
-@sys_lith.route("/sys/path")
-async def sys_path(request: Request) -> dict:
+@lith_sys.post("/path")
+async def sys_path(request: Request) -> types.dict:
     path = (await request.get_json()).get('path')
     if not path:
         return []
@@ -88,51 +89,46 @@ async def sys_path(request: Request) -> dict:
 
 # Workspace endpoints
 
-@workspace_lith.route("/active")
-async def workspace_active(request: Request) -> dict:
+
+@lith_workspace.get("/active")
+async def workspace_active(request: Request) -> types.dict:
     return {"data": workspace_manager.active.to_dict()}
 
 
-@workspace_lith.route("/active/<str:var>")
-async def workspace_active_var(request: Request, var: str) -> dict:
-    if request.headers.method == "GET":
-        return workspace_manager.active[var].to_dict()
-    elif request.headers.method == 'POST':
-        try:
-            var_data = await request.get_json()
-            workspace_manager.active[var] = var_data
-            return {"status": True}
-        except Exception as e:
-            return {"status": False, "message": repr(e)}
-    else:
-        return {"message": "Method Not Allowed !"}
+@lith_workspace.get("/active/<str:var>")
+async def workspace_active_var(request: Request, var: str) -> types.dict:
+    return workspace_manager.active[var].to_dict()
 
 
-@workspace_lith.route("/var/<path:key>")
-async def workspace_active_var_key(request: Request, key: str) -> dict:
-    if request.headers.method == 'GET':
-        try:
-            var = workspace_manager.active[[
-                key.replace("/var/", "").replace("/", ":")]]
-            return {"data": var.to_dict() if isinstance(var, DataDict) else var}
-        except KeyError:
-            return {"data": None}
-    elif request.headers.method == 'POST':
-        pass
+@lith_workspace.post("/active/<str:var>")
+async def workspace_active_var(request: Request, var: str) -> types.dict:
+    var_data = await request.get_json()
+    workspace_manager.active[var] = var_data
+    return {"status": True}
 
 
-@workspace_lith.route("/recent")
-async def workspace_recent(request: Request) -> dict:
+@lith_workspace.get("/var/<path:key>")
+async def workspace_active_var_key(request: Request, key: str) -> types.dict:
+    try:
+        var = workspace_manager.active[[
+            key.replace("/var/", "").replace("/", ":")]]
+        return {"data": var.to_dict() if isinstance(var, DataDict) else var}
+    except KeyError:
+        return {"data": None}
+
+
+@lith_workspace.get("/recent")
+async def workspace_recent(request: Request) -> types.dict:
     return {"data": workspace_manager.cache.recent}
 
 
-@workspace_lith.route("/all")
-async def workspace_all(request: Request) -> dict:
+@lith_workspace.get("/all")
+async def workspace_all(request: Request) -> types.dict:
     return workspace_manager.get_workspaces()
 
 
-@workspace_lith.route("/new")
-async def workspace_new(request: Request) -> dict:
+@lith_workspace.post("/new")
+async def workspace_new(request: Request) -> types.dict:
     data = await request.get_json()
     workspace = workspace_manager.new_workspace(**data)
     assert workspace.idx == workspace_manager.active.idx
@@ -141,8 +137,8 @@ async def workspace_new(request: Request) -> dict:
     }
 
 
-@workspace_lith.route("/open/<str:name>")
-async def workspace_open(request: Request, name: str) -> dict:
+@lith_workspace.get("/open/<str:name>")
+async def workspace_open(request: Request, name: str) -> types.dict:
     workspace_manager.open_workspace(name)
     assert workspace_manager.active.idx == name
     return {
@@ -150,8 +146,8 @@ async def workspace_open(request: Request, name: str) -> dict:
     }
 
 
-@workspace_lith.route("/delete/<str:name>")
-async def workspace_new(request: Request, name: str) -> dict:
+@lith_workspace.get("/delete/<str:name>")
+async def workspace_new(request: Request, name: str) -> types.dict:
     return {
         "status": workspace_manager.delete_workspace(name),
     }
@@ -159,39 +155,30 @@ async def workspace_new(request: Request, name: str) -> dict:
 
 # download endpoints
 
-# @workspace_lith.route("/download")
-# async def download_model(request: Request)->dict:
-#     if request.headers.method == 'POST':
-#         data = await request.get_json()
-#         prep_func = download_options[data['format']]
-#         status = prep_func(workspace_manager.active, trainer)
-#         return await json_response(status)
-
-#     return await json_response({
-#         "message": "Method Not Allowed",
-#     }, status_code=400)
+@lith_workspace.post("/download")
+async def download_model(request: Request) -> types.dict:
+    data = await request.get_json()
+    prep_func = download_options[data['format']]
+    status = prep_func(workspace_manager.active, trainer)
+    return await json_response(status)
 
 
-# @workspace_lith.route("/download/<str:name>")
-# async def download_name(request: Request, name: str)->dict:
-#     if request.headers.method == 'GET':
-#         return await send_file(
-#             pathlib.join(
-#                 workspace_manager.active.path,
-#                 "outputs",
-#                 name
-#             ),
-#             request=request
-#         )
+@lith_workspace.get("/download/<str:name>")
+async def download_name(request: Request, name: str) -> types.file:
+    return await send_file(
+        pathlib.join(
+            workspace_manager.active.path,
+            "outputs",
+            name
+        ),
+        request=request
+    )
 
-#     return await json_response({
-#         "message": "Method Not Allowed",
-#     }, status_code=400)
 
 # Dataset endpoints
 
-@dataset_lith.route("/add")
-async def dataset_init(request: Request) -> dict:
+@lith_dataset.post("/add")
+async def dataset_init(request: Request) -> types.dict:
     data = await request.get_json()
     try:
         dataset = DATASETS.get(data['meta']['type'])(**data)
@@ -203,8 +190,8 @@ async def dataset_init(request: Request) -> dict:
         return {"status": False, "message": repr(e)}
 
 
-@dataset_lith.route("/preprocess")
-async def dataset_preprocess(request: Request) -> dict:
+@lith_dataset.get("/preprocess")
+async def dataset_preprocess(request: Request) -> types.dict:
     exec(workspace_manager.active[['dataset:meta:preprocessor']])
     func = locals().get('dataset_proprocessor')
     dataset = trainer.session.get("dataset")
@@ -215,8 +202,9 @@ async def dataset_preprocess(request: Request) -> dict:
 
 # Model endpoints
 
-@model_lith.route("/code")
-async def buiild(request: Request) -> dict:
+
+@lith_model.get("/code")
+async def buiild(request: Request) -> types.dict:
     graph = GraphDef(workspace_manager.active.canvas.graph)
     status, message = graph.build()
     if status:
@@ -224,20 +212,20 @@ async def buiild(request: Request) -> dict:
     return await text_response(message)
 
 
-@model_lith.route("/summary")
-async def summary_viewer(request: Request) -> dict:
+@lith_model.get("/summary")
+async def summary_viewer(request: Request) -> types.dict:
     return {"summary": trainer.summary}
 
 # Train endpoints
 
-@train_lith.route("/start")
-async def train_start(request: Request) -> dict:
+
+@lith_train.get("/start")
+async def train_start(request: Request) -> types.dict:
     if trainer.is_training:
         return await json_response({
             "message": "A training session is already running, please wait or stop the session."
         })
     trainer.logs = []
-
     status, message = trainer.build()
     if not status:
         return {"message": message, "status": status}
@@ -249,85 +237,52 @@ async def train_start(request: Request) -> dict:
     status, message = trainer.start()
     return {"message": message, "status": status}
 
-# @train_lith.route("/halt")
-# async def train_halt(request: Request):
-#     if request.headers.method == 'POST':
-#         data = await request.get_json()
-#         trainer.halt(state=data['state'])
-#         return await json_response({
-#             "status": "Training Halt"
-#         })
 
-#     else:
-#         return await json_response(
-#             data={"message": "Method Not Allowed"},
-#             status_code=401,
-#             message="Method Not Allowed !"
-#         )
+@lith_train.post("/halt")
+async def train_halt(request: Request) -> types.dict:
+    data = await request.get_json()
+    trainer.halt(state=data['state'])
+    return {"status": "Training Halt"}
 
 
-# @train_lith.route("/stop")
-# async def train_stop(request: Request):
-#     if request.headers.method == 'POST':
-#         try:
-#             trainer.stop()
-#             return await json_response({
-#                 "status": 200,
-#                 "message": "Interrupting Training"
-#             })
-#         except AttributeError:
-#             return await json_response({
-#                 "status": 200,
-#                 "message": "Training hasn't statrted yet."
-#             })
-
-#     else:
-#         return await json_response(
-#             data={"message": "Method Not Allowed"},
-#             status_code=401,
-#             message="Method Not Allowed !"
-#         )
+@lith_train.post("/stop")
+async def train_stop(request: Request) -> types.dict:
+    try:
+        trainer.stop()
+        return {"status": True, "message": "Interrupting Training"}
+    except AttributeError:
+        return {"status": False, "message": "Training hasn't statrted yet."}
 
 
-@train_lith.route("/status")
-async def status(request: Request) -> dict:
+@lith_train.get("/status")
+async def status(request: Request) -> types.dict:
     return {"logs": trainer.logs}
 
-# # custom node endpoints
-
-# @workspace_lith.route("/custom/node/build")
-# async def node_build(request: Request):
-#     if request.headers.method == "POST":
-#         data = await request.get_json()
-#         (function_id, function), = generate_args(data['code']).items()
-#         fullspecs = inspect.getfullargspec(function)
-#         arguments = {}
-
-#         for arg, val in zip(fullspecs.args, fullspecs.defaults):
-#             arguments[arg] = {
-#                 "value": val,
-#                 "type": re.sub("(<)|(>)|(')|(class)|( )", "", str(fullspecs.annotations[arg])),
-#                 "render": "text",
-#                 "options": None,
-
-#             }
-
-#         return await json_response({
-#             "id": function_id,
-#             "arguments": arguments
-#         })
-
-#     return await json_response({
-#         "message": "Method not allowed",
-#     }, status_code=400)
+# custom node endpoints
 
 
-app.add_lith(sys_lith)
-app.add_lith(workspace_lith)
-app.add_lith(dataset_lith)
-app.add_lith(model_lith)
-app.add_lith(train_lith)
+@lith_custom.post("/node/build")
+async def node_build(request: Request) -> types.dict:
+    data = await request.get_json()
+    (function_id, function), = generate_args(data['code']).items()
+    fullspecs = inspect.getfullargspec(function)
+    arguments = {}
 
+    for arg, val in zip(fullspecs.args, fullspecs.defaults):
+        arguments[arg] = {
+            "value": val,
+            "type": fullspecs.annotations[arg].__name__,
+            "render": "text",
+            "options": None,
+        }
+    return {"id": function_id, "arguments": arguments}
+
+
+app.add_lith(lith_sys)
+app.add_lith(lith_workspace)
+app.add_lith(lith_dataset)
+app.add_lith(lith_model)
+app.add_lith(lith_train)
 
 if __name__ == "__main__":
     app.serve(

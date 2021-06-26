@@ -14,14 +14,32 @@ import "./style/Training.scss";
 import "./style/Summary.scss";
 import "./style/Utils.scss";
 
+/**
+ * It creates pop up overlays for custom pop up components.
+ *
+ * @param {object} props
+ * @returns
+ */
 const PopUp = (props = { store: metaStore }) => {
   return <>{props.store.popup}</>;
 };
 
+/**
+ * Creates a pop up notification.
+ *
+ * @param {*} props
+ * @returns
+ */
 const NotificationPop = (props = { store: metaStore }) => {
   return <>{props.store.notification.comp}</>;
 };
 
+/**
+ * Displays active workspace status.
+ *
+ * @param {*} props
+ * @returns
+ */
 const StatusBar = (props = { store: metaStore }) => {
   return (
     <div className="statusbar">
@@ -30,18 +48,30 @@ const StatusBar = (props = { store: metaStore }) => {
   );
 };
 
+/**
+ * Wrapper for app container area.
+ *
+ * @param {*} props
+ * @returns
+ */
 const Container = (props = { store: metaStore }) => {
   return <div className="container-area">{props.children}</div>;
 };
 
+/**
+ * Wrapper for main area.
+ *
+ * @param {*} props
+ * @returns
+ */
 const Main = (props = { store: metaStore }) => {
   return <div className={`app ${props.store.app.theme}`}>{props.children}</div>;
 };
 
 const App = (props) => {
-  let [app, appState] = React.useState(metaApp);
-  let [nav, navState] = React.useState(metaSideNav);
-  let [popup, popupState] = React.useState(<></>);
+  let [app, appState] = React.useState(metaApp); // contains global app data.
+  let [nav, navState] = React.useState(metaSideNav); //  contains navbar and active work area information.
+  let [popup, popupState] = React.useState(<></>); 
   let [statusbar, statusbarState] = React.useState("status bar");
   let [notification, notificationState] = React.useState(<></>);
   let [render, renderState] = React.useState(metaRender);
@@ -108,7 +138,14 @@ const App = (props) => {
 
   const LoadingData = (props) => {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }} className="container loaddata" >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+        className="container loaddata"
+      >
         <Loading />
       </div>
     );

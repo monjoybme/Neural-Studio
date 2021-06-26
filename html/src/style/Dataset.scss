@@ -334,6 +334,7 @@
 
         .select {
           display: flex;
+
           @include width(100%, 100px, 100%);
 
           .name {
@@ -343,6 +344,7 @@
 
           select {
             @include width(60%, 60%, 60%);
+            border: $lightBorder2;
           }
         }
       }
@@ -367,7 +369,27 @@
 
         .grid {
           display: grid;
-          grid-template-columns: repeat( auto-fill , minMax( 240px, 1fr ) );
+          grid-template-columns: repeat( auto-fill , minMax( 180px, 1fr ) );
+          grid-gap: 10px;
+
+          .param {
+            display: flex;
+            flex-direction: column;
+            height: 45px;
+
+            .name {
+              @extend .heading-4;
+              height: 30px;
+            }
+            
+            input {
+              border: $darkBorder2;
+            }
+
+            select {
+              border: $lightBorder2;
+            }
+          }
         }
 
       }
