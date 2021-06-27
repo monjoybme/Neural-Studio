@@ -137,7 +137,7 @@ async def workspace_new(request: Request) -> types.dict:
     }
 
 
-@lith_workspace.get("/open/<str:name>")
+@lith_workspace.post("/open/<str:name>")
 async def workspace_open(request: Request, name: str) -> types.dict:
     workspace_manager.open_workspace(name)
     assert workspace_manager.active.idx == name
@@ -146,7 +146,7 @@ async def workspace_open(request: Request, name: str) -> types.dict:
     }
 
 
-@lith_workspace.get("/delete/<str:name>")
+@lith_workspace.post("/delete/<str:name>")
 async def workspace_new(request: Request, name: str) -> types.dict:
     return {
         "status": workspace_manager.delete_workspace(name),
@@ -219,7 +219,7 @@ async def summary_viewer(request: Request) -> types.dict:
 # Train endpoints
 
 
-@lith_train.get("/start")
+@lith_train.post("/start")
 async def train_start(request: Request) -> types.dict:
     if trainer.is_training:
         return await json_response({

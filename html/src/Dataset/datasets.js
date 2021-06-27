@@ -60,11 +60,24 @@ const ImageDatasetFromDirectory = (
         path: undefined,
         view: {
           folders: [],
+          sample: [],
+          info: {
+            n_train: 0,
+            n_test: 0,
+            n_val: 0,
+          },
         },
-        folders: {
-          train: "None",
-          test: "None",
-          val: "None",
+        params: {
+          folders: {
+            train: "None",
+            test: "None",
+            val: "None",
+          },
+          image: {
+            size: "Enter Image Size",
+            resize: "False",
+            show_progress: "True",
+          },
         },
       },
       preprocessor: "#preprocessorcode",
@@ -86,7 +99,8 @@ const ImageDatasetFromDirectory = (
     })
       .then((response) => response.json())
       .then((data) => {
-        dataset.meta.config.view.sample = data.sample;
+        dataset.meta.config.view.sample = data.sample.sample;
+        dataset.meta.config.view.info = data.sample.info
         datasetState({ ...dataset });
         loadState(false);
         console.log(data);
@@ -122,12 +136,12 @@ const ImageDatasetFromDirectory = (
       });
   }
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     push({
       name: "dataset",
       data: dataset,
     });
-  }, [dataset,]);
+  }, [dataset]);
 
   return (
     <div className="datasetviewer imagedatasetfromdirectory">
@@ -163,10 +177,10 @@ const ImageDatasetFromDirectory = (
             <div className="name">Train Folder</div>
             <select
               onChange={(e) => {
-                dataset.meta.config.folders.train = e.target.value;
+                dataset.meta.config.params.folders.train = e.target.value;
                 datasetState({ ...dataset });
               }}
-              defaultValue={dataset.meta.config.folders.train}
+              defaultValue={dataset.meta.config.params.folders.train}
             >
               {dataset.meta.config.view.folders.map((folder, i) => {
                 folder = folder.split("\\");
@@ -183,10 +197,10 @@ const ImageDatasetFromDirectory = (
             <div className="name">Test Folder</div>
             <select
               onChange={(e) => {
-                dataset.meta.config.folders.test = e.target.value;
+                dataset.meta.config.params.folders.test = e.target.value;
                 datasetState({ ...dataset });
               }}
-              defaultValue={dataset.meta.config.folders.test}
+              defaultValue={dataset.meta.config.params.folders.test}
             >
               {dataset.meta.config.view.folders.map((folder, i) => {
                 folder = folder.split("\\");
@@ -203,10 +217,10 @@ const ImageDatasetFromDirectory = (
             <div className="name">Validation Folder</div>
             <select
               onChange={(e) => {
-                dataset.meta.config.folders.val = e.target.value;
+                dataset.meta.config.params.folders.val = e.target.value;
                 datasetState({ ...dataset });
               }}
-              defaultValue={dataset.meta.config.folders.val}
+              defaultValue={dataset.meta.config.params.folders.val}
             >
               {dataset.meta.config.view.folders.map((folder, i) => {
                 folder = folder.split("\\");
@@ -226,21 +240,67 @@ const ImageDatasetFromDirectory = (
           <div className="grid">
             <div className="param">
               <div className="name">Image Size</div>
-              <input placeholder="size" />
+              <input
+                placeholder="Image Size"
+                defaultValue={dataset.meta.config.params.image.size}
+                onChange={(e) => {
+                  dataset.meta.config.params.image.size = e.target.value;
+                  datasetState({ ...dataset });
+                }}
+              />
             </div>
             <div className="param">
-              <div className="name">Resize Size</div>
-              <select>
+              <div className="name">Resize To Size</div>
+              <select
+                defaultValue={dataset.meta.config.params.image.resize}
+                onChange={(e) => {
+                  dataset.meta.config.params.image.resize = e.target.value;
+                  datasetState({ ...dataset });
+                }}
+              >
                 <option value="True">True</option>
                 <option value="False">False</option>
               </select>
             </div>
             <div className="param">
               <div className="name">Show Progress</div>
-              <select>
+              <select
+                defaultValue={dataset.meta.config.params.image.show_progress}
+                onChange={(e) => {
+                  dataset.meta.config.params.image.show_progress = e.target.value;
+                  datasetState({ ...dataset });
+                }}
+              >
                 <option value="True">True</option>
                 <option value="False">False</option>
               </select>
+            </div>
+          </div>
+        </div>
+        <div className="info">
+          <div className="head">Dataset Info</div>
+          <div className="grid">
+            <div className="param">
+              <div className="name">Train Images</div>
+              <label>{dataset.meta.config.view.info.n_train}</label>
+            </div>
+            <div className="param">
+              <div className="name">Test Images</div>
+              <label>{dataset.meta.config.view.info.n_test}</label>
+            </div>
+            <div className="param">
+              <div className="name">Number Of Classes</div>
+              <label>{dataset.meta.config.view.info.n_classes}</label>
+            </div>
+            <div
+              className="param"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <button style={{ width: "100%", marginTop:"15%" }} onClick={addDataset}>Read From Directory</button>
             </div>
           </div>
         </div>

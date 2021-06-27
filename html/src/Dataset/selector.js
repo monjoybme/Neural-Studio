@@ -32,14 +32,27 @@ const metaDatasets = [
         path: undefined,
         view: {
           folders: ["None"],
-          sample:{
-            "images": ""
-          }
+          sample: {
+            images: [],
+          },
+          info: {
+            n_train: 0,
+            n_test: 0,
+            n_val: 0,
+            n_classes: 0
+          },
         },
-        folders: {
-          train: "None",
-          test: "None",
-          val: "None",
+        params: {
+          folders: {
+            train: "None",
+            test: "None",
+            val: "None",
+          },
+          image :{
+            size:"",
+            resize: "False",
+            show_progress: "True"
+          }
         },
       },
       preprocessor: "#preprocessorcode",

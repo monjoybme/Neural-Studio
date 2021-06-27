@@ -106,18 +106,18 @@ class ImageDatasetFromDirectory(Dataset):
         self.root_folder = pathlib.abspath(
             self.meta[["config:path"]])  
         # Name of the train folder
-        self.train_name = self.meta[["config:folders:train"]]
+        self.train_name = self.meta[["config:params:folders:train"]]
         # Name of the test folder
-        self.val_name = self.meta[["config:folders:val"]]
+        self.val_name = self.meta[["config:params:folders:val"]]
         # Name of the test folder
-        self.test_name = self.meta[["config:folders:test"]]
+        self.test_name = self.meta[["config:params:folders:test"]]
 
         # image size in ( height, width, channel ) format
-        self.image_size = (224, 224, 3)
+        self.image_size = eval(self.meta[["config:params:image:size"]])
         # whether to resize the image after reading or not.
-        self.resize = True
+        self.resize = eval(self.meta[["config:params:image:resize"]])
 
-        self.show_progress = True
+        self.show_progress = eval(self.meta[["config:params:image:show_progress"]])
 
         # Make changed in the following code with the caution
 
@@ -200,6 +200,17 @@ class ImageDatasetFromDirectory(Dataset):
                         print(e)
                 res = executor.map(set_image, enumerate(image_set))
         return images
+
+    def sample(self, n: int = 5) -> List[dict]:
+        return {
+            "sample":[],
+            "info": {
+                "n_train": len(self.train_x),
+                "n_test": len(self.test_x),
+                "n_val": 0, #len(self.test_x),
+                "n_classes": self.n_label_classes
+            }
+        }
 
 DATASETS = {
     "dataset":Dataset,

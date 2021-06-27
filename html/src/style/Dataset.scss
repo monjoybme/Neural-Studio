@@ -345,11 +345,63 @@
           select {
             @include width(60%, 60%, 60%);
             border: $lightBorder2;
+            height: 30px
           }
         }
       }
 
       .params {
+        background: $lightBg;
+        border: $lightBorder2;
+        padding: 10px;
+
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 30px 3fr;
+        grid-gap: 10px;
+
+        .head { 
+          @extend .heading-3;
+          @include flex(row, flex-start, center);
+          padding-left: 10px;
+          border: $lightBorder2;
+          background: $lightFr;
+        }
+
+        .grid {
+          display: grid;
+          grid-template-columns: repeat( auto-fill , minMax( 180px, 1fr ) );
+          grid-gap: 10px;
+
+          .param {
+            display: flex;
+            flex-direction: column;
+            height: 45px;
+
+            .name {
+              @extend .heading-4;
+              height: 30px;
+            }
+            
+            input {
+              border: $darkBorder2;
+              height: 30px;
+              @extend .heading-4;
+            }
+
+            select {
+              border: $lightBorder2;
+              height: 30px;
+            }
+
+            button{
+              height: 100%;
+            }
+          }
+        }
+      }
+
+    .info {
         background: $lightBg;
         border: $lightBorder2;
         padding: 10px;
@@ -391,8 +443,8 @@
             }
           }
         }
-
       }
+
     }
   }
 }
