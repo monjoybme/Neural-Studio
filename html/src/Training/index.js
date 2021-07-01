@@ -5,11 +5,11 @@ import { MonitorMany, MonitorOne } from './monitor';
 import { EpochLog, ErrorLog, NotificationLog } from './logs';
 
 import { icons } from "../data/icons";
-import { metaAppFunctions, metaGraph, metaStore, metaStoreContext, metaTrain } from "../Meta";
-import { GET, pull, push } from "../Utils";
+import { metaAppFunctions, metaGraph, metaAppData,  metaTrain } from "../Meta";
+import { get, pull, push, post } from "../Utils";
 
 const Training = (
-  props = { store: metaStore, storeContext: metaStoreContext, appFunctions: metaAppFunctions }
+  props = { store: metaAppData, appFunctions: metaAppFunctions }
 ) => {
   let epoch = 0;
   let [graph, graphState] = React.useState(metaGraph);
@@ -58,8 +58,52 @@ const Training = (
   ];
   let [istraining, istrainingState] = React.useState({ state: false});
 
+  function statusSocket(){
+    let socket = new WebSocket("ws://localhost:8000/train/socket_status");
+
+    socket.onopen = function (event) {
+      console.log("[socket] Connection established");
+      socket.send("$")
+    };
+
+    socket.onmessage = function (event) {
+      status.data = JSON.parse(event.data);
+      statusState({...status});
+      if (status.data[status.data.length - 1].data.epoch !== epoch) {
+        let logs = document.getElementById("logs");
+        logs.scrollTop = logs.scrollHeight;
+        epoch = status.data[status.data.length - 1].data.epoch;
+      }
+      if (status.data[status.data.length-1].data.ended){
+        socket.send("$exit");
+        istrainingState({state: false})
+      }else{
+        socket.send("$");
+      }
+    };
+
+    socket.onclose = function (event) {
+      if (event.wasClean) {
+        console.log(
+          `[socket] Connection closed cleanly, code=${event.code} reason=${event.reason}`
+        );
+      } else {
+        console.log("[socket] Connection died");
+      }
+    };
+
+    socket.onerror = function (error) {
+      console.log(`[socket] ${error.message}`);
+    };
+
+    return socket;
+  }
+
+  /**
+   * depricated
+   */
   async function getStatus() {
-    await GET({
+    await get({
       path: "/train/status",
     })
       .then((respomse) => respomse.json())
@@ -88,9 +132,9 @@ const Training = (
   }
 
   async function trainModel(e) {
-    if (train.training) {
+    if (istraining.state) {
       props.appFunctions.notify({
-        message: "Training Already Running",
+        message: "Training Session Already Running",
       });
     } else {
       istrainingState({state: true});
@@ -100,28 +144,29 @@ const Training = (
         ended: false,
         updating: false,
       });
+      istrainingState({
+        state: true
+      })
       props.appFunctions.notify({
         message: "Training Started !",
       });
-      await fetch("http://localhost/train/start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...graph }),
+      await post({
+        path:"/train/start",
+        data: {}
       })
         .then((response) => response.json())
         .then((data) => {
           props.appFunctions.notify({ message: data.message });
-          getStatus();
+          let socket = statusSocket();
         });
     }
   }
 
   async function haltModel(e) {
-    if (train.training) {
-      await fetch("http://localhost/train/halt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...halt }),
+    if (istraining.state) {
+      await post({
+        path: "/train/halt",
+        data: halt
       })
         .then((response) => response.json())
         .then((data) => {});
@@ -149,16 +194,16 @@ const Training = (
   }
 
   async function stopModel(e) {
-    if (train.training) {
-      await fetch("http://localhost/train/stop", {
-        method: "POST",
+    if (istraining.state) {
+      post({
+        path: "/train/stop",
+        data: {}
       })
         .then((response) => response.json())
         .then((data) => {
-          trainState({
-            training: false,
-            hist: data.logs,
-          });
+          istrainingState({
+            state: false
+          })
           props.appFunctions.notify({
             message: "Training has stopped !",
           });
@@ -216,7 +261,14 @@ const Training = (
           </div>
         </div>
         {graph.train_config ? (
-          <div className="params">
+          <div className="params" style={istraining.state ? {
+            pointerEvents: "none",
+            opacity: '0.6',
+            zoom: 1,
+            msFilter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)",
+            MozOpacity: 0.5,
+            KhtmlOpacity: 0.5
+          }: {}}>
             {graph.train_config.fit !== null ? (
               <div className="property">
                 <Menu

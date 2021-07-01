@@ -1,29 +1,24 @@
 import React from "react";
-import { icons } from "../data/icons";
 import { ReactComponent as Logo } from "../data/images/logo.svg";
 
-import "./utils.css";
-
-export const PORT = 80;
+export const PORT = 8000;
 export const HOST = "localhost";
 export const ROOT = `http://${HOST}:${PORT}`;
 
-export const POST = async function (options = { path: "/", data: {}, body: {} }) {
+export const post = async function (options = { path: "/", data: {}, body: {} }) {
   let { path, data } = options;
-  let response = await fetch(ROOT + path, {
+  return await fetch(ROOT + path, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
-  });
-  return response;
+  })
 };
 
-export const GET = async function (options = { path: "/" }) {
+export const get = async function (options = { path: "/" }) {
   let { path } = options;
-  let response = await fetch(ROOT + path);
-  return response;
+  return await fetch(ROOT + path);
 };
 
 export const push = async function (
@@ -31,20 +26,23 @@ export const push = async function (
     name: "var",
     data: null,
   }) {
-  return await POST({
+  return await post({
     path: `/workspace/active/${options.name}`,
     data: options.data,
-  }).then((response) => response.json())
+  }).then((response) => {
+    return response.json()
+  })
 };
 
 export const pull = async function (
   options = {
     name: "var",
-  }
-) {
-  return await GET({
+  }) {
+  return await get({
     path: `/workspace/active/${options.name}`
-  }).then((response) => response.json())
+  }).then((response) => {
+    return response.json()
+  })
 };
 
 export const Loading = (props) => {

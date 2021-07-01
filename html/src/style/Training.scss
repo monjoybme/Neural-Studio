@@ -55,7 +55,9 @@
 
   
   .title {
-    height: 30px;
+    height: 40px;
+    padding-top: 5px;
+
     @include flex(row,center,flex-start);
     @extend .heading-3;
   }
@@ -227,20 +229,26 @@
   padding: 5px;
   border-radius: 2px;
 
+  color: $darkBg;
   background: $lightBg;
   border: $lightBorder3;
   @extend .heading-4;
+
+  *{
+    color: $darkBg;
+  }
 }
 
 
 .dark {
   .logs {
+    background: rgba(228, 228, 228, 0.05);
     .title {
       color: $darkColorPr;
     }
     .log {
       color: $darkColorPr;
-      border: solid 1px rgba(255, 255, 255, 0.15);
+      // border: solid 1px rgba(255, 255, 255, 0.15);
       border-radius: 1px;
       .lower {
         border-top: solid 1px rgba(255, 255, 255, 0.15);
@@ -268,9 +276,17 @@
   .tuner {
     background: $darkFr;
     border-right: $darkBorder2;
+
+    .toolbar {
+      border-bottom: none;
+    }
+
+    .controls {
+      border-bottom: $darkBorder2;
+    }
   }
-  
   .monitor-container{
+    background: rgba(228, 228, 228, 0.05);
     border-left: $darkBorder2;
     .title{
       color: $darkColorPr;

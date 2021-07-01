@@ -1,8 +1,8 @@
 import React from 'react';
-import { metaLayerGroups, metaStore, metaStoreContext } from '../Meta';
+import { metaLayerGroups, metaAppData,  } from '../Meta';
 
 const LayerGroupCollapsed = (
-  props = { store: metaStore, storeContext: metaStoreContext }
+  props = { store: metaAppData  }
 ) => {
   return (
     <div className="layers" key={props.i}>
@@ -19,7 +19,7 @@ const LayerGroupCollapsed = (
 };
 
 const LayerGroupOpen = (
-  props = { store: metaStore, storeContext: metaStoreContext }
+  props = { store: metaAppData  }
 ) => {
 
   return (

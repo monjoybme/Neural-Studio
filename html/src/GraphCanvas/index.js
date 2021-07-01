@@ -8,8 +8,7 @@ import {
   metaAppFunctions,
   metaGraph,
   metaLayerGroups,
-  metaStore,
-  metaStoreContext,
+  metaAppData
 } from "../Meta";
 import { icons } from "../data/icons";
 import { POST, pull, push } from "../Utils";
@@ -79,8 +78,7 @@ const Tools = (props) => {
 
 const GraphEditor = (
   props = {
-    store: { ...metaStore },
-    storeContext: metaStoreContext,
+    store: { ...metaAppData },
     appFunctions: metaAppFunctions,
   }
 ) => {

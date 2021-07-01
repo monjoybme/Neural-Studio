@@ -1,15 +1,15 @@
 import React from "react";
-import { GET, Loading } from "../Utils";
-import { metaStore ,metaStoreContext } from "../Meta";
+import { get, Loading } from "../Utils";
+import { metaAppData  } from "../Meta";
 
-const SummaryViewer = (props = { store: metaStore, storeContext:metaStoreContext }) => {
+const SummaryViewer = (props = { store: metaAppData }) => {
   let [summary, summaryState] = React.useState({
     data: [],
     fetched: false,
   });
 
   async function getModel(e) {
-    await GET({
+    await get({
       path: "/model/summary",
     })
      .then((response) => response.json())

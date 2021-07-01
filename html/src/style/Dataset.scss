@@ -89,10 +89,10 @@
       }
 
       button {
-          @extend .heading-4;
-          cursor: pointer;
-          width: 80px;
-        }
+        @extend .heading-4;
+        cursor: pointer;
+        width: 80px;
+      }
     }
 
     .utils {
@@ -217,9 +217,9 @@
             border: 2px solid $darkFr;
 
             .check {
-                background: $darkFr;
-                height: 100%;
-                width: 100%;
+              background: $darkFr;
+              height: 100%;
+              width: 100%;
             }
           }
         }
@@ -227,30 +227,448 @@
     }
 
     .preprocessor {
+      background: $lightBg;
+      border: $lightBorder2;
+
+      margin-top: 10px;
+      width: 100%;
+      height: -webkit-fill-available;
+
+      .top {
+        border: none;
+        border-bottom: $lightBorder2;
+      }
+
+      .title {
+        height: 40px;
+        padding: 0px 10px;
+        border-bottom: $lightBorder2;
+
+        @include flex(row, flex-start, center);
+        @extend .heading-4;
+      }
+
+      section {
+        height: calc(90% - 40px) !important;
+      }
+    }
+  }
+
+  .imagedatasetfromdirectory {
+    height: 100%;
+    width: 100%;
+
+    .top {
+      width: 100%;
+      height: 40px;
+      padding: 10px;
+      background: $lightBg;
+      border: $lightBorder2;
+      border-radius: 2px;
+
+      @include flex(row, space-between, center);
+
+      .name {
+        @extend .heading-3;
+      }
+
+      button {
+        @extend .heading-4;
+        cursor: pointer;
+        width: 80px;
+      }
+    }
+
+    .utils {
+      width: 100%;
+      margin-top: 10px;
+      background: $lightBg;
+      border: $lightBorder2;
+      border-radius: 2px;
+
+      .pathinput {
+        padding: 10px;
+        height: 40px;
+        width: 100%;
+        display: flex;
+
+        input {
+          @extend .heading-4;
+          min-width: 94%;
+        }
+
+        button {
+          @extend .heading-4;
+          cursor: pointer;
+          min-width: 6%;
+        }
+      }
+    }
+
+    .arguments {
+      width: 100%;
+      margin-top: 10px;
+
+      display: grid;
+      grid-template-columns: 2fr 2fr 2fr;
+      grid-template-rows: 1fr;
+      grid-gap: 10px;
+
+      .folder-selector {
         background: $lightBg;
         border: $lightBorder2;
+        padding: 10px 10px 0px 10px;
 
-        margin-top: 10px;
-        width: 100%;
-        height: -webkit-fill-available;
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 30px 1fr 1fr 1fr;
+        grid-gap: 10px;
+
+        .head {
+          @extend .heading-3;
+          @include flex(row, flex-start, center);
+          padding-left: 10px;
+          border: $lightBorder2;
+          background: $lightFr;
+        }
+
+        .select {
+          display: flex;
+
+          @include width(100%, 100px, 100%);
+
+          .name {
+            width: 40%;
+            @extend .heading-4;
+                        @include flex(row, flex-start, center);
+          }
+
+          select {
+            @include width(60%, 60%, 60%);
+            border: $lightBorder2;
+            height: 30px
+          }
+        }
+      }
+
+      .params {
+        background: $lightBg;
+        border: $lightBorder2;
+        padding: 10px;
+
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 30px 3fr;
+        grid-gap: 10px;
+
+        .head { 
+          @extend .heading-3;
+          @include flex(row, flex-start, center);
+          padding-left: 10px;
+          border: $lightBorder2;
+          background: $lightFr;
+        }
+
+        .grid {
+          display: grid;
+          grid-template-columns: repeat( auto-fill , minMax( 180px, 1fr ) );
+          grid-gap: 10px;
+
+          .param {
+            display: flex;
+            flex-direction: column;
+            height: 45px;
+
+            .name {
+              @extend .heading-4;
+              height: 30px;
+            }
+            
+            input {
+              border: $darkBorder2;
+              height: 30px;
+              @extend .heading-4;
+            }
+
+            select {
+              border: $lightBorder2;
+              height: 30px;
+            }
+
+            button{
+              cursor: pointer;
+              height: 100%;
+            }
+          }
+        }
+      }
+
+    .info {
+        background: $lightBg;
+        border: $lightBorder2;
+        padding: 10px;
+
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 30px 3fr;
+        grid-gap: 10px;
+
+        .head { 
+          @extend .heading-3;
+          @include flex(row, flex-start, center);
+          padding-left: 10px;
+          border: $lightBorder2;
+          background: $lightFr;
+        }
+
+        .grid {
+          display: grid;
+          grid-template-columns: repeat( auto-fill , minMax( 180px, 1fr ) );
+          grid-gap: 10px;
+
+          .param {
+            display: flex;
+            flex-direction: column;
+            height: 45px;
+
+            .name {
+              @extend .heading-4;
+              height: 30px;
+            }
+            
+            input {
+              border: $darkBorder2;
+            }
+
+            select {
+              border: $lightBorder2;
+            }
+          }
+        }
+      }
+
+    }
+  }
+}
+
+.dark {
+  .dataset-container {
+    * {
+      color: $darkColorPr;
+    }
+    button {
+      background: $darkTr;
+      border: none;
+    }
+    background: $darkFr;
+    .selector {
+      .search {
+        background: $darkBg;
+        input {
+          background: $darkBg;
+        }
+      }
+
+      .datasets {
+        background: $darkBg;
+        .card {
+          background: $darkTr;
+        }
+      }
+    }
+
+    .datasetviewer {
+    }
+
+    .csvdataset {
+      .top {
+        background: $darkBg;
+        .name {
+          @extend .heading-3;
+        }
+      }
+
+      .utils {
+        background: $darkBg;
+
+        .pathinput {
+          background: $darkBg;
+          input {
+            background: $darkBg;
+          }
+
+          button {
+            @extend .heading-4;
+            cursor: pointer;
+            width: 5%;
+          }
+        }
+      }
+
+      .viewer {
+        background: $darkBg;
+
+        .columns {
+          border-bottom: $lightBorder3;
+          background: $darkTr;
+
+          .column {
+            border-right: $lightBorder3;
+          }
+        }
+
+        .rows {
+          width: 100%;
+          .row {
+            width: 100%;
+            .column {
+              border-right: $lightBorder3;
+            }
+          }
+        }
+      }
+
+      .preprocessor {
+        background: $darkBg;
+        border: $lightBorder2;
 
         .top {
-          border: none;
-          border-bottom: $lightBorder2;
         }
 
         .title {
-            height: 40px;
-            padding:0px 10px;
-            border-bottom: $lightBorder2;
+          height: 40px;
+          padding: 0px 10px;
+          border-bottom: $lightBorder2;
 
-            @include flex(row, flex-start, center);
+          @include flex(row, flex-start, center);
+          @extend .heading-4;
+        }
+
+        .margin-view-overlays {
+          background: $darkBg !important;
+        }
+        .scroll-decoration {
+          visibility: hidden;
+        }
+      }
+    }
+  }
+
+  
+  .imagedatasetfromdirectory {
+    .top {
+      background: $darkBg;
+      .name {
+        @extend .heading-3;
+      }
+      button {
+        @extend .heading-4;
+        cursor: pointer;
+        width: 80px;
+      }
+    }
+
+    .utils {
+      background: $darkBg;
+      .pathinput {
+        input {
+          @extend .heading-4;
+          min-width: 94%;
+          background: $darkBg;
+        }
+
+        button {
+          @extend .heading-4;
+          cursor: pointer;
+          min-width: 6%;
+        }
+      }
+    }
+
+    .arguments {
+
+      .folder-selector {
+        background: $darkBg;
+        .head {
+          background: $darkFr;
+          border-radius: 1px;
+        }
+
+        .select {
+          display: flex;
+          @include width(100%, 100px, 100%);
+          .name {
+            width: 40%;
             @extend .heading-4;
+            @include flex(row, flex-start, center);
+          }
+
+          select {
+            background: $darkFr;
+            padding-left: 5px;
+            border-radius: 1px;
+          }
+        }
+      }
+
+      .params {
+        background: $darkBg;
+        .head { 
+          @extend .heading-3;
+          @include flex(row, flex-start, center);
+          background: $darkFr;
+          border-radius: 1px;
         }
 
-        section {
-            height: calc(90% - 40px) !important;
+        .grid {
+          .param {
+            .name {
+              @extend .heading-4;
+              height: 30px;
+            }
+            
+            input {
+              background: $darkFr;
+            }
+
+            select {
+              background: $darkFr;
+            }
+
+            button{
+              height: 100%;
+            }
+          }
         }
+      }
+
+    .info {
+        background: $darkBg;
+        .head { 
+          background: $darkFr;
+        }
+
+        .grid {
+          .param {
+            .name {
+            }
+            
+            input {
+              border: $darkBorder2;
+            }
+
+            select {
+              border: $lightBorder2;
+            }
+
+            button {
+              height: 30px;
+              margin-top: 20px !important;
+            }
+          }
+        }
+      }
+
     }
   }
 }

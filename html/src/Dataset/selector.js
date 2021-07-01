@@ -1,34 +1,68 @@
 import React from 'react';
 
-import { metaAppFunctions, metaStore } from "../Meta";
+import { metaAppFunctions, metaAppData } from "../Meta";
 import { icons } from "../data/icons";
 
 const metaDatasets = [
   {
     name: "CSV Dataset",
-    meta:{
+    meta: {
       type: "csv",
-      config:{
+      config: {
         path: undefined,
-        view:{
-            index:{
-                start: 0,
-                end: 10,
-            },
-            sample:{
-                columns:[],
-                values:[]         
-            }
-        }
+        view: {
+          index: {
+            start: 0,
+            end: 10,
+          },
+          sample: {
+            columns: [],
+            values: [],
+          },
+        },
       },
-      preprocessor:"#preprocessorcode"
-    }
+      preprocessor: "#preprocessorcode",
+    },
+  },
+  {
+    name: "Image Dataset From Directory",
+    meta: {
+      type: "imagedatasetfromdirectory",
+      config: {
+        path: undefined,
+        view: {
+          folders: ["None"],
+          sample: {
+            images: [],
+          },
+          info: {
+            n_train: 0,
+            n_test: 0,
+            n_val: 0,
+            n_classes: 0
+          },
+        },
+        params: {
+          folders: {
+            train: "None",
+            test: "None",
+            val: "None",
+          },
+          image :{
+            size:"",
+            resize: "False",
+            show_progress: "True"
+          }
+        },
+      },
+      preprocessor: "#preprocessorcode",
+    },
   },
 ];
 
 const DatasetCard = (
   props = {
-    store: metaStore,
+    store: metaAppData,
     appFunctions: metaAppFunctions,
     data: { name: "Hello" },
     datasetState: function () {},
@@ -43,7 +77,7 @@ const DatasetCard = (
 
 const Selector = (
   props = {
-    store: metaStore,
+    store: metaAppData,
     appFunctions: metaAppFunctions,
     datasetState: function () {},
   }

@@ -1,11 +1,12 @@
 from os import path as pathlib, mkdir, chdir, listdir
-from json import dump, load
+from json import dump, load, loads
 from typing import  Set
 from shutil import rmtree
 
 from .structs import DataDict
 from .graph import GraphDef
 from .dataset import DATASETS, Dataset
+from .logging import Logger
 
 APP = DataDict({
     "theme": "light",
@@ -77,20 +78,20 @@ TRAIN = DataDict({
 })
 
 class Cache(object):
+    recent = [None for _ in range(10)]
     def __init__(self, root: str):
-        self.__dict__.update(dict(
-            recent=[None for _ in range(10)],
-        ))
-
         self.__cache_file__ = pathlib.join(root, "cache.json")
+        
         if not pathlib.isfile(self.__cache_file__):
             with open(self.__cache_file__, "w+") as file:
-                dump(self.__dict__, file)
+                dump(self.recent, file)
+
+        with open(self.__cache_file__,"r") as cache:
+            self.recent = load(cache)
 
     def __write__(self,):
         with open(self.__cache_file__, "w+") as file:
-            dump(dict([(key, val) for key, val in self.__dict__.items()
-                       if not key.startswith("__")]), file)
+            dump( self.recent, file)
 
     def __getitem__(self, key):
         return self.__dict__[key]
@@ -195,6 +196,8 @@ class WorkspaceManager(DataDict):
 
         self.cache = Cache(self.root)
         self.active = False
+        self.logger = Logger("manager")
+        self.logger.success(f"Workspace initialized @ {self.root}")
 
         for w in listdir(pathlib.join(self.root, "workspace")):
             w_path = pathlib.join(self.root, "workspace", w)
@@ -207,6 +210,7 @@ class WorkspaceManager(DataDict):
             self.active = Workspace(pathlib.join(
                 self.root, "workspace", "model"))
             self.workspaces.add(self.active.idx)
+            print (self.active.idx)
             self.cache >> self.active.idx
 
     def __repr__(self,):
@@ -217,12 +221,11 @@ class WorkspaceManager(DataDict):
             yield w    
 
     def new_workspace(self, name: str) -> Workspace:
-        workspace = Workspace(
-            path=pathlib.join(self.root, "workspace", name)
-        )
+        workspace = Workspace(path=pathlib.join(self.root, "workspace", name))
         self.workspaces.add(workspace.idx)
         self.cache >> workspace.idx
         self.active = workspace
+        self.logger.success(f"create '{name}'")
         return workspace
 
     def open_workspace(self, name: str) -> Workspace:
@@ -235,8 +238,10 @@ class WorkspaceManager(DataDict):
                 break
         if workspace:
             self.active = workspace
+            print (workspace.idx)
             self.cache >> workspace.idx
             return workspace
+        self.logger.log(f"open '{name}'")
         return workspace
 
     def delete_workspace(self, name: str) -> None:

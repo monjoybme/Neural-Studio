@@ -2,21 +2,20 @@ import React from "react";
 import {
   metaAppFunctions,
   metaHome,
-  metaStore,
-  metaStoreContext,
+  metaAppData,
 } from "../Meta/index";
 import { icons } from "../data/icons";
-import { GET, Loading, POST, pull, push } from "../Utils";
+import { get, Loading, post, pull, push } from "../Utils";
 
 const WorkspaceCard = (
-  props = { name: "Hello", store: metaStore, storeContext: metaStoreContext }
+  props = { name: "Hello", appData: metaAppData  }
 ) => {
   function loadMenu(e) {
-    props.store.popupState(
+    props.appData.popupState(
       <div
         className="workspace-card-context"
         style={{ top: e.clientY - 5, left: e.clientX - 5, cursor: "default" }}
-        onMouseLeave={(e) => props.store.popupState(<div></div>)}
+        onMouseLeave={(e) => props.appData.popupState(<div></div>)}
       >
         <div
           className="btn"
@@ -51,7 +50,7 @@ const WorkspaceCard = (
   );
 };
 
-const New = (props = { store: metaStore, storeContext: metaStoreContext }) => {
+const New = (props = { appData: metaAppData  }) => {
   let { newworkspace, newworkspaceState } = props;
   function handleKey(e) {
     switch (e.key) {
@@ -89,7 +88,7 @@ const New = (props = { store: metaStore, storeContext: metaStoreContext }) => {
 };
 
 const NewCard = (
-  props = { store: metaStore, storeContext: metaStoreContext }
+  props = { appData: metaAppData  }
 ) => {
   let [newworkspace, newworkspaceState] = React.useState({
     active: false,
@@ -117,8 +116,7 @@ const NewCard = (
 
 const DownloadModel = (
   props = {
-    store: metaStore,
-    storeContext: metaStoreContext,
+    appData: metaAppData, 
     appFunctions: metaAppFunctions,
   }
 ) => {
@@ -127,7 +125,7 @@ const DownloadModel = (
   ) {
     let { format, download } = options;
     renderState(<Loading />);
-    POST({
+    post({
       path: "download",
       data: {
         format: format,
@@ -140,7 +138,7 @@ const DownloadModel = (
             <div className="option output">
               <a
                 href={`http://localhost/download/${download}`}
-                onClick={(e) => props.store.popupState(<div></div>)}
+                onClick={(e) => props.appData.popupState(<div></div>)}
                 download={download}
               >
                 {" "}
@@ -202,19 +200,18 @@ const DownloadModel = (
 
 const Home = (
   props = {
-    store: metaStore,
-    storeContext: metaStoreContext,
+    appData: metaAppData,
     appFunctions: metaAppFunctions,
   }
 ) => {
-  let { popupState } = props.store;
+  let { popupState } = props.appData;
   let [home, homeState] = React.useState(metaHome);
 
   async function pullHome() {
    pull({
      name: "home",
    }).then(async (homeData) => {
-     await GET({
+     await get({
        path: "/workspace/all",
      })
        .then((response) => response.json())
@@ -226,7 +223,7 @@ const Home = (
 
   async function newWorkspace(name) {
     popupState(undefined);
-    await POST({
+    await post({
       path: "/workspace/new",
       data: {
         name: name,
@@ -242,7 +239,7 @@ const Home = (
 
   async function openWorkspace(options = { name: "workspace" }) {
     popupState(undefined);
-    await POST({
+    await post({
       path: `/workspace/open/${options.name}`,
       data: {},
     })
@@ -259,7 +256,7 @@ const Home = (
         message: "Cannot delete active workspace.",
       });
     } else {
-      await POST({
+      await post({
         path: `/workspace/delete/${encodeURIComponent(options.name)}`,
         data: {},
       })
@@ -306,19 +303,21 @@ const Home = (
         </div>
       </div>
       <div className="name">Your Work</div>
-      <div className="cards">
-        <NewCard newWorkspace={newWorkspace} />
-        {home.your_work.map((work, i) => {
-          return (
-            <WorkspaceCard
-              {...props}
-              {...work}
-              openWorkspace={openWorkspace}
-              deleteWorkspace={deleteWorkspace}
-              key={i}
-            />
-          );
-        })}
+      <div className="card-grid">
+        <div className="cards">
+          <NewCard newWorkspace={newWorkspace} />
+          {home.your_work.map((work, i) => {
+            return (
+              <WorkspaceCard
+                {...props}
+                {...work}
+                openWorkspace={openWorkspace}
+                deleteWorkspace={deleteWorkspace}
+                key={i}
+              />
+            );
+          })}
+        </div>
       </div>
     </div>
   );
