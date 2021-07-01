@@ -4,7 +4,7 @@ import Selector from './selector';
 import datasetList from './datasets';
 
 import { metaAppFunctions, metaAppData } from "../Meta";
-import { GET, POST, pull, push } from "../Utils";
+import {  pull, push, Logger } from "../Utils";
 
 
 const Dataset = (
@@ -14,6 +14,7 @@ const Dataset = (
     name: undefined,
     fetch: true
   });
+  let logger = new Logger("dataset");
 
   function deleteDataset(){
     datasetState({
@@ -24,6 +25,7 @@ const Dataset = (
 
   React.useEffect(()=>{
     if(dataset.fetch){
+      logger.log("pulling active dataset from active workspace")
       pull({
         name: "dataset",
       }).then((datasetData) => {

@@ -144,9 +144,9 @@ export const  metaGraph = {
   nodes:{
 
   },
-  custom_nodes : [
+  custom_nodes : {
     
-  ],
+  },
   fetch: true
 };
 

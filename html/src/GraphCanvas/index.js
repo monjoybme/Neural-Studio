@@ -78,7 +78,7 @@ const Tools = (props) => {
 
 const GraphEditor = (
   props = {
-    store: { ...metaAppData },
+    appData: { ...metaAppData },
     appFunctions: metaAppFunctions,
   }
 ) => {
@@ -197,6 +197,11 @@ const GraphEditor = (
           graph.train_config.dataset = node;
           graph.nodes[id] = node;
           break;
+        case "custom_def":
+          graph.custom_nodes[id] = {
+            definition: node,
+            node : undefined
+          }
         default:
           graph.nodes[id] = node;
           break;
@@ -459,7 +464,7 @@ const GraphEditor = (
         canvastopRef.current.onmousemove = undefined;
 
         // layergroups.custom_nodes.layers = [];
-        graphState({ ...metaGraph });
+        graphState({ ...metaGraph, fetch: false});
         // layergroupsState({ ...layergroups });
         break;
       case "layer":
@@ -498,7 +503,13 @@ const GraphEditor = (
         let _graph = response.graph;
         delete response.graph;
         window.canvas = response;
-        graphState({..._graph, fetch: false})
+
+        Object.keys(_graph.custom_nodes).map((definition)=>{
+          layergroups.custom_nodes.layers.push(_graph.custom_nodes[definition].node);
+        })
+        
+        layergroupsState({...layergroups})
+        graphState({..._graph, fetch: false});
       })
     }else{
       console.log("[PUSH] Canvas");
@@ -548,6 +559,8 @@ const GraphEditor = (
                 graph={graph}
                 graphState={graphState}
                 tools={tools}
+                layergroups={layergroups}
+                layergroupsState={layergroupsState}
                 key={i}
                 {...props}
               />

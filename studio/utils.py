@@ -10,8 +10,8 @@ class Workspace:
 class Trainer:
     pass
 
-def generate_args(code) -> dict:
-    exec(code)
+def generate_args(code: str) -> dict:
+    exec(code,)
     ret = locals()
     ret.pop("code")
     return ret

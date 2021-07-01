@@ -609,20 +609,6 @@ class App(object):
             )
         return -1
 
-    async def __call__(self, scope, receive, send):
-        print (scope)
-        await send({
-            'type': 'http.response.start',
-            'status': 200,
-            'headers': [
-                [b'content-type', b'text/plain'],
-            ],
-        })
-        await send({
-            'type': 'http.response.body',
-            'body': b'Hello, world!',
-        })
-
     def serve(self, host: str = 'localhost', port: int = 8080) -> None:
         """
         Creates a asynchronus server and serves it until interruption.

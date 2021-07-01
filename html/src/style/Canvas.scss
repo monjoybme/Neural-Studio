@@ -290,11 +290,12 @@ $toolbarWidth : 280px;
     }
 
     .canvas-top{
+        background: rgb(243, 243, 243);
         .canvas{
             rect {
-                stroke: rgb(179, 179, 179);
-                stroke-width: 2px;
-                fill: rgb(250, 250, 250);
+                stroke: rgb(170, 170, 170);
+                stroke-width: 0.02rem;
+                fill: #fff;
             }
             text {
                 fill: rgb(95, 95, 95);
@@ -383,8 +384,6 @@ $toolbarWidth : 280px;
         background: rgba(228, 228, 228, 0.05);
         .canvas{
             rect {
-                stroke: rgba( 150, 150, 150 ,1 );
-                stroke-width: 2px;
                 fill: $darkBtnPr;
             }
             text {

@@ -3536,8 +3536,12 @@ const layers = {
   applications: applications,
   optimizers: optimizers,
   callbaacks: callbaacks,
-  custom: {
-    name: "Custom",
+  custom_nodes: {
+    name: "Custom Nodes",
+    layers: []
+  },
+  custom_def: {
+    name: "Custom Node Definitions",
     layers: [
       {
         name: "CustomNodeFunction",
@@ -3562,6 +3566,7 @@ const layers = {
       },
     ],
   },
+
 };
 
 export default layers;

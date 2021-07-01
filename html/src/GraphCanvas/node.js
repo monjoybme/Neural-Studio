@@ -23,7 +23,7 @@ const Node = (
   props = {
     node:propMeta,
     menu: undefined,
-    menuState: function (_ = { comp: undefined, render: false }) {},
+    menuState: function () {},
     graph: {},
     graphState: function(){},
     appFunctions: metaAppFunctions,
@@ -123,7 +123,7 @@ const Node = (
     switch (window.canvas.mode) {
       case "normal":
         props.menuState({
-          comp: <Menu {...props.node} graph={ graph } graphState={ graphState } />,
+          comp: <Menu {...props.node} graph={ graph } graphState={ graphState } {...props} />,
           render: true,
         });
         break;
@@ -144,13 +144,11 @@ const Node = (
     }
   }
 
-  return ( 
+  return (
     <g x={pos.x} y={pos.y} ref={nodeRef} onMouseEnter={onMouseOver}>
       <rect
         x={pos.x}
         y={pos.y}
-        rx={15}
-        ry={15}
         height={height}
         width={width}
         onMouseDown={onMouseDown}
@@ -189,6 +187,18 @@ const Node = (
         }
         return undefined;
       })}
+      <line
+        x1={pos.x}
+        y1={pos.y}
+        x2={pos.x}
+        y2={pos.y + 30}
+
+
+        style={{
+          stroke:"green",
+          strokeWidth: "3"
+        }}
+      />
     </g>
   );
 };
