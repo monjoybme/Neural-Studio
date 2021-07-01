@@ -145,7 +145,7 @@ const CSVDataset = (
             list={"paths"}
             defaultValue={dataset.meta.config.path}
           />
-          <button onClick={addDataset}>save</button>
+          <button onClick={addDataset}>read</button>
         </div>
       </div>
       <div className="viewer">
