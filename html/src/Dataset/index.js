@@ -4,7 +4,7 @@ import Selector from './selector';
 import datasetList from './datasets';
 
 import { metaAppFunctions, metaAppData } from "../Meta";
-import { GET, POST, pull, push } from "../Utils";
+import { pull, push } from "../Utils";
 
 
 const Dataset = (
