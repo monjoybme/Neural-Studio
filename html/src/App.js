@@ -41,10 +41,21 @@ const NotificationPop = (props = { appData: metaAppData }) => {
  * @returns
  */
 const StatusBar = (props = { appData: metaAppData }) => {
+  let [time, timeState] = React.useState('time');
+  function setTime(){
+    let d = new Date();
+    timeState(d.toTimeString());
+
+    setTimeout(setTime, 1000);
+  }
+  React.useState(function(){
+    setTime()
+  }, [])
   return (
     <div className="statusbar">
-      {props.appData.statusbar.toLowerCase()} | workspace :{" "}
-      {props.appData.app.name}
+      {props.appData.statusbar.toLowerCase()} {" "}
+      | workspace : {props.appData.app.name} {" "}
+      | {time}
     </div>
   );
 };
@@ -224,8 +235,7 @@ const App = (props) => {
               break;
             case "Escape":
               popupState(<div className="popup"></div>);
-              console.log(render.name);
-              if (render.name === "Graph") {
+              if (render.name === "Graph" || render.name === "Dataset") {
                 window.setToolMode({ name: "normal" });
               }
               break;

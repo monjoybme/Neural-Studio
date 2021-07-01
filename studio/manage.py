@@ -10,6 +10,7 @@ from .logging import Logger
 
 APP = DataDict({
     "theme": "light",
+    "name":"model",
     "global": {
         "topbar": {
             "height": 60,
@@ -138,6 +139,7 @@ class Workspace(DataDict):
             for var, val in self.__required__vars__:
                 file = pathlib.join(self.__path__, f"{var}.json")
                 if var == 'home': val[['active:name']] = self.__name__
+                if var == 'app' : val['name'] = self.__name__
                 with open(file, "w+") as file:
                     dump(val.to_dict(), file)
 

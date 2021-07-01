@@ -1,26 +1,5 @@
 import React from "react";
-
 import Node from "./node";
-import Toolbar from "./toolbar";
-import LayerGroups from "./layergroups";
-
-import {
-  metaAppFunctions,
-  metaGraph,
-  metaLayerGroups,
-  metaAppData
-} from "../Meta";
-import { icons } from "../data/icons";
-import { POST, pull, push } from "../Utils";
-
-let cursors = {
-  edge: "crosshair",
-  delete: "no-drop",
-  normal: "default",
-  layer: "cell",
-  move: "move",
-  clean: "default",
-};
 
 const TriangleMarker = (props) => {
   return (
@@ -83,34 +62,11 @@ const GraphEditor = (
   }
 ) => {
   let [graph, graphState] = React.useState(metaGraph);
-  let [layergroups, layergroupsState] = React.useState(metaLayerGroups);
   let [menu, menuState] = React.useState({ comp: <div />, render: false });
-  let [toolbarButtons, toolbarButtonsState] = React.useState([
-    {
-      name: "edge",
-      icon: icons.ArrowRight,
-      selected: false,
-    },
-    {
-      name: "move",
-      icon: icons.Pan,
-      selected: false,
-    },
-    {
-      name: "delete",
-      icon: icons.Delete,
-      selected: false,
-    },
-    {
-      name: "clean",
-      icon: icons.DeleteAll,
-      selected: false,
-    },
-  ]);
 
-  let refCanvas = React.useRef();
-  let refCanvasTop = React.useRef();
-  let refDummyLine = React.useRef();
+  let canvasRef = React.useRef();
+  let canvastopRef = React.useRef();
+  let dummyLineRef = React.useRef();
 
   function newLine(e) {
     e.preventDefault();
@@ -269,10 +225,10 @@ const GraphEditor = (
       if (window.canvas.panLast) {
         window.canvas.viewBox.x -= e.clientX - window.canvas.panLast.x;
         window.canvas.viewBox.y -= e.clientY - window.canvas.panLast.y;
-        refCanvas.current.viewBox.baseVal.x = window.canvas.viewBox.x;
-        refCanvas.current.viewBox.baseVal.y = window.canvas.viewBox.y;
-        refCanvas.current.viewBox.baseVal.width = window.canvas.viewBox.w;
-        refCanvas.current.viewBox.baseVal.height = window.canvas.viewBox.h;
+        canvasRef.current.viewBox.baseVal.x = window.canvas.viewBox.x;
+        canvasRef.current.viewBox.baseVal.y = window.canvas.viewBox.y;
+        canvasRef.current.viewBox.baseVal.width = window.canvas.viewBox.w;
+        canvasRef.current.viewBox.baseVal.height = window.canvas.viewBox.h;
         window.canvas.panLast = {
           x: e.clientX,
           y: e.clientY,
@@ -312,10 +268,13 @@ const GraphEditor = (
             layergroups.custom_nodes.layers.filter((node, i) => {
               return activeElement.name !== node.name;
             });
+          window.canvas.customNodes.definitions =
+            window.canvas.customNodes.definitions.filter((node, i) => {
+              return activeElement.name !== node.name;
+            });
           layergroupsState({
             ...layergroups,
           });
-          delete graph.custom_nodes[activeElement.id];
           removeNode(activeElement);
           break;
         case "optimizers":
@@ -378,11 +337,11 @@ const GraphEditor = (
     window.canvas.pan = false;
     window.canvas.panLast = undefined;
 
-    refDummyLine.current.style.strokeWidth = 0;
-    refDummyLine.current.x1.baseVal.value = 0;
-    refDummyLine.current.y1.baseVal.value = 0;
-    refDummyLine.current.x2.baseVal.value = 1;
-    refDummyLine.current.y2.baseVal.value = 1;
+    dummyLineRef.current.style.strokeWidth = 0;
+    dummyLineRef.current.x1.baseVal.value = 0;
+    dummyLineRef.current.y1.baseVal.value = 0;
+    dummyLineRef.current.x2.baseVal.value = 1;
+    dummyLineRef.current.y2.baseVal.value = 1;
 
     if (menu.render) {
       menuState({
@@ -396,20 +355,20 @@ const GraphEditor = (
     window.canvas.viewBox = {
       x: window.canvas.viewBox.x,
       y: window.canvas.viewBox.y,
-      w: refCanvasTop.current.scrollWidth,
-      h: refCanvasTop.current.scrollHeight,
+      w: canvastopRef.current.scrollWidth,
+      h: canvastopRef.current.scrollHeight,
     };
-    refCanvas.current.viewBox.baseVal.x = window.canvas.viewBox.x;
-    refCanvas.current.viewBox.baseVal.y = window.canvas.viewBox.y;
-    refCanvas.current.viewBox.baseVal.width = window.canvas.viewBox.w;
-    refCanvas.current.viewBox.baseVal.height = window.canvas.viewBox.h;
+    canvasRef.current.viewBox.baseVal.x = window.canvas.viewBox.x;
+    canvasRef.current.viewBox.baseVal.y = window.canvas.viewBox.y;
+    canvasRef.current.viewBox.baseVal.width = window.canvas.viewBox.w;
+    canvasRef.current.viewBox.baseVal.height = window.canvas.viewBox.h;
   }
 
   function updateViewBoxService() {
-    if (refCanvasTop.current) {
+    if (canvastopRef.current) {
       if (
-        refCanvasTop.current.scrollHeight !== window.canvas.viewBox.h ||
-        refCanvasTop.current.scrollWidth !== window.canvas.viewBox.w
+        canvastopRef.current.scrollHeight !== window.canvas.viewBox.h ||
+        canvastopRef.current.scrollWidth !== window.canvas.viewBox.w
       ) {
         updateViewBox();
       }
@@ -419,153 +378,37 @@ const GraphEditor = (
     }
   }
 
-  function setToolMode(options = { name: "Mode", layer: { name: "Layer" } }) {
-    console.log(`Setting ${options.name} mode`);
-    window.canvas.mode = options.name;
-    document.getElementById("refCanvasTop").style.cursor =
-      cursors[options.name];
-    switch (options.name) {
-      case "normal":
-        refCanvas.current.onmousedown = undefined;
-        refCanvas.current.onmousemove = undefined;
-        refCanvas.current.onmouseup = onMouseUp;
-        refCanvasTop.current.onmousedown = normalMouseDown;
-        refCanvasTop.current.onmousemove = moveCanvas;
-        break;
-      case "edge":
-        refCanvas.current.onmousedown = newLine;
-        refCanvas.current.onmousemove = moveEdge;
-        refCanvas.current.onmouseup = onMouseUp;
-        refCanvasTop.current.onmousedown = undefined;
-        refCanvasTop.current.onmousemove = undefined;
-        break;
-      case "move":
-        refCanvas.current.onmousedown = undefined;
-        refCanvas.current.onmousemove = moveNode;
-        refCanvas.current.onmouseup = onMouseUp;
-        refCanvasTop.current.onmousedown = undefined;
-        refCanvasTop.current.onmousemove = undefined;
-        break;
-      case "delete":
-        refCanvas.current.onmousedown = undefined;
-        refCanvas.current.onmousemove = undefined;
-        refCanvas.current.onmouseup = deleteNode;
-        refCanvasTop.current.onmousedown = undefined;
-        refCanvasTop.current.onmousemove = undefined;
-        break;
-      case "clean":
-        refCanvas.current.onmousedown = undefined;
-        refCanvas.current.onmousemove = undefined;
-        refCanvas.current.onmouseup = onMouseUp;
-        refCanvasTop.current.onmousedown = undefined;
-        refCanvasTop.current.onmousemove = undefined;
-
-        // layergroups.custom_nodes.layers = [];
-        graphState({ ...metaGraph, fetch: false});
-        // layergroupsState({ ...layergroups });
-        break;
-      case "layer":
-        window.canvas.activeLayer = { ...options.layer };
-        refCanvas.current.onmousedown = newLayer;
-        refCanvas.current.onmousemove = undefined;
-        break;
-      default:
-        break;
-    }
-    toolbarButtons = toolbarButtons.map((button) => {
-      button.selected =
-        button.name === options.name && options.name !== "clean";
-      return button;
-    });
-    toolbarButtonsState([...toolbarButtons]);
-  }
-
-  let tools = {
-    addEdge: addEdge,
-  };
-  
-
-  React.useEffect(()=>{
-    updateViewBox();
-    updateViewBoxService();
-    window.setToolMode = setToolMode;
-    setToolMode({ name: "normal" });
-  }, [])
-
-  React.useEffect(()=>{
-    if ( graph.fetch ){
-      pull({
-        name: "canvas"
-      }).then(response=>{
-        let graphdata = response.graph;
-        delete response.graph;
-        window.canvas = response;
-        Object.keys(graphdata.custom_nodes).map((definition)=>{
-          if (graphdata.custom_nodes[definition].node){
-            layergroups.custom_nodes.layers.push(
-              graphdata.custom_nodes[definition].node
-            );
-          }
-        })
-        layergroupsState({...layergroups})
-        graphState({...graphdata, fetch: false});
-      })
-    }else{
-      push({
-        name:"canvas",
-        data:{
-          ...window.canvas,
-          graph: {...graph}
-        }
-      })
-    }
-  }, [graph])
 
   return (
-    <div className="container graph-canvas">
-      {menu.comp}
-      <Tools>
-        <Toolbar
-          toolbarButtons={toolbarButtons}
-          toolbarButtonsState={toolbarButtonsState}
-          setToolMode={setToolMode}
-        />
-        <LayerGroups
-          layergroups={layergroups}
-          layergroupsState={layergroupsState}
-          setToolMode={setToolMode}
-        />
-      </Tools>
-      <div className="canvas-top" id="refCanvasTop" ref={refCanvasTop}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 0 0"
-          className="canvas"
-          id="canvas"
-          onMouseUp={onMouseUp}
-          ref={refCanvas}
-        >
-          <TriangleMarker />
-          <CircleMarker />
-          <DefaultLine lineref={refDummyLine} />
-          {Object.keys(graph.nodes).map((layer, i) => {
-            return (
-              <Node
-                node={graph.nodes[layer]}
-                menu={menu}
-                menuState={menuState}
-                graph={graph}
-                graphState={graphState}
-                tools={tools}
-                layergroups={layergroups}
-                layergroupsState={layergroupsState}
-                key={i}
-                {...props}
-              />
-            );
-          })}
-        </svg>
-      </div>
+    <div className="canvas-top" id="canvastopRef" ref={canvastopRef}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 0 0"
+        className="canvas"
+        id="canvas"
+        onMouseUp={onMouseUp}
+        ref={canvasRef}
+      >
+        <TriangleMarker />
+        <CircleMarker />
+        <DefaultLine lineref={dummyLineRef} />
+        {Object.keys(graph.nodes).map((layer, i) => {
+          return (
+            <Node
+              node={graph.nodes[layer]}
+              menu={menu}
+              menuState={menuState}
+              graph={graph}
+              graphState={graphState}
+              tools={tools}
+              layergroups={layergroups}
+              layergroupsState={layergroupsState}
+              key={i}
+              {...props}
+            />
+          );
+        })}
+      </svg>
     </div>
   );
 };

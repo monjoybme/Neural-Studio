@@ -381,7 +381,7 @@ $toolbarWidth : 280px;
     }
     
     .canvas-top{
-        background: rgba(228, 228, 228, 0.05);
+        background: $darkTr;
         .canvas{
             rect {
                 fill: $darkBtnPr;
@@ -433,7 +433,7 @@ $toolbarWidth : 280px;
         color: $darkColorPr;
         background: $darkBg;
         .head{
-            background: $darkBg;
+            background: $darkTr;
         }
         input{
             color: $darkColorPr;
