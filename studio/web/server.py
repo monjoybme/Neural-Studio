@@ -10,14 +10,14 @@ from typing import Any, Tuple, Union, Callable
 
 from .headers import *
 from .utils import *
-from .types import FuncTypeDef, type_abc
+from .types import ViewTypeDef, type_abc, type_error
 
 ROOT_FOLDER = os.path.abspath("./")
 STATIC_FOLDER = os.path.abspath("./static")
 
 
 def print_start(host: str, port: int, size: int = 32) -> None:
-    os.system("cls|clear")
+    # os.system("cls|clear")
     print(
         f"""╔{'═'*(size)}╗
 ║ PyRex Running{' '*(size-14)}║
@@ -55,10 +55,8 @@ def cors(origin: str) -> bytes:
     )
     return header.encode()
 
-
 async def not_found_error(request,  **kwargs) -> bytes:
-    return await json_response({"message": f"path {request.headers.path} not found!"})
-
+    return await json_response({"message": f"path {request.headers.path} not found!"}, code=404)
 
 async def not_allowed_error(request,  **kwargs) -> bytes:
     return await method_not_allowed(message=f"method {request.headers.method} not allowed for {request.headers.path}")
@@ -109,7 +107,7 @@ class Route:
     def __init__(self,
                  view_func: callable,
                  url_var: dict,
-                 func_def: FuncTypeDef
+                 func_def: ViewTypeDef
                  ) -> None:
         """Route implements interface for storing route information.
 
@@ -118,7 +116,7 @@ class Route:
         :param view_func: callable, view function for the route
         :param url_var: dict, a dictionary containing meta data for inurl 
                         variables
-        :param func_def: FuncTypeDef, a interface containing view function 
+        :param func_def: ViewTypeDef, a interface containing view function 
                          metadata.
         :param methods: list, 
                         list of methods allowed for view function.
@@ -131,9 +129,11 @@ class Route:
 class RouteCollection:
     path: re.Pattern
     methods: dict
+    priority_index: int
 
-    def __init__(self, path: re.Pattern):
+    def __init__(self, path: re.Pattern, priority_index: int):
         self.path = path
+        self.priority_index = priority_index
         self.methods = {
             "GET": False,
             "POST": False,
@@ -145,7 +145,7 @@ class RouteCollection:
     def __getitem__(self, method: str) -> Route:
         return self.methods[method]
 
-    def __setitem__(self, method: str, view: callable):
+    def __setitem__(self, method: str, view: callable, priority_index: int = 0):
         self.methods[method] = view
 
     def __iter__(self, ) -> Tuple[str, Union[Route, bool]]:
@@ -168,18 +168,18 @@ class Router:
     _routes = {}
 
     def __init__(self,):
-        self.url_re = re.compile(r"<\w+:\w+>")
-        self.var_re = re.compile(r"\w+")
-        self.path_re = re.compile(r'/([a-zA-Z0-9?=_+\-\.]+)+|(<\w+:\w+>)')
+        self._url_re = re.compile(r"<\w+:\w+>")
+        self._var_re = re.compile(r"\w+")
+        self._path_re = re.compile(r'/([a-zA-Z0-9?=_+\-\.]+)+|(<\w+:\w+>)')
 
-        self.dtype_re = {
+        self._dtype_re = {
             'str': '[a-zA-Z0-9_\-\.]+',
             'int': '\d+',
             'bool': '[a-zA-Z01]+',
             'path': '[a-zA-Z\/]+'
         }
 
-        self.dtype_obj = {
+        self._dtype_obj = {
             'str': str,
             'int': int,
             'bool': eval,
@@ -217,20 +217,20 @@ class Router:
         self._routes.append(val)
         return self
 
-    def get_dtype(self, path, var):
-        if self.url_re.match(var):
-            dtype, var = self.var_re.findall(var)
-            return self.dtype_re[dtype], (var, self.dtype_obj[dtype], dtype)
+    def _get_dtype(self, path, var):
+        if self._url_re.match(var):
+            dtype, var = self._var_re.findall(var)
+            return self._dtype_re[dtype], (var, self._dtype_obj[dtype], dtype)
         return path, (None, None, None)
 
-    def get_queries(self, query: list) -> dict:
+    def _get_queries(self, query: list) -> dict:
         """
-        get_queries function takes query string and return a dictionary of key, 
+        _get_queries function takes query string and return a dictionary of key, 
         values pairs parsed from query string.
 
         example:
             query_string = "firstname=john&lastname=doe"
-            query_vars = get_queries(query_string) # returns { "firstname": "john", "lastname":"doe" }
+            query_vars = _get_queries(query_string) # returns { "firstname": "john", "lastname":"doe" }
         """
         if not query:
             return dict()
@@ -243,24 +243,24 @@ class Router:
             if q
         ])
 
-    def get_variables(self, url: str, var: str) -> dict:
+    def _get_variables(self, url: str, var: str) -> dict:
         """
-        get_variables function takes url string and registered inurl variables 
+        _get_variables function takes url string and registered inurl variables 
         and returns a dictionary object of key, value pairs parsed from url.
 
         example:
             # url pattern : /api/v1/user/<str:name>
             url = "/api/v1/user/johndoe"
-            inurl_vars = get_variables(url, var_patterns ) # returns { "name": "johndoe" }
+            inurl_vars = _get_variables(url, var_patterns ) # returns { "name": "johndoe" }
         """
         return dict([
             (var, url) if vtype == 'path' else (var, dtype(path))
             for (path, _), (var, dtype, vtype)
-            in zip(self.path_re.findall(url), var)
+            in zip(self._path_re.findall(url), var)
             if var
         ])
 
-    def inspect_func(self,  view, fvar) -> FuncTypeDef:
+    def _inspect_func(self,  view, fvar) -> ViewTypeDef:
         """
         check for attributes required for a view function and returns return 
         type for view_function.
@@ -280,7 +280,7 @@ class Router:
 
         return ants['return']
 
-    def register(self, url: str,  view: callable, methods: list = ['GET']) -> None:
+    def register(self, url: str,  view: callable, methods: list = ['GET'], priority_index: int = 0) -> None:
         """
         register function can be used to register and validate view function for server object.
         """
@@ -288,41 +288,41 @@ class Router:
         url_pattern = ''
         url_var = []
 
-        for path, var in self.path_re.findall(url):
-            path, var = self.get_dtype(path, var)
+        for path, var in self._path_re.findall(url):
+            path, var = self._get_dtype(path, var)
             url_pattern += '/' + path
             url_var.append(var)
 
         url_pattern = url_pattern if len(url_pattern) else url
         url_pattern += '$'
 
-        func_def = self.inspect_func(view, url_var)
+        func_def = self._inspect_func(view, url_var)
 
         if url in self._routes:
             for method in methods:
                 assert not self[url][method], f"path {url} already registered with method {method}"
                 self[url][method] = Route(view, url_var, func_def)
         else:
-            self[url] = RouteCollection(re.compile(url_pattern))
+            self[url] = RouteCollection(re.compile(url_pattern), priority_index)
             for method in methods:
                 self[url][method] = Route(view, url_var, func_def)
 
-    def get(self, url: str, view: callable) -> None:
-        self.register(url, view, methods=['GET'])
+    def get(self, url: str, view: callable, priority_index: int = 0) -> None:
+        self.register(url, view, methods=['GET'], priority_index=priority_index)
 
-    def post(self, url: str, view: callable) -> None:
-        self.register(url, view, methods=['POST'])
+    def post(self, url: str, view: callable, priority_index: int = 0) -> None:
+        self.register(url, view, methods=['POST'], priority_index=priority_index)
 
-    def put(self, url: str, view: callable) -> None:
-        self.register(url, view, methods=['PUT'])
+    def put(self, url: str, view: callable, priority_index: int = 0) -> None:
+        self.register(url, view, methods=['PUT'], priority_index=priority_index)
 
-    def delete(self, url: str, view: callable) -> None:
-        self.register(url, view, methods=['DELETE'])
+    def delete(self, url: str, view: callable, priority_index: int = 0) -> None:
+        self.register(url, view, methods=['DELETE'], priority_index=priority_index)
 
-    def patch(self, url: str, view: callable) -> None:
-        self.register(url, view, methods=['PATCH'])
+    def patch(self, url: str, view: callable, priority_index: int = 0) -> None:
+        self.register(url, view, methods=['PATCH'], priority_index=priority_index)
 
-    def parse(self, method: str, url: str) -> Tuple[callable, dict, dict, FuncTypeDef]:
+    def parse(self, method: str, url: str) -> Tuple[callable, dict, dict, ViewTypeDef]:
         """
         return view_function, inurl_variables, query_variables,  serialization_wrapper for provided url.
         """
@@ -333,13 +333,13 @@ class Router:
                     route = collection[method]
                     return (
                         route.view_func,
-                        self.get_variables(url, route.url_var),
-                        self.get_queries(parameters),
+                        self._get_variables(url, route.url_var),
+                        self._get_queries(parameters),
                         route.func_def
                     )
                 else:
-                    return not_allowed_error, {}, {}, type_abc()
-        return not_found_error, {}, {}, type_abc()
+                    return not_allowed_error, {}, {}, type_error()
+        return not_found_error, {}, {}, type_error()
 
     def add_lith(self, lith):
         """
@@ -402,38 +402,35 @@ class Lith(Router):
     def __init__(self, name: str, use_prefix: bool = True):
         super().__init__()
         self.name = name
-        self.use_prefix = use_prefix
+        self._use_prefix = use_prefix
 
-    def __route__wrapper(self,  view):
-        """
-        decorator wrapper for route registration
-        """
-        if self.use_prefix:
-            self._view_meta['url'] = f"/{self.name}{self._view_meta['url']}"
-        self._view_meta['view'] = view
-        self.register(**self._view_meta)
-
-    def route(self, url: str, methods: list = ['GET']):
-        self._view_meta = {
+    def route(self, url: str, methods: list = ['GET'], priority_index: int = 0):
+        _view_meta = {
             "url": url,
-            "methods": methods
+            "methods": methods,
+            "priority_index": priority_index
         }
-        return self.__route__wrapper
+        def _register( view: Callable):
+            if self._use_prefix:
+                _view_meta['url'] = f"/{self.name}{_view_meta['url']}"
+            _view_meta['view'] = view
+            self.register(**_view_meta)
+        return _register
 
-    def get(self, url: str,):
-        return self.route(url, methods=['GET'])
+    def get(self, url: str, priority_index: int = 0):
+        return self.route(url, methods=['GET'], priority_index=priority_index)
 
-    def post(self, url: str,):
-        return self.route(url, methods=['POST'])
+    def post(self, url: str, priority_index: int = 0):
+        return self.route(url, methods=['POST'], priority_index=priority_index)
 
-    def put(self, url: str,):
-        return self.route(url, methods=['PUT'])
+    def put(self, url: str, priority_index: int = 0):
+        return self.route(url, methods=['PUT'], priority_index=priority_index)
 
-    def patch(self, url: str,):
-        return self.route(url, methods=['PATCH'])
+    def patch(self, url: str, priority_index: int = 0):
+        return self.route(url, methods=['PATCH'], priority_index=priority_index)
 
-    def delete(self, url: str,):
-        return self.route(url, methods=['DELETE'])
+    def delete(self, url: str, priority_index: int = 0):
+        return self.route(url, methods=['DELETE'], priority_index=priority_index)
 
 
 class Request(object):
@@ -518,36 +515,36 @@ class App(object):
 
     def __init__(self, ):
         self.loop = asyncio.get_event_loop()
-        self.router = Router()
+        self._router = Router()
 
-    def __route__wrapper(self,  view):
-        """
-        decorator wrapper for route registration
-        """
-        self._view_meta['view'] = view
-        self.router.register(**self._view_meta)
-
-    def route(self, url: str, methods: list = ['GET']):
-        self._view_meta = {
+    def route(self, url: str, methods: list = ['GET'], priority_index: int = 0):
+        _view_meta = {
             "url": url,
-            "methods": methods
+            "methods": methods,
+            "priority_index": priority_index
         }
-        return self.__route__wrapper
 
-    def get(self, url: str,):
-        return self.route(url, methods=['GET'])
+        def _register(view: Callable):
+            if self._use_prefix:
+                _view_meta['url'] = f"/{self.name}{_view_meta['url']}"
+            _view_meta['view'] = view
+            self._router.register(**_view_meta)
+        return _register
 
-    def post(self, url: str,):
-        return self.route(url, methods=['POST'])
+    def get(self, url: str, priority_index: int = 0):
+        return self.route(url, methods=['GET'], priority_index=priority_index)
 
-    def put(self, url: str,):
-        return self.route(url, methods=['PUT'])
+    def post(self, url: str, priority_index: int = 0):
+        return self.route(url, methods=['POST'], priority_index=priority_index)
 
-    def patch(self, url: str,):
-        return self.route(url, methods=['PATCH'])
+    def put(self, url: str, priority_index: int = 0):
+        return self.route(url, methods=['PUT'], priority_index=priority_index)
 
-    def delete(self, url: str,):
-        return self.route(url, methods=['DELETE'])
+    def patch(self, url: str, priority_index: int = 0):
+        return self.route(url, methods=['PATCH'], priority_index=priority_index)
+
+    def delete(self, url: str, priority_index: int = 0):
+        return self.route(url, methods=['DELETE'], priority_index=priority_index)
 
     def add_lith(self, lith: Lith) -> None:
         """
@@ -557,7 +554,25 @@ class App(object):
         ---------------
         :param lith: Lith, Lith object.
         """
-        self.router.add_lith(lith)
+        self._router.add_lith(lith)
+
+    def add_serve(self, serve)->None:
+        """
+        Adds a serve object to current app. Serve objects provide handle for 
+        static files such as css and js. 
+
+        Args 
+        ---------------
+        :param serve: Serve, serve object creates by user.
+
+        Example Usage
+        ---------------
+        app = App()
+
+        css_serve = ServeCSS(path='./')
+        app.add_serve(css_serve)
+        """
+        pass
 
     async def handle_request(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         """
@@ -569,7 +584,6 @@ class App(object):
         :param reader: asyncio.StreamReader, StreamReader object.
         :param writer: asyncio.StreamWriter, StreamWriter object.
         """
-        response = False
         try:
             header_string = await reader.readuntil(separator=b'\r\n\r\n')
         except asyncio.exceptions.IncompleteReadError:
@@ -582,17 +596,32 @@ class App(object):
         header = RequestHeader().parse(header_string.decode())
         if header.method == 'OPTIONS':
             response = cors(header.origin['value'])
-        else:
-            handle, var, query, func_type_def = self.router.parse(header.method,header.path)
-            response = await func_type_def.wrapper(
-                await handle(request=Request(header, reader, writer, self.loop), **var)
-            )
-
-        if response:
             writer.write(response)
             await writer.drain()
             writer.close()
+        else:
+            view, url_var, queries, view_type_def = self._router.parse(header.method,header.path)
+            await view_type_def.handle(
+                view=view,
+                request=Request(header, reader, writer, self.loop), 
+                url_var=url_var,
+                queries=queries
+            )
         return -1
+
+    async def __call__(self, scope, receive, send):
+        print (scope)
+        await send({
+            'type': 'http.response.start',
+            'status': 200,
+            'headers': [
+                [b'content-type', b'text/plain'],
+            ],
+        })
+        await send({
+            'type': 'http.response.body',
+            'body': b'Hello, world!',
+        })
 
     def serve(self, host: str = 'localhost', port: int = 8080) -> None:
         """
@@ -606,8 +635,9 @@ class App(object):
         self.loop.create_task(
             asyncio.start_server(
                 self.handle_request,
-                host,
-                port,
+                host=host,
+                port=port,
+                loop=self.loop
             )
         )
         try:

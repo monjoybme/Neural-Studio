@@ -148,3 +148,35 @@ async def method_not_allowed(message: str = "method now allowed", code: int = 40
         response = ResponseHeader() | code
     return await json_response({"message": message}, code, response)
 
+
+async def not_found_error(request,  **kwargs) -> bytes:
+    return await json_response({"message": f"path {request.headers.path} not found!"}, code=404)
+    
+async def render_view(
+    html: str,
+    code: int = 200,
+    response: ResponseHeader = None,
+    *args, **kwargs
+) -> bytes:
+    """
+    generates response object for provided text data.
+
+    Args
+    ---------------
+    :param text: str, text data to add in response.
+    :param code: int, response code.
+    :param response: ResponseHeader, pre defined response header id any.
+
+    Returns
+    --------------- 
+    A response object with a text/html response.
+    """
+    if response is None:
+        response = ResponseHeader() | code
+
+    response.update(
+        access_control_allow_origin(),
+        content_length(len(html)),
+        content_type('.html')
+    )
+    return response @ html

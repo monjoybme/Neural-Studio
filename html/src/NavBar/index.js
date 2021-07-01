@@ -1,11 +1,11 @@
 import React from 'react';
 
 import { icons } from '../data/icons';
-import { metaAppFunctions, metaStore, metaStoreContext } from '../Meta';
+import { metaAppFunctions, metaAppData } from '../Meta';
 
-const SideBar = ( props = { store: metaStore, storeContext:metaStoreContext }) => {
+const SideBar = ( props = { appData: metaAppData }) => {
   let Logo = icons.Logo;
-  let { nav, navState, renderState } = props.store;
+  let { nav, navState, renderState } = props.appData;
 
   function loadComp(button) {
     nav = nav.map((btn) => {
@@ -48,9 +48,9 @@ const SideBar = ( props = { store: metaStore, storeContext:metaStoreContext }) =
 };
 
 const TopBar = (
-  props = { store: metaStore, storeContext: metaStoreContext, appFunctions : metaAppFunctions }
+  props = { appData: metaAppData,  appFunctions : metaAppFunctions }
 ) => {
-  let { app, appState, render } = props.store;
+  let { app, appState, render } = props.appData;
 
   return (
     <div className="topbar">

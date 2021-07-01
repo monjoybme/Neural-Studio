@@ -1,7 +1,8 @@
 import React from 'react';
 import Editor from "@monaco-editor/react";
 
-import { POST, GET, push, Notification, Loading } from '../Utils';
+import { post, get, push, Notification, Loading } from '../Utils';
+import { metaAppFunctions } from '../Meta';
 
 let csvPreProcCode = `def dataset_proprocessor(dataset)->None:
     """
@@ -93,7 +94,7 @@ const ImageDatasetFromDirectory = (
 
   async function addDataset() {
     loadState(true);
-    await POST({
+    await post({
       path: "/dataset/add",
       data: { ...dataset },
     })
@@ -108,7 +109,7 @@ const ImageDatasetFromDirectory = (
   }
 
   async function fetchPath(e) {
-    await POST({
+    await post({
       path: "/sys/path",
       data: {
         path: e.target.value,
@@ -123,7 +124,7 @@ const ImageDatasetFromDirectory = (
   }
 
   async function getFolders(e) {
-    await POST({
+    await post({
       path: "/sys/path",
       data: {
         path: dataset.meta.config.path,
@@ -137,6 +138,12 @@ const ImageDatasetFromDirectory = (
   }
 
   React.useEffect(() => {
+    if (dataset.deleteDataset){
+      delete dataset.deleteDataset;
+    }
+    if (dataset.appData){
+      delete dataset.appData
+    }
     push({
       name: "dataset",
       data: dataset,
@@ -329,7 +336,8 @@ const CSVDataset = (
       },
       preprocessor:"#preprocessorcode"
     },
-    deleteDataset: function(){}
+    deleteDataset: function(){},
+    appFunctions: metaAppFunctions
   }
 ) => {
   let [paths, pathsState] = React.useState([]);
@@ -340,20 +348,26 @@ const CSVDataset = (
 
     async function addDataset() {
       loadState(true);
-      await POST({
+      await post({
         path: "/dataset/add",
         data: { ...dataset },
       })
         .then((response) => response.json())
         .then((data) => {
+          console.log(data);
+          if(data.status){
             dataset.meta.config.view.sample = data.sample;
             datasetState({ ...dataset });
             loadState(false);
+          }else{
+            props.appFunctions.notify({ message: data.message});
+            loadState(false);
+          }
         });
     }
 
     async function fetchPath(e) {
-      await POST({
+      await post({
         path: "/sys/path",
         data: {
           path: e.target.value,
@@ -368,7 +382,7 @@ const CSVDataset = (
     }
 
     async function applyPreprocessor(){
-      await GET({
+      await get({
         path:"/dataset/preprocess",
       }).then(response => response.json()).then(data=>{
         if (data.status){
@@ -390,7 +404,9 @@ const CSVDataset = (
     if (dataset.deleteDataset){
         delete dataset.deleteDataset;
     }
-    console.log("Hello")
+     if (dataset.appData) {
+       delete dataset.appData;
+     }
     push({
         name: "dataset",
         data: dataset

@@ -2,8 +2,8 @@ import React from "react";
 import Editor from "@monaco-editor/react";
 import Options from "../data/options";
 
-import { POST } from "../Utils";
-import { metaStore, metaStoreContext, metaAppFunctions } from "../Meta";
+import { post } from "../Utils";
+import { metaAppData,  metaAppFunctions } from "../Meta";
 
 const propMeta = {
   id: "LayerId",
@@ -27,8 +27,7 @@ const TextProperty = (
     ...propMeta,
     menu: undefined,
     menuState: function (_ = { comp: undefined, render: false }) {},
-    store: metaStore,
-    storeContext: metaStoreContext,
+    store: metaAppData, 
     appFunctions: metaAppFunctions,
     train: false,
   }
@@ -57,8 +56,7 @@ const ListProperty = (
     ...propMeta,
     menu: undefined,
     menuState: function (_ = { comp: undefined, render: false }) {},
-    store: metaStore,
-    storeContext: metaStoreContext,
+    store: metaAppData, 
     appFunctions: metaAppFunctions,
     train: false,
   }
@@ -96,8 +94,7 @@ const CheckboxProperty = (
     ...propMeta,
     menu: undefined,
     menuState: function (_ = { comp: undefined, render: false }) {},
-    store: metaStore,
-    storeContext: metaStoreContext,
+    store: metaAppData, 
     appFunctions: metaAppFunctions,
     train: false,
   }
@@ -168,8 +165,7 @@ const Layer = (
     ...propMeta,
     menu: undefined,
     menuState: function (_ = { comp: undefined, render: false }) {},
-    store: metaStore,
-    storeContext: metaStoreContext,
+    store: metaAppData, 
     appFunctions: metaAppFunctions,
     train: false,
   }
@@ -235,8 +231,7 @@ const Dataset = (
     ...propMeta,
     menu: undefined,
     menuState: function (_ = { comp: undefined, render: false }) {},
-    store: metaStore,
-    storeContext: metaStoreContext,
+    store: metaAppData, 
     appFunctions: metaAppFunctions,
   }
 ) => {
@@ -249,7 +244,7 @@ const Dataset = (
   }
 
   async function updateDataset(e) {
-    await POST({
+    await post({
       path: "/dataset/checkpoint",
       data: {
         dataset: graph.nodes[id].arguments.dataset.value,
@@ -299,8 +294,7 @@ const CustomNode = (
     ...propMeta,
     menu: undefined,
     menuState: function (_ = { comp: undefined, render: false }) {},
-    store: metaStore,
-    storeContext: metaStoreContext,
+    store: metaAppData, 
     appFunctions: metaAppFunctions,
   }
 ) => {
@@ -322,7 +316,7 @@ const CustomNode = (
   }
 
   async function saveAndExit(e) {
-    await POST({
+    await post({
       path: "/custom/node/build",
       data: {
         code: graph.nodes[props.id].arguments.code.value,
@@ -403,7 +397,7 @@ const Menu = (
     ...propMeta,
     menu: undefined,
     menuState: function (_ = { comp: undefined, render: false }) {},
-    store: metaStore,
+    store: metaAppData,
     graph: {},
     graphState: {},
     appFunctions: metaAppFunctions,

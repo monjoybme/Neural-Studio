@@ -1,8 +1,8 @@
 import React from "react";
 
 import { TopBar, SideBar } from "./NavBar";
-import { POST, Notification, GET, Loading, pull, push } from "./Utils";
-import { metaSideNav, metaApp, metaStore, metaRender } from "./Meta";
+import { Notification, get, Loading, pull, push } from "./Utils";
+import { metaSideNav, metaApp, metaAppData, metaRender } from "./Meta";
 
 import "./style/App.scss";
 import "./style/Nav.scss";
@@ -20,8 +20,8 @@ import "./style/Utils.scss";
  * @param {object} props
  * @returns
  */
-const PopUp = (props = { store: metaStore }) => {
-  return <>{props.store.popup}</>;
+const PopUp = (props = { appData: metaAppData }) => {
+  return <>{props.appData.popup}</>;
 };
 
 /**
@@ -30,8 +30,8 @@ const PopUp = (props = { store: metaStore }) => {
  * @param {*} props
  * @returns
  */
-const NotificationPop = (props = { store: metaStore }) => {
-  return <>{props.store.notification.comp}</>;
+const NotificationPop = (props = { appData: metaAppData }) => {
+  return <>{props.appData.notification.comp}</>;
 };
 
 /**
@@ -40,10 +40,11 @@ const NotificationPop = (props = { store: metaStore }) => {
  * @param {*} props
  * @returns
  */
-const StatusBar = (props = { store: metaStore }) => {
+const StatusBar = (props = { appData: metaAppData }) => {
   return (
     <div className="statusbar">
-      {props.store.statusbar.toLowerCase()} | workspace : {props.store.app.name}
+      {props.appData.statusbar.toLowerCase()} | workspace :{" "}
+      {props.appData.app.name}
     </div>
   );
 };
@@ -54,7 +55,7 @@ const StatusBar = (props = { store: metaStore }) => {
  * @param {*} props
  * @returns
  */
-const Container = (props = { store: metaStore }) => {
+const Container = (props = { appData: metaAppData }) => {
   return <div className="container-area">{props.children}</div>;
 };
 
@@ -64,20 +65,22 @@ const Container = (props = { store: metaStore }) => {
  * @param {*} props
  * @returns
  */
-const Main = (props = { store: metaStore }) => {
-  return <div className={`app ${props.store.app.theme}`}>{props.children}</div>;
+const Main = (props = { appData: metaAppData }) => {
+  return (
+    <div className={`app ${props.appData.app.theme}`}>{props.children}</div>
+  );
 };
 
 const App = (props) => {
   let [app, appState] = React.useState(metaApp); // contains global app data.
   let [nav, navState] = React.useState(metaSideNav); //  contains navbar and active work area information.
-  let [popup, popupState] = React.useState(<></>); 
+  let [popup, popupState] = React.useState(<></>);
   let [statusbar, statusbarState] = React.useState("status bar");
   let [notification, notificationState] = React.useState(<></>);
   let [render, renderState] = React.useState(metaRender);
   let [load, loadState] = React.useState(true);
 
-  const store = {
+  const appData = {
     app: app,
     appState: appState,
     nav: nav,
@@ -96,7 +99,7 @@ const App = (props) => {
 
   const appFunctions = {
     downloadCode: async function (e) {
-      await GET({
+      await get({
         path: "/model/code",
       })
         .then((response) => response.json())
@@ -131,8 +134,8 @@ const App = (props) => {
     loadState: loadState,
   };
 
-  let defaultProps = {
-    store: store,
+  let appProps = {
+    appData: appData,
     appFunctions: appFunctions,
   };
 
@@ -237,9 +240,9 @@ const App = (props) => {
     };
   });
 
-  React.useEffect(
-    function () {
+  React.useEffect(function () {
       if (app.fetch) {
+        console.log("Hello");
         pull({ name: "app" }).then((app_data) => {
           appState({
             ...app_data,
@@ -260,15 +263,15 @@ const App = (props) => {
   );
 
   return (
-    <Main {...defaultProps}>
-      <SideBar {...defaultProps} />
-      <Container {...defaultProps}>
-        <TopBar {...defaultProps} />
-        {load ? <LoadingData /> : <render.comp {...defaultProps} />}
-        <StatusBar {...defaultProps} />
+    <Main {...appProps}>
+      <SideBar {...appProps} />
+      <Container {...appProps}>
+        <TopBar {...appProps} />
+        {load ? <LoadingData /> : <render.comp {...appProps} />}
+        <StatusBar {...appProps} />
       </Container>
-      <PopUp {...defaultProps} />
-      <NotificationPop {...defaultProps} />
+      <PopUp {...appProps} />
+      <NotificationPop {...appProps} />
     </Main>
   );
 };

@@ -17,7 +17,7 @@ const EpochLog = (props) => {
               className="done"
               style={{
                 width: `${Math.ceil(
-                  (props.data.log.batch / (props.data.train.batches-1)) * 100
+                  (props.data.log.batch / (props.data.train.batches)) * 100
                 )}%`,
               }}
             ></div>

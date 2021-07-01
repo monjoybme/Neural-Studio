@@ -3,12 +3,12 @@ import React from "react";
 import Selector from './selector';
 import datasetList from './datasets';
 
-import { metaAppFunctions, metaStore } from "../Meta";
+import { metaAppFunctions, metaAppData } from "../Meta";
 import { GET, POST, pull, push } from "../Utils";
 
 
 const Dataset = (
-  props = { store: metaStore, appFunctions: metaAppFunctions }
+  props = { appData: metaAppData, appFunctions: metaAppFunctions }
 ) => {
   let [dataset, datasetState] = React.useState({
     name: undefined,
@@ -36,12 +36,12 @@ const Dataset = (
 
   function getDataset(){
     let Dataset = datasetList[dataset.meta.type];
-    return <Dataset {...dataset} deleteDataset={deleteDataset}  />
+    return <Dataset {...dataset} deleteDataset={deleteDataset} {...props} />
   }
 
   return (
     <div className="container dataset-container">
-      {dataset.name ? getDataset() : <Selector datasetState={datasetState} />}
+      {dataset.name ? getDataset() : <Selector datasetState={datasetState} appData={props}  />}
     </div>
   );
 };

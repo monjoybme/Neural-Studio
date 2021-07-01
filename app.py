@@ -11,6 +11,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers, callbacks, optimizers, losses, applications
 
+from time import sleep
 from glob import glob
 from gc import collect
 from concurrent.futures import ThreadPoolExecutor
@@ -19,6 +20,7 @@ from tqdm.cli import tqdm
 from sklearn.model_selection import train_test_split
 
 from studio.web import App, Request, json_response, text_response, Lith, types
+from studio.web.websocket import WebSocketServer
 from studio.trainer import Trainer
 from studio.manage import Workspace, WorkspaceManager
 from studio.graph import GraphDef
@@ -258,8 +260,19 @@ async def train_stop(request: Request) -> types.dict:
 async def status(request: Request) -> types.dict:
     return {"logs": trainer.logs}
 
-# custom node endpoints
+@lith_train.get("/socket_status")
+async def socket_status(request: Request) -> types.websocketserver:
+    with WebSocketServer(request) as server:
+        logger.log("Status socket initiated.")
+        while True:
+            data = await server.recv()
+            if data  == '$exit':
+                break
+            await server.send_json(trainer.logs)
+            sleep(0.005)
+    logger.success("Status socket closed.")
 
+# custom node endpoints
 
 @lith_custom.post("/node/build")
 async def node_build(request: Request) -> types.dict:
@@ -286,5 +299,5 @@ app.add_lith(lith_train)
 
 if __name__ == "__main__":
     app.serve(
-        port=80,
+        port=8000,
     )

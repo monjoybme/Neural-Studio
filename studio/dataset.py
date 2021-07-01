@@ -76,7 +76,7 @@ class Dataset:
 
 class CSVDataset(Dataset):
 
-    def __init__(self, name:str, meta:dict):
+    def __init__(self, name:str, meta:dict, *args, **kwargs):
         super().__init__(name, meta)
         self.path:str = os.path.abspath(self.meta[['config:path']])
         self.dataframe: pd.DataFrame = pd.read_csv(self.path)
@@ -100,7 +100,7 @@ class CSVDataset(Dataset):
         }
 
 class ImageDatasetFromDirectory(Dataset):
-    def __init__(self, name: str, meta: dict) -> None:
+    def __init__(self, name: str, meta: dict, *args, **kargs) -> None:
         super().__init__(name, meta)
         # Path to dataset folder
         self.root_folder = pathlib.abspath(

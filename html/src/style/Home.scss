@@ -11,9 +11,9 @@
 
 
 .home {
-    padding: 10px;
+    padding: 10px 10px 10px 10px;
     display: grid;
-    grid-template-rows: 2.2fr 3fr 2.2fr 28fr;
+    grid-template-rows: 48px 165px 48px 1fr;
 
     .cards {
         display: grid;
@@ -35,6 +35,10 @@
                 font-weight: 500;
             }
         }
+    }
+
+    .card-grid{
+        overflow-y: scroll;
     }
 
     .card {
@@ -60,7 +64,7 @@
     }
 
     .active {
-        width: 255px;
+        width: 260px;
         .head {
             @include flex();
             @extend .heading-2;

@@ -155,31 +155,9 @@ export const metaRender = {
   comp: Home
 }
 
-export const metaStore = {
+export const metaAppData = {
   app: metaApp,
-  appState: function (data = metaApp) {},
-  graph: metaGraph,
-  graphState: function (data = metaGraph) {},
-  home: metaHome,
-  homeState: function (data = metaHome) {},
-  canvas: metaCanvas,
-  canvasState: function (data = metaCanvas) {},
-  dataset: metaDataset,
-  datasetState: function (data = metaDataset) {},
-  train: metaTrain,
-  trainState: function (data = metaTrain) {},
-  popup: metaPopop,
-  popupState: function (data = metaPopop) {},
-  nav: metaSideNav,
-  navState: function (data = metaSideNav) {},
-  statusbar: "status",
-  statusbarState: function (data = "status") {},
-  notification: "hello",
-  notificationState: function ( data = "hello") {},
-  load: false,
-  loadState: function ( data = false) {},
-  render : metaRender,
-  renderState : function( data = metaRender ) {}
+  appState: function (data = metaApp) {}
 };
 
 export const metaStoreContext = {

@@ -1,5 +1,5 @@
 from os import path as pathlib, mkdir, chdir, listdir
-from json import dump, load
+from json import dump, load, loads
 from typing import  Set
 from shutil import rmtree
 
@@ -78,20 +78,20 @@ TRAIN = DataDict({
 })
 
 class Cache(object):
+    recent = [None for _ in range(10)]
     def __init__(self, root: str):
-        self.__dict__.update(dict(
-            recent=[None for _ in range(10)],
-        ))
-
         self.__cache_file__ = pathlib.join(root, "cache.json")
+        
         if not pathlib.isfile(self.__cache_file__):
             with open(self.__cache_file__, "w+") as file:
-                dump(self.__dict__, file)
+                dump(self.recent, file)
+
+        with open(self.__cache_file__,"r") as cache:
+            self.recent = load(cache)
 
     def __write__(self,):
         with open(self.__cache_file__, "w+") as file:
-            dump(dict([(key, val) for key, val in self.__dict__.items()
-                       if not key.startswith("__")]), file)
+            dump( self.recent, file)
 
     def __getitem__(self, key):
         return self.__dict__[key]
@@ -210,6 +210,7 @@ class WorkspaceManager(DataDict):
             self.active = Workspace(pathlib.join(
                 self.root, "workspace", "model"))
             self.workspaces.add(self.active.idx)
+            print (self.active.idx)
             self.cache >> self.active.idx
 
     def __repr__(self,):
@@ -237,6 +238,7 @@ class WorkspaceManager(DataDict):
                 break
         if workspace:
             self.active = workspace
+            print (workspace.idx)
             self.cache >> workspace.idx
             return workspace
         self.logger.log(f"open '{name}'")

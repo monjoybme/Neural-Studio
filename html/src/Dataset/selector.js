@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { metaAppFunctions, metaStore } from "../Meta";
+import { metaAppFunctions, metaAppData } from "../Meta";
 import { icons } from "../data/icons";
 
 const metaDatasets = [
@@ -62,7 +62,7 @@ const metaDatasets = [
 
 const DatasetCard = (
   props = {
-    store: metaStore,
+    store: metaAppData,
     appFunctions: metaAppFunctions,
     data: { name: "Hello" },
     datasetState: function () {},
@@ -77,7 +77,7 @@ const DatasetCard = (
 
 const Selector = (
   props = {
-    store: metaStore,
+    store: metaAppData,
     appFunctions: metaAppFunctions,
     datasetState: function () {},
   }
