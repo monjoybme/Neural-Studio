@@ -63,16 +63,42 @@ CANVAS = DataDict({
     }
 })
 
+
 DATASET = DataDict({
-    "name":None,
-    "meta":{
-        "type":"Dataset",
-        "config":{
-            "path":None, # optional, required in CSVDataset
-        }
+    "activeLayer": None,
+    "activeLine": None,
+    "newEdge": None,
+    "pos": None,
+    "lineCount": None,
+    "layerCount": dict(),
+    "mode": "normal",
+    "pan": False,
+    "panLast": None,
+    "viewBox": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0
     },
-    "preprocessor":"#preprocessor"
+    "graph": {
+        "nodes": {
+
+        },
+        "train_config": {
+            "session_id": None,
+            "model": None,
+            "compile": None,
+            "fit": None,
+            "optimizer": None,
+            "loss": None,
+            "dataset": None
+        },
+        "custom_nodes": [
+
+        ],
+    }
 })
+
 
 TRAIN = DataDict({
     "logs":[]
@@ -240,10 +266,11 @@ class WorkspaceManager(DataDict):
                 break
         if workspace:
             self.active = workspace
-            print (workspace.idx)
             self.cache >> workspace.idx
+            self.logger.success(f"open '{name}'")
             return workspace
-        self.logger.log(f"open '{name}'")
+
+        self.logger.warning(f"open '{name}'")
         return workspace
 
     def delete_workspace(self, name: str) -> None:

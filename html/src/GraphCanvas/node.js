@@ -43,6 +43,7 @@ const Node = (
           layer: props.node,
           text: document.getElementById(`${id}-text`),
           rect: document.getElementById(`${id}-rect`),
+          handle: document.getElementById(`${id}-handle`),
           ref: {
             x: pos.x - (e.clientX - window.offsetX),
             y: pos.y - (e.clientY - window.offsetY),
@@ -193,10 +194,10 @@ const Node = (
         x2={pos.x}
         y2={pos.y + 30}
 
-
+        id={`${id}-handle`}
         style={{
-          stroke:"green",
-          strokeWidth: "3"
+          stroke: "green",
+          strokeWidth: "3",
         }}
       />
     </g>

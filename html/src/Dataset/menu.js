@@ -244,23 +244,7 @@ const Dataset = (
   }
 
   async function updateDataset(e) {
-    await post({
-      path: "/dataset/checkpoint",
-      data: {
-        dataset: graph.nodes[id].arguments.dataset.value,
-        id: id,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        props.appFunctions.notify({
-          message: data.message,
-          timeout: 5000,
-        });
-        if (data.status) {
-          props.menuState(<div></div>);
-        }
-      });
+    props.menuState(<div></div>);
   }
 
   React.useEffect(() => {});

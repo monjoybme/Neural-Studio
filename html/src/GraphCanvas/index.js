@@ -236,6 +236,13 @@ const GraphEditor = (
       window.canvas.activeElement.rect.x.baseVal.value = window.canvas.pos.x;
       window.canvas.activeElement.rect.y.baseVal.value = window.canvas.pos.y;
 
+      window.canvas.activeElement.handle.x1.baseVal.value = window.canvas.pos.x;
+      window.canvas.activeElement.handle.y1.baseVal.value = window.canvas.pos.y;
+
+      window.canvas.activeElement.handle.x2.baseVal.value = window.canvas.pos.x;
+      window.canvas.activeElement.handle.y2.baseVal.value =
+        window.canvas.pos.y + 30;
+
       window.canvas.activeElement.text.x.baseVal[0].value =
         window.canvas.pos.x +
         Math.floor(window.canvas.activeElement.layer.width * (1 / 5));

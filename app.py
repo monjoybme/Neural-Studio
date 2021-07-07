@@ -1,5 +1,6 @@
 import inspect
 import re
+from studio.web.frontend import ServeHTML, ServeStatic
 import zipfile
 import base64
 
@@ -20,7 +21,7 @@ from tqdm.cli import tqdm
 from sklearn.model_selection import train_test_split
 
 from studio.web import App, Request, json_response, text_response, Lith, types
-from studio.web.websocket import WebSocketServer
+from studio.web.core.websocket import WebSocketServer
 from studio.trainer import Trainer
 from studio.manage import Workspace, WorkspaceManager
 from studio.graph import GraphDef
@@ -39,6 +40,8 @@ ROOT_PATH = pathlib.abspath("./")
 
 # defining globals
 app = App()
+html_serve = ServeHTML(path="./templates/")
+static_serve = ServeStatic(path="./templates/")
 
 lith_sys = Lith("sys")
 lith_workspace = Lith("workspace")
@@ -73,6 +76,15 @@ try:
 except Exception as e:
     logger.sys_error(f"Error updating dataset, {repr(e)}")
 
+@app.get("/",)
+async def index(request: Request) -> types.template:
+    return await html_serve.get("index.html")
+
+@app.get("/static/<path:file>")
+async def static_view(request: Request, file: str) -> types.static:
+    _, *file = file.split("/")
+    file = "/".join(file)
+    return await static_serve.get(file)
 
 @lith_sys.post("/path")
 async def sys_path(request: Request) -> types.dict:

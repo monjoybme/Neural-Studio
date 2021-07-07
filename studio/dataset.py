@@ -1,4 +1,5 @@
 import os
+from tokenize import Name
 import cv2
 import numpy as np
 import pandas as pd
@@ -51,8 +52,11 @@ class Dataset:
         self.meta = DataDict(meta)
         self.logger = Logger("dataset")
 
+    def load(self, )->bool:
+        pass
+
     def apply(self, func: callable):
-        _ = func(self)
+        func(self)
         return { "status": True }
 
     def set_features(self, features: List[str] = [], callback: callable = None) -> bool:
@@ -73,6 +77,61 @@ class Dataset:
         """
         pass
 
+class CSVDataset(Dataset):
+    pass
+
+class ImageDataset(Dataset):
+    pass
+
+class ImageClassification(ImageDataset):
+    pass
+
+class ImageSegmentation(ImageDataset):
+    pass
+
+class ObjectDetection(ImageDataset):
+    pass
+
+class Mnist(ImageClassification):
+    def __init__(self, ) -> None:
+        """
+        Dataset will be used in training 
+
+        The dataset object needs to have following attributes
+
+        train_x : np.ndarray -> Training features
+        train_y : np.ndarray -> Training labels 
+        test_x : np.ndarray -> Testing features
+        test_y : np.ndarray -> Testing labels
+
+        validate : bool -> Weather use validation data or not
+
+        batch_size : int -> Batch size
+        epochs : int -> Number of epochs
+        batches : int -> Number of batches ( Will be calculated automatically )
+        """
+        train_x = None
+        test_x = None
+        train_y = None
+        test_y = None
+
+        self._pipe = [
+            self._load,
+        ]
+
+    def _load(self, dataset: Dataset, *args, **kwargs) -> bool:
+        (X,Y),(x,y) = keras.datasets.mnist.load_data()
+        self.train_x = X.reshape(-1, 28, 28, 1) / 255
+        self.train_y = keras.utils.to_categorical(Y)
+        self.test_x = X.reshape(-1, 28, 28, 1) / 255
+        self.test_y = keras.utils.to_categorical(Y)
+
+    def load(self) -> bool:
+        for proc in self._pipe:
+            proc(self,)
+
+    def sample(self, n: int) -> List[dict]:
+        pass
 
 class CSVDataset(Dataset):
 

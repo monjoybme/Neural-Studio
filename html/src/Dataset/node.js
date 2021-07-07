@@ -3,38 +3,38 @@ import { metaStore, metaStoreContext, metaAppFunctions } from "../Meta";
 import Menu from "./menu";
 
 const propMeta = {
-    id: "LayerId",
-    name: "LayerName",
-    arguments: {},
-    width: 0,
-    pos: {
-      x: 0,
-      y: 0,
-      offsetX: 0,
-      offsetY: 0,
-    },
-    connections: {
-      inbound: [],
-      outbound: [],
-    },
-  }
+  id: "LayerId",
+  name: "LayerName",
+  arguments: {},
+  width: 0,
+  pos: {
+    x: 0,
+    y: 0,
+    offsetX: 0,
+    offsetY: 0,
+  },
+  connections: {
+    inbound: [],
+    outbound: [],
+  },
+};
 
 const Node = (
   props = {
-    node:propMeta,
+    node: propMeta,
     menu: undefined,
     menuState: function () {},
     graph: {},
-    graphState: function(){},
+    graphState: function () {},
     appFunctions: metaAppFunctions,
   }
 ) => {
-  let { id, pos, connections, width, } = props.node;
+  let { id, pos, connections, width } = props.node;
   let { graph, graphState } = props;
   let nodeRef = React.useRef(<svg />);
 
   let height = 30;
-  
+
   function onMouseDown(e) {
     e.preventDefault();
     switch (window.canvas.mode) {
@@ -43,6 +43,7 @@ const Node = (
           layer: props.node,
           text: document.getElementById(`${id}-text`),
           rect: document.getElementById(`${id}-rect`),
+          handle: document.getElementById(`${id}-handle`),
           ref: {
             x: pos.x - (e.clientX - window.offsetX),
             y: pos.y - (e.clientY - window.offsetY),
@@ -123,7 +124,14 @@ const Node = (
     switch (window.canvas.mode) {
       case "normal":
         props.menuState({
-          comp: <Menu {...props.node} graph={ graph } graphState={ graphState } {...props} />,
+          comp: (
+            <Menu
+              {...props.node}
+              graph={graph}
+              graphState={graphState}
+              {...props}
+            />
+          ),
           render: true,
         });
         break;
@@ -192,11 +200,10 @@ const Node = (
         y1={pos.y}
         x2={pos.x}
         y2={pos.y + 30}
-
-
+        id={`${id}-handle`}
         style={{
-          stroke:"green",
-          strokeWidth: "3"
+          stroke: "green",
+          strokeWidth: "3",
         }}
       />
     </g>

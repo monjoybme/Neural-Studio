@@ -246,6 +246,8 @@ const Home = (
       .then((response) => response.json())
       .then(async function (data) {
         await pullHome();
+        props.appData.app.fetch = true;
+        props.appData.appState({ ...props.appData.app });
       });
   }
 

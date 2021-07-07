@@ -78,13 +78,20 @@ const Tools = (props) => {
   return <div className="tools">{props.children}</div>;
 };
 
+const metaDataset = {
+  fetch: true,
+  nodes: {
+
+  }
+}
+
 const GraphEditor = (
   props = {
     appData: { ...metaAppData },
     appFunctions: metaAppFunctions,
   }
 ) => {
-  let [graph, graphState] = React.useState(metaGraph);
+  let [graph, graphState] = React.useState(metaDataset);
   let [layergroups, layergroupsState] = React.useState(metaDatasetGroups);
   let [menu, menuState] = React.useState({ comp: <div />, render: false });
   let [toolbarButtons, toolbarButtonsState] = React.useState([
@@ -176,40 +183,14 @@ const GraphEditor = (
 
       console.log(window.canvas.activeLayer.type.object_class)
       switch (window.canvas.activeLayer.type.object_class) {
-        case "optimizers":
-          graph.train_config.optimizer = node;
-          graph.nodes[id] = node;
-          break;
-        case "build_tools":
-          let comp = window.canvas.activeLayer.type.name.toLowerCase();
-          if (graph.train_config[comp]) {
-            props.appFunctions.notify({
-              message: `${window.canvas.activeLayer.type.name} node already exists for this graph ! `,
-            });
-          } else {
-            graph.train_config[comp] = node;
-            graph.nodes[id] = node;
-          }
-          break;
         case "datasets":
-          node.arguments.dataset.value =
-            node.arguments.dataset.value.lastIndexOf("__id__") > 0
-              ? node.arguments.dataset.value.replaceAll(/__id__/g, id)
-              : node.arguments.dataset.value;
-          graph.train_config.dataset = node;
           graph.nodes[id] = node;
           break;
-        case "custom_def":
-          graph.custom_nodes[id] = {
-            definition: node,
-            node : undefined
-          }
         default:
           graph.nodes[id] = node;
           break;
       }
 
-      graph.train_config.session_id = new Date().toTimeString();
       graphState({
         ...graph,
       });
@@ -237,6 +218,13 @@ const GraphEditor = (
 
       window.canvas.activeElement.rect.x.baseVal.value = window.canvas.pos.x;
       window.canvas.activeElement.rect.y.baseVal.value = window.canvas.pos.y;
+      
+      window.canvas.activeElement.handle.x1.baseVal.value = window.canvas.pos.x;
+      window.canvas.activeElement.handle.y1.baseVal.value = window.canvas.pos.y;
+
+      window.canvas.activeElement.handle.x2.baseVal.value = window.canvas.pos.x;
+      window.canvas.activeElement.handle.y2.baseVal.value =
+        window.canvas.pos.y + 30;
 
       window.canvas.activeElement.text.x.baseVal[0].value =
         window.canvas.pos.x +
@@ -485,7 +473,6 @@ const GraphEditor = (
   let tools = {
     addEdge: addEdge,
   };
-  
 
   React.useEffect(()=>{
     updateViewBox();
@@ -497,24 +484,16 @@ const GraphEditor = (
   React.useEffect(()=>{
     if ( graph.fetch ){
       pull({
-        name: "canvas"
+        name: "dataset"
       }).then(response=>{
         let graphdata = response.graph;
         delete response.graph;
         window.canvas = response;
-        Object.keys(graphdata.custom_nodes).map((definition)=>{
-          if (graphdata.custom_nodes[definition].node){
-            layergroups.custom_nodes.layers.push(
-              graphdata.custom_nodes[definition].node
-            );
-          }
-        })
-        layergroupsState({...layergroups})
         graphState({...graphdata, fetch: false});
       })
     }else{
       push({
-        name:"canvas",
+        name:"dataset",
         data:{
           ...window.canvas,
           graph: {...graph}
@@ -524,7 +503,7 @@ const GraphEditor = (
   }, [graph])
 
   return (
-    <div className="container graph-canvas">
+    <div className="container graph-canvas dataset-cotainer">
       {menu.comp}
       <Tools>
         <Toolbar
