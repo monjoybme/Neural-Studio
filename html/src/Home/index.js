@@ -5,7 +5,7 @@ import {
   metaAppData,
 } from "../Meta/index";
 import { icons } from "../data/icons";
-import { get, Loading, post, pull, push } from "../Utils";
+import { get, Loading, post, pull, push, ROOT } from "../Utils";
 
 const WorkspaceCard = (
   props = { name: "Hello", appData: metaAppData  }
@@ -124,9 +124,9 @@ const DownloadModel = (
     options = { format: "Format", download: "download.format" }
   ) {
     let { format, download } = options;
-    renderState(<Loading />);
+    // renderState(<Loading />);
     post({
-      path: "download",
+      path: "/workspace/download",
       data: {
         format: format,
       },
@@ -137,7 +137,7 @@ const DownloadModel = (
           renderState(
             <div className="option output">
               <a
-                href={`http://localhost/download/${download}`}
+                href={`${ROOT}/workspace/download/${download}`}
                 onClick={(e) => props.appData.popupState(<div></div>)}
                 download={download}
               >

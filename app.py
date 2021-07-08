@@ -19,7 +19,7 @@ from os import name, path as pathlib, listdir
 from tqdm.cli import tqdm
 from sklearn.model_selection import train_test_split
 
-from studio.web import App, Request, json_response, text_response, Lith, types
+from studio.web import App, Request, json_response, text_response, Lith, types, send_file
 from studio.web.websocket import WebSocketServer
 from studio.trainer import Trainer
 from studio.manage import Workspace, WorkspaceManager
@@ -162,14 +162,14 @@ async def download_model(request: Request) -> types.dict:
     data = await request.get_json()
     prep_func = download_options[data['format']]
     status = prep_func(workspace_manager.active, trainer)
-    return await json_response(status)
+    return status
 
 
 @lith_workspace.get("/download/<str:name>")
 async def download_name(request: Request, name: str) -> types.file:
     return await send_file(
         pathlib.join(
-            workspace_manager.active.path,
+            workspace_manager.active.__path__,
             "outputs",
             name
         ),

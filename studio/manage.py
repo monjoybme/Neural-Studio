@@ -81,7 +81,7 @@ class Cache(object):
     recent = [None for _ in range(10)]
     def __init__(self, root: str):
         self.__cache_file__ = pathlib.join(root, "cache.json")
-        
+
         if not pathlib.isfile(self.__cache_file__):
             with open(self.__cache_file__, "w+") as file:
                 dump(self.recent, file)

@@ -18,7 +18,11 @@ def generate_args(code: str) -> dict:
 
 
 def download_json(workspace: Workspace, trainer: Trainer) -> dict:
-    with open(pathlib.join(workspace.path, 'outputs', 'model.json'), "w+") as file:
+    temp_dir = pathlib.join(workspace.__path__, "outputs")
+    if pathlib.isdir(temp_dir):
+        rmtree(temp_dir)
+    mkdir(temp_dir)
+    with open(pathlib.join(workspace.__path__, 'outputs', 'model.json'), "w+") as file:
         file.write(trainer.model.to_json())
     return {
         "message": "Downloading Model",
@@ -27,7 +31,7 @@ def download_json(workspace: Workspace, trainer: Trainer) -> dict:
 
 
 def download_json_w(workspace: Workspace, trainer: Trainer) -> dict:
-    temp_dir = pathlib.join(workspace.path, "outputs", "model")
+    temp_dir = pathlib.join(workspace.__path__, "outputs", "model")
     if pathlib.isdir(temp_dir):
         rmtree(temp_dir)
     mkdir(temp_dir)
@@ -35,11 +39,11 @@ def download_json_w(workspace: Workspace, trainer: Trainer) -> dict:
     with open(pathlib.join(temp_dir, 'model.json'), "w+") as file:
         file.write(trainer.model.to_json())
     trainer.model.save_weights(pathlib.join(temp_dir, 'model'))
-    chdir(pathlib.join(workspace.path, "outputs",))
+    chdir(pathlib.join(workspace.__path__, "outputs",))
     with zipfile.ZipFile('model.zip', 'w') as zfile:
         for f in glob("./model/*"):
             zfile.write(f)
-    chdir(globals().get("ROOT_PATH"))
+    # chdir(globals().get("ROOT_PATH"))
     return {
         "message": "Downloading Model",
         "status": True
@@ -47,12 +51,12 @@ def download_json_w(workspace: Workspace, trainer: Trainer) -> dict:
 
 
 def download_pb(workspace: Workspace, trainer: Trainer) -> dict:
-    temp_dir = pathlib.join(workspace.path, "outputs", "model")
+    temp_dir = pathlib.join(workspace.__path__, "outputs", "model")
     if pathlib.isdir(temp_dir):
         rmtree(temp_dir)
     mkdir(temp_dir)
     trainer.model.save(temp_dir)
-    chdir(pathlib.join(workspace.path, "outputs",))
+    chdir(pathlib.join(workspace.__path__, "outputs",))
     with zipfile.ZipFile('model.zip', 'w') as zfile:
         for f in glob("./model/*"):
             zfile.write(f)
@@ -61,7 +65,7 @@ def download_pb(workspace: Workspace, trainer: Trainer) -> dict:
         for f in glob("./variables/*"):
             zfile.write(f)
     
-    chdir(globals().get("ROOT_PATH"))
+    # chdir(globals().get("ROOT_PATH"))
     return {
         "message": "Downloading Model",
         "status": True
@@ -69,7 +73,7 @@ def download_pb(workspace: Workspace, trainer: Trainer) -> dict:
 
 
 def download_hdf5(workspace: Workspace, trainer: Trainer) -> dict:
-    temp_dir = pathlib.join(workspace.path, "outputs", "model.hdf5")
+    temp_dir = pathlib.join(workspace.__path__, "outputs", "model.hdf5")
     trainer.model.save(temp_dir)
     return {
         "message": "Downloading Model",

@@ -386,9 +386,9 @@ const CSVDataset = (
         path:"/dataset/preprocess",
       }).then(response => response.json()).then(data=>{
         if (data.status){
-          console.log("Applied")
+          props.appFunctions.notify({ message: "Applied function" })
         }else{
-          console.log(data.message)
+          props.appFunctions.notify({ message: "Error Applying function" });
         }
       })
     }
@@ -398,7 +398,7 @@ const CSVDataset = (
       dataset.meta.preprocessor = csvPreProcCode;
       datasetState(dataset);
     }
-  },[]);
+  },[dataset,]);
 
   React.useEffect(()=>{
     if (dataset.deleteDataset){
