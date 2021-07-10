@@ -3,17 +3,17 @@ import React from "react";
 import Node from "./node";
 import Toolbar from "./toolbar";
 import LayerGroups from "./layergroups";
-import metaDatasetGroups from '../data/datasets';
+import metaDatasetGroups from "../data/datasets";
 
 import {
   metaAppFunctions,
   metaGraph,
   metaLayerGroups,
-  metaAppData
+  metaAppData,
 } from "../Meta";
 
 import { icons } from "../data/icons";
-import { POST, pull, push } from "../Utils";
+import { get, post, POST, pull, push } from "../Utils";
 
 let cursors = {
   edge: "crosshair",
@@ -80,10 +80,59 @@ const Tools = (props) => {
 
 const metaDataset = {
   fetch: true,
-  nodes: {
+  nodes: {},
+};
 
-  }
-}
+const dataViewers = {
+  image: {
+    Classification: (props = { data: [], menuState: undefined }) => {
+      React.useState(function () {
+        console.log(props.data);
+      }, []);
+
+      const Sample = (props) =>{
+        return (
+          <div className="sample">
+            <div className="label">{props.class}</div>
+            <img src={props.image} />
+          </div>
+        );
+      }
+
+      return (
+        <div className="viewer">
+          <div className="head">
+            <div className="name">Image Viewer</div>
+            <div className="buttons">
+              <div
+                className="btn"
+                onClick={props.reload}
+              >
+                Reload
+              </div>
+              <div
+                className="btn"
+                onClick={(e) => {
+                  props.menuState({
+                    render: false,
+                    comp: undefined,
+                  });
+                }}
+              >
+                Exit
+              </div>
+            </div>
+          </div>
+          <div className="image classification">
+            {props.data.map((sample, i) => {
+              return <Sample {...sample} key={i} />;
+            })}
+          </div>
+        </div>
+      );
+    },
+  },
+};
 
 const GraphEditor = (
   props = {
@@ -91,6 +140,9 @@ const GraphEditor = (
     appFunctions: metaAppFunctions,
   }
 ) => {
+  let refCanvas = React.useRef();
+  let refCanvasTop = React.useRef();
+  let refDummyLine = React.useRef();
   let [graph, graphState] = React.useState(metaDataset);
   let [layergroups, layergroupsState] = React.useState(metaDatasetGroups);
   let [menu, menuState] = React.useState({ comp: <div />, render: false });
@@ -117,10 +169,83 @@ const GraphEditor = (
     },
   ]);
 
-  let refCanvas = React.useRef();
-  let refCanvasTop = React.useRef();
-  let refDummyLine = React.useRef();
+  let [contextMenu, contextMenuState] = React.useState({
+    state: false,
+  });
 
+  async function buildDataset(){
+    await get({
+      path: "/dataset/build"
+    }).then(response=>response.json()).then(data=>{
+      props.appFunctions.notify({
+        message: data.message
+      })
+    })
+  }
+
+  async function viewSample(){
+    await get({
+      path: "/dataset/sample"
+    }).then(response=>response.json()).then(data=>{
+      let Viewer = dataViewers[data.type][data.problem];
+      menuState({
+        render: true,
+        comp: <Viewer data={data.data} menuState={menuState} reload={viewSample} />
+      });
+    })
+  }
+
+  const ContextMenu = (props = { x: Number, y: Number }) => {
+    let [options, optionsState] = React.useState([
+      {
+        name: "Build",
+        onclick: function (e) {
+          buildDataset();
+          menuState({
+            render: false,
+            comp: undefined,
+          });
+        },
+      },
+      {
+        name: "View Sample",
+        onclick: function (e) {
+          viewSample();
+          menuState({
+            render: false,
+            comp: undefined,
+          });
+        },
+      },
+      {
+        name: "Delete",
+        onclick: function (e) {
+          menuState({
+            render: false,
+            comp: undefined,
+          });
+        },
+      },
+    ]);
+
+    const Option = (props = { name: String, onclick: function () {} }) => {
+      return (
+        <div className="option" onClick={props.onclick}>
+          {props.name}
+        </div>
+      );
+    };
+
+    return (
+      <div className="context" style={{ top: props.y, left: props.x }}>
+        <div className="section">
+          {options.map((option, i) => {
+            return <Option {...option} key={i} />;
+          })}
+        </div>
+      </div>
+    );
+  };
   function newLine(e) {
     e.preventDefault();
     let line = document.getElementById("dummy");
@@ -181,7 +306,7 @@ const GraphEditor = (
         offsetY: 15,
       };
 
-      console.log(window.canvas.activeLayer.type.object_class)
+      console.log(window.canvas.activeLayer.type.object_class);
       switch (window.canvas.activeLayer.type.object_class) {
         case "datasets":
           graph.nodes[id] = node;
@@ -218,7 +343,7 @@ const GraphEditor = (
 
       window.canvas.activeElement.rect.x.baseVal.value = window.canvas.pos.x;
       window.canvas.activeElement.rect.y.baseVal.value = window.canvas.pos.y;
-      
+
       window.canvas.activeElement.handle.x1.baseVal.value = window.canvas.pos.x;
       window.canvas.activeElement.handle.y1.baseVal.value = window.canvas.pos.y;
 
@@ -294,37 +419,7 @@ const GraphEditor = (
         case "layers":
           removeNode(activeElement);
           break;
-        case "applications":
-          removeNode(activeElement);
-          break;
-        case "custom_def":
-          layergroups.custom_nodes.layers =
-            layergroups.custom_nodes.layers.filter((node, i) => {
-              return activeElement.name !== node.name;
-            });
-          layergroupsState({
-            ...layergroups,
-          });
-          delete graph.custom_nodes[activeElement.id];
-          removeNode(activeElement);
-          break;
-        case "optimizers":
-          delete graph.train_config.optimizer;
-          break;
-        case "build_tools":
-          let tool = graph.nodes[activeElement.id].type.name.toLowerCase();
-          if (graph.train_config[tool]) {
-            delete graph.train_config[tool];
-          }
-          removeNode(activeElement);
-          break;
-        case "edge":
-          activeElement.inbound.forEach((node) => {
-            graph.nodes[node].connections.outbound.pop(activeElement.node);
-          });
-          graph.nodes[activeElement.node].connections.inbound = [];
-          break;
-        case "datasets":
+        case "dataset":
           removeNode(activeElement);
           graphState({ ...graph });
           break;
@@ -451,7 +546,7 @@ const GraphEditor = (
         refCanvasTop.current.onmousemove = undefined;
 
         // layergroups.custom_nodes.layers = [];
-        graphState({ ...metaGraph, fetch: false});
+        graphState({ ...metaGraph, fetch: false });
         // layergroupsState({ ...layergroups });
         break;
       case "layer":
@@ -470,37 +565,51 @@ const GraphEditor = (
     toolbarButtonsState([...toolbarButtons]);
   }
 
+  function toggleContext(e) {
+    if (e.button === 2) {
+      switch (window.canvas.mode) {
+        case "line":
+          break;
+        default:
+          menuState({
+            comp: <ContextMenu x={e.clientX} y={e.clientY} />,
+            render: true,
+          });
+      }
+    }
+  }
+
   let tools = {
     addEdge: addEdge,
   };
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     updateViewBox();
     updateViewBoxService();
     window.setToolMode = setToolMode;
     setToolMode({ name: "normal" });
-  }, [])
+  }, []);
 
-  React.useEffect(()=>{
-    if ( graph.fetch ){
+  React.useEffect(() => {
+    if (graph.fetch) {
       pull({
-        name: "dataset"
-      }).then(response=>{
+        name: "dataset",
+      }).then((response) => {
         let graphdata = response.graph;
         delete response.graph;
         window.canvas = response;
-        graphState({...graphdata, fetch: false});
-      })
-    }else{
+        graphState({ ...graphdata, fetch: false });
+      });
+    } else {
       push({
-        name:"dataset",
-        data:{
+        name: "dataset",
+        data: {
           ...window.canvas,
-          graph: {...graph}
-        }
-      })
+          graph: { ...graph },
+        },
+      });
     }
-  }, [graph])
+  }, [graph]);
 
   return (
     <div className="container graph-canvas dataset-cotainer">
@@ -517,7 +626,12 @@ const GraphEditor = (
           setToolMode={setToolMode}
         />
       </Tools>
-      <div className="canvas-top" id="refCanvasTop" ref={refCanvasTop}>
+      <div
+        className="canvas-top"
+        id="refCanvasTop"
+        ref={refCanvasTop}
+        onMouseUp={toggleContext}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 0 0"

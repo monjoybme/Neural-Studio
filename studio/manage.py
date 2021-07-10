@@ -4,8 +4,8 @@ from typing import  Set
 from shutil import rmtree
 
 from .structs import DataDict
-from .graph import GraphDef
-from .dataset import DATASETS, Dataset
+from .graph import DatasetDef, GraphDef
+from .abc import Dataset
 from .logging import Logger
 
 APP = DataDict({
@@ -184,13 +184,11 @@ class Workspace(DataDict):
             super().__setitem__(key, val)
             keys, = key
             key, *_ = keys.split(":")
-            with open(pathlib.join(self.__path__, f"{key}.json"), "w+") as file:
-                dump(self.__dict__[key].to_dict(), file)
         else:
             assert key in self.__vars__, "Please provide valid variable name."
             self.__dict__[key] = DataDict(val)
-            with open(pathlib.join(self.__path__, f"{key}.json"), "w+") as file:
-                dump(self.__dict__[key].to_dict(), file)
+        with open(pathlib.join(self.__path__, f"{key}.json"), "w+") as file:
+            dump(self.__dict__[key].to_dict(), file)
 
     def save(self,):
         for var, val in self.get_vars():
@@ -212,7 +210,7 @@ class Workspace(DataDict):
 class WorkspaceManager(DataDict):
     
     workspaces: Set[str] = set()
-    dataset:Dataset = None
+    dataset:DatasetDef = None
 
     def __init__(self, root='.tfstudio'):
         self.root = pathlib.abspath(root)

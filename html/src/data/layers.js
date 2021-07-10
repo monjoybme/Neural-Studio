@@ -2539,29 +2539,16 @@ const layers = {
         type: { name: "BatchNormalization", object_class: "layers" },
         arguments: {
           axis: {
-            value: "required",
+            value: "-1",
             type: "str",
             render: "text",
             options: "axis",
           },
           momentum: {
-            value: "0",
+            value: "0.99",
             type: "int",
             render: "text",
             options: "momentum",
-          },
-          99: { value: "required", type: "str", render: "text", options: "99" },
-          epsilon: {
-            value: "0",
-            type: "int",
-            render: "text",
-            options: "epsilon",
-          },
-          "001": {
-            value: "required",
-            type: "str",
-            render: "text",
-            options: "001",
           },
           center: {
             value: "True",
@@ -2630,22 +2617,16 @@ const layers = {
         type: { name: "LayerNormalization", object_class: "layers" },
         arguments: {
           axis: {
-            value: "required",
+            value: "-1",
             type: "str",
             render: "text",
             options: "axis",
           },
           epsilon: {
-            value: "0",
+            value: "0.001",
             type: "int",
             render: "text",
             options: "epsilon",
-          },
-          "001": {
-            value: "required",
-            type: "str",
-            render: "text",
-            options: "001",
           },
           center: {
             value: "True",

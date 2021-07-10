@@ -8,14 +8,14 @@ from typing import List, Tuple
 
 from .manage import WorkspaceManager
 from .graph import GraphDef
-from .dataset import Dataset
+from .abc import Dataset
 
 from tensorflow import keras
 
 
 def execute_code(exec_code: str, gbs: dict = None) -> Tuple[dict, str]:
     try:
-        _ = exec(exec_code, gbs if gbs else globals())
+        exec(exec_code, gbs or globals())
         globals().update(locals())
         return locals(), None
     except Exception as e:
@@ -100,16 +100,18 @@ class Trainer(object):
     build = False
 
     re_charset = 'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\:-\<\>#"'
-    _session_var = {
-        "dataset": False
-    }
     build_config = {}
     is_training = False
 
     logs = []
 
+    _session_var = {
+        "dataset": False
+    }
+    
     __model__: keras.Model = False
     __model__name__: str = '__model__model__'
+    __dataset__ = None
 
     def __init__(self, workspace_manager: WorkspaceManager):
         self.workspace_manager: WorkspaceManager = workspace_manager

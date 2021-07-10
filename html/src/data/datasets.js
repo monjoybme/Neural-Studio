@@ -1,35 +1,150 @@
 const datasets = {
-  datasets: {
-    name: "Datasets",
+  image: {
+    name: "Image",
     layers: [
       {
-        name: "Dataset",
+        name: "From Directory",
         type: {
-          object_class: "datasets",
-          name: "Dataset",
+          name: "ImageClassificationDatasetFromDirectory",
+          object_class: "dataset",
         },
         arguments: {
-         
+          root: {
+            value: "required",
+            type: "str",
+            render: "text",
+            options: "root",
+          },
+          size: {
+            value: "required",
+            type: "tuple",
+            render: "text",
+            options: "size",
+          },
+          resize: {
+            value: "True",
+            type: "bool",
+            render: "list",
+            options: "bool",
+          },
+          show_progress: {
+            value: "True",
+            type: "bool",
+            render: "list",
+            options: "bool",
+          },
+        },
+      },
+    ],
+  },
+  text: {
+    name: "Text",
+    layers: [],
+  },
+  csv: {
+    name: "CSV Datasets",
+    layers: [],
+  },
+  built_in: {
+    name: "Built in",
+    layers: [
+      {
+        name: "Mnist",
+        type: {
+          name: "Mnist",
+          object_class: "dataset",
+        },
+        arguments: {
+          size: {
+            value: "(28, 28, 1)",
+            type: "tuple",
+            render: "text",
+            options: "size",
+          },
+          normalize: {
+            value: "True",
+            type: "bool",
+            render: "list",
+            options: "bool",
+          },
         },
       },
       {
-        name: "Image Dataset From Directory",
+        name: "BostonHousing",
         type: {
-          object_class: "datasets",
-          name: "Dataset",
+          name: "BostonHousing",
+          object_class: "dataset",
         },
         arguments: {
-          
+          size: {
+            value: "(13,)",
+            type: "tuple",
+            render: "text",
+            options: "size",
+          },
         },
       },
       {
-        name: "MNIST",
+        name: "Cifar10",
         type: {
-          object_class: "datasets",
-          name: "mnist",
+          name: "Cifar10",
+          object_class: "dataset",
         },
         arguments: {
-          
+          size: {
+            value: "(32, 32, 1)",
+            type: "tuple",
+            render: "text",
+            options: "size",
+          },
+          normalize: {
+            value: "True",
+            type: "bool",
+            render: "list",
+            options: "bool",
+          },
+        },
+      },
+      {
+        name: "Cifar100",
+        type: {
+          name: "Cifar100",
+          object_class: "dataset",
+        },
+        arguments: {
+          size: {
+            value: "(32, 32, 1)",
+            type: "tuple",
+            render: "text",
+            options: "size",
+          },
+          normalize: {
+            value: "True",
+            type: "bool",
+            render: "list",
+            options: "bool",
+          },
+        },
+      },
+      {
+        name: "FashionMnist",
+        type: {
+          name: "FashionMnist",
+          object_class: "dataset",
+        },
+        arguments: {
+          size: {
+            value: "(28, 28, 1)",
+            type: "tuple",
+            render: "text",
+            options: "size",
+          },
+          normalize: {
+            value: "True",
+            type: "bool",
+            render: "list",
+            options: "bool",
+          },
         },
       },
     ],
@@ -53,21 +168,19 @@ const datasets = {
       },
     ],
   },
-  buckets:{
+  buckets: {
     name: "Data Buckets",
-    layers:[
+    layers: [
       {
         name: "SimpleBucket",
-        type:{
+        type: {
           object_class: "buckets",
-          name: "SimpleBucket"
+          name: "SimpleBucket",
         },
-        arguments:{
-
-        }
-      }
-    ]
-  }
+        arguments: {},
+      },
+    ],
+  },
 };
 
 export default datasets;

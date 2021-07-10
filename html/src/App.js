@@ -48,8 +48,37 @@ const StatusBar = (props = { appData: metaAppData }) => {
 
     setTimeout(setTime, 1000);
   }
+  function utilSocket(){
+      let socket = new WebSocket("ws://localhost:8000/sys/utilization");
+
+      socket.onopen = function (event) {
+        console.log("[socket] Connection established");
+        socket.send("$")
+      };
+
+      socket.onmessage = function (event) {
+          socket.send("$");
+          console.log(event.data);
+      };
+      socket.onclose = function (event) {
+        if (event.wasClean) {
+          console.log(
+            `[socket] Connection closed cleanly, code=${event.code} reason=${event.reason}`
+          );
+        } else {
+          console.log("[socket] Connection died");
+        }
+      };
+
+      socket.onerror = function (error) {
+        console.log(`[socket] ${error.message}`);
+      };
+
+      return socket;
+    }
+
   React.useState(function(){
-    setTime()
+    setTime();
   }, [])
   return (
     <div className="statusbar">
