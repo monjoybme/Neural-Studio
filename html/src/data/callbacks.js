@@ -7,6 +7,18 @@ const callbacks = {
       arguments: {},
     },
     {
+      name: "OutputVisualizer",
+      type: { name: "OutputVisualizer", object_class: "callbacks" },
+      arguments: {
+        propblem_type:{
+          value: "None",
+          type: "str",
+          render: "list",
+          options: "visualizers"
+        }
+      },
+    },
+    {
       name: "ModelCheckpoint",
       type: { name: "ModelCheckpoint", object_class: "callbacks" },
       arguments: {

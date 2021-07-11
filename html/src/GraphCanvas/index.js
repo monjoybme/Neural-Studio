@@ -341,9 +341,8 @@ const GraphEditor = (
           });
           graph.nodes[activeElement.node].connections.inbound = [];
           break;
-        case "datasets":
+        case "CustomNode":
           removeNode(activeElement);
-          graphState({ ...graph });
           break;
         default:
           props.appFunctions.notify({
@@ -493,7 +492,16 @@ const GraphEditor = (
   
 
   React.useEffect(()=>{
-    updateViewBox();
+    window.canvas.viewBox = {
+      x: 0,
+      y: 0,
+      w: refCanvasTop.current.scrollWidth,
+      h: refCanvasTop.current.scrollHeight,
+    };
+    refCanvas.current.viewBox.baseVal.x = window.canvas.viewBox.x;
+    refCanvas.current.viewBox.baseVal.y = window.canvas.viewBox.y;
+    refCanvas.current.viewBox.baseVal.width = window.canvas.viewBox.w;
+    refCanvas.current.viewBox.baseVal.height = window.canvas.viewBox.h;
     updateViewBoxService();
     window.setToolMode = setToolMode;
     setToolMode({ name: "normal" });

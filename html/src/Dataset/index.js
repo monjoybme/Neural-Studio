@@ -86,10 +86,6 @@ const metaDataset = {
 const dataViewers = {
   image: {
     Classification: (props = { data: [], menuState: undefined }) => {
-      React.useState(function () {
-        console.log(props.data);
-      }, []);
-
       const Sample = (props) =>{
         return (
           <div className="sample">
@@ -98,7 +94,6 @@ const dataViewers = {
           </div>
         );
       }
-
       return (
         <div className="viewer">
           <div className="head">
@@ -131,6 +126,52 @@ const dataViewers = {
         </div>
       );
     },
+    Segmentation: (props={ data: [], menuState: undefined }) =>{
+      React.useEffect(()=>{
+        console.log(props.data);
+      }, [])
+
+      const Sample = (props) => {
+        return (
+          <div className="sample">
+            <div>
+              <img src={props.image} />
+            </div>
+            <div>
+              <img src={props.mask} />
+            </div>
+          </div>
+        );
+      };
+      return (
+        <div className="viewer">
+          <div className="head">
+            <div className="name">Image Viewer</div>
+            <div className="buttons">
+              <div className="btn" onClick={props.reload}>
+                Reload
+              </div>
+              <div
+                className="btn"
+                onClick={(e) => {
+                  props.menuState({
+                    render: false,
+                    comp: undefined,
+                  });
+                }}
+              >
+                Exit
+              </div>
+            </div>
+          </div>
+          <div className="image segmentation">
+            {props.data.map((sample, i) => {
+              return <Sample {...sample} key={i} />;
+            })}
+          </div>
+        </div>
+      );
+    }
   },
 };
 
@@ -584,7 +625,16 @@ const GraphEditor = (
   };
 
   React.useEffect(() => {
-    updateViewBox();
+    window.canvas.viewBox = {
+      x: 0,
+      y: 0,
+      w: refCanvasTop.current.scrollWidth,
+      h: refCanvasTop.current.scrollHeight,
+    };
+    refCanvas.current.viewBox.baseVal.x = window.canvas.viewBox.x;
+    refCanvas.current.viewBox.baseVal.y = window.canvas.viewBox.y;
+    refCanvas.current.viewBox.baseVal.width = window.canvas.viewBox.w;
+    refCanvas.current.viewBox.baseVal.height = window.canvas.viewBox.h;
     updateViewBoxService();
     window.setToolMode = setToolMode;
     setToolMode({ name: "normal" });

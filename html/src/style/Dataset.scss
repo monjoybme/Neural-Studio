@@ -110,12 +110,43 @@ $toolbarWidth: 280px;
         .label {
           height: 30px;
           width: 224px;
-        //   border: $lightBorder2;
+          //   border: $lightBorder2;
 
           @extend .heading-3;
           @extend .heading-bold;
 
           @include flex();
+        }
+      }
+    }
+
+    .segmentation {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 10px 10px 10px 10px;
+      grid-gap: 10px;
+
+      .sample {
+        height: 256px+64px;
+        width: 100%;
+        border: $lightBorder3;
+        background: $lightFr;
+
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 30px;
+
+        div {
+          img {
+            height: 256px;
+            width: 256px;
+          }
+          &:first-child {
+            @include flex(row, flex-end, center);
+          }
+          &:last-child {
+            @include flex(row, flex-start, center);
+          }
         }
       }
     }

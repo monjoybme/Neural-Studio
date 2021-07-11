@@ -1,2 +1,2 @@
-rm -rf studio/web
-cp ../pyrex-dev/pyrex studio/web -r
+rm -rf src/neural_studio/web
+cp ../pyrex-dev/pyrex src/neural_studio/web -r

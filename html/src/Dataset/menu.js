@@ -22,6 +22,56 @@ const propMeta = {
   },
 };
 
+const PathProperty = (
+  props = {
+    ...propMeta,
+    menu: undefined,
+    menuState: function (_ = { comp: undefined, render: false }) {},
+    appData: metaAppData,
+    appFunctions: metaAppFunctions,
+    train: false,
+  }
+) => {
+  let { graph, graphState } = props;
+  let property = graph.nodes[props.layer_id].arguments[props.name];
+  let [paths, pathsState] = React.useState([
+
+  ]);
+
+  function updatePath(e){
+    post({
+      path: "/sys/path",
+      data: {
+        path: e.target.value
+      }
+    }).then(response=>response.json()).then(data=>{
+      pathsState([...data]);
+      graph.nodes[props.layer_id].arguments[props.name].value = e.target.value;
+      graphState({ ...graph });
+    })
+  }
+
+  return (
+    <div className="property">
+      <div className="name"> {props.name} </div>
+      <datalist id="prop-path">
+        {
+          paths.map((opt, i)=>{
+            return <option value={opt} key={i} />
+          })
+        }
+      </datalist>
+      <input
+        name={`${props.layer_id}${props.name}`}
+        id={`${props.layer_id}${props.name}`}
+        defaultValue={property.value}
+        onKeyUp={updatePath}
+        list="prop-path"
+      />
+    </div>
+  );
+};
+
 const TextProperty = (
   props = {
     ...propMeta,
@@ -211,6 +261,15 @@ const Layer = (
             case "checkbox":
               return (
                 <CheckboxProperty
+                  {...props}
+                  layer_id={props.id}
+                  name={property}
+                  key={i}
+                />
+              );
+            case "path":
+              return (
+                <PathProperty
                   {...props}
                   layer_id={props.id}
                   name={property}

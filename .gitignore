@@ -1,8 +1,10 @@
 data/datasets
 temp/
 models/
+dist/
 
 *__pycache__
 notebooks
 __pycache__
 .tfstudio/
+app/.tfstudio

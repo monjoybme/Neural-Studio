@@ -3,7 +3,7 @@ const datasets = {
     name: "Image",
     layers: [
       {
-        name: "From Directory",
+        name: "ClassificationFromDirectory",
         type: {
           name: "ImageClassificationDatasetFromDirectory",
           object_class: "dataset",
@@ -12,7 +12,7 @@ const datasets = {
           root: {
             value: "required",
             type: "str",
-            render: "text",
+            render: "path",
             options: "root",
           },
           size: {
@@ -20,6 +20,87 @@ const datasets = {
             type: "tuple",
             render: "text",
             options: "size",
+          },
+          train_folder: {
+            value: "train",
+            type: "str",
+            render: "text",
+            options: "folder",
+          },
+          test_folder: {
+            value: "test",
+            type: "str",
+            render: "text",
+            options: "folder",
+          },
+          resize: {
+            value: "True",
+            type: "bool",
+            render: "list",
+            options: "bool",
+          },
+          show_progress: {
+            value: "True",
+            type: "bool",
+            render: "list",
+            options: "bool",
+          },
+        },
+      },
+      {
+        name: "Segmentation",
+        type: {
+          name: "ImageSegmentationDatasetFromDirectory",
+          object_class: "dataset",
+        },
+        arguments: {
+          root: {
+            value: "required",
+            type: "str",
+            render: "path",
+            options: "root",
+          },
+          size: {
+            value: "required",
+            type: "tuple",
+            render: "text",
+            options: "size",
+          },
+          train_images: {
+            value: "train_images",
+            type: "str",
+            render: "text",
+            options: "images",
+          },
+          train_masks: {
+            value: "train_masks",
+            type: "str",
+            render: "text",
+            options: "masks",
+          },
+          test_images: {
+            value: "test_images",
+            type: "str",
+            render: "text",
+            options: "images",
+          },
+          test_masks: {
+            value: "test_masks",
+            type: "str",
+            render: "text",
+            options: "masks",
+          },
+          normalize: {
+            value: "True",
+            type: "bool",
+            render: "list",
+            options: "bool",
+          },
+          binary_mask: {
+            value: "True",
+            type: "bool",
+            render: "list",
+            options: "bool",
           },
           resize: {
             value: "True",
