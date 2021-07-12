@@ -7,7 +7,7 @@ from justwatch import Path
 watcher = Watcher(
     handle=HandleAll(
         process= Process(
-            trigger= ['python', 'app.py']
+            trigger= ['python', '__init__.py']
         ),
         skip= [
             folder("__pycache__"),
@@ -28,4 +28,3 @@ watcher = Watcher(
 )
 
 watcher.start().observe()
-

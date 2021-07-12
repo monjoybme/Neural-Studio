@@ -4,11 +4,11 @@ import re
 from typing import List, Union
 import zipfile
 
+from webbrowser import open as open_url
 from concurrent.futures import ThreadPoolExecutor
 from gc import collect
 from glob import glob
-from os import listdir, name
-from os import path as pathlib
+from os import listdir, name, path as pathlib
 from time import sleep
 from pathlib import Path
 
@@ -41,13 +41,13 @@ TODO
 
 # root path
 HOME_PATH = Path().home()
-ROOT_PATH = pathlib.join(HOME_PATH,".tfstudio")
+ROOT_PATH = pathlib.join(HOME_PATH, ".tfstudio")
 DATA_PATH = data_path()
 
 # defining globals
 app = App()
-html_serve = ServeHTML(path= pathlib.join( DATA_PATH, "templates" ))
-static_serve = ServeStatic(path= pathlib.join( DATA_PATH, "templates" ))
+html_serve = ServeHTML(path=pathlib.join(DATA_PATH, "templates"))
+static_serve = ServeStatic(path=pathlib.join(DATA_PATH, "templates"))
 
 lith_sys = Lith("sys")
 lith_workspace = Lith("workspace")
@@ -81,6 +81,7 @@ try:
 except Exception as e:
     logger.sys_error(e)
 
+
 @app.get("/",)
 async def _index(request: Request) -> types.template:
     return await html_serve.get("index.html")
@@ -88,13 +89,15 @@ async def _index(request: Request) -> types.template:
 
 @app.get("/favicon.ico",)
 async def _ico(request: Request) -> types.file:
-    return await send_file(pathlib.join(DATA_PATH, "templates", "favicon.ico"), request,dispose= False)
+    return await send_file(pathlib.join(DATA_PATH, "templates", "favicon.ico"), request, dispose=False)
+
 
 @app.get("/static/<path:file>")
 async def _static_view(request: Request, file: Union[str, list]) -> types.static:
     _, *file = file.split("/")
     file = "/".join(file)
     return await static_serve.get(file)
+
 
 @lith_sys.post("/path")
 async def _sys_path(request: Request) -> types.dict:
@@ -226,8 +229,9 @@ async def _dataset_build(request: Request) -> types.dict:
         trainer.update_session({
             "dataset": dataset.dataset
         })
-        logger.success(f"Build dataset {{ { dataset.dataset.__class__.__name__ } }}")
-        return {"status": True, "message": "Dataset Built Succesfully" }
+        logger.success(
+            f"Build dataset {{ { dataset.dataset.__class__.__name__ } }}")
+        return {"status": True, "message": "Dataset Built Succesfully"}
     except Exception as e:
         return {"status": False, "message": repr(e)}
 
@@ -294,19 +298,21 @@ async def _train_stop(request: Request) -> types.dict:
 async def _status(request: Request) -> types.dict:
     return {"logs": trainer.logs}
 
+
 @lith_train.get("/socket_status")
 async def _socket_status(request: Request) -> types.websocketserver:
     with WebSocketServer(request) as server:
         logger.log("Status socket initiated.")
         while True:
             data = await server.recv()
-            if data  == '$exit':
+            if data == '$exit':
                 break
             await server.send_json(trainer.logs)
             sleep(0.005)
     logger.success("Status socket closed.")
 
 # custom node endpoints
+
 
 @lith_custom.post("/node/build")
 async def _node_build(request: Request) -> types.dict:
@@ -319,9 +325,9 @@ async def _node_build(request: Request) -> types.dict:
             "type": fullspecs.annotations[arg].__name__,
             "render": "text",
             "options": None,
-        } 
-            for arg, val 
-            in zip(fullspecs.args, fullspecs.defaults)
+        }
+        for arg, val
+        in zip(fullspecs.args, fullspecs.defaults)
     }
 
     return {"id": function_id, "arguments": arguments}
@@ -333,7 +339,11 @@ app.add_lith(lith_dataset)
 app.add_lith(lith_model)
 app.add_lith(lith_train)
 
-if __name__ == "__main__":
+def main():
+    open_url(f"http://localhost:8000")
     app.serve(
-        port=8000,
+        port=8000
     )
+
+if __name__ == "__main__":
+    main()
