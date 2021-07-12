@@ -4,10 +4,11 @@ import shutil
 from typing import  Set
 from shutil import rmtree
 
-from .structs import DataDict
-from .graph import DatasetDef, GraphDef
-from .abc import Dataset
-from .logging import Logger
+from neural_studio.structs import DataDict
+from neural_studio.graph import DatasetDef, GraphDef
+from neural_studio.abc import Dataset
+from neural_studio.logging import Logger
+from neural_studio.data import setup
 
 APP = DataDict({
     "theme": "light",
@@ -219,8 +220,6 @@ class WorkspaceManager(DataDict):
             mkdir(pathlib.join(self.root, "models"))
             mkdir(pathlib.join(self.root, "workspace"))
             mkdir(pathlib.join(self.root, "extentions"))
-
-            # shutil.move()
 
         self.cache = Cache(self.root)
         self.active = False

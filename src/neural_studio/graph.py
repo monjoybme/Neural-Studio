@@ -281,8 +281,8 @@ class DatasetDef(DataDict):
                 instance = getattr(datasets, layer[['type:name']])
                 arguments = {
                     key: self._abs(value)
-                        for key, value
-                        in layer.arguments
+                    for key, value
+                    in layer.arguments
                 }
                 self._dataset = instance(**arguments)
             self.__layers__.append(idx)
@@ -298,6 +298,7 @@ class DatasetDef(DataDict):
     def dataset(self, ):
         return self._dataset
 
+
 class GraphDef(DataDict):
     __optimizer__ = False
 
@@ -312,42 +313,42 @@ class GraphDef(DataDict):
         self.__input__ = []
         self.__custom__nodes__ = []
         self.__callbacks__ = []
-        
+
         for idx, layer in self.nodes:
             if layer[["type:object_class"]] == 'layers':
                 self.nodes[idx] = LayerMeta(dict(layer))
                 if layer[['type:name']] == 'Input':
                     self.__input__.append(idx)
-            
+
             elif layer[['type:object_class']] == 'CustomNode':
                 self.nodes[idx] = CustomNodeMeta(dict(layer))
-            
+
             elif layer[['type:object_class']] == 'applications':
                 self.nodes[idx] = ApplicationMeta(dict(layer))
-            
+
             elif layer[["type:object_class"]] == 'callbacks':
                 self.nodes[idx] = LayerMeta(dict(layer))
                 self.__callbacks__.append(self.nodes[idx])
-            
+
             elif layer[["type:object_class"]] == 'optimizers':
                 self.nodes[idx] = LayerMeta(dict(layer))
                 self.__optimizer__ = self.nodes[idx]
-            
+
             elif layer[["type:object_class"]] == 'build_tools':
                 if layer[['type:name']] == 'Model':
                     self.nodes[idx] = ModelMeta(dict(layer))
                     self.__model__ = self.nodes[idx]
-                
+
                 elif layer[['type:name']] == 'Compile':
                     self.nodes[idx] = CompileMeta(dict(layer))
                     self.__compile__ = self.nodes[idx]
-                
+
                 elif layer[['type:name']] == 'Fit':
                     self.nodes[idx] = FitMeta(dict(layer))
                     self.__train__ = self.nodes[idx]
                 else:
                     pass
-            
+
             elif layer[['type:object_class']] == 'custom_def':
                 self.__custom__nodes__.append(LayerMeta(dict(layer)))
             else:

@@ -22,6 +22,7 @@ from tensorflow.keras import (applications, callbacks, layers, losses,
                               optimizers)
 from tqdm.cli import tqdm
 
+from neural_studio.data import data_path
 from neural_studio.graph import DatasetDef, GraphDef
 from neural_studio.logging import Logger
 from neural_studio.manage import Workspace, WorkspaceManager
@@ -41,11 +42,12 @@ TODO
 # root path
 HOME_PATH = Path().home()
 ROOT_PATH = pathlib.join(HOME_PATH,".tfstudio")
+DATA_PATH = data_path()
 
 # defining globals
 app = App()
-html_serve = ServeHTML(path= pathlib.join( ROOT_PATH, "templates" ))
-static_serve = ServeStatic(path= pathlib.join( ROOT_PATH, "templates" ))
+html_serve = ServeHTML(path= pathlib.join( DATA_PATH, "templates" ))
+static_serve = ServeStatic(path= pathlib.join( DATA_PATH, "templates" ))
 
 lith_sys = Lith("sys")
 lith_workspace = Lith("workspace")
@@ -82,6 +84,11 @@ except Exception as e:
 @app.get("/",)
 async def _index(request: Request) -> types.template:
     return await html_serve.get("index.html")
+
+
+@app.get("/favicon.ico",)
+async def _ico(request: Request) -> types.file:
+    return await send_file(pathlib.join(DATA_PATH, "templates", "favicon.ico"), request,dispose= False)
 
 @app.get("/static/<path:file>")
 async def _static_view(request: Request, file: Union[str, list]) -> types.static:

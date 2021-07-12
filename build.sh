@@ -1,11 +1,13 @@
+rm -rf src/neural_studio_code_kage.egg-info
+
 cd html
 yarn build
-cd ../src/neural_studio
+cd ../src/neural_studio/data
 
 rm -rf templates
-mv ../../html/build templates/ 
+mv ../../../html/build templates/ 
 
-cd ../..
+cd ../../..
 
 app=`cat app/app.py`
 exe=`python -c "import sys;print(sys.executable)"`
@@ -16,4 +18,4 @@ echo "$app" >> temp/neural-studio
 
 py -m build
 
-rm src/neural_studio_code_kage.egg-info
+rm -rf src/neural_studio_code_kage.egg-info

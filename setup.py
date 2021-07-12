@@ -24,5 +24,25 @@ setuptools.setup(
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
     python_requires=">=3.6",
-    scripts=["temp/neural-studio"]
+    scripts=["temp/neural-studio"],
+    package_data={
+        "neural_studio": [
+            "data/templates/*.html", 
+            "data/templates/*.ico", 
+            "data/templates/*.json", 
+            "data/templates/*.png", 
+            "data/templates/*.svg", 
+            "data/templates/*.txt", 
+            "data/templates/*.xml"
+        ],
+        "neural_studio.data":[
+            "templates/static/*",
+            "templates/static/media/*.svg",
+            "templates/static/media/*",
+            "templates/static/css/*.css",
+            "templates/static/css/*",
+            "templates/static/js/*.js",
+            "templates/static/js/*"
+        ]
+    }
 )

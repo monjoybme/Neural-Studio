@@ -7,7 +7,7 @@ from justwatch import Path
 watcher = Watcher(
     handle=HandleAll(
         process= Process(
-            trigger= ['python', 'neural_studio.py']
+            trigger= ['python', 'app.py']
         ),
         skip= [
             folder("__pycache__"),
