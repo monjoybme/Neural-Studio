@@ -8,3 +8,5 @@ notebooks
 __pycache__
 .tfstudio/
 app/.tfstudio
+
+wiki/
