@@ -5,17 +5,12 @@ import Toolbar from "./toolbar";
 import LayerGroups from "./layergroups";
 import metaDatasetGroups from "../data/datasets";
 
-<<<<<<< HEAD
-import { metaAppFunctions, metaAppData } from "../Meta";
-import { pull, push } from "../Utils";
-=======
 import {
   metaAppFunctions,
   metaGraph,
   metaLayerGroups,
   metaAppData,
 } from "../Meta";
->>>>>>> dataset_as_graph
 
 import { icons } from "../data/icons";
 import { get, post, POST, pull, push } from "../Utils";

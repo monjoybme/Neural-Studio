@@ -1,4 +1,4 @@
-![](./data/logo.png)
+![](https://raw.githubusercontent.com/monjoybme/Neural-Studio/master/data/logo.png)
 
 # Neural Studio
 
@@ -9,7 +9,7 @@
 > Installation
 
 ```bash
-$ pip install neural-studio-code-kage
+$ pip install neural-studio
 ```
 
 > Here's a list of tutorials to get started.

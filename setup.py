@@ -28,7 +28,7 @@ setuptools.setup(
     packages=setuptools.find_packages(where="src"),
     python_requires=">=3.6",
     entry_points={
-        'console_scripts': ['neural-studio=neural_studio_cli.studio:run_studio'],
+        'console_scripts': ['neural-studio=neural_studio.cli.studio:run_studio'],
     },
     install_requires=[
         "opencv-python",

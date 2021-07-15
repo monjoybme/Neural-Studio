@@ -1,4 +1,4 @@
-rm -rf src/neural_studio_code_kage.egg-info
+rm -rf src/neural_studio.egg-info
 rm -rf dist/
 
 cd html
@@ -10,4 +10,4 @@ cd ../../..
 
 py -m build
 
-rm -rf src/neural_studio_code_kage.egg-info
+rm -rf src/neural_studio.egg-info
