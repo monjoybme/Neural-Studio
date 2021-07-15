@@ -107,6 +107,11 @@ const options = {
     "rmsprop",
     "sgd",
   ],
+  visualizers:[
+    "None",
+    "segmentation",
+    "classification"
+  ],
   bool: ["None", "True", "False"],
 };
 

@@ -1,444 +1,553 @@
-@import './App.scss';
+@import "./App.scss";
 
-$toolbarWidth : 280px;
+$toolbarWidth: 280px;
 
 .graph-canvas {
-    display: flex;    
-}
-
-.tools {
-    height: 100%;
-    border-right: $lightBorder1;
-    min-width: $toolbarWidth;
-    .toolbar {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        height: $topbarHeight;
-        
-        .btn {
-            min-height: $topbarHeight;
-            transition-property: all;
-            transition-duration: 100ms;
-            @include flex();
-        }
-
-        .selected {
-            svg {
-                fill: $primary;
-            }
-        }
-
-        svg:hover{
-            fill: $primary;
-        }
-
-    }
-
-    .layergroups {
-        overflow-y: scroll;
-        height: calc( 100vh - ( 2 * #{$topbarHeight} + #{$statusBarHeight} )  );
-        width: 100%;
-        @include flex(column, flex-start, center);
-
-        .layers {
-            width: 100%;
-            @include flex( column,);
-            .name {
-                min-height: calc( #{$topbarHeight} - 1px ) !important;
-                height: auto !important;
-                width: 100%;
-              
-                padding-left: 10px;
-                cursor: pointer;
-                @include flex( row, flex-start, center );
-                @extend .heading-4;
-            }
-
-            .grid {
-                width: 100%;
-                display: grid;
-                grid-gap: 5px;
-                padding: 0px 7px 7px 7px;
-                .btn {
-                    height: 30px;
-                    border-radius: 2px;
-                    @extend .grid-center;
-                    @extend .heading-5;
-                    font-size: 11px;
-                    letter-spacing: 1px;
-                  }
-            }
-        }
-    }
-}
-
-.canvas-top {
-    width: 100%;
-    height: 100%;
-    overflow: hidden !important;
-    .canvas {
-        width: -webkit-fill-available;
-        height: 100%;
-
-        text {
-            @extend .heading-4;
-            @extend .heading-bold;
-        }
-
-        line:hover{
-            stroke-width: 3px;
-        }
-    }
-
-}
-
-.menu {
+  display: flex;
+  .context {
     position: absolute;
-    z-index: 99;
-    right: 0;
-    height: calc( 100vh - ( #{$topbarHeight} + #{$statusBarHeight} ) );
-    max-height: calc( 100vh - ( #{$topbarHeight} + #{$statusBarHeight} ) );
-    width: 300px;
-    padding: 5px;
-    overflow-y: scroll;
-    @include flex(column, flex-start,center);
 
-    .name {
-        height: 30px;
-        
-        @include flex();
-        @extend .heading-4;
+    .section {
+      background: $lightBg;
+      padding: 3px 7px;
+      border: $lightBorder3;
+      border-radius: 2px;
+
+      box-shadow: 0px 0px 1px 2px rgba(180, 180, 180, 0.1);
+
+      .option {
+        letter-spacing: 1px;
+        height: 25px;
+        min-width: 100px;
+
+        border-bottom: $lightBorder3;
+
+        cursor: pointer;
+
+        @include flex(row, flex-start, center);
+        @extend .heading-5;
+        @extend .heading-bold;
+      }
+
+      div:last-child {
+        border: none;
+      }
     }
-
-    .properties {
-        display: grid;
-        grid-gap: 10px;
-        margin-top: 5px;
-        max-height: 85%;
-
-        .property {
-            height: 70px;
-            border-radius: 2px;
-            width: 280px;
-          
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 5px 7px;
-            
-            .name {
-                margin-left: 3px;
-            }
-
-            .checkboxes {
-                height: 160px;
-                overflow-y: scroll;
-                border: rgba(51, 51, 51, 0.241) 1px solid;
-                margin-top: 5px;
-                width: 100%;
-                padding: 3px;
-                .checkbox {
-                    margin-top: 5px;
-                    cursor: pointer;
-                    @extend .heading-4;
-                    @include flex(row, flex-start);
-
-                    letter-spacing: 0px;
-                    font-size: 11px;
-
-                    .box {
-                        height: 15px;
-                        width: 15px;
-                        margin: 0px 7px;
-                      }
-                }
-            }
-
-            select {
-                margin-top: 6px;
-                height: 25px;
-              
-                border: $lightBorder1;
-                border-radius: 3px;
-                width: 100%;
-
-                @extend .heading-4;
-            }
-
-            input {
-                border: $lightBorder1;
-                border-radius: 3px;
-               
-                height: 30px;
-                padding-left: 10px;
-                margin-top: 5px;
-                width: 100%;
-
-                @extend .heading-4;
-            }
-        }
-    }
-
-}
-
-.dataset {
+  }
+  .viewer {
     position: absolute;
     z-index: 99999;
     left: $toolbarWidth + $sidebarWidth;
     top: $topbarHeight;
-    width: calc( 100% - ( #{$toolbarWidth} + #{$sidebarWidth} ) );
-    height: calc( 100% - ( #{$topbarHeight} + #{$statusBarHeight} ) );
-    
+    width: calc(100% - (#{$toolbarWidth} + #{$sidebarWidth}));
+    height: calc(100% - (#{$topbarHeight} + #{$statusBarHeight}));
+    padding: 5px;
+
     .head {
+      width: 100%;
+      height: 40px;
+
+      @include flex(row, space-between, center);
+
+      .name {
+        border: none;
+        background: none;
+        height: 100%;
+
+        @include flex();
+        @extend .heading-4;
+      }
+
+      .btn {
+          border-radius: 3px;
+          height: 25px;
+          width: 70px;
+          padding-bottom: 3px;
+          cursor: pointer;
+          background: $lightBg;
+          border: $lightBorder2;
+
+          @include flex();
+          @extend .heading-4;
+        }
+
+      .buttons {
+        width: 150px;
+        display: grid;
+        grid-gap: 10px;
+        grid-template-columns: 1fr 1fr;
+
+        .btn {
+          border-radius: 3px;
+          height: 25px;
+          width: 70px;
+          padding-bottom: 3px;
+          cursor: pointer;
+          background: $lightBg;
+          border: $lightBorder2;
+
+          @include flex();
+          @extend .heading-4;
+        }
+      }
+    }
+  }
+
+  .summary{
+    overflow-y: scroll;
+    .head{
+      padding: 10px 20px !important;
+    }
+  }
+}
+
+.tools {
+  height: 100%;
+  border-right: $lightBorder1;
+  min-width: $toolbarWidth;
+  .toolbar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    height: $topbarHeight;
+
+    .btn {
+      min-height: $topbarHeight;
+      transition-property: all;
+      transition-duration: 100ms;
+      @include flex();
+    }
+
+    .selected {
+      svg {
+        fill: $primary;
+      }
+    }
+
+    svg:hover {
+      fill: $primary;
+    }
+  }
+
+  .layergroups {
+    overflow-y: scroll;
+    height: calc(100vh - (2 * #{$topbarHeight} + #{$statusBarHeight}));
+    width: 100%;
+    @include flex(column, flex-start, center);
+
+    .layers {
+      width: 100%;
+      @include flex(column);
+      .name {
+        min-height: calc(#{$topbarHeight} - 1px) !important;
+        height: auto !important;
         width: 100%;
-        padding: 7px 10px;
-        height: 40px;
-        border-bottom: rgba(51, 51, 51, 0.241) 1px solid;
-      
-        display: flex;
-        justify-content: space-between;
 
-        input {
-            border: none;
-            background: none;
-            height: 100%;
+        padding-left: 10px;
+        cursor: pointer;
+        @include flex(row, flex-start, center);
+        @extend .heading-4;
+      }
 
-            @include flex();
-            @extend .heading-4;
+      .grid {
+        width: 100%;
+        display: grid;
+        grid-gap: 5px;
+        padding: 0px 7px 7px 7px;
+        .btn {
+          height: 30px;
+          border-radius: 2px;
+          @extend .grid-center;
+          @extend .heading-5;
+          font-size: 11px;
+          letter-spacing: 1px;
         }
+      }
+    }
+  }
+}
 
-        .buttons {
-            display: flex;
-            .btn {
-                border: $lightBorder1;
-                border-radius: 3px;
-                height: 25px;
-                width: 70px;
-                padding-bottom: 3px;
-                cursor: pointer;
+.canvas-top {
+  width: 100%;
+  height: 100%;
+  overflow: hidden !important;
 
-                margin-left: 10px;
-                
-                @include flex();
-                @extend .heading-4;
-            }
+  .floatbar {
+    position: fixed;
+    height: 30px;
+
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 1fr 1fr;
+    margin: 10px 10px 10px 10px;
+
+    div {
+      height: 100%;
+      width: 100px;
+
+      background: $lightBg;
+      border: $lightBorder3;
+      border-radius: 2px;
+      cursor: pointer;
+
+      @extend .heading-4;
+      @include flex();
+    }
+  }
+
+  .canvas {
+    width: -webkit-fill-available;
+    height: 100%;
+
+    text {
+      @extend .heading-4;
+      @extend .heading-bold;
+    }
+
+    line:hover {
+      stroke-width: 3px;
+    }
+  }
+}
+
+.menu {
+  position: absolute;
+  z-index: 99;
+  right: 0;
+  height: calc(100vh - (#{$topbarHeight} + #{$statusBarHeight}));
+  max-height: calc(100vh - (#{$topbarHeight} + #{$statusBarHeight}));
+  width: 300px;
+  padding: 5px;
+  overflow-y: scroll;
+  @include flex(column, flex-start, center);
+
+  .name {
+    height: 30px;
+
+    @include flex();
+    @extend .heading-4;
+  }
+
+  .properties {
+    display: grid;
+    grid-gap: 10px;
+    margin-top: 5px;
+    max-height: 85%;
+
+    .property {
+      height: 70px;
+      border-radius: 2px;
+      width: 280px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 5px 7px;
+
+      .name {
+        margin-left: 3px;
+      }
+
+      .checkboxes {
+        height: 160px;
+        overflow-y: scroll;
+        border: rgba(51, 51, 51, 0.241) 1px solid;
+        margin-top: 5px;
+        width: 100%;
+        padding: 3px;
+        .checkbox {
+          margin-top: 5px;
+          cursor: pointer;
+          @extend .heading-4;
+          @include flex(row, flex-start);
+
+          letter-spacing: 0px;
+          font-size: 11px;
+
+          .box {
+            height: 15px;
+            width: 15px;
+            margin: 0px 7px;
+          }
         }
+      }
+
+      select {
+        margin-top: 6px;
+        height: 25px;
+
+        border: $lightBorder1;
+        border-radius: 3px;
+        width: 100%;
+
+        @extend .heading-4;
+      }
+
+      input {
+        border: $lightBorder1;
+        border-radius: 3px;
+
+        height: 30px;
+        padding-left: 10px;
+        margin-top: 5px;
+        width: 100%;
+
+        @extend .heading-4;
+      }
     }
-    section {
-        height: calc( 100% - 40px ) !important;
+  }
+}
+
+.dataset {
+  position: absolute;
+  z-index: 99999;
+  left: $toolbarWidth + $sidebarWidth;
+  top: $topbarHeight;
+  width: calc(100% - (#{$toolbarWidth} + #{$sidebarWidth}));
+  height: calc(100% - (#{$topbarHeight} + #{$statusBarHeight}));
+
+  .head {
+    width: 100%;
+    padding: 7px 10px;
+    height: 40px;
+    border-bottom: rgba(51, 51, 51, 0.241) 1px solid;
+
+    display: flex;
+    justify-content: space-between;
+
+    input {
+      border: none;
+      background: none;
+      height: 100%;
+
+      @include flex();
+      @extend .heading-4;
     }
+
+    .buttons {
+      display: flex;
+      .btn {
+        border: $lightBorder1;
+        border-radius: 3px;
+        height: 25px;
+        width: 70px;
+        padding-bottom: 3px;
+        cursor: pointer;
+
+        margin-left: 10px;
+
+        @include flex();
+        @extend .heading-4;
+      }
+    }
+  }
+  section {
+    height: calc(100% - 40px) !important;
+  }
 }
 
 .customNode {
-    
-    .head {
-        .name {
-            height: 100%;
-            @extend .heading-4;
-            @include flex();
-        }
-        .btn {
-                border: $lightBorder1;
-                border-radius: 3px;
-                height: 25px;
-                width: 70px;
-                padding-bottom: 3px;
-                cursor: pointer;
-
-                margin-left: 10px;
-                
-                @include flex();
-                @extend .heading-4;
-            }
+  .head {
+    .name {
+      height: 100%;
+      @extend .heading-4;
+      @include flex();
     }
+    .btn {
+      border: $lightBorder1;
+      border-radius: 3px;
+      height: 25px;
+      width: 70px;
+      padding-bottom: 3px;
+      cursor: pointer;
 
-    .body{
-        display: flex;
-        height: 100%;
-    }
+      margin-left: 10px;
 
-    section {
-       width: calc( 100% - 300px) !important;
+      @include flex();
+      @extend .heading-4;
     }
+  }
+
+  .body {
+    display: flex;
+    height: 100%;
+  }
+
+  section {
+    width: calc(100% - 300px) !important;
+  }
 }
 
-
 .light {
-
-    .tools {
-        background: $lightFr;
-        .toolbar {
-            border-bottom: $lightBorder1;
-        }
+  .tools {
+    background: $lightFr;
+    .toolbar {
+      border-bottom: $lightBorder1;
     }
+  }
 
-    .layergroups {
-        .layers{
-            border-bottom: $lightBorder1;
-            .name{
-                color: $lightColorPr;
-            }
-            .grid {
-                .btn{
-                    color: $lightColorPr;
-                    border: $lightBorder1;
-                    background: $lightBtnPr;
-                }
-            }
-        }
-    }
-
-    .canvas-top{
-        .canvas{
-            rect {
-                stroke: rgb(179, 179, 179);
-                stroke-width: 2px;
-                fill: rgb(250, 250, 250);
-            }
-            text {
-                fill: rgb(95, 95, 95);
-            }
-            line {
-                stroke: rgb(179, 179, 179);
-            }
-            marker {
-                stroke: rgb(179, 179, 179);
-            }
-        }
-    }
-
-    .menu{
-        background: $lightFr;
+  .layergroups {
+    .layers {
+      border-bottom: $lightBorder1;
+      .name {
         color: $lightColorPr;
-        border-left: $lightBorder2;
-
-        .properties {
-            .property{
-                border: $lightBorder2;
-                background: rgba($color: $lightBg, $alpha: 0.75);
-                input{
-                    color: $lightColorPr;
-                    background: $lightBg;
-                }
-                select{
-                    background: $lightBg;
-                }
-            }
-            .checkboxes {
-                .checkbox {
-                    .box {
-                        border: 4px solid $lightColorPr;
-                        background: $lightColorPr;
-                    }
-                    .selected {
-                        background: $darkColorPr;
-                    }
-                }
-            }
+      }
+      .grid {
+        .btn {
+          color: $lightColorPr;
+          border: $lightBorder1;
+          background: $lightBtnPr;
         }
+      }
     }
+  }
 
-    .dataset{
-        color: $lightColorPr;
-        .head{
-            background: $lightBg;
-        }
-        input{
-            color: $lightColorPr;
-        }
+  .canvas-top {
+    background: rgb(243, 243, 243);
+    .canvas {
+      rect {
+        stroke: rgb(170, 170, 170);
+        stroke-width: 0.02rem;
+        fill: #fff;
+      }
+      text {
+        fill: rgb(95, 95, 95);
+      }
+      line {
+        stroke: rgb(179, 179, 179);
+      }
+      marker {
+        stroke: rgb(179, 179, 179);
+      }
     }
+  }
 
+  .menu {
+    background: $lightFr;
+    color: $lightColorPr;
+    border-left: $lightBorder2;
+
+    .properties {
+      .property {
+        border: $lightBorder2;
+        background: rgba($color: $lightBg, $alpha: 0.75);
+        input {
+          color: $lightColorPr;
+          background: $lightBg;
+        }
+        select {
+          background: $lightBg;
+        }
+      }
+      .checkboxes {
+        .checkbox {
+          .box {
+            border: 4px solid $lightColorPr;
+            background: $lightColorPr;
+          }
+          .selected {
+            background: $darkColorPr;
+          }
+        }
+      }
+    }
+  }
+
+  .dataset {
+    color: $lightColorPr;
+    .head {
+      background: $lightBg;
+    }
+    input {
+      color: $lightColorPr;
+    }
+  }
 }
 
 .dark {
-
-    .tools {
-        // border-right: $darkBorder2;
-        background: $darkFr;
-        .toolbar {
-            border-bottom: $darkBorder2;
-        }
+  .tools {
+    // border-right: $darkBorder2;
+    background: $darkFr;
+    .toolbar {
+      border-bottom: $darkBorder2;
     }
+  }
 
-    .layergroups {
-        .layers{
-            border-bottom: $darkBorder2;
-            .name{
-                color: $darkColorPr;
-                @extend .heading-light;
-            }
-            .grid {
-                .btn{
-                    color: $darkColorPr;
-                    border: solid 1px rgba(51, 51, 51, 0.15);
-                    background: rgba(228, 228, 228, 0.15);
-                    @extend .heading-regular;
-                }
-            }
-        }
-    }
-    
-    .canvas-top{
-        background: rgba(228, 228, 228, 0.05);
-        .canvas{
-            rect {
-                stroke: rgba( 150, 150, 150 ,1 );
-                stroke-width: 2px;
-                fill: $darkBtnPr;
-            }
-            text {
-                fill: $darkColorSc;
-            }
-            line {
-                stroke: rgba(221, 221, 221, 0.8);
-            }
-            marker {
-                stroke: white; //rgba(180, 180, 180, 0.4);
-                fill: white;//rgba(180, 180, 180, 0.8);
-            }
-            circle {
-                fill : white; //rgba(221, 221, 221, 0.446);
-            }
-        }
-    }
-
-    .menu{
-        background: $darkFr;
+  .layergroups {
+    .layers {
+      border-bottom: $darkBorder2;
+      .name {
         color: $darkColorPr;
-        border-left: $darkBorder2;
-
-        .properties {
-            .property{
-                // border: 1px solid rgba( 228, 228, 228, 0.4);
-                background: rgba($color: #c5c5c5, $alpha: 0.3);
-            }
-            .checkboxes {
-                .checkbox {
-                    .box {
-                        border: 3px solid $darkColorPr;
-                        background: $darkColorPr;
-                    }
-                    .selected {
-                        background: $lightColorPr;
-                    }
-                }
-            }
-            input {
-                color: $lightColorPr;
-            }
+        @extend .heading-light;
+      }
+      .grid {
+        .btn {
+          color: $darkColorPr;
+          border: solid 1px rgba(51, 51, 51, 0.15);
+          background: rgba(228, 228, 228, 0.15);
+          @extend .heading-regular;
         }
+      }
     }
+  }
 
-    .dataset{
-        color: $darkColorPr;
-        background: $darkBg;
-        .head{
-            background: $darkBg;
-        }
-        input{
-            color: $darkColorPr;
-        }
+  .canvas-top {
+    background: $darkTr;
+    .canvas {
+      rect {
+        fill: $darkBtnPr;
+      }
+      text {
+        fill: $darkColorSc;
+      }
+      line {
+        stroke: rgba(221, 221, 221, 0.8);
+      }
+      marker {
+        stroke: white; //rgba(180, 180, 180, 0.4);
+        fill: white; //rgba(180, 180, 180, 0.8);
+      }
+      circle {
+        fill: white; //rgba(221, 221, 221, 0.446);
+      }
     }
+  }
 
+  .menu {
+    background: $darkFr;
+    color: $darkColorPr;
+    border-left: $darkBorder2;
+
+    .properties {
+      .property {
+        // border: 1px solid rgba( 228, 228, 228, 0.4);
+        background: rgba($color: #c5c5c5, $alpha: 0.3);
+      }
+      .checkboxes {
+        .checkbox {
+          .box {
+            border: 3px solid $darkColorPr;
+            background: $darkColorPr;
+          }
+          .selected {
+            background: $lightColorPr;
+          }
+        }
+      }
+      input {
+        color: $lightColorPr;
+      }
+    }
+  }
+
+  .dataset {
+    color: $darkColorPr;
+    background: $darkBg;
+    .head {
+      background: $darkTr;
+    }
+    input {
+      color: $darkColorPr;
+    }
+  }
 }

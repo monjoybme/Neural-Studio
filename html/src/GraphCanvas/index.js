@@ -1,6 +1,6 @@
 import React from "react";
 
-import Node from "./node";
+import { Node, calculateEdge } from "./node";
 import Toolbar from "./toolbar";
 import LayerGroups from "./layergroups";
 
@@ -8,10 +8,10 @@ import {
   metaAppFunctions,
   metaGraph,
   metaLayerGroups,
-  metaAppData
+  metaAppData,
 } from "../Meta";
 import { icons } from "../data/icons";
-import { POST, pull, push } from "../Utils";
+import { get, pos, pull, push, Loading } from "../Utils";
 
 let cursors = {
   edge: "crosshair",
@@ -72,13 +72,89 @@ const DefaultLine = (props = { lineref: undefined }) => {
   );
 };
 
+const SummaryViewer = (props = { store: metaAppData }) => {
+  let [summary, summaryState] = React.useState({
+    data: [],
+    fetched: false,
+  });
+
+  async function getModel(e) {
+    await get({
+      path: "/model/summary",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        summaryState({
+          data: data.summary,
+          fetched: true,
+        });
+      });
+  }
+
+  React.useEffect(() => {
+    getModel();
+    console.log("summary");
+  }, []);
+
+  return (
+    <div className="viewer summary">
+      {summary.data.length < 1 ? (
+        <div
+          className="load"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+            width: "100%"
+          }}
+        >
+          <Loading />
+        </div>
+      ) : (
+        <div>
+          <div className="head">
+            <div className="name">Summary</div>
+            <div
+              className="btn"
+              onClick={(e) => {
+                props.menuState({
+                  render: false,
+                  comp: undefined,
+                });
+              }}
+            >
+              Exit
+            </div>
+          </div>
+          <div className="logs summary">
+            {summary.data.map((line, i) => {
+              return (
+                <div key={i} className="log notif sum-col">
+                  {line.map((col, i) => {
+                    return (
+                      <div className="col" key={i}>
+                        {col}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Tools = (props) => {
   return <div className="tools">{props.children}</div>;
 };
 
 const GraphEditor = (
   props = {
-    store: { ...metaAppData },
+    appData: { ...metaAppData },
     appFunctions: metaAppFunctions,
   }
 ) => {
@@ -108,9 +184,76 @@ const GraphEditor = (
     },
   ]);
 
-  let canvasRef = React.useRef();
-  let canvastopRef = React.useRef();
-  let dummyLineRef = React.useRef();
+  let refCanvas = React.useRef();
+  let refCanvasTop = React.useRef();
+  let refDummyLine = React.useRef();
+
+  async function buildModel() {
+    await get({
+      path: "/model/build",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        props.appFunctions.notify({
+          message: data.message,
+        });
+      });
+  }
+
+  function viewSummary() {
+    menuState({
+      render: true,
+      comp: <SummaryViewer menuState={menuState} />,
+    });
+  }
+
+  const ContextMenu = (props = { x: Number, y: Number }) => {
+    let [options, optionsState] = React.useState([
+      {
+        name: "Build",
+        onclick: function (e) {
+          buildModel();
+          menuState({
+            render: false,
+            comp: undefined,
+          });
+        },
+      },
+      {
+        name: "View Summary",
+        onclick: function (e) {
+          viewSummary();
+        },
+      },
+      {
+        name: "Delete",
+        onclick: function (e) {
+          menuState({
+            render: false,
+            comp: undefined,
+          });
+        },
+      },
+    ]);
+
+    const Option = (props = { name: String, onclick: function () {} }) => {
+      return (
+        <div className="option" onClick={props.onclick}>
+          {props.name}
+        </div>
+      );
+    };
+
+    return (
+      <div className="context" style={{ top: props.y, left: props.x }}>
+        <div className="section">
+          {options.map((option, i) => {
+            return <Option {...option} key={i} />;
+          })}
+        </div>
+      </div>
+    );
+  };
 
   function newLine(e) {
     e.preventDefault();
@@ -172,7 +315,6 @@ const GraphEditor = (
         offsetY: 15,
       };
 
-      console.log(window.canvas.activeLayer.type.object_class)
       switch (window.canvas.activeLayer.type.object_class) {
         case "optimizers":
           graph.train_config.optimizer = node;
@@ -197,6 +339,11 @@ const GraphEditor = (
           graph.train_config.dataset = node;
           graph.nodes[id] = node;
           break;
+        case "custom_def":
+          graph.custom_nodes[id] = {
+            definition: node,
+            node: undefined,
+          };
         default:
           graph.nodes[id] = node;
           break;
@@ -221,6 +368,7 @@ const GraphEditor = (
 
   function moveNode(e) {
     try {
+      let cords;
       window.canvas.pos = {
         x: e.clientX - window.offsetX + window.canvas.activeElement.ref.x,
         y: e.clientY - window.offsetY + window.canvas.activeElement.ref.y,
@@ -231,6 +379,13 @@ const GraphEditor = (
       window.canvas.activeElement.rect.x.baseVal.value = window.canvas.pos.x;
       window.canvas.activeElement.rect.y.baseVal.value = window.canvas.pos.y;
 
+      window.canvas.activeElement.handle.x1.baseVal.value = window.canvas.pos.x;
+      window.canvas.activeElement.handle.y1.baseVal.value = window.canvas.pos.y;
+
+      window.canvas.activeElement.handle.x2.baseVal.value = window.canvas.pos.x;
+      window.canvas.activeElement.handle.y2.baseVal.value =
+        window.canvas.pos.y + 30;
+
       window.canvas.activeElement.text.x.baseVal[0].value =
         window.canvas.pos.x +
         Math.floor(window.canvas.activeElement.layer.width * (1 / 5));
@@ -238,14 +393,20 @@ const GraphEditor = (
         window.canvas.pos.y + 19;
 
       window.canvas.activeElement.edges_in.forEach((edge) => {
-        edge.x1.baseVal.value =
+        cords = JSON.parse(edge.getAttribute("data-cord"));
+        cords.x1 =
           window.canvas.pos.x + window.canvas.activeElement.layer.width / 2;
-        edge.y1.baseVal.value = window.canvas.pos.y - 5;
+        cords.y1 = window.canvas.pos.y;
+
+        edge.setAttribute("d", calculateEdge(cords));
       });
       window.canvas.activeElement.edges_out.forEach((edge) => {
-        edge.x2.baseVal.value =
+        cords = JSON.parse(edge.getAttribute("data-cord"));
+        cords.x2 =
           window.canvas.pos.x + window.canvas.activeElement.layer.width / 2;
-        edge.y2.baseVal.value = window.canvas.pos.y + 30;
+        cords.y2 = window.canvas.pos.y + 30;
+
+        edge.setAttribute("d", calculateEdge(cords));
       });
     } catch (TypeError) {
       // console.log(TypeError)
@@ -264,10 +425,10 @@ const GraphEditor = (
       if (window.canvas.panLast) {
         window.canvas.viewBox.x -= e.clientX - window.canvas.panLast.x;
         window.canvas.viewBox.y -= e.clientY - window.canvas.panLast.y;
-        canvasRef.current.viewBox.baseVal.x = window.canvas.viewBox.x;
-        canvasRef.current.viewBox.baseVal.y = window.canvas.viewBox.y;
-        canvasRef.current.viewBox.baseVal.width = window.canvas.viewBox.w;
-        canvasRef.current.viewBox.baseVal.height = window.canvas.viewBox.h;
+        refCanvas.current.viewBox.baseVal.x = window.canvas.viewBox.x;
+        refCanvas.current.viewBox.baseVal.y = window.canvas.viewBox.y;
+        refCanvas.current.viewBox.baseVal.width = window.canvas.viewBox.w;
+        refCanvas.current.viewBox.baseVal.height = window.canvas.viewBox.h;
         window.canvas.panLast = {
           x: e.clientX,
           y: e.clientY,
@@ -307,17 +468,15 @@ const GraphEditor = (
             layergroups.custom_nodes.layers.filter((node, i) => {
               return activeElement.name !== node.name;
             });
-          window.canvas.customNodes.definitions =
-            window.canvas.customNodes.definitions.filter((node, i) => {
-              return activeElement.name !== node.name;
-            });
           layergroupsState({
             ...layergroups,
           });
+          delete graph.custom_nodes[activeElement.id];
           removeNode(activeElement);
           break;
         case "optimizers":
           delete graph.train_config.optimizer;
+          removeNode(activeElement);
           break;
         case "build_tools":
           let tool = graph.nodes[activeElement.id].type.name.toLowerCase();
@@ -332,9 +491,8 @@ const GraphEditor = (
           });
           graph.nodes[activeElement.node].connections.inbound = [];
           break;
-        case "datasets":
+        case "CustomNode":
           removeNode(activeElement);
-          graphState({ ...graph });
           break;
         default:
           props.appFunctions.notify({
@@ -375,12 +533,13 @@ const GraphEditor = (
     window.canvas.pos = undefined;
     window.canvas.pan = false;
     window.canvas.panLast = undefined;
+    window.canvas.activeLine = undefined;
 
-    dummyLineRef.current.style.strokeWidth = 0;
-    dummyLineRef.current.x1.baseVal.value = 0;
-    dummyLineRef.current.y1.baseVal.value = 0;
-    dummyLineRef.current.x2.baseVal.value = 1;
-    dummyLineRef.current.y2.baseVal.value = 1;
+    refDummyLine.current.style.strokeWidth = 0;
+    refDummyLine.current.x1.baseVal.value = 0;
+    refDummyLine.current.y1.baseVal.value = 0;
+    refDummyLine.current.x2.baseVal.value = 1;
+    refDummyLine.current.y2.baseVal.value = 1;
 
     if (menu.render) {
       menuState({
@@ -394,20 +553,20 @@ const GraphEditor = (
     window.canvas.viewBox = {
       x: window.canvas.viewBox.x,
       y: window.canvas.viewBox.y,
-      w: canvastopRef.current.scrollWidth,
-      h: canvastopRef.current.scrollHeight,
+      w: refCanvasTop.current.scrollWidth,
+      h: refCanvasTop.current.scrollHeight,
     };
-    canvasRef.current.viewBox.baseVal.x = window.canvas.viewBox.x;
-    canvasRef.current.viewBox.baseVal.y = window.canvas.viewBox.y;
-    canvasRef.current.viewBox.baseVal.width = window.canvas.viewBox.w;
-    canvasRef.current.viewBox.baseVal.height = window.canvas.viewBox.h;
+    refCanvas.current.viewBox.baseVal.x = window.canvas.viewBox.x;
+    refCanvas.current.viewBox.baseVal.y = window.canvas.viewBox.y;
+    refCanvas.current.viewBox.baseVal.width = window.canvas.viewBox.w;
+    refCanvas.current.viewBox.baseVal.height = window.canvas.viewBox.h;
   }
 
   function updateViewBoxService() {
-    if (canvastopRef.current) {
+    if (refCanvasTop.current) {
       if (
-        canvastopRef.current.scrollHeight !== window.canvas.viewBox.h ||
-        canvastopRef.current.scrollWidth !== window.canvas.viewBox.w
+        refCanvasTop.current.scrollHeight !== window.canvas.viewBox.h ||
+        refCanvasTop.current.scrollWidth !== window.canvas.viewBox.w
       ) {
         updateViewBox();
       }
@@ -420,52 +579,52 @@ const GraphEditor = (
   function setToolMode(options = { name: "Mode", layer: { name: "Layer" } }) {
     console.log(`Setting ${options.name} mode`);
     window.canvas.mode = options.name;
-    document.getElementById("canvastopRef").style.cursor =
+    document.getElementById("refCanvasTop").style.cursor =
       cursors[options.name];
     switch (options.name) {
       case "normal":
-        canvasRef.current.onmousedown = undefined;
-        canvasRef.current.onmousemove = undefined;
-        canvasRef.current.onmouseup = onMouseUp;
-        canvastopRef.current.onmousedown = normalMouseDown;
-        canvastopRef.current.onmousemove = moveCanvas;
+        refCanvas.current.onmousedown = undefined;
+        refCanvas.current.onmousemove = undefined;
+        refCanvas.current.onmouseup = onMouseUp;
+        refCanvasTop.current.onmousedown = normalMouseDown;
+        refCanvasTop.current.onmousemove = moveCanvas;
         break;
       case "edge":
-        canvasRef.current.onmousedown = newLine;
-        canvasRef.current.onmousemove = moveEdge;
-        canvasRef.current.onmouseup = onMouseUp;
-        canvastopRef.current.onmousedown = undefined;
-        canvastopRef.current.onmousemove = undefined;
+        refCanvas.current.onmousedown = newLine;
+        refCanvas.current.onmousemove = moveEdge;
+        refCanvas.current.onmouseup = onMouseUp;
+        refCanvasTop.current.onmousedown = undefined;
+        refCanvasTop.current.onmousemove = undefined;
         break;
       case "move":
-        canvasRef.current.onmousedown = undefined;
-        canvasRef.current.onmousemove = moveNode;
-        canvasRef.current.onmouseup = onMouseUp;
-        canvastopRef.current.onmousedown = undefined;
-        canvastopRef.current.onmousemove = undefined;
+        refCanvas.current.onmousedown = undefined;
+        refCanvas.current.onmousemove = moveNode;
+        refCanvas.current.onmouseup = onMouseUp;
+        refCanvasTop.current.onmousedown = undefined;
+        refCanvasTop.current.onmousemove = undefined;
         break;
       case "delete":
-        canvasRef.current.onmousedown = undefined;
-        canvasRef.current.onmousemove = undefined;
-        canvasRef.current.onmouseup = deleteNode;
-        canvastopRef.current.onmousedown = undefined;
-        canvastopRef.current.onmousemove = undefined;
+        refCanvas.current.onmousedown = undefined;
+        refCanvas.current.onmousemove = undefined;
+        refCanvas.current.onmouseup = deleteNode;
+        refCanvasTop.current.onmousedown = undefined;
+        refCanvasTop.current.onmousemove = undefined;
         break;
       case "clean":
-        canvasRef.current.onmousedown = undefined;
-        canvasRef.current.onmousemove = undefined;
-        canvasRef.current.onmouseup = onMouseUp;
-        canvastopRef.current.onmousedown = undefined;
-        canvastopRef.current.onmousemove = undefined;
+        refCanvas.current.onmousedown = undefined;
+        refCanvas.current.onmousemove = undefined;
+        refCanvas.current.onmouseup = onMouseUp;
+        refCanvasTop.current.onmousedown = undefined;
+        refCanvasTop.current.onmousemove = undefined;
 
         // layergroups.custom_nodes.layers = [];
-        graphState({ ...metaGraph });
+        graphState({ ...metaGraph, fetch: false });
         // layergroupsState({ ...layergroups });
         break;
       case "layer":
         window.canvas.activeLayer = { ...options.layer };
-        canvasRef.current.onmousedown = newLayer;
-        canvasRef.current.onmousemove = undefined;
+        refCanvas.current.onmousedown = newLayer;
+        refCanvas.current.onmousemove = undefined;
         break;
       default:
         break;
@@ -478,39 +637,68 @@ const GraphEditor = (
     toolbarButtonsState([...toolbarButtons]);
   }
 
+  function toggleContext(e) {
+    if (e.button === 2) {
+      switch (window.canvas.mode) {
+        case "line":
+          break;
+        default:
+          menuState({
+            comp: <ContextMenu x={e.clientX} y={e.clientY} />,
+            render: true,
+          });
+      }
+    }
+  }
+
   let tools = {
     addEdge: addEdge,
   };
-  
 
-  React.useEffect(()=>{
-    updateViewBox();
+  React.useEffect(() => {
+    window.canvas.viewBox = {
+      x: 0,
+      y: 0,
+      w: refCanvasTop.current.scrollWidth,
+      h: refCanvasTop.current.scrollHeight,
+    };
+    refCanvas.current.viewBox.baseVal.x = window.canvas.viewBox.x;
+    refCanvas.current.viewBox.baseVal.y = window.canvas.viewBox.y;
+    refCanvas.current.viewBox.baseVal.width = window.canvas.viewBox.w;
+    refCanvas.current.viewBox.baseVal.height = window.canvas.viewBox.h;
     updateViewBoxService();
-    setToolMode({name:"normal"});
     window.setToolMode = setToolMode;
-  }, [])
+    setToolMode({ name: "normal" });
+  }, []);
 
-  React.useEffect(()=>{
-    if ( graph.fetch ){
+  React.useEffect(() => {
+    if (graph.fetch) {
       pull({
-        name: "canvas"
-      }).then(response=>{
-        let _graph = response.graph;
+        name: "canvas",
+      }).then((response) => {
+        let graphdata = response.graph;
         delete response.graph;
         window.canvas = response;
-        graphState({..._graph, fetch: false})
-      })
-    }else{
-      console.log("[PUSH] Canvas");
+        Object.keys(graphdata.custom_nodes).map((definition) => {
+          if (graphdata.custom_nodes[definition].node) {
+            layergroups.custom_nodes.layers.push(
+              graphdata.custom_nodes[definition].node
+            );
+          }
+        });
+        layergroupsState({ ...layergroups });
+        graphState({ ...graphdata, fetch: false });
+      });
+    } else {
       push({
-        name:"canvas",
-        data:{
+        name: "canvas",
+        data: {
           ...window.canvas,
-          graph: {...graph}
-        }
-      })
+          graph: { ...graph },
+        },
+      });
     }
-  }, [graph])
+  }, [graph]);
 
   return (
     <div className="container graph-canvas">
@@ -527,18 +715,23 @@ const GraphEditor = (
           setToolMode={setToolMode}
         />
       </Tools>
-      <div className="canvas-top" id="canvastopRef" ref={canvastopRef}>
+      <div
+        className="canvas-top"
+        id="refCanvasTop"
+        ref={refCanvasTop}
+        onMouseUp={toggleContext}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 0 0"
           className="canvas"
           id="canvas"
           onMouseUp={onMouseUp}
-          ref={canvasRef}
+          ref={refCanvas}
         >
           <TriangleMarker />
           <CircleMarker />
-          <DefaultLine lineref={dummyLineRef} />
+          <DefaultLine lineref={refDummyLine} />
           {Object.keys(graph.nodes).map((layer, i) => {
             return (
               <Node
@@ -548,6 +741,8 @@ const GraphEditor = (
                 graph={graph}
                 graphState={graphState}
                 tools={tools}
+                layergroups={layergroups}
+                layergroupsState={layergroupsState}
                 key={i}
                 {...props}
               />

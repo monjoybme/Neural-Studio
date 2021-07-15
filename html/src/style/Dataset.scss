@@ -1,674 +1,155 @@
 @import "./App.scss";
 
-.dataset-container {
-  background: $lightFr;
-  min-width: calc(100vw - 60px);
-  max-width: calc(100vw - 60px);
-  .selector {
-    height: 100%;
-    width: 100%;
-    padding: 10px;
-    @include flex(column, flex-start, flex-start);
+$toolbarWidth: 280px;
 
-    .search {
-      height: 40px;
-      width: 100%;
-      border-radius: 3px;
-      padding: 10px;
-      border: $lightBorder2;
+.dataset-cotainer {
+  .context {
+    position: absolute;
+
+    .section {
       background: $lightBg;
+      padding: 3px 7px;
+      border: $lightBorder3;
+      border-radius: 2px;
 
-      @include flex(row, flex-start, center);
+      box-shadow: 0px 0px 1px 2px rgba(180, 180, 180, 0.1);
 
-      svg {
-        height: 18px !important;
-        width: 18px !important;
-      }
+      .option {
+        letter-spacing: 1px;
+        height: 25px;
+        min-width: 100px;
 
-      input {
-        margin-left: 7px;
-        width: -webkit-fill-available;
-        color: $lightColorPr;
+        border-bottom: $lightBorder3;
 
-        @include flex(row, center, flex-start);
-        @extend .heading-4;
-      }
-    }
-
-    .datasets {
-      border: $lightBorder2;
-      background: $lightBg;
-      margin-top: 10px;
-
-      width: 100%;
-
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minMax(280px, 1fr));
-      grid-gap: 10px;
-
-      padding: 10px;
-
-      .card {
-        height: 60px;
-        width: 100%;
-
-        padding: 10px;
-        border: $lightBorder2;
         cursor: pointer;
 
         @include flex(row, flex-start, center);
-        @extend .heading-4;
+        @extend .heading-5;
+        @extend .heading-bold;
+      }
+
+      div:last-child {
+        border: none;
       }
     }
   }
 
-  .datasetviewer {
-    height: 100%;
-    width: 100%;
+  .viewer {
+    position: absolute;
+    z-index: 99999;
+    left: $toolbarWidth + $sidebarWidth;
+    top: $topbarHeight;
+    width: calc(100% - (#{$toolbarWidth} + #{$sidebarWidth}));
+    height: calc(100% - (#{$topbarHeight} + #{$statusBarHeight}));
+    padding: 5px;
 
-    padding: 10px;
-    @include flex(column, flex-start, center);
-  }
-
-  .csvdataset {
-    height: 100%;
-    width: 100%;
-
-    .top {
+    .head {
       width: 100%;
       height: 40px;
-      padding: 10px;
-      background: $lightBg;
-      border: $lightBorder2;
-      border-radius: 2px;
 
       @include flex(row, space-between, center);
 
       .name {
-        @extend .heading-3;
-      }
+        border: none;
+        background: none;
+        height: 100%;
 
-      button {
+        @include flex();
         @extend .heading-4;
-        cursor: pointer;
-        width: 80px;
       }
-    }
 
-    .utils {
-      width: 100%;
-      margin-top: 10px;
-      background: $lightBg;
-      border: $lightBorder2;
-      border-radius: 2px;
+      .buttons {
+        width: 150px;
+        display: grid;
+        grid-gap: 10px;
+        grid-template-columns: 1fr 1fr;
 
-      .pathinput {
-        padding: 10px;
-        height: 40px;
-
-        input {
-          @extend .heading-4;
-          width: 95%;
-        }
-
-        button {
-          @extend .heading-4;
+        .btn {
+          border-radius: 3px;
+          height: 25px;
+          width: 70px;
+          padding-bottom: 3px;
           cursor: pointer;
-          width: 5%;
-        }
-      }
-    }
-
-    .viewer {
-      width: 100%;
-      min-height: 250px;
-
-      margin-top: 10px;
-      background: $lightBg;
-
-      border: $lightBorder2;
-      border-radius: 2px;
-
-      overflow-x: scroll;
-      overflow-y: hidden;
-
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      padding-bottom: 0px;
-
-      .columns {
-        border-bottom: $lightBorder3;
-        background: #f7f7f7;
-        width: 100%;
-
-        .column {
-          height: 40px;
-          font-weight: 700;
-          border-right: $lightBorder3;
+          background: $lightBg;
+          border: $lightBorder2;
 
           @include flex();
           @extend .heading-4;
         }
       }
+    }
+    .image {
+      width: 100%;
+      height: 100%;
+      overflow-y: scroll;
+      background: $lightBg;
+      border: $lightBorder2;
+      padding: 5px;
+    }
 
-      .rows {
+    .classification {
+      height: auto;
+      max-height: calc(100% - 40px);
+      display: grid;
+      grid-template-columns: repeat( auto-fit, minMax( 256px, 1fr ) );
+      padding: 10px 10px 10px 10px;
+      grid-gap: 10px;
+
+      .sample {
         width: 100%;
-        .row {
-          width: 100%;
-          .column {
-            height: 40px;
-            border-right: $lightBorder3;
+        height: 286px;
+        border: $lightBorder3;
+        background: $lightFr;
 
-            @include flex(row, center, center);
-            @extend .heading-4;
-          }
+        @include flex(column, flex-start, center);
+
+        img {
+          height: 224px;
+          width: 224px;
+        }
+
+        .label {
+          height: 30px;
+          width: 224px;
+
+          @extend .heading-3;
+          @extend .heading-bold;
+
+          @include flex();
         }
       }
     }
 
-    .features {
-      width: 100%;
-      height: 180px;
-      margin-top: 10px;
-
+    .segmentation {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-gap: 10px;
-
-      .selector {
-        width: 100%;
-        height: 100%;
-        padding: 5px;
-        background: $lightBg;
-        border: $lightBorder2;
-
-        overflow-y: scroll;
-        display: flex;
-        flex-flow: row wrap;
-        align-content: space-between;
-        justify-content: flex-start;
-
-        .title {
-          width: 100%;
-          height: 30px;
-          border-bottom: $lightBorder2;
-          margin-bottom: 5px;
-
-          @include flex();
-        }
-
-        .checkbox {
-          padding: 5px;
-          @include flex(row, flex-start, center);
-
-          .box {
-            border: 2px solid $darkFr;
-            height: 16px;
-            width: 16px;
-
-            margin-right: 5px;
-            cursor: pointer;
-          }
-
-          .selected {
-            padding: 3px;
-            background: $lightBg;
-            border: 2px solid $darkFr;
-
-            .check {
-              background: $darkFr;
-              height: 100%;
-              width: 100%;
-            }
-          }
-        }
-      }
-    }
-
-    .preprocessor {
-      background: $lightBg;
-      border: $lightBorder2;
-
-      margin-top: 10px;
-      width: 100%;
-      height: -webkit-fill-available;
-
-      .top {
-        border: none;
-        border-bottom: $lightBorder2;
-      }
-
-      .title {
-        height: 40px;
-        padding: 0px 10px;
-        border-bottom: $lightBorder2;
-
-        @include flex(row, flex-start, center);
-        @extend .heading-4;
-      }
-
-      section {
-        height: calc(90% - 40px) !important;
-      }
-    }
-  }
-
-  .imagedatasetfromdirectory {
-    height: 100%;
-    width: 100%;
-
-    .top {
-      width: 100%;
-      height: 40px;
       padding: 10px;
-      background: $lightBg;
-      border: $lightBorder2;
-      border-radius: 2px;
-
-      @include flex(row, space-between, center);
-
-      .name {
-        @extend .heading-3;
-      }
-
-      button {
-        @extend .heading-4;
-        cursor: pointer;
-        width: 80px;
-      }
-    }
-
-    .utils {
-      width: 100%;
-      margin-top: 10px;
-      background: $lightBg;
-      border: $lightBorder2;
-      border-radius: 2px;
-
-      .pathinput {
-        padding: 10px;
-        height: 40px;
-        width: 100%;
-        display: flex;
-
-        input {
-          @extend .heading-4;
-          min-width: 94%;
-        }
-
-        button {
-          @extend .heading-4;
-          cursor: pointer;
-          min-width: 6%;
-        }
-      }
-    }
-
-    .arguments {
-      width: 100%;
-      margin-top: 10px;
-
-      display: grid;
-      grid-template-columns: 2fr 2fr 2fr;
-      grid-template-rows: 1fr;
       grid-gap: 10px;
 
-      .folder-selector {
-        background: $lightBg;
+      .sample {
+        height: 100%;
+        width: 100%;
         border: $lightBorder2;
-        padding: 10px 10px 0px 10px;
+        background: $lightFr;
 
         display: grid;
-        grid-template-columns: 1fr;
-        grid-template-rows: 30px 1fr 1fr 1fr;
-        grid-gap: 10px;
-
-        .head {
-          @extend .heading-3;
-          @include flex(row, flex-start, center);
-          padding-left: 10px;
-          border: $lightBorder2;
-          background: $lightFr;
-        }
-
-        .select {
-          display: flex;
-
-          @include width(100%, 100px, 100%);
-
-          .name {
-            width: 40%;
-            @extend .heading-4;
-                        @include flex(row, flex-start, center);
-          }
-
-          select {
-            @include width(60%, 60%, 60%);
-            border: $lightBorder2;
-            height: 30px
-          }
-        }
-      }
-
-      .params {
-        background: $lightBg;
-        border: $lightBorder2;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 30px;
         padding: 10px;
 
-        display: grid;
-        grid-template-columns: 1fr;
-        grid-template-rows: 30px 3fr;
-        grid-gap: 10px;
-
-        .head { 
-          @extend .heading-3;
-          @include flex(row, flex-start, center);
-          padding-left: 10px;
-          border: $lightBorder2;
-          background: $lightFr;
-        }
-
-        .grid {
-          display: grid;
-          grid-template-columns: repeat( auto-fill , minMax( 180px, 1fr ) );
-          grid-gap: 10px;
-
-          .param {
-            display: flex;
-            flex-direction: column;
-            height: 45px;
-
-            .name {
-              @extend .heading-4;
-              height: 30px;
-            }
-            
-            input {
-              border: $darkBorder2;
-              height: 30px;
-              @extend .heading-4;
-            }
-
-            select {
-              border: $lightBorder2;
-              height: 30px;
-            }
-
-            button{
-              cursor: pointer;
-              height: 100%;
-            }
-          }
-        }
-      }
-
-    .info {
-        background: $lightBg;
-        border: $lightBorder2;
-        padding: 10px;
-
-        display: grid;
-        grid-template-columns: 1fr;
-        grid-template-rows: 30px 3fr;
-        grid-gap: 10px;
-
-        .head { 
-          @extend .heading-3;
-          @include flex(row, flex-start, center);
-          padding-left: 10px;
-          border: $lightBorder2;
-          background: $lightFr;
-        }
-
-        .grid {
-          display: grid;
-          grid-template-columns: repeat( auto-fill , minMax( 180px, 1fr ) );
-          grid-gap: 10px;
-
-          .param {
-            display: flex;
-            flex-direction: column;
-            height: 45px;
-
-            .name {
-              @extend .heading-4;
-              height: 30px;
-            }
-            
-            input {
-              border: $darkBorder2;
-            }
-
-            select {
-              border: $lightBorder2;
-            }
-          }
-        }
-      }
-
-    }
-  }
-}
-
-.dark {
-  .dataset-container {
-    * {
-      color: $darkColorPr;
-    }
-    button {
-      background: $darkTr;
-      border: none;
-    }
-    background: $darkFr;
-    .selector {
-      .search {
-        background: $darkBg;
-        input {
-          background: $darkBg;
-        }
-      }
-
-      .datasets {
-        background: $darkBg;
-        .card {
-          background: $darkTr;
-        }
-      }
-    }
-
-    .datasetviewer {
-    }
-
-    .csvdataset {
-      .top {
-        background: $darkBg;
-        .name {
-          @extend .heading-3;
-        }
-      }
-
-      .utils {
-        background: $darkBg;
-
-        .pathinput {
-          background: $darkBg;
-          input {
-            background: $darkBg;
-          }
-
-          button {
-            @extend .heading-4;
-            cursor: pointer;
-            width: 5%;
-          }
-        }
-      }
-
-      .viewer {
-        background: $darkBg;
-
-        .columns {
-          border-bottom: $lightBorder3;
-          background: $darkTr;
-
-          .column {
-            border-right: $lightBorder3;
-          }
-        }
-
-        .rows {
-          width: 100%;
-          .row {
+        div {
+          img {
+            height: 100%;
             width: 100%;
-            .column {
-              border-right: $lightBorder3;
-            }
           }
-        }
-      }
-
-      .preprocessor {
-        background: $darkBg;
-        border: $lightBorder2;
-
-        .top {
-        }
-
-        .title {
-          height: 40px;
-          padding: 0px 10px;
-          border-bottom: $lightBorder2;
-
-          @include flex(row, flex-start, center);
-          @extend .heading-4;
-        }
-
-        .margin-view-overlays {
-          background: $darkBg !important;
-        }
-        .scroll-decoration {
-          visibility: hidden;
-        }
-      }
-    }
-  }
-
-  
-  .imagedatasetfromdirectory {
-    .top {
-      background: $darkBg;
-      .name {
-        @extend .heading-3;
-      }
-      button {
-        @extend .heading-4;
-        cursor: pointer;
-        width: 80px;
-      }
-    }
-
-    .utils {
-      background: $darkBg;
-      .pathinput {
-        input {
-          @extend .heading-4;
-          min-width: 94%;
-          background: $darkBg;
-        }
-
-        button {
-          @extend .heading-4;
-          cursor: pointer;
-          min-width: 6%;
-        }
-      }
-    }
-
-    .arguments {
-
-      .folder-selector {
-        background: $darkBg;
-        .head {
-          background: $darkFr;
-          border-radius: 1px;
-        }
-
-        .select {
-          display: flex;
-          @include width(100%, 100px, 100%);
-          .name {
-            width: 40%;
-            @extend .heading-4;
+          &:first-child {
+            @include flex(row, flex-end, center);
+          }
+          &:last-child {
             @include flex(row, flex-start, center);
           }
-
-          select {
-            background: $darkFr;
-            padding-left: 5px;
-            border-radius: 1px;
-          }
         }
       }
-
-      .params {
-        background: $darkBg;
-        .head { 
-          @extend .heading-3;
-          @include flex(row, flex-start, center);
-          background: $darkFr;
-          border-radius: 1px;
-        }
-
-        .grid {
-          .param {
-            .name {
-              @extend .heading-4;
-              height: 30px;
-            }
-            
-            input {
-              background: $darkFr;
-            }
-
-            select {
-              background: $darkFr;
-            }
-
-            button{
-              height: 100%;
-            }
-          }
-        }
-      }
-
-    .info {
-        background: $darkBg;
-        .head { 
-          background: $darkFr;
-        }
-
-        .grid {
-          .param {
-            .name {
-            }
-            
-            input {
-              border: $darkBorder2;
-            }
-
-            select {
-              border: $lightBorder2;
-            }
-
-            button {
-              height: 30px;
-              margin-top: 20px !important;
-            }
-          }
-        }
-      }
-
     }
   }
 }

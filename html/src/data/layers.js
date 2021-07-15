@@ -264,12 +264,6 @@ const layers = {
             render: "text",
             options: "rate",
           },
-          groups: {
-            value: "1",
-            type: "int",
-            render: "text",
-            options: "groups",
-          },
           activation: {
             value: "None",
             type: "str",
@@ -366,12 +360,6 @@ const layers = {
             render: "text",
             options: "rate",
           },
-          groups: {
-            value: "1",
-            type: "int",
-            render: "text",
-            options: "groups",
-          },
           activation: {
             value: "None",
             type: "str",
@@ -467,12 +455,6 @@ const layers = {
             type: "tuple",
             render: "text",
             options: "rate",
-          },
-          groups: {
-            value: "1",
-            type: "int",
-            render: "text",
-            options: "groups",
           },
           activation: {
             value: "None",
@@ -2539,29 +2521,16 @@ const layers = {
         type: { name: "BatchNormalization", object_class: "layers" },
         arguments: {
           axis: {
-            value: "required",
+            value: "-1",
             type: "str",
             render: "text",
             options: "axis",
           },
           momentum: {
-            value: "0",
+            value: "0.99",
             type: "int",
             render: "text",
             options: "momentum",
-          },
-          99: { value: "required", type: "str", render: "text", options: "99" },
-          epsilon: {
-            value: "0",
-            type: "int",
-            render: "text",
-            options: "epsilon",
-          },
-          "001": {
-            value: "required",
-            type: "str",
-            render: "text",
-            options: "001",
           },
           center: {
             value: "True",
@@ -2630,22 +2599,16 @@ const layers = {
         type: { name: "LayerNormalization", object_class: "layers" },
         arguments: {
           axis: {
-            value: "required",
+            value: "-1",
             type: "str",
             render: "text",
             options: "axis",
           },
           epsilon: {
-            value: "0",
+            value: "0.001",
             type: "int",
             render: "text",
             options: "epsilon",
-          },
-          "001": {
-            value: "required",
-            type: "str",
-            render: "text",
-            options: "001",
           },
           center: {
             value: "True",
@@ -3536,8 +3499,12 @@ const layers = {
   applications: applications,
   optimizers: optimizers,
   callbaacks: callbaacks,
-  custom: {
-    name: "Custom",
+  custom_nodes: {
+    name: "Custom Nodes",
+    layers: []
+  },
+  custom_def: {
+    name: "Custom Node Definitions",
     layers: [
       {
         name: "CustomNodeFunction",
@@ -3562,6 +3529,7 @@ const layers = {
       },
     ],
   },
+
 };
 
 export default layers;

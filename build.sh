@@ -1,9 +1,13 @@
+rm -rf src/neural_studio_code_kage.egg-info
+rm -rf dist/
+
 cd html
 yarn build
-cd ..
+cd ../src/neural_studio/data
+rm -rf studio
+mv ../../../html/build studio/ 
+cd ../../..
 
-rm -rf templates
-cp html/build templates/ -r
+py -m build
 
-rm -rf html/build
-echo Done !
+rm -rf src/neural_studio_code_kage.egg-info

@@ -30,42 +30,44 @@ import { ReactComponent as More } from "./images/more.svg";
 import { ReactComponent as Add } from "./images/add.svg";
 import { ReactComponent as Share } from "./images/share.svg";
 import { ReactComponent as Dataset } from "./images/dataset.svg";
+import { ReactComponent as Experiment } from "./images/experiment.svg";
 
 // import { ReactComponent as  } from "./images/.svg";
 
 const icons = {
-    ArrowRight:ArrowRight,
-    Logo:Logo,
-    Build:Build,
-    CheckCircle:CheckCircle,
-    Close:Close,
-    Dashboard:Dashboard,
-    DeleteAll:DeleteAll,
-    Delete:Delete,
-    Done:Done,
-    Home:Home,
-    Info:Info,
-    Pan:Pan,
-    Problem:Problem,
-    Search:Search,
-    Settings:Settings,
-    Train:Train,
-    Visibility:Visibility,
-    Code:Code,
-    Graph:Graph,
-    Summary:Summary,
-    Play:Play,
-    Pause:Pause,
-    Resume:Resume,
-    Stop:Stop,
-    Menu:Menu,
-    Save:Save,
-    Download:Download,
-    More:More,
-    Add:Add,
-    Share:Share,
-    Dataset:Dataset
-}
+  ArrowRight: ArrowRight,
+  Logo: Logo,
+  Build: Build,
+  CheckCircle: CheckCircle,
+  Close: Close,
+  Dashboard: Dashboard,
+  DeleteAll: DeleteAll,
+  Delete: Delete,
+  Done: Done,
+  Home: Home,
+  Info: Info,
+  Pan: Pan,
+  Problem: Problem,
+  Search: Search,
+  Settings: Settings,
+  Train: Train,
+  Visibility: Visibility,
+  Code: Code,
+  Graph: Graph,
+  Summary: Summary,
+  Play: Play,
+  Pause: Pause,
+  Resume: Resume,
+  Stop: Stop,
+  Menu: Menu,
+  Save: Save,
+  Download: Download,
+  More: More,
+  Add: Add,
+  Share: Share,
+  Dataset: Dataset,
+  Experiment: Experiment,
+};
 
 const Icon = (props={icon:React.Component,style:{}}) =>{
     let IconClass = props.icon;

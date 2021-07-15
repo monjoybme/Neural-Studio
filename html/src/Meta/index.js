@@ -35,20 +35,6 @@ export const metaSideNav = [
     icon: icons.Graph,
     comp: Graph,
   },
-  // {
-  //   name: "Code",
-  //   path: "/code",
-  //   selected: window.location.pathname === "/code",
-  //   icon: icons.Code,
-  //   comp: CodeEditor,
-  // },
-  {
-    name: "Summary",
-    path: "/summary",
-    selected: window.location.pathname === "/summary",
-    icon: icons.Summary,
-    comp: SummaryViewer,
-  },
   {
     name: "Train",
     path: "/train",
@@ -144,9 +130,9 @@ export const  metaGraph = {
   nodes:{
 
   },
-  custom_nodes : [
+  custom_nodes : {
     
-  ],
+  },
   fetch: true
 };
 

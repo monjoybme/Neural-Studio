@@ -41,10 +41,50 @@ const NotificationPop = (props = { appData: metaAppData }) => {
  * @returns
  */
 const StatusBar = (props = { appData: metaAppData }) => {
+  let [time, timeState] = React.useState('time');
+  function setTime(){
+    let d = new Date();
+    timeState(d.toTimeString());
+
+    setTimeout(setTime, 1000);
+  }
+  function utilSocket(){
+      let socket = new WebSocket("ws://localhost:8000/sys/utilization");
+
+      socket.onopen = function (event) {
+        console.log("[socket] Connection established");
+        socket.send("$")
+      };
+
+      socket.onmessage = function (event) {
+          socket.send("$");
+          console.log(event.data);
+      };
+      socket.onclose = function (event) {
+        if (event.wasClean) {
+          console.log(
+            `[socket] Connection closed cleanly, code=${event.code} reason=${event.reason}`
+          );
+        } else {
+          console.log("[socket] Connection died");
+        }
+      };
+
+      socket.onerror = function (error) {
+        console.log(`[socket] ${error.message}`);
+      };
+
+      return socket;
+    }
+
+  React.useState(function(){
+    setTime();
+  }, [])
   return (
     <div className="statusbar">
-      {props.appData.statusbar.toLowerCase()} | workspace :{" "}
-      {props.appData.app.name}
+      {props.appData.statusbar.toLowerCase()} {" "}
+      | workspace : {props.appData.app.name} {" "}
+      | {time}
     </div>
   );
 };
@@ -224,8 +264,7 @@ const App = (props) => {
               break;
             case "Escape":
               popupState(<div className="popup"></div>);
-              console.log(render.name);
-              if (render.name === "Graph") {
+              if (render.name === "Graph" || render.name === "Dataset") {
                 window.setToolMode({ name: "normal" });
               }
               break;

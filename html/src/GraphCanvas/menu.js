@@ -27,7 +27,7 @@ const TextProperty = (
     ...propMeta,
     menu: undefined,
     menuState: function (_ = { comp: undefined, render: false }) {},
-    store: metaAppData, 
+    appData: metaAppData, 
     appFunctions: metaAppFunctions,
     train: false,
   }
@@ -56,7 +56,7 @@ const ListProperty = (
     ...propMeta,
     menu: undefined,
     menuState: function (_ = { comp: undefined, render: false }) {},
-    store: metaAppData, 
+    appData: metaAppData, 
     appFunctions: metaAppFunctions,
     train: false,
   }
@@ -94,7 +94,7 @@ const CheckboxProperty = (
     ...propMeta,
     menu: undefined,
     menuState: function (_ = { comp: undefined, render: false }) {},
-    store: metaAppData, 
+    appData: metaAppData, 
     appFunctions: metaAppFunctions,
     train: false,
   }
@@ -165,7 +165,7 @@ const Layer = (
     ...propMeta,
     menu: undefined,
     menuState: function (_ = { comp: undefined, render: false }) {},
-    store: metaAppData, 
+    appData: metaAppData, 
     appFunctions: metaAppFunctions,
     train: false,
   }
@@ -231,12 +231,12 @@ const Dataset = (
     ...propMeta,
     menu: undefined,
     menuState: function (_ = { comp: undefined, render: false }) {},
-    store: metaAppData, 
+    appData: metaAppData, 
     appFunctions: metaAppFunctions,
   }
 ) => {
   let { id, name, graph, graphState } = props;
-  let  { app } = props.store;
+  let  { app } = props.appData;
 
   function updateCode(e) {
     graph.nodes[id].arguments.dataset.value = e;
@@ -294,15 +294,16 @@ const CustomNode = (
     ...propMeta,
     menu: undefined,
     menuState: function (_ = { comp: undefined, render: false }) {},
-    store: metaAppData, 
+    appData: metaAppData, 
     appFunctions: metaAppFunctions,
   }
 ) => {
-  let { graph, graphDefSt, app, layerGroups, layerGroupsState } = props.store;
+  let { graph, graphState, layergroups, layergroupsState } = props;
+  let {app} = props.appData;
 
   function updateCode(e) {
     graph.nodes[props.id].arguments.code.value = e;
-    graphDefSt({
+    graphState({
       ...graph,
     });
   }
@@ -310,7 +311,7 @@ const CustomNode = (
   function updateName(e) {
     graph.nodes[props.id].name = e.target.value;
     graph.nodes[props.id].width = e.target.value.length * 10;
-    graphDefSt({
+    graphState({
       ...graph,
     });
   }
@@ -324,13 +325,9 @@ const CustomNode = (
     })
       .then((response) => response.json())
       .then((data) => {
-        layerGroups.custom_nodes.layers =
-          layerGroups.custom_nodes.layers.filter((layer) => {
+        layergroups.custom_nodes.layers =
+          layergroups.custom_nodes.layers.filter((layer) => {
             return layer.name !== graph.nodes[props.id].name;
-          });
-        window.canvasConfig.customNodes.definitions =
-          window.canvasConfig.customNodes.definitions.filter((node) => {
-            return node.name !== graph.nodes[props.id].name;
           });
 
         delete data.arguments["inbound"];
@@ -342,15 +339,15 @@ const CustomNode = (
           },
           arguments: data.arguments,
         };
-        layerGroups.custom_nodes.layers.push(nodeDef);
+        layergroups.custom_nodes.layers.push(nodeDef);
+        graph.custom_nodes[props.id].node = nodeDef;
 
-        window.canvasConfig.customNodes.definitions.push(nodeDef);
-        graphDefSt({
-          ...graph,
+        graphState({
+          ...graph
         });
 
-        layerGroupsState({
-          ...layerGroups,
+        layergroupsState({
+          ...layergroups,
         });
 
         props.menuState({
@@ -360,7 +357,7 @@ const CustomNode = (
   }
 
   React.useEffect(() => {
-    // console.log(graph.nodes[props.id])
+
   }, []);
 
   return (
@@ -397,7 +394,7 @@ const Menu = (
     ...propMeta,
     menu: undefined,
     menuState: function (_ = { comp: undefined, render: false }) {},
-    store: metaAppData,
+    appData: metaAppData,
     graph: {},
     graphState: {},
     appFunctions: metaAppFunctions,
