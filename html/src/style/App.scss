@@ -260,9 +260,8 @@ div[disabled] {
   right: 10px;
   z-index: 999999;
 
-  min-height: $notificationHeight;
   min-width: 280px;
-  max-width: 280px;
+  max-width: 340px;
 
   animation: load_notification 500ms;
   @include flex(row, flex-start, center);

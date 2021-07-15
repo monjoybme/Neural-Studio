@@ -1,6 +1,6 @@
 import React from "react";
 
-import Node from "./node";
+import { Node, calculateEdge } from "./node";
 import Toolbar from "./toolbar";
 import LayerGroups from "./layergroups";
 import metaDatasetGroups from "../data/datasets";
@@ -86,23 +86,20 @@ const metaDataset = {
 const dataViewers = {
   image: {
     Classification: (props = { data: [], menuState: undefined }) => {
-      const Sample = (props) =>{
+      const Sample = (props) => {
         return (
           <div className="sample">
             <div className="label">{props.class}</div>
             <img src={props.image} />
           </div>
         );
-      }
+      };
       return (
         <div className="viewer">
           <div className="head">
             <div className="name">Image Viewer</div>
             <div className="buttons">
-              <div
-                className="btn"
-                onClick={props.reload}
-              >
+              <div className="btn" onClick={props.reload}>
                 Reload
               </div>
               <div
@@ -126,10 +123,10 @@ const dataViewers = {
         </div>
       );
     },
-    Segmentation: (props={ data: [], menuState: undefined }) =>{
-      React.useEffect(()=>{
+    Segmentation: (props = { data: [], menuState: undefined }) => {
+      React.useEffect(() => {
         console.log(props.data);
-      }, [])
+      }, []);
 
       const Sample = (props) => {
         return (
@@ -171,7 +168,7 @@ const dataViewers = {
           </div>
         </div>
       );
-    }
+    },
   },
 };
 
@@ -214,26 +211,36 @@ const GraphEditor = (
     state: false,
   });
 
-  async function buildDataset(){
+  async function buildDataset() {
     await get({
-      path: "/dataset/build"
-    }).then(response=>response.json()).then(data=>{
-      props.appFunctions.notify({
-        message: data.message
-      })
+      path: "/dataset/build",
     })
+      .then((response) => response.json())
+      .then((data) => {
+        props.appFunctions.notify({
+          message: data.message,
+        });
+      });
   }
 
-  async function viewSample(){
+  async function viewSample() {
     await get({
-      path: "/dataset/sample"
-    }).then(response=>response.json()).then(data=>{
-      let Viewer = dataViewers[data.type][data.problem];
-      menuState({
-        render: true,
-        comp: <Viewer data={data.data} menuState={menuState} reload={viewSample} />
-      });
+      path: "/dataset/sample",
     })
+      .then((response) => response.json())
+      .then((data) => {
+        let Viewer = dataViewers[data.type][data.problem];
+        menuState({
+          render: true,
+          comp: (
+            <Viewer
+              data={data.data}
+              menuState={menuState}
+              reload={viewSample}
+            />
+          ),
+        });
+      });
   }
 
   const ContextMenu = (props = { x: Number, y: Number }) => {
@@ -287,6 +294,7 @@ const GraphEditor = (
       </div>
     );
   };
+  
   function newLine(e) {
     e.preventDefault();
     let line = document.getElementById("dummy");
@@ -375,6 +383,7 @@ const GraphEditor = (
 
   function moveNode(e) {
     try {
+      let cords;
       window.canvas.pos = {
         x: e.clientX - window.offsetX + window.canvas.activeElement.ref.x,
         y: e.clientY - window.offsetY + window.canvas.activeElement.ref.y,
@@ -399,20 +408,26 @@ const GraphEditor = (
         window.canvas.pos.y + 19;
 
       window.canvas.activeElement.edges_in.forEach((edge) => {
-        edge.x1.baseVal.value =
+        cords = JSON.parse(edge.getAttribute("data-cord"));
+        cords.x1 =
           window.canvas.pos.x + window.canvas.activeElement.layer.width / 2;
-        edge.y1.baseVal.value = window.canvas.pos.y - 5;
+        cords.y1 = window.canvas.pos.y;
+
+        edge.setAttribute("d", calculateEdge(cords));
       });
       window.canvas.activeElement.edges_out.forEach((edge) => {
-        edge.x2.baseVal.value =
+        cords = JSON.parse(edge.getAttribute("data-cord"));
+        cords.x2 =
           window.canvas.pos.x + window.canvas.activeElement.layer.width / 2;
-        edge.y2.baseVal.value = window.canvas.pos.y + 30;
+        cords.y2 = window.canvas.pos.y + 30;
+
+        edge.setAttribute("d", calculateEdge(cords));
       });
     } catch (TypeError) {
       // console.log(TypeError)
     }
   }
-
+  
   function normalMouseDown() {
     if (window.canvas.mode === "normal") {
       window.canvas.pan = true;
@@ -588,6 +603,7 @@ const GraphEditor = (
 
         // layergroups.custom_nodes.layers = [];
         graphState({ ...metaGraph, fetch: false });
+        console.log("Clean")
         // layergroupsState({ ...layergroups });
         break;
       case "layer":

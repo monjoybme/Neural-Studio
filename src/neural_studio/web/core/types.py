@@ -82,7 +82,7 @@ class types:
     template = type_template()
 
 
-types = types()
+types = types() 
 
 
 def test():

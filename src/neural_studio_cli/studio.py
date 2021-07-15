@@ -1,9 +1,7 @@
-import base64
 import inspect
-import re
-from typing import List, Union
-import zipfile
+import sys
 
+from typing import List, Union
 from webbrowser import open as open_url
 from concurrent.futures import ThreadPoolExecutor
 from gc import collect
@@ -39,6 +37,7 @@ TODO
     1. Document view functions.
 """
 
+
 # root path
 HOME_PATH = Path().home()
 ROOT_PATH = pathlib.join(HOME_PATH, ".tfstudio")
@@ -46,8 +45,8 @@ DATA_PATH = data_path()
 
 # defining globals
 app = App()
-html_serve = ServeHTML(path=pathlib.join(DATA_PATH, "templates"))
-static_serve = ServeStatic(path=pathlib.join(DATA_PATH, "templates"))
+html_serve = ServeHTML(path=pathlib.join(DATA_PATH, "studio"))
+static_serve = ServeStatic(path=pathlib.join(DATA_PATH, "studio"))
 
 lith_sys = Lith("sys")
 lith_workspace = Lith("workspace")
@@ -65,21 +64,23 @@ setattr(callbacks, "OutputVisualizer", OutputVisualizer)
 logger.log("updating globals")
 trainer.update_session(globals())
 
-try:
-    logger.log("Building cached dataset")
-    dataset = DatasetDef(workspace_manager[["active:dataset:graph"]])
-    status, message = dataset.build()
-    if status:
-        workspace_manager.dataset = dataset
-        trainer.update_session({
-            "dataset": dataset.dataset
-        })
-        logger.success(
-            f"Build dataset {{ { dataset.dataset.__class__.__name__ } }}")
-    else:
-        logger.error(message)
-except Exception as e:
-    logger.sys_error(e)
+if "--no-cached-dataset" not in sys.argv:
+    try:
+        logger.log("Building cached dataset")
+        dataset = DatasetDef(workspace_manager[["active:dataset:graph"]])
+        status, message = dataset.build()
+        if status:
+            workspace_manager.dataset = dataset
+            trainer.update_session({
+                "dataset": dataset.dataset
+            })
+            trainer.__dataset__ = dataset
+            logger.success(
+                f"Loaded : {{ { dataset.dataset.__class__.__name__ } }}")
+        else:
+            logger.error(message)
+    except Exception as e:
+        logger.sys_error(e)
 
 
 @app.get("/",)
@@ -89,7 +90,7 @@ async def _index(request: Request) -> types.template:
 
 @app.get("/favicon.ico",)
 async def _ico(request: Request) -> types.file:
-    return await send_file(pathlib.join(DATA_PATH, "templates", "favicon.ico"), request, dispose=False)
+    return await send_file(pathlib.join(DATA_PATH, "studio", "favicon.ico"), request, dispose=False)
 
 
 @app.get("/static/<path:file>")
@@ -229,6 +230,7 @@ async def _dataset_build(request: Request) -> types.dict:
         trainer.update_session({
             "dataset": dataset.dataset
         })
+        trainer.__dataset__ = dataset.dataset
         logger.success(
             f"Build dataset {{ { dataset.dataset.__class__.__name__ } }}")
         return {"status": True, "message": "Dataset Built Succesfully"}
@@ -238,13 +240,20 @@ async def _dataset_build(request: Request) -> types.dict:
 
 @lith_dataset.get("/sample")
 async def _dataset_sample(request: Request) -> types.dict:
-    return workspace_manager.dataset.dataset.sample(10)
+    return workspace_manager.dataset.dataset.sample(20)
 
 # Model endpoints
 
+@lith_model.get("/build")
+async def _model_build(request: Request) -> types.dict:
+    status, message = trainer.build()
+    return {
+        "status": status,
+        "message": message
+    }
 
 @lith_model.get("/code")
-async def _buiild(request: Request) -> types.dict:
+async def _model_code(request: Request) -> types.dict:
     graph = GraphDef(workspace_manager.active.canvas.graph)
     status, message = graph.build()
     if status:
@@ -339,11 +348,13 @@ app.add_lith(lith_dataset)
 app.add_lith(lith_model)
 app.add_lith(lith_train)
 
-def main():
+
+def run_studio():
     open_url(f"http://localhost:8000")
     app.serve(
         port=8000
     )
 
+
 if __name__ == "__main__":
-    main()
+    run_studio()

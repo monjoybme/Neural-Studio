@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="neural-studio-code-kage",
-    version="0.0.5neu",
+    version="0.0.6  bmn",
     author="Viraj Patel",
     author_email="vptl185@gmail.com",
     description="A small example package",
@@ -28,7 +28,7 @@ setuptools.setup(
     packages=setuptools.find_packages(where="src"),
     python_requires=">=3.6",
     entry_points={
-        'console_scripts': ['neural-studio=neural_studio.cli:main'],
+        'console_scripts': ['neural-studio=neural_studio_cli.studio:run_studio'],
     },
     install_requires=[
         "opencv-python",
@@ -36,26 +36,27 @@ setuptools.setup(
         "pandas",
         "tensorflow-gpu",
         "tqdm",
-        "scikit-learn"
+        "scikit-learn",
+        "GPUtil",
     ],
     package_data={
         "neural_studio": [
-            "data/templates/*.html", 
-            "data/templates/*.ico", 
-            "data/templates/*.json", 
-            "data/templates/*.png", 
-            "data/templates/*.svg", 
-            "data/templates/*.txt", 
-            "data/templates/*.xml"
+            "data/studio/*.html", 
+            "data/studio/*.ico", 
+            "data/studio/*.json", 
+            "data/studio/*.png", 
+            "data/studio/*.svg", 
+            "data/studio/*.txt", 
+            "data/studio/*.xml"
         ],
         "neural_studio.data":[
-            "templates/static/*",
-            "templates/static/media/*.svg",
-            "templates/static/media/*",
-            "templates/static/css/*.css",
-            "templates/static/css/*",
-            "templates/static/js/*.js",
-            "templates/static/js/*"
+            "studio/static/*",
+            "studio/static/media/*.svg",
+            "studio/static/media/*",
+            "studio/static/css/*.css",
+            "studio/static/css/*",
+            "studio/static/js/*.js",
+            "studio/static/js/*"
         ]
     }
 )

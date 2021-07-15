@@ -264,12 +264,6 @@ const layers = {
             render: "text",
             options: "rate",
           },
-          groups: {
-            value: "1",
-            type: "int",
-            render: "text",
-            options: "groups",
-          },
           activation: {
             value: "None",
             type: "str",
@@ -366,12 +360,6 @@ const layers = {
             render: "text",
             options: "rate",
           },
-          groups: {
-            value: "1",
-            type: "int",
-            render: "text",
-            options: "groups",
-          },
           activation: {
             value: "None",
             type: "str",
@@ -467,12 +455,6 @@ const layers = {
             type: "tuple",
             render: "text",
             options: "rate",
-          },
-          groups: {
-            value: "1",
-            type: "int",
-            render: "text",
-            options: "groups",
           },
           activation: {
             value: "None",

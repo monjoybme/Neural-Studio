@@ -1,15 +1,15 @@
 from justwatch.proctypes import Process
-from justwatch.skip import endswith, folder,contains
+from justwatch.skip import endswith, folder, contains
 from justwatch.watcher import Watcher
 from justwatch.handlers import HandleAll
 from justwatch import Path
 
 watcher = Watcher(
     handle=HandleAll(
-        process= Process(
-            trigger= ['python', '__init__.py']
+        process=Process(
+            trigger=['python', 'studio.py']
         ),
-        skip= [
+        skip=[
             folder("__pycache__"),
             folder("html"),
             folder("notebooks"),
@@ -24,7 +24,7 @@ watcher = Watcher(
             contains("tmp")
         ]
     ),
-    path= Path("./")
+    path=Path("./")
 )
 
 watcher.start().observe()

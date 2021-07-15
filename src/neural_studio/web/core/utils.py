@@ -1,6 +1,4 @@
 import asyncio
-import aiofiles as io
-import time
 
 from json import dumps
 from os import path as pathlib, stat
@@ -153,8 +151,19 @@ async def not_found_error(request,  **kwargs) -> bytes:
     return await json_response({"message": f"path {request.headers.path} not found!"}, code=404)
     
 
+async def method_not_allowed(message: str = "method now allowed", code: int = 405, response: ResponseHeader = None) -> bytes:
+    if response is None:
+        response = ResponseHeader() | code
+    return await json_response({"message": message}, code, response)
+
+
+async def not_found_error(request,  **kwargs) -> bytes:
+    return await json_response({"message": f"path {request.headers.path} not found!"}, code=404)
+
+
 async def template_not_found_error(name: str,  **kwargs) -> bytes:
     return await json_response({"message": f"template {name} not found!"}, code=404)
+
 
 async def render_view(
     html: str,
@@ -164,13 +173,11 @@ async def render_view(
 ) -> bytes:
     """
     generates response object for provided text data.
-
     Args
     ---------------
     :param text: str, text data to add in response.
     :param code: int, response code.
     :param response: ResponseHeader, pre defined response header id any.
-
     Returns
     --------------- 
     A response object with a text/html response.

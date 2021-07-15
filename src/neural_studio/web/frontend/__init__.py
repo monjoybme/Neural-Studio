@@ -25,6 +25,7 @@ class ServeHTML:
 
         return await template_not_found_error(idx)
 
+
 class ServeStatic:
     def __init__(self, path: str = "./") -> None:
         self._path = pathlib.abspath(path)
@@ -44,4 +45,3 @@ class ServeStatic:
                 return response @ content
 
         return await template_not_found_error(idx)
-    

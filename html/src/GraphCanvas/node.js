@@ -3,38 +3,95 @@ import { metaStore, metaStoreContext, metaAppFunctions } from "../Meta";
 import Menu from "./menu";
 
 const propMeta = {
-    id: "LayerId",
-    name: "LayerName",
-    arguments: {},
-    width: 0,
-    pos: {
-      x: 0,
-      y: 0,
-      offsetX: 0,
-      offsetY: 0,
-    },
-    connections: {
-      inbound: [],
-      outbound: [],
-    },
-  }
+  id: "LayerId",
+  name: "LayerName",
+  arguments: {},
+  width: 0,
+  pos: {
+    x: 0,
+    y: 0,
+    offsetX: 0,
+    offsetY: 0,
+  },
+  connections: {
+    inbound: [],
+    outbound: [],
+  },
+};
 
-const Node = (
+export function calculateEdge(
+  cords = { x1: Number, y1: Number, x2: Number, y2: Number }
+) {
+  let pstring = "";
+  let { x1, y1, x2, y2 } = cords;
+  let midY = Math.abs(Math.floor((y1 - y2) / 2));
+  let midX = Math.abs(Math.floor((x1 - x2) / 2));
+  let pad = 9,
+    curve = 12;
+
+  pstring += `M ${x2} ${y2} `;
+  pstring += `L ${x2} ${y2 + pad}`;
+  if (y2 > y1) {
+    if (x1 < x2) {
+      midX = -midX;
+    }
+    if (x1 > x2) {
+
+      
+      pstring += `L ${x2 + midX - curve} ${y2 + pad}`;
+      pstring += `C 
+      ${x2 + midX} ${y2 + pad}, 
+      ${x2 + midX} ${y2 + pad},
+      ${x2 + midX} ${y2 + pad - curve},
+    `;
+
+      pstring += `L ${x1 - midX} ${y1 - pad + curve} `;
+      pstring += `C 
+            ${x1 - midX} ${y1 - pad},
+            ${x1 - midX} ${y1 - pad},
+            ${x1 - midX + curve} ${y1 - pad}
+          `;
+    } else {
+      pstring += `L ${x2 + midX + curve} ${y2 + pad}`;
+      pstring += `C 
+      ${x2 + midX} ${y2 + pad}, 
+      ${x2 + midX} ${y2 + pad},
+      ${x2 + midX} ${y2 + pad - curve},
+    `;
+
+      pstring += `L ${x1 - midX} ${y1 - pad + curve} `;
+      pstring += `C 
+            ${x1 - midX} ${y1 - pad},
+            ${x1 - midX} ${y1 - pad},
+            ${x1 - midX - curve} ${y1 - pad}
+          `;
+    }
+
+    pstring += `L ${x1} ${y1 - pad} `;
+    pstring += `L ${x1} ${y1} `;
+  } else {
+    pstring += `L ${x1} ${y1 - pad} `;
+    pstring += `L ${x1} ${y1} `;
+  }
+  return pstring;
+}
+
+export const Node = (
   props = {
-    node:propMeta,
+    node: propMeta,
     menu: undefined,
     menuState: function () {},
     graph: {},
-    graphState: function(){},
+    graphState: function () {},
     appFunctions: metaAppFunctions,
   }
 ) => {
-  let { id, pos, connections, width, } = props.node;
+  let { id, pos, connections, width } = props.node;
   let { graph, graphState } = props;
   let nodeRef = React.useRef(<svg />);
 
   let height = 30;
-  
+
   function onMouseDown(e) {
     e.preventDefault();
     switch (window.canvas.mode) {
@@ -124,7 +181,14 @@ const Node = (
     switch (window.canvas.mode) {
       case "normal":
         props.menuState({
-          comp: <Menu {...props.node} graph={ graph } graphState={ graphState } {...props} />,
+          comp: (
+            <Menu
+              {...props.node}
+              graph={graph}
+              graphState={graphState}
+              {...props}
+            />
+          ),
           render: true,
         });
         break;
@@ -170,19 +234,21 @@ const Node = (
       {connections.inbound.map((layer, i) => {
         let pos_out = graph.nodes[layer];
         if (pos_out) {
+          let cords = {
+            x1: pos.x + pos.offsetX,
+            y1: pos.y,
+            x2: pos_out.pos.x + pos_out.pos.offsetX,
+            y2: pos_out.pos.y + 30,
+          };
           return (
-            <line
-              x1={pos.x + pos.offsetX}
-              y1={pos.y - 5}
-              x2={pos_out.pos.x + pos_out.pos.offsetX}
-              y2={pos_out.pos.y + 30}
-              markerStart="url(#triangle)"
-              markerEnd="url(#circle)"
-              stroke="#333"
+            <path
+              d={calculateEdge(cords)}
+              stroke="#bbb"
               strokeWidth="2"
-              key={i}
+              fill="none"
               id={`${pos_out.id}-${id}`}
-              onClick={edgeOnMouseDown}
+              key={i}
+              data-cord={JSON.stringify(cords)}
             />
           );
         }
@@ -193,7 +259,6 @@ const Node = (
         y1={pos.y}
         x2={pos.x}
         y2={pos.y + 30}
-
         id={`${id}-handle`}
         style={{
           stroke: "green",
@@ -203,5 +268,3 @@ const Node = (
     </g>
   );
 };
-
-export default Node;

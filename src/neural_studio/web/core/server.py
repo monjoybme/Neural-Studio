@@ -6,18 +6,17 @@ import numpy as np
 
 from json import loads
 from inspect import getfullargspec, iscoroutinefunction
-from typing import Any, Tuple, Union, Callable
 
 from .headers import *
 from .utils import *
-from .types import ViewTypeDef, type_abc, type_error
+from .types import ViewTypeDef, type_error
+from .abs import *
 
 ROOT_FOLDER = os.path.abspath("./")
 STATIC_FOLDER = os.path.abspath("./static")
 
 
 def print_start(host: str, port: int, size: int = 32) -> None:
-    # os.system("cls|clear")
     print(
 f"""╔{'═'*(size)}╗
 ║ PyRex Running{' '*(size-14)}║
@@ -127,11 +126,11 @@ class Route:
 
 
 class RouteCollection:
-    path: re.Pattern
+    path: Pattern
     methods: dict
     priority_index: int
 
-    def __init__(self, path: re.Pattern, priority_index: int):
+    def __init__(self, path: Pattern, priority_index: int):
         self.path = path
         self.priority_index = priority_index
         self.methods = {
