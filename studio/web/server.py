@@ -149,8 +149,7 @@ class RouteCollection:
         self.methods[method] = view
 
     def __iter__(self, ) -> Tuple[str, Union[Route, bool]]:
-        for method, route in self.methods.items():
-            yield method, route
+        yield from self.methods.items()
 
 
 class Router:
@@ -193,8 +192,7 @@ class Router:
         return self._routes[path]
 
     def __iter__(self,) -> Tuple[str, RouteCollection]:
-        for path, collection in self._routes.items():
-            yield path, collection
+        yield from self._routes.items()
 
     def __repr__(self, ) -> str:
         repr_out = ""
