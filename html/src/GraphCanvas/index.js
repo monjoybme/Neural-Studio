@@ -26,7 +26,7 @@ const TriangleMarker = (props) => {
   return (
     <marker
       xmlns="http://www.w3.org/2000/svg"
-      id="triangle"
+      id="triangle_marker"
       viewBox="0 0 10 10"
       refX="0"
       refY="5"
@@ -44,7 +44,7 @@ const CircleMarker = (props) => {
   return (
     <marker
       xmlns="http://www.w3.org/2000/svg"
-      id="circle"
+      id="circle_marker"
       viewBox="0 0 10 10"
       refX="5"
       refY="5"
@@ -66,7 +66,7 @@ const DefaultLine = (props = { lineref: undefined }) => {
       x2="0"
       y2="0"
       strokeWidth="0"
-      markerEnd="url(#triangle)"
+      markerEnd="url(#triangle_marker)"
       ref={props.lineref}
     />
   );

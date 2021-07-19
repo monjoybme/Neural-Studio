@@ -3,9 +3,7 @@ import React from "react";
 import Home from "../Home";
 import Graph from "../GraphCanvas";
 import Dataset from "../Dataset";
-// import CodeEditor from "../CodeEditor";
 import Train from "../Training";
-import SummaryViewer from "../SummaryViewer";
 
 import layerGroups from "../data/layers";
 import datasets from '../data/datasets';

@@ -20,59 +20,77 @@ const propMeta = {
 };
 
 export function calculateEdge(
-  cords = { x1: Number, y1: Number, x2: Number, y2: Number }
+  cords = {
+    x1: Number,
+    y1: Number,
+    x2: Number,
+    y2: Number,
+    h1: Number,
+    h2: Number,
+    w1: Number,
+    w2: Number,
+  }
 ) {
   let pstring = "";
-  let { x1, y1, x2, y2 } = cords;
-  let midY = Math.abs(Math.floor((y1 - y2) / 2));
-  let midX = Math.abs(Math.floor((x1 - x2) / 2));
-  let pad = 9,
-    curve = 12;
+  let { x1, y1, x2, y2, h1, h2, w1, w2 } = cords;
+  let bcurve = 25;
 
-  pstring += `M ${x2} ${y2} `;
-  pstring += `L ${x2} ${y2 + pad}`;
-  if (y2 > y1) {
-    if (x1 < x2) {
-      midX = -midX;
-    }
-    if (x1 > x2) {
-      pstring += `L ${x2 + midX - curve} ${y2 + pad}`;
-      pstring += `C 
-      ${x2 + midX} ${y2 + pad}, 
-      ${x2 + midX} ${y2 + pad},
-      ${x2 + midX} ${y2 + pad - curve},
-    `;
-
-      pstring += `L ${x1 - midX} ${y1 - pad + curve} `;
-      pstring += `C 
-            ${x1 - midX} ${y1 - pad},
-            ${x1 - midX} ${y1 - pad},
-            ${x1 - midX + curve} ${y1 - pad}
-          `;
-    } else {
-      pstring += `L ${x2 + midX + curve} ${y2 + pad}`;
-      pstring += `C 
-      ${x2 + midX} ${y2 + pad}, 
-      ${x2 + midX} ${y2 + pad},
-      ${x2 + midX} ${y2 + pad - curve},
-    `;
-
-      pstring += `L ${x1 - midX} ${y1 - pad + curve} `;
-      pstring += `C 
-            ${x1 - midX} ${y1 - pad},
-            ${x1 - midX} ${y1 - pad},
-            ${x1 - midX - curve} ${y1 - pad}
-          `;
-    }
-
-    pstring += `L ${x1} ${y1 - pad} `;
-    pstring += `L ${x1} ${y1} `;
+  if (y1 > y2 - 120) {
+    pstring += `M ${x2} ${y2} `;
+    pstring += `C 
+          ${x2} ${y2 + bcurve}, 
+          ${x1} ${y1 - bcurve},
+          ${x1} ${y1}
+        `;
   } else {
-    pstring += `L ${x1} ${y1 - pad} `;
-    pstring += `L ${x1} ${y1} `;
+    let midY = Math.abs(Math.floor((y1 - y2) / 2));
+    let midX = Math.abs(Math.floor((x1 - x2) / 2));
+
+    if (x1 < x2) {
+      pstring += `M ${x2} ${y2} `;
+      pstring += `C
+      ${x2} ${y2},
+      ${x2} ${y2 + 10} 
+      ${x2 - 10} ${y2 + 10}
+    `;
+      pstring += `L ${x2 - Math.floor(w2 / 2) - 5} ${y2 + 10}`;
+      pstring += `C
+      ${x2 - Math.floor(w2 / 2) - midX - 10} ${y2 + 10}
+      ${x1 + Math.floor(w1 / 2) + midY} ${y1 - 10},
+      ${x1 + Math.floor(w1 / 2) + 5} ${y1 - 10}
+    `;
+
+      pstring += `L ${x1 + Math.floor(w1 / 2) - 5} ${y1 - 10} `;
+      pstring += `C 
+      ${x1} ${y1 - 10},
+      ${x1} ${y1 - 10},
+      ${x1} ${y1}
+    `;
+    } else {
+      pstring += `M ${x2} ${y2} `;
+      pstring += `C
+      ${x2} ${y2},
+      ${x2} ${y2 + 10} 
+      ${x2 + 10} ${y2 + 10}
+    `;
+      pstring += `L ${x2 + Math.floor(w2 / 2) + 5} ${y2 + 10}`;
+      pstring += `C
+      ${x2 + Math.floor(w2 / 2) + midX - 10} ${y2 + 10}
+      ${x1 - Math.floor(w1 / 2) - midY} ${y1 - 10},
+      ${x1 - Math.floor(w1 / 2) - 5} ${y1 - 10}
+    `;
+
+      pstring += `L ${x1 - Math.floor(w1 / 2) - 5} ${y1 - 10} `;
+      pstring += `C 
+      ${x1} ${y1 - 10},
+      ${x1} ${y1 - 10},
+      ${x1} ${y1}
+    `;
+    }
   }
   return pstring;
 }
+
 
 export const Node = (
   props = {
@@ -235,8 +253,12 @@ export const Node = (
           let cords = {
             x1: pos.x + pos.offsetX,
             y1: pos.y,
+            h1: 30,
+            w1: width,
             x2: pos_out.pos.x + pos_out.pos.offsetX,
             y2: pos_out.pos.y + 30,
+            h2: 30,
+            w2: pos_out.width,
           };
           return (
             <path

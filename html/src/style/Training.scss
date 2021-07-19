@@ -53,12 +53,11 @@
   width: -webkit-fill-available;
   padding: 10px;
 
-  
   .title {
     height: 40px;
     padding-top: 5px;
 
-    @include flex(row,center,flex-start);
+    @include flex(row, center, flex-start);
     @extend .heading-3;
   }
 
@@ -151,72 +150,68 @@
 
 .monitor-container {
   @include width($lossmonitorWidth, $lossmonitorWidth, $lossmonitorWidth);
-  overflow-y: scroll;
+  padding: 0px 5px 0px 10px;
+  border-left: $lightBorder2;
+
   .title {
-      height: 30px;
-      margin-top: 10px;
-      cursor: pointer;
-      @include flex();
-      @extend .heading-3;
+    height: 30px;
+    margin-top: 10px;
+    cursor: pointer;
+    @include flex();
+    @extend .heading-3;
   }
-  .monitor {
-    width: 100%;
-    padding: 10px;
-    padding-top: 0px;
-    @include flex(column, flex-start, center);
-
-    .legends {
+  .monitors {
+    overflow-y: scroll;
+    height: auto;
+    max-height: calc(100% - 50px);
+    padding-right: 5px;
+    .monitor {
       width: 100%;
-      margin-top: 10px;
-      padding: 10px;
-      @include flex(column, center, flex-start);
-      .legend {
-        height: 20px;
-        width: 100%;
-        display: flex;
-        .name {
-          width: 60%;
-          @extend .heading-4;
-        }
-        .color{
-          width: 15px;
-          height: 15px;
-          margin-right: 10px;
-        }
+      height: 400px;
+      padding: 0px;
+
+      .plot_axis {
+        stroke: $darkFr;
       }
-    }
 
-    .lossvsmetric{
-      height: $lossmonitorWidth - 60px;
-      width: 100%;
-      margin-top: 10px;
-
-      border: $darkBorder2;
-
-      .name {
-        height: 25px;
-        @include flex();
+      .axis_tick {
         @extend .heading-4;
       }
 
-      .graph{
-        height: calc( 100% - 25px );
-        padding: 5px;
-        @include flex();
-        svg{
-          height:100%;
-          width: 100%;
+      svg {
+        height: 100%;
+        width: 100%;
 
+        .text {
+          letter-spacing: 1px;
+          @extend .heading-4;
+        }
+
+        .legend {
           text {
-            @extend .heading-5;
+            letter-spacing: 1px;
+            @extend .heading-4;
+          }
+        }
+
+        .graph_line {
+          stroke-width: 2;
+        }
+
+        .graph_marker {
+          fill: rgba(255, 255, 255, 1);
+          stroke: rgba(128, 128, 128, 1);
+          stroke-width: 1;
+        }
+
+        .plot_grid {
+          .background {
+            fill: rgba(228, 228, 228, 0.5);
           }
 
-          .line{
+          .grid_line {
             stroke-width: 2;
-          }
-
-          .axis {
-            stroke-width: 2;
+            stroke: rgba(#fff, 1);
           }
         }
       }
@@ -234,11 +229,10 @@
   border: $lightBorder3;
   @extend .heading-4;
 
-  *{
+  * {
     color: $darkBg;
   }
 }
-
 
 .dark {
   .logs {
@@ -255,7 +249,7 @@
       }
     }
     .error {
-      .message{
+      .message {
         color: $darkColorPr;
       }
       pre {
@@ -285,36 +279,28 @@
       border-bottom: $darkBorder2;
     }
   }
-  .monitor-container{
-    background: rgba(228, 228, 228, 0.05);
+  .monitor-container {
+    background: $darkTr;
     border-left: $darkBorder2;
-    .title{
-      color: $darkColorPr;
+    .title {
+      color: $lightFr;
     }
-    .legends {
-      border: $darkBorder2;
-      .legend {
-        .name {
-          color: $darkColorPr;
+    .monitors {
+      .monitor {
+        .plot_axis {
+          stroke: $lightBg;
         }
-      }
-    }
-    .lossvsmetric{
-      background-color: $lightColorSc;
-      .name{
-          color: $darkColorPr;
-      }
-      .graph{
-        svg{
-          text {
-            fill: $darkColorPr;
+        svg {
+          .graph_marker {
+            stroke: $darkFr;
           }
-          .axis {
-            stroke: $darkColorPr;
-          }
-          circle {
-            stroke: $darkColorPr;
-            fill: $lightColorSc;
+          .plot_grid {
+            .background {
+              fill: $darkTr;
+            }
+            .grid_line {
+              stroke: rgba(228, 228, 228, 0.05);
+            }
           }
         }
       }
@@ -335,7 +321,7 @@
       }
     }
     .error {
-      .message{
+      .message {
         color: $lightColorPr;
       }
       pre {
@@ -357,9 +343,9 @@
     background: $lightFr;
     border-right: $lightBorder1;
   }
-  .monitor-container{
+  .monitor-container {
     border-left: $lightBorder2;
-    .title{
+    .title {
       color: $lightColorPr;
     }
     .legends {
@@ -370,21 +356,21 @@
         }
       }
     }
-    .lossvsmetric{
+    .lossvsmetric {
       border: $lightBorder2;
       background-color: $lightFr;
-      .name{
-          color: $lightColorPr;
+      .name {
+        color: $lightColorPr;
       }
-      .graph{
-        svg{
+      .graph {
+        svg {
           text {
             fill: $lightColorSc;
           }
           .axis {
             stroke: $lightColorTr;
           }
-          circle{
+          circle {
             stroke: $lightColorPr;
           }
         }

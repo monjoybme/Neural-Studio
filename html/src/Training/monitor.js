@@ -290,22 +290,22 @@ const MonitorOne = (
       if (maxVals[key] === undefined) {
         maxVals[key] = val;
       } else {
-          if ( key.lastIndexOf("accuracy") > -1){
-              maxVals[key] = 1;
-          }else if (maxVals[key] <= val) {
-            maxVals[key] = val;
-         }
+        if (key.lastIndexOf("accuracy") > -1) {
+          maxVals[key] = 1;
+        } else if (maxVals[key] <= val) {
+          maxVals[key] = val;
         }
+      }
     });
   });
 
-  let losses = [ ...Object.keys(maxVals) ]
+  let losses = [...Object.keys(maxVals)];
 
   let render = data.map((epoch, i) => {
     let output = epoch.data.log.output === null ? {} : epoch.data.log.output;
     return Object.entries(output).map(([key, value]) => {
       x1 = pad + i * xAxisGap;
-      y1 = Math.floor((1 - (value / maxVals[key])) * height) + 5;
+      y1 = Math.floor((1 - value / maxVals[key]) * height) + 5;
       if (prevCords[key] === undefined) {
         prevCords[key] = {
           x: x1,
@@ -322,7 +322,7 @@ const MonitorOne = (
         epoch: i,
         value: value,
         name: key,
-        color: colors[losses.lastIndexOf(key)] ,
+        color: colors[losses.lastIndexOf(key)],
         cords: {
           x1: x1,
           y1: y1,
@@ -342,7 +342,10 @@ const MonitorOne = (
   });
 
   const ToolTip = (
-    props = { data: { epoch: 0, value: 0, name: "Loss" }, cords: { x: 0, y: 0 } }
+    props = {
+      data: { epoch: 0, value: 0, name: "Loss" },
+      cords: { x: 0, y: 0 },
+    }
   ) => {
     return (
       <div
@@ -350,11 +353,14 @@ const MonitorOne = (
         style={{
           top: props.cords.y,
           left: props.cords.x,
-          transform: (window.innerWidth - 200) < props.cords.x ?  "translate(-100%, 0%)" : '',
-          minWidth:"140px"
+          transform:
+            window.innerWidth - 200 < props.cords.x
+              ? "translate(-100%, 0%)"
+              : "",
+          minWidth: "140px",
         }}
       >
-        { props.data.name }
+        {props.data.name}
         <div> Epoch : {props.data.epoch} </div>
         <div> Value : {props.data.value.toString().slice(0, 6)} </div>
       </div>
@@ -374,19 +380,17 @@ const MonitorOne = (
   return (
     <div className="monitor">
       <div className="legends">
-        {
-            losses.map((loss, i)=>{
-                return (
-                  <div className="legend" key={i}>
-                    <div
-                      className="color"
-                      style={{ background: colors[losses.lastIndexOf(loss)] }}
-                    ></div>
-                    <div className="name">{loss}</div>
-                  </div>
-                );
-            })
-        }
+        {losses.map((loss, i) => {
+          return (
+            <div className="legend" key={i}>
+              <div
+                className="color"
+                style={{ background: colors[losses.lastIndexOf(loss)] }}
+              ></div>
+              <div className="name">{loss}</div>
+            </div>
+          );
+        })}
       </div>
       <div className="lossvsmetric">
         <div className="name">{props.name}</div>
@@ -443,7 +447,7 @@ const MonitorOne = (
                         r={2}
                         cy={loss.cords.y1}
                         cx={loss.cords.x1}
-                        fill={ "white" }
+                        fill={"white"}
                         strokeWidth={1}
                         onMouseOver={(e) => {
                           e.target.r.baseVal.value = 5;

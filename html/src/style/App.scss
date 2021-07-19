@@ -3,7 +3,7 @@
 $sidebarWidth: 60px;
 $topbarHeight: 60px;
 $statusBarHeight: 20px;
-$lossmonitorWidth: 460px;
+$lossmonitorWidth: 640px;
 $notificationHeight: 60px;
 
 // Colors
@@ -148,6 +148,20 @@ $lightBorder3: 0.01rem solid rgba(119, 119, 119, 0.15);
 * {
   box-sizing: border-box;
   outline: none;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
 }
 
 input {

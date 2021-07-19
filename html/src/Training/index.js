@@ -1,12 +1,12 @@
 import React from "react";
 
 import Menu from '../GraphCanvas/menu';
-import { MonitorMany, MonitorOne } from './monitor';
 import { EpochLog, ErrorLog, NotificationLog } from './logs';
 
 import { icons } from "../data/icons";
 import { metaAppFunctions, metaGraph, metaAppData,  metaTrain } from "../Meta";
 import { get, pull, push, post } from "../Utils";
+import { Monitor } from "./loss";
 
 const Training = (
   props = { store: metaAppData, appFunctions: metaAppFunctions }
@@ -99,38 +99,6 @@ const Training = (
     return socket;
   }
 
-  /**
-   * depricated
-   */
-  async function getStatus() {
-    await get({
-      path: "/train/status",
-    })
-      .then((respomse) => respomse.json())
-      .then((data) => {
-        statusState({
-          data: data.logs,
-          ended: data.logs[data.logs.length - 1].data.ended || false,
-          updating: true,
-        });
-        if (data.logs[data.logs.length - 1].data.epoch !== epoch) {
-          let logs = document.getElementById("logs");
-          logs.scrollTop = logs.scrollHeight;
-          epoch = data.logs[data.logs.length - 1].data.epoch;
-        }
-        if (data.logs[data.logs.length - 1].data.ended) {
-          istrainingState({ state: false});
-        } else {
-          if (document.getElementById("check")) {
-            setTimeout(getStatus, 10);
-          }
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-
   async function trainModel(e) {
     if (istraining.state) {
       props.appFunctions.notify({
@@ -215,9 +183,6 @@ const Training = (
     }
   }
 
-  React.useState(()=>{
-    console.log("ello")
-  }, [])
 
   React.useState(() => {
     if (graph.fetch) {
@@ -319,15 +284,10 @@ const Training = (
       </div>
       <div className="monitor-container">
         <div className="title" onClick={(e) => monitorModeState(~monitorMode)}>
-          Loss Monitor ({monitorMode ? "Combined" : "Separate"})
+          Loss Monitor 
+          {/* ({monitorMode ? "Combined" : "Separate"}) */}
         </div>
-        {status.data.length ? (
-          monitorMode ? (
-            <MonitorOne data={status.data} {...props} />
-          ) : (
-            <MonitorMany data={status.data} {...props} />
-          )
-        ) : undefined}
+        <Monitor data={status.data} />
       </div>
       <div id="check"> </div>
     </div>
