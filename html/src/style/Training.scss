@@ -235,6 +235,24 @@
 }
 
 .dark {
+  .context {
+      position: absolute;
+
+      .section {
+        background: $darkFr;
+        border: $darkBorder2;
+        box-shadow: none;
+
+        .option {
+          border-bottom: $lightBorder3;
+          color: $darkColorSc;
+        }
+
+        div:last-child {
+          border: none;
+        }
+      }
+    }
   .logs {
     background: rgba(228, 228, 228, 0.05);
     .title {

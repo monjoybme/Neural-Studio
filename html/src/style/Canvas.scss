@@ -1,6 +1,6 @@
 @import "./App.scss";
 
-$toolbarWidth: 280px;
+$toolbarWidth: 300px;
 
 .graph-canvas {
   display: flex;
@@ -466,7 +466,7 @@ $toolbarWidth: 280px;
 
 .dark {
   .tools {
-    // border-right: $darkBorder2;
+    border-right: $darkBorder2;
     background: $darkFr;
     .toolbar {
       border-bottom: $darkBorder2;

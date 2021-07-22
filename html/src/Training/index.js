@@ -1,11 +1,11 @@
 import React from "react";
 
-import Menu from '../GraphCanvas/menu';
-import { EpochLog, ErrorLog, NotificationLog } from './logs';
+import Menu from "../GraphCanvas/menu";
+import { EpochLog, ErrorLog, NotificationLog } from "./logs";
 
 import { icons } from "../data/icons";
-import { metaAppFunctions, metaGraph, metaAppData,  metaTrain } from "../Meta";
-import { get, pull, push, post } from "../Utils";
+import { metaAppFunctions, metaGraph, metaAppData, metaTrain } from "../Meta";
+import { get, pull, push, post, Loading } from "../Utils";
 import { Monitor } from "./loss";
 
 const Training = (
@@ -56,29 +56,37 @@ const Training = (
       icon: icons.Delete,
     },
   ];
-  let [istraining, istrainingState] = React.useState({ state: false});
+  let [istraining, istrainingState] = React.useState({ state: false });
+  let compRef = React.useRef();
 
-  function statusSocket(){
+  function statusSocket() {
     let socket = new WebSocket("ws://localhost:8000/train/socket_status");
 
     socket.onopen = function (event) {
       console.log("[socket] Connection established");
-      socket.send("$")
+      socket.send("$");
     };
 
     socket.onmessage = function (event) {
-      status.data = JSON.parse(event.data);
-      statusState({...status});
-      if (status.data[status.data.length - 1].data.epoch !== epoch) {
-        let logs = document.getElementById("logs");
-        logs.scrollTop = logs.scrollHeight;
-        epoch = status.data[status.data.length - 1].data.epoch;
-      }
-      if (status.data[status.data.length-1].data.ended){
+      if (compRef.current) {
+        status.data = JSON.parse(event.data);
+        statusState({ ...status });
+        if (status.data[status.data.length - 1].data.epoch !== epoch) {
+          let logs = document.getElementById("logs");
+          logs.scrollTop = logs.scrollHeight;
+          epoch = status.data[status.data.length - 1].data.epoch;
+          trainState({
+            history: status.data,
+          });
+        }
+        if (status.data[status.data.length - 1].data.ended) {
+          socket.send("$exit");
+          istrainingState({ state: false });
+        } else {
+          socket.send("$");
+        }
+      } else {
         socket.send("$exit");
-        istrainingState({state: false})
-      }else{
-        socket.send("$");
       }
     };
 
@@ -105,7 +113,7 @@ const Training = (
         message: "Training Session Already Running",
       });
     } else {
-      istrainingState({state: true});
+      istrainingState({ state: true });
       epoch = 0;
       statusState({
         data: [],
@@ -113,14 +121,14 @@ const Training = (
         updating: false,
       });
       istrainingState({
-        state: true
-      })
+        state: true,
+      });
       props.appFunctions.notify({
         message: "Training Started !",
       });
       await post({
-        path:"/train/start",
-        data: {}
+        path: "/train/start",
+        data: {},
       })
         .then((response) => response.json())
         .then((data) => {
@@ -134,7 +142,7 @@ const Training = (
     if (istraining.state) {
       await post({
         path: "/train/halt",
-        data: halt
+        data: halt,
       })
         .then((response) => response.json())
         .then((data) => {});
@@ -165,13 +173,13 @@ const Training = (
     if (istraining.state) {
       post({
         path: "/train/stop",
-        data: {}
+        data: {},
       })
         .then((response) => response.json())
         .then((data) => {
           istrainingState({
-            state: false
-          })
+            state: false,
+          });
           props.appFunctions.notify({
             message: "Training has stopped !",
           });
@@ -183,8 +191,8 @@ const Training = (
     }
   }
 
-
   React.useState(() => {
+    console.log("[training]");
     if (graph.fetch) {
       pull({
         name: "canvas",
@@ -195,7 +203,26 @@ const Training = (
         graphState({ ..._graph, fetch: false });
       });
     }
-  }, [graph]);
+  }, []);
+
+  React.useEffect(() => {
+    get({
+      path: "/train/status",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.is_training) {
+          epoch = 0;
+          statusState({
+            data: [],
+            ended: false,
+            updating: false,
+          });
+          statusSocket();
+        }
+        istrainingState({ state: data.is_training });
+      });
+  }, []);
 
   React.useEffect(() => {
     if (!graph.fetch) {
@@ -210,8 +237,30 @@ const Training = (
     }
   }, [graph]);
 
+  React.useEffect(() => {
+    if (train.fetch) {
+      pull({
+        name: "train",
+      }).then((response) => {
+        trainState({ history: response.history, fetch: false });
+        statusState({
+          data: response.history,
+          ended: false,
+          updating: false,
+        });
+      });
+    } else {
+      push({
+        name: "train",
+        data: train,
+      }).then((response) => {
+        
+      });
+    }
+  }, [train]);
+
   return (
-    <div className="container training">
+    <div className="container training" ref={compRef}>
       <div className="tuner">
         <div className="toolbar">
           <div className="controls">
@@ -226,14 +275,22 @@ const Training = (
           </div>
         </div>
         {graph.train_config ? (
-          <div className="params" style={istraining.state ? {
-            pointerEvents: "none",
-            opacity: '0.6',
-            zoom: 1,
-            msFilter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)",
-            MozOpacity: 0.5,
-            KhtmlOpacity: 0.5
-          }: {}}>
+          <div
+            className="params"
+            style={
+              istraining.state
+                ? {
+                    pointerEvents: "none",
+                    opacity: "0.6",
+                    zoom: 1,
+                    msFilter:
+                      "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)",
+                    MozOpacity: 0.5,
+                    KhtmlOpacity: 0.5,
+                  }
+                : {}
+            }
+          >
             {graph.train_config.fit !== null ? (
               <div className="property">
                 <Menu
@@ -267,24 +324,28 @@ const Training = (
           </div>
         ) : undefined}
       </div>
-      <div className="logs" id="logs">
-        <div className="title">Logs</div>
-        {status.data.map((log, i) => {
-          switch (log.type) {
-            case "notif":
-              return <NotificationLog data={log.data} key={i} />;
-            case "epoch":
-              return <EpochLog data={log.data} key={i} />;
-            case "error":
-              return <ErrorLog data={log.data} key={i} />;
-            default:
-              return <div />;
-          }
-        })}
-      </div>
+      {train.fetch ? (
+        <Loading />
+      ) : (
+        <div className="logs" id="logs">
+          <div className="title">Logs</div>
+          {status.data.map((log, i) => {
+            switch (log.type) {
+              case "notif":
+                return <NotificationLog data={log.data} key={i} />;
+              case "epoch":
+                return <EpochLog data={log.data} key={i} />;
+              case "error":
+                return <ErrorLog data={log.data} key={i} />;
+              default:
+                return <div />;
+            }
+          })}
+        </div>
+      )}
       <div className="monitor-container">
         <div className="title" onClick={(e) => monitorModeState(~monitorMode)}>
-          Loss Monitor 
+          Loss Monitor
           {/* ({monitorMode ? "Combined" : "Separate"}) */}
         </div>
         <Monitor data={status.data} />

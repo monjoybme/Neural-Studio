@@ -196,6 +196,7 @@ const GraphEditor = (
       .then((data) => {
         props.appFunctions.notify({
           message: data.message,
+          type: data.status ? "success" : "error",
         });
       });
   }
@@ -205,6 +206,32 @@ const GraphEditor = (
       render: true,
       comp: <SummaryViewer menuState={menuState} />,
     });
+  }
+
+  function importGraph() {
+    let fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = ".json";
+    fileInput.addEventListener("change", (e) => {
+      let file = fileInput.files[0];
+      let reader = new FileReader();
+      reader.onload = (e) => {
+        let data = JSON.parse(e.target.result);
+        graphState({...data, fetch: false});
+      };
+      reader.readAsText(file);
+    });
+    fileInput.click();
+  }
+
+  function exportGraph(){
+    let graphString = JSON.stringify(graph);
+    let blob = new Blob([graphString], {type: "application/json;charset=utf-8"});
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = "graph.json";
+    a.click();
   }
 
   const ContextMenu = (props = { x: Number, y: Number }) => {
@@ -223,6 +250,26 @@ const GraphEditor = (
         name: "View Summary",
         onclick: function (e) {
           viewSummary();
+        },
+      },
+      {
+        name: "Import Graph",
+        onclick: function (e) {
+          importGraph();
+          menuState({
+            render: false,
+            comp: undefined,
+          });
+        },
+      },
+      {
+        name: "Export Graph",
+        onclick: function (e) {
+          exportGraph();
+          menuState({
+            render: false,
+            comp: undefined,
+          });
         },
       },
       {

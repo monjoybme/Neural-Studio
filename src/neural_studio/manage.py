@@ -1,7 +1,7 @@
 from os import path as pathlib, mkdir, chdir, listdir
 from json import dump, load, loads
 import shutil
-from typing import  Set
+from typing import Set
 from shutil import rmtree
 
 from neural_studio.structs import DataDict
@@ -12,7 +12,7 @@ from neural_studio.data import setup
 
 APP = DataDict({
     "theme": "light",
-    "name":"model",
+    "name": "model",
     "global": {
         "topbar": {
             "height": 60,
@@ -103,24 +103,26 @@ DATASET = DataDict({
 
 
 TRAIN = DataDict({
-    "logs":[]
+    "logs": []
 })
+
 
 class Cache(object):
     recent = [None for _ in range(10)]
+
     def __init__(self, root: str):
         self.__cache_file__ = pathlib.join(root, "cache.json")
-        
+
         if not pathlib.isfile(self.__cache_file__):
             with open(self.__cache_file__, "w+") as file:
                 dump(self.recent, file)
 
-        with open(self.__cache_file__,"r") as cache:
+        with open(self.__cache_file__, "r") as cache:
             self.recent = load(cache)
 
     def __write__(self,):
         with open(self.__cache_file__, "w+") as file:
-            dump( self.recent, file)
+            dump(self.recent, file)
 
     def __getitem__(self, key):
         return self.__dict__[key]
@@ -148,7 +150,7 @@ class Workspace(DataDict):
         ('home', HOME),
         ('dataset', DATASET),
         ('canvas', CANVAS),
-        ('train',TRAIN)
+        ('train', TRAIN)
     ]
     __vars__ = ['app', 'home',  'dataset', 'canvas',  'train']
 
@@ -158,7 +160,7 @@ class Workspace(DataDict):
     canvas = CANVAS
     train = TRAIN
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, metadata: dict = {}):
         self.__path__ = path
         *_, self.__name__ = pathlib.split(self.__path__)
 
@@ -166,8 +168,11 @@ class Workspace(DataDict):
             mkdir(self.__path__)
             for var, val in self.__required__vars__:
                 file = pathlib.join(self.__path__, f"{var}.json")
-                if var == 'home': val[['active:name']] = self.__name__
-                if var == 'app' : val['name'] = self.__name__
+                if var == 'home':
+                    val[['active:name']] = self.__name__
+                if var == 'app':
+                    val['name'] = self.__name__
+                    val['config'] = metadata
                 with open(file, "w+") as file:
                     dump(val.to_dict(), file)
 
@@ -209,9 +214,9 @@ class Workspace(DataDict):
 
 
 class WorkspaceManager(DataDict):
-    
+
     workspaces: Set[str] = set()
-    dataset:DatasetDef = None
+    dataset: DatasetDef = None
 
     def __init__(self, root='.tfstudio'):
         self.root = pathlib.abspath(root)
@@ -237,22 +242,25 @@ class WorkspaceManager(DataDict):
             self.active = Workspace(pathlib.join(
                 self.root, "workspace", "model"))
             self.workspaces.add(self.active.idx)
-            print (self.active.idx)
+            print(self.active.idx)
             self.cache >> self.active.idx
 
     def __repr__(self,):
         return f"""WorkspaceManager @ {self.root}"""
 
     def __iter__(self,):
-        yield from self.workspaces    
+        yield from self.workspaces
 
-    def new_workspace(self, name: str) -> Workspace:
-        workspace = Workspace(path=pathlib.join(self.root, "workspace", name))
+    def new_workspace(self, data: dict) -> Workspace:
+        w_root = pathlib.join(self.root, "workspace", data['name'])
+        if pathlib.isdir(w_root):
+            return False, f"Workspace '{data['name']}' already exists."
+        workspace = Workspace(path=w_root, metadata=data)
         self.workspaces.add(workspace.idx)
         self.cache >> workspace.idx
         self.active = workspace
-        self.logger.success(f"create '{name}'")
-        return workspace
+        self.logger.success(f"create '{data['name']}'")
+        return True, workspace
 
     def open_workspace(self, name: str) -> Workspace:
         workspace = False
@@ -274,18 +282,21 @@ class WorkspaceManager(DataDict):
     def delete_workspace(self, name: str) -> None:
         path = pathlib.join(self.root, "workspace", name)
         if pathlib.isdir(path,):
+            try:
+                rmtree(path,)
+            except PermissionError:
+                return False, "Cannot delete workspace, Another process is using the resource."
+
             while self.cache.last == name:
                 self.cache << name
             self.workspaces = {w for w in self.workspaces if pathlib.join(
                 self.root, "workspace", w) != path}
-            rmtree(path,)
-
             if self.active[['home:active:name']] == name:
                 self.active = self.open_workspace(self.cache.last)
                 if not self.active:
                     self.active = self.new_workspace("model")
-            return True
-        return False
+            return True, f"Workspace deleted successfully."
+        return False, f"Error deleting workspace."
 
     def delete_multiple(self, w_list: list = [], d_all=False):
         if d_all:

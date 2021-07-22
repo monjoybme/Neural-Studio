@@ -27,9 +27,10 @@ from neural_studio.manage import Workspace, WorkspaceManager
 from neural_studio.structs import DataDict
 from neural_studio.trainer import OutputVisualizer, Trainer
 from neural_studio.utils import download_options, generate_args, get_hardware_utilization
-from neural_studio.web import App, Lith, Request, json_response, text_response, send_file, types
-from neural_studio.web.core.websocket import WebSocketServer
-from neural_studio.web.frontend import ServeHTML, ServeStatic
+
+from pyrex import App, Lith, Request, json_response, text_response, send_file, types
+from pyrex.core.websocket import WebSocketServer
+from pyrex.frontend import ServeHTML, ServeStatic
 
 
 """
@@ -39,9 +40,26 @@ TODO
 
 
 # root path
-HOME_PATH = Path().home()
+
+
+HOME_PATH = (pathlib.abspath(sys.argv[sys.argv.index("-dir")+1])
+             if "-dir" in sys.argv
+             else Path().home()
+             )
+
 ROOT_PATH = pathlib.join(HOME_PATH, ".tfstudio")
 DATA_PATH = data_path()
+
+# app url
+
+HOST = (sys.argv[sys.argv.index("-host")+1]
+        if "-host" in sys.argv
+        else "localhost"
+        )
+PORT = (int(sys.argv[sys.argv.index("-port")+1])
+        if "-port" in sys.argv
+        else 8000
+        )
 
 # defining globals
 app = App()
@@ -61,6 +79,7 @@ logger = Logger(name="main")
 
 # updating training session
 setattr(callbacks, "OutputVisualizer", OutputVisualizer)
+
 logger.log("updating globals")
 trainer.update_session(globals())
 
@@ -169,10 +188,15 @@ async def _workspace_all(request: Request) -> types.dict:
 @lith_workspace.post("/new")
 async def _workspace_new(request: Request) -> types.dict:
     data = await request.get_json()
-    workspace = workspace_manager.new_workspace(**data)
-    assert workspace.idx == workspace_manager.active.idx
+    status, workspace = workspace_manager.new_workspace(data)
+    if status and workspace.idx == workspace_manager.active.idx:
+        return {
+            "status": True,
+            "message": f"Workspace {data['name']} created successfully."
+        }
     return {
-        "status": True
+        "status": False,
+        "message": workspace
     }
 
 
@@ -187,8 +211,10 @@ async def _workspace_open(request: Request, name: str) -> types.dict:
 
 @lith_workspace.post("/delete/<str:name>")
 async def _workspace_new(request: Request, name: str) -> types.dict:
+    status, message = workspace_manager.delete_workspace(name)
     return {
-        "status": workspace_manager.delete_workspace(name),
+        "status": status,
+        "message": message
     }
 
 
@@ -240,9 +266,17 @@ async def _dataset_build(request: Request) -> types.dict:
 
 @lith_dataset.get("/sample")
 async def _dataset_sample(request: Request) -> types.dict:
-    return workspace_manager.dataset.dataset.sample(20)
+    try:
+        return {
+            "status": True,
+            "data": workspace_manager.dataset.dataset.sample(20),
+        }
+    except Exception as e:
+        logger.sys_error(e)
+        return {"status": False, "message": "Dataset not built yet"}
 
 # Model endpoints
+
 
 @lith_model.get("/build")
 async def _model_build(request: Request) -> types.dict:
@@ -252,13 +286,31 @@ async def _model_build(request: Request) -> types.dict:
         "message": message
     }
 
+
 @lith_model.get("/code")
 async def _model_code(request: Request) -> types.dict:
     graph = GraphDef(workspace_manager.active.canvas.graph)
     status, message = graph.build()
     if status:
-        return {"code": graph.to_code()}
-    return await text_response(message)
+        return {
+            "code": graph.to_code(),
+            "status": True,
+        }
+    return {
+        "message": message,
+        "status": False
+    }
+
+
+@lith_model.post("/infer")
+async def _model_infer(request: Request) -> types.dict:
+    content = await request.content;
+    return {
+        "status": True,
+        "data": {
+            "content": content.decode()
+        }
+    }
 
 
 @lith_model.get("/summary")
@@ -304,8 +356,8 @@ async def _train_stop(request: Request) -> types.dict:
 
 
 @lith_train.get("/status")
-async def _status(request: Request) -> types.dict:
-    return {"logs": trainer.logs}
+async def _train_stop(request: Request) -> types.dict:
+    return {"is_training": trainer.is_training}
 
 
 @lith_train.get("/socket_status")
@@ -350,9 +402,10 @@ app.add_lith(lith_train)
 
 
 def run_studio():
-    open_url(f"http://localhost:8000")
+    open_url(f"http://{HOST}:{PORT}")
     app.serve(
-        port=8000
+        host=HOST,
+        port=PORT
     )
 
 

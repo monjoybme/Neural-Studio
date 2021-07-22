@@ -149,9 +149,9 @@ class Cifar10(Dataset):
         (X, Y), (x, y) = keras.datasets.cifar10.load_data()
 
         self.train_x = X.reshape(-1, *size) / (255. if normalize else 1.)
-        self.train_y = keras.utils.to_categorical(Y)
+        self.train_y = keras.utils.to_categorical(Y.reshape(-1,1))
         self.test_x = x.reshape(-1, *size) / (255. if normalize else 1.)
-        self.test_y = keras.utils.to_categorical(y)
+        self.test_y = keras.utils.to_categorical(Y.reshape(-1,1))
         self.size = size
         self.labels = [
             "airplane",

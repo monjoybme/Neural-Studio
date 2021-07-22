@@ -123,6 +123,7 @@ const XAxis = (props={trainData: {
                 x={graph_config.pad + i * xMultiplier}
                 y={graph_config.plot.height + graph_config.pad + 15}
                 className="axis_tick"
+                key={i}
               >
                 {i + 1}
               </text>
@@ -282,7 +283,7 @@ const ToolTip = (
         minWidth: "140px",
       }}
     >
-      <div> Epoch : {props.data.epoch} </div>
+      <div> Epoch : {props.data.epoch + 1} </div>
       <div> Value : {props.data.value.toString().slice(0, 6)} </div>
     </div>
   );

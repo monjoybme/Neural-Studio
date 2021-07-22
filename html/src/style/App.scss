@@ -288,6 +288,18 @@ div[disabled] {
     @extend .heading-4;
   }
 
+  .notif-info {
+    border-left: 3px solid blue !important;
+  }
+
+  .notif-success {
+    border-left: 3px solid green !important;
+  }
+
+  .notif-error {
+    border-left: 3px solid red !important;
+  }
+
   .close {
     width: 25px;
     padding: 2.5px;

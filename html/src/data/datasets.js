@@ -173,7 +173,7 @@ const datasets = {
         },
         arguments: {
           size: {
-            value: "(32, 32, 1)",
+            value: "(32, 32, 3)",
             type: "tuple",
             render: "text",
             options: "size",
@@ -194,7 +194,7 @@ const datasets = {
         },
         arguments: {
           size: {
-            value: "(32, 32, 1)",
+            value: "(32, 32, 3)",
             type: "tuple",
             render: "text",
             options: "size",

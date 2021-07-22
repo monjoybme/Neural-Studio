@@ -13,6 +13,7 @@ import "./style/Code.scss";
 import "./style/Training.scss";
 import "./style/Summary.scss";
 import "./style/Utils.scss";
+import "./style/Inference.scss";
 
 /**
  * It creates pop up overlays for custom pop up components.
@@ -45,7 +46,6 @@ const StatusBar = (props = { appData: metaAppData }) => {
   function setTime(){
     let d = new Date();
     timeState(d.toTimeString());
-
     setTimeout(setTime, 1000);
   }
   function utilSocket(){
@@ -155,7 +155,7 @@ const App = (props) => {
       statusbarState(text);
     },
     notify: function (
-      options = { name: "test", message: "Hello", timeout: 3000 }
+      options = { name: "test", message: "Hello", timeout: 3000, type: "info" }
     ) {
       notificationState({ comp: undefined });
       notificationState({
@@ -164,6 +164,7 @@ const App = (props) => {
             {...options}
             notificationState={notificationState}
             timeout={options.timeout ? options.timeout : 3000}
+            type={options.type ? options.type : "info" }
           />
         ),
       });

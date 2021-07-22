@@ -4,6 +4,8 @@ import Home from "../Home";
 import Graph from "../GraphCanvas";
 import Dataset from "../Dataset";
 import Train from "../Training";
+import Inference from "../Inference";
+
 
 import layerGroups from "../data/layers";
 import datasets from '../data/datasets';
@@ -40,6 +42,13 @@ export const metaSideNav = [
     icon: icons.Train,
     comp: Train,
   },
+  {
+    name: "Inference",
+    path: "/inference",
+    selected: window.location.pathname === "/experiment",
+    icon: icons.Experiment,
+    comp: Inference,
+  },
 ];
 
 export const  metaPopop = <></>
@@ -55,7 +64,7 @@ export const  metaApp = {
   theme: "light",
   geometry: {
     sideBar: {
-      width: 70,
+      width: 60,
     },
     topBar: {
       height: 60,
@@ -63,11 +72,11 @@ export const  metaApp = {
   },
   canvas: {
     toolbar: {
-      width: 280,
+      width: 300,
     },
   },
   monitor: {
-    width: 400,
+    width: 640,
     padding: 5,
     graph: {
       height: 295,
@@ -107,8 +116,8 @@ export const  metaCanvas = {
 };
 
 export const  metaTrain = {
-  training: false,
-  hist: [],
+  fetch: true,
+  history: [],
 };
 
 export const  metaDataset = {

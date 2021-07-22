@@ -1,0 +1,85 @@
+@import "./App.scss";
+
+.inference {
+  padding: 10px 10px 10px 10px;
+  background: $lightFr;
+  color: $lightColorPr;
+
+  .image {
+  }
+
+  .classification {
+      height: 100%;
+      width: 100%;
+
+      display: grid;
+      grid-template-columns: 470px calc(100% - 480px);
+      grid-gap: 10px;
+
+      .image-container {
+          height: auto;
+          width: 100%;
+
+          background: $lightBg;
+          border: $lightBorder2;
+          padding: 10px;
+
+        .upload {
+          height: 40px;
+          input {
+            height: 0px;
+            width: 0px;
+            display: none;
+            visibility: hidden;            
+          }
+          label {
+            height: 30px;
+            
+            padding-left: 5px;
+            @extend .heading-4;
+            @include flex(row,flex-start, center);
+          }
+        }
+
+        .display {
+          img {
+            height: 448px;
+            width: 448px;
+
+            @include flex(row,center, center);
+          }
+        }
+
+        .curl {
+          margin-top: 10px;
+          height: calc( 100% - ( 448px + 40px + 10px ) );
+          code {
+            width: 448px;
+            height: 100%;
+
+            display: flex;
+            flex-direction: column;
+
+            background: #333;
+            color: whitesmoke;
+            padding: 10px;
+
+            border-radius: 3px;
+
+            span {
+              color: whitesmoke;
+              height: 25px;
+              @extend .heading-3;
+            }
+          }
+        }
+      }
+
+      .result-container {
+        height: auto;
+
+        background: $lightFr;
+        border: $lightBorder2;
+      }
+  }
+}

@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { appConfig } from './data/appconfig';
 
-window.__FIRST__LOAD__ = true;
 window.canvas = {
   activeLayer: undefined,
   activeLine:undefined,
@@ -31,8 +31,8 @@ window.copy = function (object) {
 
 setInterval(function () {
   window.offsetX =
-    280 + 60;
-  window.offsetY = 60;
+    appConfig.canvas.toolbar.width + appConfig.geometry.sideBar.width;
+  window.offsetY = appConfig.geometry.topBar.height;
 }, 1000);
 
 ReactDOM.render(

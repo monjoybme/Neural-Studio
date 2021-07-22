@@ -219,6 +219,7 @@ const GraphEditor = (
       .then((data) => {
         props.appFunctions.notify({
           message: data.message,
+          type: data.status ? "success" : "error", 
         });
       });
   }
@@ -229,17 +230,25 @@ const GraphEditor = (
     })
       .then((response) => response.json())
       .then((data) => {
-        let Viewer = dataViewers[data.type][data.problem];
-        menuState({
-          render: true,
-          comp: (
-            <Viewer
-              data={data.data}
-              menuState={menuState}
-              reload={viewSample}
-            />
-          ),
-        });
+        if (data.status){
+          data = data.data;
+          let Viewer = dataViewers[data.type][data.problem];
+          menuState({
+            render: true,
+            comp: (
+              <Viewer
+                data={data.data}
+                menuState={menuState}
+                reload={viewSample}
+              />
+            ),
+          });  
+        } else {
+          props.appFunctions.notify({
+            message: data.message,
+            type: "error",
+          });
+        }
       });
   }
 

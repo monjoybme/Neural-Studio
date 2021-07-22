@@ -1,6 +1,6 @@
 @import "./App.scss";
 
-$toolbarWidth: 280px;
+$toolbarWidth: 300px;
 
 .dataset-cotainer {
   .context {
@@ -53,6 +53,7 @@ $toolbarWidth: 280px;
         border: none;
         background: none;
         height: 100%;
+        padding-left: 10px;
 
         @include flex();
         @extend .heading-4;
@@ -91,7 +92,7 @@ $toolbarWidth: 280px;
       height: auto;
       max-height: calc(100% - 40px);
       display: grid;
-      grid-template-columns: repeat( auto-fit, minMax( 256px, 1fr ) );
+      grid-template-columns: repeat(auto-fit, minMax(256px, 1fr));
       padding: 10px 10px 10px 10px;
       grid-gap: 10px;
 
@@ -148,6 +149,70 @@ $toolbarWidth: 280px;
           &:last-child {
             @include flex(row, flex-start, center);
           }
+        }
+      }
+    }
+  }
+}
+
+.dark {
+  .dataset-cotainer {
+    .context {
+      position: absolute;
+
+      .section {
+        background: $darkFr;
+        border: $darkBorder2;
+        box-shadow: none;
+
+        .option {
+          border-bottom: $lightBorder3;
+          color: $darkColorSc;
+        }
+
+        div:last-child {
+          border: none;
+        }
+      }
+    }
+    .viewer {
+      .head {
+        color: $darkColorPr;
+
+        .name {
+          padding-left: 10px;
+        }
+
+        .buttons {
+          .btn {
+            background: $darkTr;
+            border: $darkBorder2;
+          }
+        }
+      }
+      .image {
+        background: $darkBg;
+        border: $darkBorder2;
+      }
+
+      .classification {
+        .sample {
+          .label {
+            color: $darkColorSc;
+          }
+
+          border: $darkBorder3;
+          background: $darkFr;
+        }
+      }
+
+      .segmentation {
+        .label {
+          color: $darkColorSc;
+        }
+        .sample {
+          border: $darkBorder2;
+          background: $darkFr;
         }
       }
     }

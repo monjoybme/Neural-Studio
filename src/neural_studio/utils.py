@@ -35,7 +35,7 @@ def get_hardware_utilization() -> dict:
 def numpy_image_to_b64(image: np.ndarray)->str:
     image = (image * ( 255 if image.max() <= 1 else 1)).astype(np.uint8)
     _, buffer = cv2.imencode(".png", image)
-    return "data:image/gif;base64,"+b64.b64encode(buffer).decode()
+    return "data:image/png;base64,"+b64.b64encode(buffer).decode()
 
 def generate_args(code: str) -> dict:
     exec(code,)
