@@ -9,35 +9,80 @@ from os import path as pathlib, mkdir, chdir
 from shutil import rmtree
 from glob import glob
 
+
 class Workspace:
     pass
+
 
 class Trainer:
     pass
 
+
 def get_hardware_utilization() -> dict:
+    """
+    Get the hardware utilization of the current machine
+
+    Returns:
+        dict: The hardware utilization of the current machine
+    """
     gpu, = GPUtil.getGPUs()
-    cpu_load  = psutil.cpu_percent() 
-    cpu_ram  = psutil.virtual_memory().percent
-    gpu_load  = gpu.load*100
+    cpu_load = psutil.cpu_percent()
+    cpu_ram = psutil.virtual_memory().percent
+    gpu_load = gpu.load*100
     gpu_ram = 100 * gpu.memoryUsed / gpu.memoryTotal
     usage_string = f"cpu : {cpu_load}% | memory : {cpu_ram} | gpu : {gpu_load}% | gpu memory : {gpu_ram}%"
     return {
-        "cpu":cpu_load,
-        "memory":cpu_ram,
+        "cpu": cpu_load,
+        "memory": cpu_ram,
         "gpu": gpu_load,
-        "gpu_memory":gpu_ram,
+        "gpu_memory": gpu_ram,
         "usage_string": usage_string
     }
 
 
+def numpy_image_to_b64(image: np.ndarray) -> str:
+    """
+    Convert a numpy image to base64
 
-def numpy_image_to_b64(image: np.ndarray)->str:
-    image = (image * ( 255 if image.max() <= 1 else 1)).astype(np.uint8)
+    Args:
+        image (np.ndarray): The image to convert
+    Returns:
+        str: The base64 string
+    """
+    image = (image * (255 if image.max() <= 1 else 1)).astype(np.uint8)
     _, buffer = cv2.imencode(".png", image)
     return "data:image/png;base64,"+b64.b64encode(buffer).decode()
 
+
+def b64_to_numpy_image(b64_string: str) -> np.ndarray:
+    """
+    Convert a base64 string to a numpy array
+
+    Args:
+        b64_string (bytes): The base64 string
+    Returns:
+        np.ndarray: The numpy array
+    """
+    return cv2.imdecode(
+        np.fromstring(
+            b64.b64decode(
+                b64_string.replace("data:image/png;base64,", "")
+            ), 
+            np.uint8
+        ),
+        cv2.IMREAD_ANYCOLOR
+    )
+
+
 def generate_args(code: str) -> dict:
+    """
+    Generate the arguments for the model
+
+    Args:
+        code (str): The code to execute
+    Returns:
+        dict: The arguments
+    """
     exec(code,)
     ret = locals()
     ret.pop("code")
@@ -45,11 +90,19 @@ def generate_args(code: str) -> dict:
 
 
 def download_json(workspace: Workspace, trainer: Trainer) -> dict:
+    """
+    Download the model as a json file.
+
+    Args:
+        workspace (Workspace): The workspace
+    Returns:
+        dict: The status of the download
+    """
     temp_dir = pathlib.join(workspace.__path__, "outputs")
     if pathlib.isdir(temp_dir):
         rmtree(temp_dir)
     mkdir(temp_dir)
-    
+
     with open(pathlib.join(workspace.__path__, 'outputs', 'model.json'), "w+") as file:
         file.write(trainer.model.to_json())
     return {
@@ -59,6 +112,14 @@ def download_json(workspace: Workspace, trainer: Trainer) -> dict:
 
 
 def download_json_w(workspace: Workspace, trainer: Trainer) -> dict:
+    """
+    Download the model as a json file with weights.
+
+    Args:
+        workspace (Workspace): The workspace
+    Returns:
+        dict: The status of the download
+    """
     temp_dir = pathlib.join(workspace.__path__, "outputs")
     if pathlib.isdir(temp_dir):
         rmtree(temp_dir)
@@ -83,6 +144,14 @@ def download_json_w(workspace: Workspace, trainer: Trainer) -> dict:
 
 
 def download_pb(workspace: Workspace, trainer: Trainer) -> dict:
+    """
+    Download the model as a pb file.
+
+    Args:
+        workspace (Workspace): The workspace
+    Returns:
+        dict: The status of the download
+    """
     temp_dir = pathlib.join(workspace.__path__, "outputs")
     if pathlib.isdir(temp_dir):
         rmtree(temp_dir)
@@ -101,7 +170,7 @@ def download_pb(workspace: Workspace, trainer: Trainer) -> dict:
             zfile.write(f)
         for f in glob("./variables/*"):
             zfile.write(f)
-    
+
     return {
         "message": "Downloading Model",
         "status": True
@@ -109,6 +178,14 @@ def download_pb(workspace: Workspace, trainer: Trainer) -> dict:
 
 
 def download_hdf5(workspace: Workspace, trainer: Trainer) -> dict:
+    """
+    Download the model as a hdf5 file.
+
+    Args:
+        workspace (Workspace): The workspace
+    Returns:
+        dict: The status of the download
+    """
     temp_dir = pathlib.join(workspace.__path__, "outputs")
     if pathlib.isdir(temp_dir):
         rmtree(temp_dir)
@@ -119,6 +196,8 @@ def download_hdf5(workspace: Workspace, trainer: Trainer) -> dict:
         "message": "Downloading Model",
         "status": True
     }
+
+
 
 download_options = {
     "json": download_json,

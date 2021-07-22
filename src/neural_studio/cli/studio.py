@@ -26,7 +26,7 @@ from neural_studio.logging import Logger
 from neural_studio.manage import Workspace, WorkspaceManager
 from neural_studio.structs import DataDict
 from neural_studio.trainer import OutputVisualizer, Trainer
-from neural_studio.utils import download_options, generate_args, get_hardware_utilization
+from neural_studio.utils import b64_to_numpy_image, download_options, generate_args, get_hardware_utilization
 
 from pyrex import App, Lith, Request, json_response, text_response, send_file, types
 from pyrex.core.websocket import WebSocketServer
@@ -301,15 +301,16 @@ async def _model_code(request: Request) -> types.dict:
         "status": False
     }
 
-
 @lith_model.post("/infer")
 async def _model_infer(request: Request) -> types.dict:
-    content = await request.content;
+    data = await request.get_json()
+    prediction_data = workspace_manager.dataset.dataset.pre_process(data)
+    prediction = trainer.infer(prediction_data)
+    response_data = workspace_manager.dataset.dataset.post_inference(
+        prediction)
     return {
         "status": True,
-        "data": {
-            "content": content.decode()
-        }
+        "data": response_data
     }
 
 
@@ -363,14 +364,14 @@ async def _train_stop(request: Request) -> types.dict:
 @lith_train.get("/socket_status")
 async def _socket_status(request: Request) -> types.websocketserver:
     with WebSocketServer(request) as server:
-        logger.log("Status socket initiated.")
+        logger.log("status socket initiated.")
         while True:
             data = await server.recv()
             if data == '$exit':
                 break
             await server.send_json(trainer.logs)
-            sleep(0.005)
-    logger.success("Status socket closed.")
+            sleep(0.001)
+    logger.success("status socket closed.")
 
 # custom node endpoints
 

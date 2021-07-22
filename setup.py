@@ -38,6 +38,7 @@ setuptools.setup(
         "tqdm",
         "scikit-learn",
         "GPUtil",
+        "pyrex-core"
     ],
     package_data={
         "neural_studio": [

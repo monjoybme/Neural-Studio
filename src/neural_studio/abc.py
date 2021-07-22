@@ -1,6 +1,6 @@
 import numpy as np
 
-from typing import List, Tuple
+from typing import Any, List, Tuple
 
 class Dataset:
     labels: List[str]
@@ -10,3 +10,7 @@ class Dataset:
     test_y: np.ndarray
     size: Tuple[int, int, int]
     def sample(self, n: int = 5) -> List[dict]: ...
+
+    def pre_process(self, data: dict) -> None: ...
+
+    def post_inference(self, prediction: Any ) -> dict: ...

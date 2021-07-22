@@ -2,7 +2,7 @@ from typing import List
 import numpy as np
 from tensorflow import keras
 
-from ..utils import numpy_image_to_b64
+from ..utils import b64_to_numpy_image, numpy_image_to_b64
 from ..abc import Dataset
 
 __all__ = [
@@ -48,8 +48,19 @@ class Mnist(Dataset):
         self.train_y = keras.utils.to_categorical(Y)
         self.test_x = x.reshape(-1,  *size) / (255. if normalize else 1.)
         self.test_y = keras.utils.to_categorical(y)
-
         self.size = size
+        self.labels = [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+        ]
 
     def sample(self, n: int) -> List[dict]:
         return {
@@ -65,6 +76,21 @@ class Mnist(Dataset):
             ]
         }
 
+    def pre_process(self, data: dict) -> None:
+        image = b64_to_numpy_image(data["image"])
+        return image.reshape(1, *self.size)
+
+    def post_inference(self, prediction: np.ndarray) -> dict:
+        prediction,  = prediction
+        label_class = self.labels[np.argmax(prediction, axis=-1)]
+        probabilities = list(map(float, prediction))
+        return {
+            "type": "image",
+            "problem": "Classification",
+            "label": label_class,
+            "probabilities": probabilities,
+            "labels": self.labels
+        }
 
 class BostonHousing(Dataset):
     """
@@ -101,8 +127,8 @@ class BostonHousing(Dataset):
         self.train_y = Y
         self.test_x = x
         self.test_y = y
-
         self.size = size
+        
 
     def sample(self, n: int) -> List[dict]:
         return {
