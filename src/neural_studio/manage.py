@@ -4,11 +4,11 @@ import shutil
 from typing import Set
 from shutil import rmtree
 
-from neural_studio.structs import DataDict
-from neural_studio.graph import DatasetDef, GraphDef
-from neural_studio.abc import Dataset
-from neural_studio.logging import Logger
-from neural_studio.data import setup
+from .structs import DataDict
+from .graph import DatasetDef, GraphDef
+from .abc import AbsDataset
+from .logging import Logger
+from .data import setup
 
 APP = DataDict({
     "theme": "light",
@@ -196,6 +196,10 @@ class Workspace(DataDict):
             self.__dict__[key] = DataDict(val)
         with open(pathlib.join(self.__path__, f"{key}.json"), "w+") as file:
             dump(self.__dict__[key].to_dict(), file)
+
+    @property
+    def path(self,) -> str:
+        return self.__path__
 
     def save(self,):
         for var, val in self.get_vars():

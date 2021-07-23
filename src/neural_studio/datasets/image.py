@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 from gc import collect
 from inspect import getfullargspec
 
-from ..abc import Dataset
+from ..abc import AbsDataset
 from ..structs import DataDict
 from ..utils import numpy_image_to_b64
 
@@ -24,7 +24,7 @@ __all__ = [
 ]
 
 
-class ImageClassificationDatasetFromDirectory(Dataset):
+class ImageClassificationDatasetFromDirectory(AbsDataset):
     """
     Dataset will be used in training 
 
@@ -186,7 +186,7 @@ class ImageClassificationDatasetFromDirectory(Dataset):
         }
 
 
-class ImageSegmentationDatasetFromDirectory(Dataset):
+class ImageSegmentationDatasetFromDirectory(AbsDataset):
     """
     Dataset will be used in training 
 

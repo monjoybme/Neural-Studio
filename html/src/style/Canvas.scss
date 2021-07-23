@@ -434,9 +434,11 @@ $toolbarWidth: 300px;
         input {
           color: $lightColorPr;
           background: $lightBg;
+          border: $lightBorder3;
         }
         select {
           background: $lightBg;
+          border: $lightBorder3;
         }
       }
       .checkboxes {

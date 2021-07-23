@@ -1,4 +1,5 @@
 import inspect
+from shutil import ExecError
 import sys
 
 from typing import List, Union
@@ -79,9 +80,17 @@ logger = Logger(name="main")
 
 # updating training session
 setattr(callbacks, "OutputVisualizer", OutputVisualizer)
-
 logger.log("updating globals")
 trainer.update_session(globals())
+
+if "--no-cached-model" not in sys.argv:
+    # load cached model
+    logger.log("loading cached model")
+    try:
+        trainer._model = keras.models.load_model(
+            pathlib.join(workspace_manager.active.path, "last_trained.h5"))
+    except Exception as e:
+        logger.sys_error(e)       
 
 if "--no-cached-dataset" not in sys.argv:
     try:
@@ -118,7 +127,21 @@ async def _static_view(request: Request, file: Union[str, list]) -> types.static
     file = "/".join(file)
     return await static_serve.get(file)
 
+# user endpoints
+@app.post("/api/infer")
+async def _public_infer(request: Request) -> types.dict:
+    """
+    Infer a model on a given input.
+    """
+    form = await request.form
+    data = workspace_manager.dataset.dataset.pre_process_public(form)
+    data = workspace_manager.dataset.dataset.pre_process(data)
+    output = trainer.infer(data)
+    output = workspace_manager.dataset.dataset.post_inference(output)
+    return output
 
+
+# sys endpoints
 @lith_sys.post("/path")
 async def _sys_path(request: Request) -> types.dict:
     path = (await request.get_json()).get('path')
@@ -403,7 +426,7 @@ app.add_lith(lith_train)
 
 
 def run_studio():
-    open_url(f"http://{HOST}:{PORT}")
+    # open_url(f"http://{HOST}:{PORT}")
     app.serve(
         host=HOST,
         port=PORT

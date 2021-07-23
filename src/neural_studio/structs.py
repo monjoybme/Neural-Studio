@@ -1,10 +1,12 @@
 from typing import Any
 
+from .abc import AbsDataDict
+
 TABSPACE = ' '*4
 NEWLINE = '\n'
 
 
-class DataDict:
+class DataDict(AbsDataDict):
     def __init__(self, data_dict: dict = {}, iterable: iter = [], level: int = 1, **kwargs):
         self.__level__ = level
         for key, value in data_dict.items() if isinstance(data_dict, dict) else data_dict:
@@ -60,7 +62,7 @@ class DataDict:
         return self.__name__
 
     def to_dict(self, ):
-        out = dict()
+        out = {}
         for key, val in self:
             if isinstance(val, DataDict):
                 val = val.to_dict()

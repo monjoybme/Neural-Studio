@@ -168,16 +168,10 @@ const NewWorkspaceWizard = (
     createWorkspace: function () {},
   }
 ) => {
-  // let [newworkspace, newworkspaceState] = React.useState({
-  //   name: "",
-  //   datatype: "select",
-  //   problemtype: "select",
-  // });
-
   let [newworkspace, newworkspaceState] = React.useState({
-    name: "test",
-    datatype: "image",
-    problemtype: "classification",
+    name: "",
+    datatype: "select",
+    problemtype: "select",
   });
 
   return (

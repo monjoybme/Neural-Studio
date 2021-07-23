@@ -14,7 +14,6 @@ const Training = (
   let epoch = 0;
   let [graph, graphState] = React.useState(metaGraph);
   let [train, trainState] = React.useState(metaTrain);
-
   let [monitorMode, monitorModeState] = React.useState(false);
   let [status, statusState] = React.useState({
     data: train.hist !== undefined ? train.hist : [],
@@ -244,7 +243,7 @@ const Training = (
       }).then((response) => {
         trainState({ history: response.history, fetch: false });
         statusState({
-          data: response.history,
+          data: response.history ? response.history : [],
           ended: false,
           updating: false,
         });

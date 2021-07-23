@@ -9,13 +9,7 @@ from os import path as pathlib, mkdir, chdir
 from shutil import rmtree
 from glob import glob
 
-
-class Workspace:
-    pass
-
-
-class Trainer:
-    pass
+from neural_studio.abc import AbsTrainer, AbsWorkspace
 
 
 def get_hardware_utilization() -> dict:
@@ -89,7 +83,7 @@ def generate_args(code: str) -> dict:
     return ret
 
 
-def download_json(workspace: Workspace, trainer: Trainer) -> dict:
+def download_json(workspace: AbsWorkspace, trainer: AbsTrainer) -> dict:
     """
     Download the model as a json file.
 
@@ -111,7 +105,7 @@ def download_json(workspace: Workspace, trainer: Trainer) -> dict:
     }
 
 
-def download_json_w(workspace: Workspace, trainer: Trainer) -> dict:
+def download_json_w(workspace: AbsWorkspace, trainer: AbsTrainer) -> dict:
     """
     Download the model as a json file with weights.
 
@@ -143,7 +137,7 @@ def download_json_w(workspace: Workspace, trainer: Trainer) -> dict:
     }
 
 
-def download_pb(workspace: Workspace, trainer: Trainer) -> dict:
+def download_pb(workspace: AbsWorkspace, trainer: AbsTrainer) -> dict:
     """
     Download the model as a pb file.
 
@@ -177,7 +171,7 @@ def download_pb(workspace: Workspace, trainer: Trainer) -> dict:
     }
 
 
-def download_hdf5(workspace: Workspace, trainer: Trainer) -> dict:
+def download_hdf5(workspace: AbsWorkspace, trainer: AbsTrainer) -> dict:
     """
     Download the model as a hdf5 file.
 

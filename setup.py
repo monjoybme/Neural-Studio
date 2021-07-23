@@ -39,6 +39,7 @@ setuptools.setup(
         "scikit-learn",
         "GPUtil",
         "pyrex-core"
+	"psutil"
     ],
     package_data={
         "neural_studio": [

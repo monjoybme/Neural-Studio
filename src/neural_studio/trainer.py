@@ -5,10 +5,11 @@ import numpy as np
 from threading import Thread
 from time import sleep
 from typing import List, Tuple, Union
+from os import path as pathlib
 
 from .manage import WorkspaceManager
 from .graph import GraphDef, DatasetDef
-from .abc import Dataset
+from .abc import AbsDataset, AbsOutputVisualizer, AbsTfGui, AbsTrainer, AbsWorkspaceManager
 
 from tensorflow import keras
 
@@ -27,24 +28,16 @@ output_visualizers = {
 }
 
 
-class OutputVisualizer(keras.callbacks.Callback):
+class OutputVisualizer(AbsOutputVisualizer):
     visualizer: callable
 
-    def __init__(
-        self,
-        problem_type: str = None,
-        *args,
-        **kwargs
-    ):
-        super().__init__()
-        # self.trainer = globals().get("trainer")
-        # self.visualizer = output_visualizers.get(problem_type)
+    def __init__( self, problem_type: str = None, *args, **kwargs ):
+        super().__init__(*args, **kwargs)
 
     def on_epoch_end(self, epoch: int, logs: list):
         return
 
-
-class TfGui(keras.callbacks.Callback):
+class TfGui(AbsTfGui):
     batch = None
     epoch = 0
 
@@ -52,11 +45,11 @@ class TfGui(keras.callbacks.Callback):
     batches = 1
     epochs = 1
 
-    trainer = None
+    trainer: AbsTrainer = None
     halt = False
     output = []
 
-    def __init__(self, trainer,):
+    def __init__(self, trainer: AbsTrainer):
         self.trainer = trainer
 
     def __repr__(self,):
@@ -105,6 +98,12 @@ class TfGui(keras.callbacks.Callback):
             "batch": self.batch,
             "output": logs
         }
+        self.trainer.model.save(
+            pathlib.join(
+                self.trainer.workspace_manager.active.path,
+                "last_trained.h5"
+            )
+        )
         while self.halt:
             sleep(0.1)
 
@@ -116,33 +115,28 @@ class TfGui(keras.callbacks.Callback):
         self.trainer.is_training = False
 
 
-class Trainer(object):
+class Trainer(AbsTrainer):
     """
     Trainer object 
     """
     training = False
     build = False
-
     re_charset = 'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\:-\<\>#"'
     build_config = {}
     is_training = False
-
     logs = []
 
-    _session_var = {
-        "dataset": False
-    }
+    _session_var = { "dataset": False }
+    _model: keras.Model = False
+    _model_name: str = '_model_model'
+    _dataset = None
 
-    __model__: keras.Model = False
-    __model__name__: str = '__model__model__'
-    __dataset__ = None
-
-    def __init__(self, workspace_manager: WorkspaceManager):
+    def __init__(self, workspace_manager: AbsWorkspaceManager):
         """
         Args:
             workspace_manager: WorkspaceManager object 
         """
-        self.workspace_manager: WorkspaceManager = workspace_manager
+        self.workspace_manager: AbsWorkspaceManager = workspace_manager
         self.session_id = workspace_manager[[
             'active:canvas:graph:train_config:session_id']]
         self.tfgui = TfGui(self,)
@@ -151,14 +145,14 @@ class Trainer(object):
         })
 
     @property
-    def dataset(self, ) -> Union[Dataset, bool]:
-        return self.__dataset__
+    def dataset(self, ) -> Union[AbsDataset, bool]:
+        return self._dataset
 
     @property
     def model(self,) -> keras.Model:
-        if not self.__model__:
+        if not self._model:
             self.build()
-        return self.__model__
+        return self._model
 
     @property
     def summary(self, ) -> List[List[str]]:
@@ -189,7 +183,7 @@ class Trainer(object):
     def update_session(self, data: dict) -> None:
         self._session_var.update(data)
 
-    def infer(self, dx: np.ndarray )->np.ndarray:
+    def infer(self, dx: np.ndarray) -> np.ndarray:
         return self.model.predict(dx)
 
     def build(self,):
@@ -235,9 +229,8 @@ class Trainer(object):
             })
             return False, error
         self.update_session(exec_var)
-
-        self.__model__name__ = self.graph.__model__.id
-        self.__model__ = self._session_var[self.__model__name__]
+        self._model_name = self.graph.__model__.id
+        self._model = self._session_var[self._model_name]
         return True, "Built successful"
 
     def compile(self,):
@@ -288,9 +281,9 @@ class Trainer(object):
                         "notif", {"message": message, "ended": True})
                     self.is_training = False
                     return 0
-                self.__dataset__ = dataset.dataset
+                self._dataset = dataset.dataset
                 self.update_session({
-                    "dataset": self.__dataset__
+                    "dataset": self._dataset
                 })
 
             try:

@@ -218,7 +218,7 @@ class Cifar10(AbsDataset):
             ]
         }
 
-    def pre_process(self, data: dict) -> np.ndarray:
+        def pre_process(self, data: dict) -> np.ndarray:
         image = b64_to_numpy_image(data["image"])
         image = cv2.resize(image, self.size[:2])
         return image.reshape(1, *self.size)

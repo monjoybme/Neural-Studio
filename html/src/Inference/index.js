@@ -4,13 +4,58 @@ import { icons } from "../data/icons";
 
 import { metaAppFunctions, metaHome, metaAppData } from "../Meta/index";
 
-const getRandomColor = () => {
+const getColor = (index) => {
   let letters = "0123456789ABCDEF";
-  let color = "#";
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
+  if (!(index % 7)) {
+    return (
+      "#" +
+      letters[Math.floor(Math.random() * 14)] +
+      letters[(index + 8) % 16] +
+      letters[Math.floor(Math.random() * 8)] +
+      letters[Math.floor(Math.random() * 12)] +
+      letters[(index + 8) % 16] +
+      letters[(index + 8) % 16]
+    );
+  } else if (!(index % 5)) {
+    return (
+      "#" +
+      letters[(index + 8) % 16] +
+      letters[(index + 8) % 16] +
+      letters[Math.floor(Math.random() * 16)] +
+      letters[Math.floor(Math.random() * 14)] +
+      letters[Math.floor(Math.random() * 12)] +
+      letters[(index + 8) % 16]
+    );
+  } else if (!(index % 3)) {
+    return (
+      "#" +
+      letters[Math.floor(Math.random() * 12)] +
+      letters[Math.floor(Math.random() * 16)] +
+      letters[(index + 8) % 16] +
+      letters[Math.floor(Math.random() * 14)] +
+      letters[(index + 8) % 16] +
+      letters[(index + 8) % 16]
+    );
+  } else if (!(index % 2)) {
+    return (
+      "#" +
+      letters[Math.floor(Math.random() * 16)] +
+      letters[(index + 8) % 16] +
+      letters[Math.floor(Math.random() * 16)] +
+      letters[(index + 8) % 16] +
+      letters[Math.floor(Math.random() * 16)] +
+      letters[(index + 8) % 16]
+    );
   }
-  return color;
+  return (
+    "#" +
+    letters[(index + 8) % 16] +
+    letters[(index + 8) % 16] +
+    letters[(index + 8) % 16] +
+    letters[Math.floor(Math.random() * 6)] +
+    letters[Math.floor(Math.random() * 14)] +
+    letters[Math.floor(Math.random() * 6)] 
+  );
 };
 
 const YAxis = (props = { length: 0, graph_config: {} }) => {
@@ -139,24 +184,51 @@ const BarChart = (
   }
 ) => {
   let x, y, height, width, xMultiplier, maxVal;
-  xMultiplier = props.graph_config.plot.width / props.graph_config.data.values.length;
+  xMultiplier =
+    props.graph_config.plot.width / props.graph_config.data.values.length;
   maxVal = Math.max(...props.graph_config.data.values);
+
+  function showInfo(e, color) {
+    let { target } = e;
+    target.style.stroke = color;
+    target.style.strokeWidth = "3";
+  }
+
+  function hideInfo(e, color) {
+    let { target } = e;
+    target.style.stroke = "none";
+    target.style.strokeWidth = "0";
+  }
+
   return (
-    <g>
+    <g className="bar">
       {props.graph_config.data.values.map((value, i) => {
-        x = props.graph_config.pad + ( xMultiplier * i ) + props.graph_config.plot.gap; 
-        y = props.graph_config.pad;
-        height = ( value / maxVal ) * ( props.graph_config.plot.height - props.graph_config.pad);
+        height =
+          (value / maxVal) *
+          (props.graph_config.plot.height - props.graph_config.pad);
+
+        x =
+          props.graph_config.plot.pad +
+          xMultiplier * i +
+          props.graph_config.plot.gap;
+        y = props.graph_config.plot.height - height;
 
         return (
-          <rect
-            key={i}
-            x={x}
-            y={y}
-            height={height}
-            width={props.graph_config.plot.gap}
-            fill={props.graph_config.data.colors[i]}
-          />
+          <g key={i}>
+            <rect
+              x={x}
+              y={y}
+              height={height}
+              width={props.graph_config.plot.gap}
+              fill={props.graph_config.data.colors[i]}
+              onMouseOver={(e) =>
+                showInfo(e, props.graph_config.data.colors[i])
+              }
+              onMouseLeave={(e) =>
+                hideInfo(e, props.graph_config.data.colors[i])
+              }
+            />
+          </g>
         );
       })}
     </g>
@@ -185,7 +257,7 @@ let inferenceApps = {
           height: 0,
           width: 0,
           pad: 25,
-          gap: 25
+          gap: 25,
         },
         data: {
           values: [],
@@ -209,7 +281,7 @@ let inferenceApps = {
             graphConfig.data.colors = Array(response.data.probabilities.length)
               .fill(0)
               .map((_, i) => {
-                return getRandomColor();
+                return getColor(i);
               });
             graphConfigState({ ...graphConfig });
           });
@@ -257,7 +329,7 @@ let inferenceApps = {
                   curl -X POST \
                 </span>
                 <span>&nbsp;&nbsp; -F "image=@/Users/test.jpg" \</span>
-                <span>&nbsp;&nbsp; http://localhost:{PORT}/api/run</span>
+                <span>&nbsp;&nbsp; http://localhost:{PORT}/api/infer</span>
               </code>
             </div>
           </div>

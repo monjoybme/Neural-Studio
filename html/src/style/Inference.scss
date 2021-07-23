@@ -21,8 +21,9 @@
       width: 100%;
 
       background: $lightBg;
-      border: $lightBorder2;
+      border: $lightBorder3;
       padding: 10px;
+      border-radius: 3px;
 
       .upload {
         height: 40px;
@@ -62,14 +63,13 @@
           display: flex;
           flex-direction: column;
 
-          background: #333;
-          color: whitesmoke;
+          background: $lightFr;
           padding: 10px;
-
           border-radius: 3px;
+          border: $lightBorder2;
 
           span {
-            color: whitesmoke;
+            color: $lightColorPr;
             height: 25px;
             @extend .heading-3;
           }
@@ -81,7 +81,8 @@
       height: auto;
       padding: 10px;
       background: $lightBg;
-      border: $lightBorder2;
+      border: $lightBorder3;
+      border-radius: 3px;
 
       .title {
         height: 30px;
@@ -94,28 +95,35 @@
 
       .prediction {
         height: calc(100% - 40px);
-        border: $lightBorder2;
         margin-top: 10px;
 
         .graph {
           height: 448px;
           width: 100%;
-          display: flex;
+          
+          display: grid;
+          grid-template-columns: 8fr 2fr;
+          grid-gap: 10px;
 
           svg{
-            width: 80%;
+            width: 100%;
             height: 100%;
 
-            border-bottom: $lightBorder2;
+            .bar {
+              .label{
+
+              }
+            }
+
           }
 
           .legends {
-            width: 20%;
+            width: 100%;
             height: 100%;
-            border-left: $lightBorder2;
-            border-bottom: $lightBorder2;
+            border: $lightBorder3;
             padding: 10px;
             overflow-x: scroll;
+            border-radius: 3px;
 
             .label {
               height: 30px;

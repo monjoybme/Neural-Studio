@@ -1,7 +1,8 @@
 from .image import *
 from .builtins import *
+from ..abc import AbsDataset
 
-class Dataset:
+class Dataset(AbsDataset):
     """
     Dataset will be used in training 
 

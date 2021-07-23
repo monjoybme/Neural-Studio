@@ -99,8 +99,6 @@ $toolbarWidth: 300px;
       .sample {
         width: 100%;
         height: 286px;
-        border: $lightBorder3;
-        background: $lightFr;
 
         @include flex(column, flex-start, center);
 
@@ -130,8 +128,6 @@ $toolbarWidth: 300px;
       .sample {
         height: 100%;
         width: 100%;
-        border: $lightBorder2;
-        background: $lightFr;
 
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -200,9 +196,6 @@ $toolbarWidth: 300px;
           .label {
             color: $darkColorSc;
           }
-
-          border: $darkBorder3;
-          background: $darkFr;
         }
       }
 
@@ -211,8 +204,7 @@ $toolbarWidth: 300px;
           color: $darkColorSc;
         }
         .sample {
-          border: $darkBorder2;
-          background: $darkFr;
+
         }
       }
     }
