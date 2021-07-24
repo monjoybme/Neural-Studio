@@ -235,7 +235,7 @@ class ImageSegmentationDatasetFromDirectory(AbsDataset):
         show_progress: bool = True
     ) -> None:
         """
-        Load dataset and set required variables.
+ 
         """
 
         self.root = pathlib.abspath(root)  # Path to dataset folder

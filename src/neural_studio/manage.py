@@ -108,9 +108,16 @@ TRAIN = DataDict({
 
 
 class Cache(object):
+    """
+    Cache object.
+    """
     recent = [None for _ in range(10)]
 
     def __init__(self, root: str):
+        """
+        Args:
+            root: path to cache file
+        """
         self.__cache_file__ = pathlib.join(root, "cache.json")
 
         if not pathlib.isfile(self.__cache_file__):

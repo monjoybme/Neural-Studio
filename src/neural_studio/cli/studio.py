@@ -63,7 +63,7 @@ PORT = (int(sys.argv[sys.argv.index("-port")+1])
         )
 
 # defining globals
-app = App()
+app = App(opendoc=True)
 html_serve = ServeHTML(path=pathlib.join(DATA_PATH, "studio"))
 static_serve = ServeStatic(path=pathlib.join(DATA_PATH, "studio"))
 
@@ -113,16 +113,35 @@ if "--no-cached-dataset" not in sys.argv:
 
 @app.get("/",)
 async def _index(request: Request) -> types.template:
+    '''
+    index page
+
+    :param request: Request
+    :return: template    
+    '''
     return await html_serve.get("index.html")
 
 
 @app.get("/favicon.ico",)
 async def _ico(request: Request) -> types.file:
+    '''
+    favicon
+    
+    :param request: Request
+    :return: file
+    '''
     return await send_file(pathlib.join(DATA_PATH, "studio", "favicon.ico"), request, dispose=False)
 
 
 @app.get("/static/<path:file>")
 async def _static_view(request: Request, file: Union[str, list]) -> types.static:
+    '''
+    static files
+    
+    :param request: Request
+    :param file: path
+    :return: static
+    '''
     _, *file = file.split("/")
     file = "/".join(file)
     return await static_serve.get(file)
@@ -131,7 +150,7 @@ async def _static_view(request: Request, file: Union[str, list]) -> types.static
 @app.post("/api/infer")
 async def _public_infer(request: Request) -> types.dict:
     """
-    Infer a model on a given input.
+    Infer a model with a given image
     """
     form = await request.form
     data = workspace_manager.dataset.dataset.pre_process_public(form)
@@ -144,6 +163,9 @@ async def _public_infer(request: Request) -> types.dict:
 # sys endpoints
 @lith_sys.post("/path")
 async def _sys_path(request: Request) -> types.dict:
+    """
+    get the path of the current working directory
+    """
     path = (await request.get_json()).get('path')
     if not path:
         return []
@@ -387,14 +409,12 @@ async def _train_stop(request: Request) -> types.dict:
 @lith_train.get("/socket_status")
 async def _socket_status(request: Request) -> types.websocketserver:
     with WebSocketServer(request) as server:
-        logger.log("status socket initiated.")
         while True:
             data = await server.recv()
             if data == '$exit':
                 break
             await server.send_json(trainer.logs)
-            sleep(0.001)
-    logger.success("status socket closed.")
+            await server.sleep(0.001)
 
 # custom node endpoints
 
@@ -426,7 +446,7 @@ app.add_lith(lith_train)
 
 
 def run_studio():
-    # open_url(f"http://{HOST}:{PORT}")
+    open_url(f"http://{HOST}:{PORT}")
     app.serve(
         host=HOST,
         port=PORT

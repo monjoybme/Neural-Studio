@@ -33,6 +33,16 @@ NEWLINE = '\n'
 
 
 def set_argument(argument: str, config: dict):
+    """
+    Sets the argument in the config dictionary.
+
+    Args:
+        argument: The argument to set.
+        config: The config dictionary.
+
+    Returns:
+        The config dictionary.
+    """
     value = config['value']
     try:
         value = eval(value)
@@ -52,6 +62,12 @@ def set_argument(argument: str, config: dict):
 
 class LayerMeta(DataDict):
     def __init__(self, config: dict, ):
+        """
+        Initializes the layer.
+
+        Args:
+            config: The layer config.
+        """
         self.name: str = "Layer"
         self.id: str = "layer_1"
         self.arguments: dict = DataDict(level=2)
@@ -59,6 +75,20 @@ class LayerMeta(DataDict):
         self.__name__ = f"Layer {{ {self.name} }}"
 
     def to_code(self, graphdef: DataDict, train: bool = False) -> str:
+        """
+        Converts the layer to code.
+        
+        Args:
+            graphdef: The graphdef.
+            train: Whether the layer is trainable.
+        
+        Returns:
+            The code.
+
+        TODO:
+            * Support for custom nodes.
+            * Refactor to use the graphdef.
+        """
         arguments = NEWLINE.join([set_argument(arg, cnf)
                                   for arg, cnf in self['arguments']])
         inbound = (
@@ -79,6 +109,12 @@ class LayerMeta(DataDict):
 
 class ApplicationMeta(DataDict):
     def __init__(self, config: dict, ):
+        """
+        Initializes the application.
+
+        Args:
+            config: The application config.
+        """
         self.name: str = "Layer"
         self.id: str = "layer_1"
         self.arguments: dict = DataDict(level=2)
@@ -308,7 +344,7 @@ class GraphDef(DataDict):
     def __repr__(self,):
         return f"""GraphDef(\n\tsession={self[['train_config:session_id']]}\n)"""
 
-    def build(self, ):
+    def build(self, ):  # sourcery no-metrics
         self.__layers__ = []
         self.__input__ = []
         self.__custom__nodes__ = []

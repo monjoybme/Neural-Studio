@@ -3,6 +3,7 @@ from typing import Tuple
 
 
 def build_inbound(inbound: list) -> str:
+    
     return ("([" + ", ".join(inbound) + "])" if len(inbound) > 1 else "(" + inbound[0] + ")") if len(inbound) else ""
 
 

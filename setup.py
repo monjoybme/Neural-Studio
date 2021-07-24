@@ -22,7 +22,6 @@ setuptools.setup(
         "Development Status :: 4 - Beta",
         "Environment :: GPU :: NVIDIA CUDA :: 10.1",
         "Natural Language :: English",
-        "Operating System :: Microsoft :: Windows :: Windows 10"
     ],
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
@@ -39,19 +38,19 @@ setuptools.setup(
         "scikit-learn",
         "GPUtil",
         "pyrex-core"
-	"psutil"
+        "psutil"
     ],
     package_data={
         "neural_studio": [
-            "data/studio/*.html", 
-            "data/studio/*.ico", 
-            "data/studio/*.json", 
-            "data/studio/*.png", 
-            "data/studio/*.svg", 
-            "data/studio/*.txt", 
+            "data/studio/*.html",
+            "data/studio/*.ico",
+            "data/studio/*.json",
+            "data/studio/*.png",
+            "data/studio/*.svg",
+            "data/studio/*.txt",
             "data/studio/*.xml"
         ],
-        "neural_studio.data":[
+        "neural_studio.data": [
             "studio/static/*",
             "studio/static/media/*.svg",
             "studio/static/media/*",

@@ -8,6 +8,11 @@ from typing import Any, Iterator, List, Set, Tuple, Dict, List, Tuple, Union
 from pyrex.core.abs import AbsForm
 
 class AbsDataDict:
+    """
+    Abstract DataDict
+
+        This class is used to store data in a dictionary like object. 
+    """
     def __init__(self, data_dict: dict = {}, iterable: iter = [], level: int = 1, **kwargs): ...
         
     def __iter__(self, ): ...
@@ -24,6 +29,9 @@ class AbsDataDict:
     def to_dict(self, ): ...
 
 class AbsDataset:
+    """
+    Abstract Dataset
+    """
     labels: List[str]
     train_X: np.ndarray
     train_y: np.ndarray
