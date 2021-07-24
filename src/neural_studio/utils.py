@@ -24,7 +24,7 @@ def get_hardware_utilization() -> dict:
     cpu_ram = psutil.virtual_memory().percent
     gpu_load = gpu.load*100
     gpu_ram = 100 * gpu.memoryUsed / gpu.memoryTotal
-    usage_string = f"cpu : {cpu_load}% | memory : {cpu_ram} | gpu : {gpu_load}% | gpu memory : {gpu_ram}%"
+    usage_string = f"cpu : {cpu_load:0.4f}% | memory : {cpu_ram:0.4f} | gpu : {gpu_load:0.4f}% | gpu memory : {gpu_ram:0.4f}%"
     return {
         "cpu": cpu_load,
         "memory": cpu_ram,

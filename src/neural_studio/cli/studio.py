@@ -188,7 +188,7 @@ async def _sys_utilization(request: Request) -> types.websocketserver:
             if data == '$exit':
                 break
             await server.send_json(get_hardware_utilization())
-            sleep(1)
+            await server.sleep(1)
 
 # Workspace endpoints
 
