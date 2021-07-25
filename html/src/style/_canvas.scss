@@ -1,4 +1,4 @@
-@import "./App.scss";
+@import "./_app.scss";
 
 $toolbarWidth: 300px;
 
@@ -65,7 +65,7 @@ $toolbarWidth: 300px;
           padding-bottom: 3px;
           cursor: pointer;
           background: $lightBg;
-          border: $lightBorder2;
+          border: $lightBorder3;
 
           @include flex();
           @extend .heading-4;
@@ -84,7 +84,7 @@ $toolbarWidth: 300px;
           padding-bottom: 3px;
           cursor: pointer;
           background: $lightBg;
-          border: $lightBorder2;
+          border: $lightBorder3;
 
           @include flex();
           @extend .heading-4;
@@ -103,7 +103,7 @@ $toolbarWidth: 300px;
 
 .tools {
   height: 100%;
-  border-right: $lightBorder1;
+  border-right: $lightBorder3;
   min-width: $toolbarWidth;
   .toolbar {
     display: grid;
@@ -276,7 +276,7 @@ $toolbarWidth: 300px;
         margin-top: 6px;
         height: 25px;
 
-        border: $lightBorder1;
+        border: $lightBorder3;
         border-radius: 3px;
         width: 100%;
 
@@ -284,7 +284,7 @@ $toolbarWidth: 300px;
       }
 
       input {
-        border: $lightBorder1;
+        border: $lightBorder3;
         border-radius: 3px;
 
         height: 30px;
@@ -327,7 +327,7 @@ $toolbarWidth: 300px;
     .buttons {
       display: flex;
       .btn {
-        border: $lightBorder1;
+        border: $lightBorder3;
         border-radius: 3px;
         height: 25px;
         width: 70px;
@@ -354,7 +354,7 @@ $toolbarWidth: 300px;
       @include flex();
     }
     .btn {
-      border: $lightBorder1;
+      border: $lightBorder3;
       border-radius: 3px;
       height: 25px;
       width: 70px;
@@ -382,20 +382,20 @@ $toolbarWidth: 300px;
   .tools {
     background: $lightFr;
     .toolbar {
-      border-bottom: $lightBorder1;
+      border-bottom: $lightBorder3;
     }
   }
 
   .layergroups {
     .layers {
-      border-bottom: $lightBorder1;
+      border-bottom: $lightBorder3;
       .name {
         color: $lightColorPr;
       }
       .grid {
         .btn {
           color: $lightColorPr;
-          border: $lightBorder1;
+          border: $lightBorder3;
           background: $lightBtnPr;
         }
       }
@@ -403,7 +403,7 @@ $toolbarWidth: 300px;
   }
 
   .canvas-top {
-    background: rgb(243, 243, 243);
+    background: $lightTr;
     .canvas {
       rect {
         stroke: rgb(170, 170, 170);
@@ -425,20 +425,20 @@ $toolbarWidth: 300px;
   .menu {
     background: $lightFr;
     color: $lightColorPr;
-    border-left: $lightBorder2;
+    border-left: $lightBorder3;
 
     .properties {
       .property {
-        border: $lightBorder2;
+        border: $lightBorder3;
         background: rgba($color: $lightBg, $alpha: 0.75);
         input {
           color: $lightColorPr;
           background: $lightBg;
-          border: $lightBorder3;
+          border: $lightBorder2;
         }
         select {
           background: $lightBg;
-          border: $lightBorder3;
+          border: $lightBorder2;
         }
       }
       .checkboxes {

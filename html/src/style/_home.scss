@@ -1,4 +1,4 @@
-@import "./App.scss";
+@import "./_app.scss";
 
 @keyframes load_popup {
   0% {
@@ -13,6 +13,7 @@
   padding: 10px 10px 10px 10px;
   display: grid;
   grid-template-rows: 48px 165px 48px 1fr;
+  background: $lightFr;
 
   .cards {
     display: grid;
@@ -108,7 +109,7 @@
     grid-gap: 10px;
 
     background: $lightBg;
-    border: $lightBorder2;
+    border: $lightBorder3;
     border-radius: 3px;
 
     .title {
@@ -135,7 +136,7 @@
       .field {
         display: grid;
         grid-template-rows: 1fr 1fr;
-        border: $lightBorder2;
+        border: $lightBorder3;
         padding: 10px;
 
         .name {
@@ -265,10 +266,10 @@
       background: $lightBg;
       color: $lightColorPr;
 
-      border: $lightBorder2;
+      border: $lightBorder3;
       .name {
         background: $lightFr;
-        border-top: $lightBorder2;
+        border-top: $lightBorder3;
         @extend .heading-medium;
       }
     }
@@ -401,7 +402,7 @@
 
       .body {
         .field {
-          border: $lightBorder2;
+          border: $lightBorder3;
           color: $darkColorSc;
           background: $darkTr;
           input {

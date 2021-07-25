@@ -191,7 +191,19 @@ def download_hdf5(workspace: AbsWorkspace, trainer: AbsTrainer) -> dict:
         "status": True
     }
 
-
+def embed_root(html_string: str) -> str:
+    """
+    Embed the root of the workspace in the html string.
+    """
+    root_string = "`http://${window.HOST}:${window.PORT}`"
+    replace_string = "''"
+    html_string = html_string.replace(root_string, replace_string)
+    
+    wssr_string = "`ws://${window.HOST}:${window.PORT}`"
+    replace_string = "`ws://${window.location.host}`"
+    html_string = html_string.replace(wssr_string, replace_string)
+    
+    return html_string
 
 download_options = {
     "json": download_json,

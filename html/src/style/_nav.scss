@@ -1,9 +1,10 @@
-@import "./App.scss";
+@import "./_app.scss";
+
 
 .nav {
   height: 100vh;
   width: 100%;
-  border-right: $lightBorder2;
+  border-right: $lightBorder3;
 
   .title {
     height: $topbarHeight;
@@ -96,7 +97,7 @@
 .statusbar {
   height: $statusBarHeight;
   width: 100%;
-  border-top : $lightBorder2;
+  border-top : $lightBorder3;
 
   padding-left: 3px;
 
@@ -119,14 +120,14 @@
         background: $lightFr;
         width: $sidebarWidth;
         border-right: 1px solid $lightFr;
-        border-top: $lightBorder2;
-        border-bottom: $lightBorder2;
+        border-top: $lightBorder3;
+        border-bottom: $lightBorder3;
       }
     }
   }
 
   .topbar {
-    border-bottom: $lightBorder2;
+    border-bottom: $lightBorder3;
     box-shadow: 3px 1px 1px 1px $lightFr;
     .title {
       color: $lightColorPr;

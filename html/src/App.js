@@ -1,19 +1,19 @@
 import React from "react";
 
 import { TopBar, SideBar } from "./NavBar";
-import { Notification, get, Loading, pull, push } from "./Utils";
+import { Notification, get, Loading, pull, push, WSSR } from "./Utils";
 import { metaSideNav, metaApp, metaAppData, metaRender } from "./Meta";
 
-import "./style/App.scss";
-import "./style/Nav.scss";
-import "./style/Home.scss";
-import "./style/Dataset.scss";
-import "./style/Canvas.scss";
-import "./style/Code.scss";
-import "./style/Training.scss";
-import "./style/Summary.scss";
-import "./style/Utils.scss";
-import "./style/Inference.scss";
+import "./style/_app.scss";
+import "./style/_nav.scss";
+import "./style/_home.scss";
+import "./style/_dataset.scss";
+import "./style/_canvas.scss";
+import "./style/_code.scss";
+import "./style/_training.scss";
+import "./style/_summary.scss";
+import "./style/_utils.scss";
+import "./style/_inference.scss";
 
 /**
  * It creates pop up overlays for custom pop up components.
@@ -43,14 +43,16 @@ const NotificationPop = (props = { appData: metaAppData }) => {
  */
 const StatusBar = (props = { appData: metaAppData }) => {
   let [time, timeState] = React.useState('time');
+  let [usage, usageState] = React.useState('usage');
+  
   function setTime(){
     let d = new Date();
     timeState(d.toTimeString());
     setTimeout(setTime, 1000);
   }
-  function utilSocket(){
-      let socket = new WebSocket("ws://localhost:8000/sys/utilization");
 
+  function utilSocket(){
+      let socket = new WebSocket(`${WSSR}/sys/utilization`);
       socket.onopen = function (event) {
         console.log("[socket] Connection established");
         socket.send("$")
@@ -58,7 +60,8 @@ const StatusBar = (props = { appData: metaAppData }) => {
 
       socket.onmessage = function (event) {
           socket.send("$");
-          console.log(event.data);
+          let data = JSON.parse(event.data);
+          usageState(data.usage_string);  
       };
       socket.onclose = function (event) {
         if (event.wasClean) {
@@ -79,12 +82,14 @@ const StatusBar = (props = { appData: metaAppData }) => {
 
   React.useState(function(){
     setTime();
+    utilSocket();
   }, [])
   return (
     <div className="statusbar">
       {props.appData.statusbar.toLowerCase()} {" "}
       | workspace : {props.appData.app.name} {" "}
-      | {time}
+      | {time} {" "}
+      | {usage}
     </div>
   );
 };

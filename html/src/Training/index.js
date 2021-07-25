@@ -5,7 +5,7 @@ import { EpochLog, ErrorLog, NotificationLog } from "./logs";
 
 import { icons } from "../data/icons";
 import { metaAppFunctions, metaGraph, metaAppData, metaTrain } from "../Meta";
-import { get, pull, push, post, Loading } from "../Utils";
+import { get, pull, push, post, Loading, WSSR } from "../Utils";
 import { Monitor } from "./loss";
 
 const Training = (
@@ -59,7 +59,7 @@ const Training = (
   let compRef = React.useRef();
 
   function statusSocket() {
-    let socket = new WebSocket("ws://localhost:8000/train/socket_status");
+    let socket = new WebSocket(`${WSSR}/train/socket_status`);
 
     socket.onopen = function (event) {
       console.log("[socket] Connection established");

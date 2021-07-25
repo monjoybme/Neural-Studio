@@ -1,6 +1,31 @@
-import inspect
-from shutil import ExecError
 import sys
+
+__version__ = "0.0.2"
+__help__ = f"""
+Neural Studio {__version__} 
+
+Options:
+  -host : set host
+  -port : set port
+  -dir  : set project directory 
+ 
+  --no-cached-dataset : won't load dataset from active workspace
+  --no-cached-model   : won't load last saved model from active workspace
+  --no-browser        : won't open browser 
+
+  help    : display help
+  version : display version
+
+Usage:
+  neural_studio [options]"""
+
+if 'help' in sys.argv:
+    print(__help__)
+    exit()
+
+elif 'version' in sys.argv:
+    print(__version__)
+    exit()
 
 from typing import List, Union
 from webbrowser import open as open_url
@@ -10,16 +35,25 @@ from glob import glob
 from os import listdir, name, path as pathlib
 from time import sleep
 from pathlib import Path
+from shutil import ExecError
 
+import inspect
 import cv2
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+
 from sklearn.model_selection import train_test_split
-from tensorflow import keras
-from tensorflow.keras import (applications, callbacks, layers, losses,
-                              optimizers)
 from tqdm.cli import tqdm
+from tensorflow import keras
+from tensorflow.keras import (
+    applications, 
+    callbacks, 
+    layers, 
+    losses,
+    optimizers
+)
+
 
 from neural_studio.data import data_path
 from neural_studio.graph import DatasetDef, GraphDef
@@ -27,11 +61,18 @@ from neural_studio.logging import Logger
 from neural_studio.manage import Workspace, WorkspaceManager
 from neural_studio.structs import DataDict
 from neural_studio.trainer import OutputVisualizer, Trainer
-from neural_studio.utils import b64_to_numpy_image, download_options, generate_args, get_hardware_utilization
+from neural_studio.utils import (
+    b64_to_numpy_image, 
+    download_options, 
+    generate_args, 
+    get_hardware_utilization, 
+    embed_root
+)
 
 from pyrex import App, Lith, Request, json_response, text_response, send_file, types
 from pyrex.core.websocket import WebSocketServer
 from pyrex.frontend import ServeHTML, ServeStatic
+from pyrex.core.headers import ResponseHeader, content_length, content_type, access_control_allow_origin
 
 
 """
@@ -90,7 +131,7 @@ if "--no-cached-model" not in sys.argv:
         trainer._model = keras.models.load_model(
             pathlib.join(workspace_manager.active.path, "last_trained.h5"))
     except Exception as e:
-        logger.sys_error(e)       
+        logger.sys_error(e)
 
 if "--no-cached-dataset" not in sys.argv:
     try:
@@ -119,14 +160,25 @@ async def _index(request: Request) -> types.template:
     :param request: Request
     :return: template    
     '''
-    return await html_serve.get("index.html")
+    file = html_serve.get_path_for("index.html")
+    with open(file, "rb") as template:
+        content = template.read().decode()
+        content = embed_root(content)
+        response = ResponseHeader() | 200
+        response.update(
+            content_length(len(content)),
+            content_type("html"),
+            access_control_allow_origin(),
+        )
+        response = response @ content
+    return response
 
 
 @app.get("/favicon.ico",)
 async def _ico(request: Request) -> types.file:
     '''
     favicon
-    
+
     :param request: Request
     :return: file
     '''
@@ -137,7 +189,7 @@ async def _ico(request: Request) -> types.file:
 async def _static_view(request: Request, file: Union[str, list]) -> types.static:
     '''
     static files
-    
+
     :param request: Request
     :param file: path
     :return: static
@@ -147,6 +199,8 @@ async def _static_view(request: Request, file: Union[str, list]) -> types.static
     return await static_serve.get(file)
 
 # user endpoints
+
+
 @app.post("/api/infer")
 async def _public_infer(request: Request) -> types.dict:
     """
@@ -346,6 +400,7 @@ async def _model_code(request: Request) -> types.dict:
         "status": False
     }
 
+
 @lith_model.post("/infer")
 async def _model_infer(request: Request) -> types.dict:
     data = await request.get_json()
@@ -446,7 +501,8 @@ app.add_lith(lith_train)
 
 
 def run_studio():
-    open_url(f"http://{HOST}:{PORT}")
+    if '--no-browser' not in sys.argv:
+        open_url(f"http://{HOST}:{PORT}")
     app.serve(
         host=HOST,
         port=PORT

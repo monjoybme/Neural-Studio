@@ -10,4 +10,4 @@ __pycache__
 app/.tfstudio
 
 wiki/
-.vscode/
+# .vscode/

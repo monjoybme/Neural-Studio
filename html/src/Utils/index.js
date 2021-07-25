@@ -4,6 +4,7 @@ import { ReactComponent as Logo } from "../data/images/logo.svg";
 export const PORT = window.PORT;
 export const HOST = window.HOST;
 export const ROOT = window.ROOT;
+export const WSSR = window.WSSR;
 
 export const urlFor = function (uri){
   return `${ROOT}${uri}`;
