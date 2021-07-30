@@ -42,54 +42,54 @@ const NotificationPop = (props = { appData: metaAppData }) => {
  * @returns
  */
 const StatusBar = (props = { appData: metaAppData }) => {
-  let [time, timeState] = React.useState('time');
-  let [usage, usageState] = React.useState('usage');
-  
-  function setTime(){
+  let [time, timeState] = React.useState({ data: "time", _init: false });
+  let [usage, usageState] = React.useState({ data: "usage", _init: false });
+  let initRef = React.useRef();
+
+  function setTime() {
     let d = new Date();
-    timeState(d.toTimeString());
+    timeState({
+      data: d.toTimeString(),
+      _init: true,
+    });
     setTimeout(setTime, 1000);
   }
 
-  function utilSocket(){
+  React.useState(() => {
+    console.log("[status] status init");
+    if (!time._init) {
+      setTime();
+    }
+    if (!usage._init) {
       let socket = new WebSocket(`${WSSR}/sys/utilization`);
+
       socket.onopen = function (event) {
-        console.log("[socket] Connection established");
-        socket.send("$")
+        console.log("utils socket");
+        socket.send("$");
       };
 
       socket.onmessage = function (event) {
-          socket.send("$");
-          let data = JSON.parse(event.data);
-          usageState(data.usage_string);  
+        let data = JSON.parse(event.data);
+        socket.send("$");
+        usageState({ data: data.usage_string, _init: true });
       };
+
       socket.onclose = function (event) {
-        if (event.wasClean) {
-          console.log(
-            `[socket] Connection closed cleanly, code=${event.code} reason=${event.reason}`
-          );
-        } else {
-          console.log("[socket] Connection died");
-        }
+        console.log("[socket] Connection died");
       };
 
       socket.onerror = function (error) {
         console.log(`[socket] ${error.message}`);
       };
-
-      return socket;
+      usageState({ data: "connecting...", _init: true });
     }
 
-  React.useState(function(){
-    setTime();
-    utilSocket();
-  }, [])
+  }, [time, usage]);
+
   return (
-    <div className="statusbar">
-      {props.appData.statusbar.toLowerCase()} {" "}
-      | workspace : {props.appData.app.name} {" "}
-      | {time} {" "}
-      | {usage}
+    <div className="statusbar" ref={initRef}>
+      {props.appData.statusbar.toLowerCase()} | workspace :{" "}
+      {props.appData.app.name} | {time.data} | {usage.data}
     </div>
   );
 };
@@ -169,7 +169,7 @@ const App = (props) => {
             {...options}
             notificationState={notificationState}
             timeout={options.timeout ? options.timeout : 3000}
-            type={options.type ? options.type : "info" }
+            type={options.type ? options.type : "info"}
           />
         ),
       });
@@ -285,9 +285,9 @@ const App = (props) => {
     };
   });
 
-  React.useEffect(function () {
+  React.useEffect(
+    function () {
       if (app.fetch) {
-        console.log("Hello");
         pull({ name: "app" }).then((app_data) => {
           appState({
             ...app_data,
@@ -295,7 +295,6 @@ const App = (props) => {
           });
         });
       } else {
-        console.log("[PUSH] app");
         push({
           name: "app",
           data: app,
@@ -313,7 +312,7 @@ const App = (props) => {
       <Container {...appProps}>
         <TopBar {...appProps} />
         {load ? <LoadingData /> : <render.comp {...appProps} />}
-        <StatusBar {...appProps} />
+        {load ? undefined : <StatusBar {...appProps} />}
       </Container>
       <PopUp {...appProps} />
       <NotificationPop {...appProps} />

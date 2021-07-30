@@ -139,25 +139,38 @@ const NewCard = (
   );
 };
 
-function _optionPair(option = "Option") {
+function _optionPair(option = "Option", problem_types = []) {
   return {
     name: option.toLowerCase(),
     value: option,
+    problems: problem_types,
   };
 }
 
 const dataTypes = [
-  _optionPair("select"),
-  _optionPair("image"),
-  _optionPair("text"),
-  _optionPair("csv"),
-];
-
-const problemTypes = [
-  _optionPair("select"),
-  _optionPair("Classification"),
-  _optionPair("Regression"),
-  _optionPair("Segmentation"),
+  _optionPair("select", []),
+  _optionPair("image", [
+    "select",
+    "Classification",
+    "ObjectDetection",
+    "Segmentation",
+    "StyleTransfer",
+    "Colorization",
+    "Reconstruction",
+    "SuperResolution",
+  ]),
+  _optionPair("text",[
+    "Classification",
+    "LanguageModeling",
+    "CaptionGeneration",
+    "MachineTranslation",
+    "DocumentSummarization",
+    "QuestionAnswering",
+  ]),
+  _optionPair("csv",[
+    "Classification",
+    "Regression"
+  ]),
 ];
 
 const NewWorkspaceWizard = (
@@ -173,6 +186,7 @@ const NewWorkspaceWizard = (
     datatype: "select",
     problemtype: "select",
   });
+  let [problemtypes, probtypesState] = React.useState([]);
 
   return (
     <div className="new-workspace">
@@ -203,11 +217,17 @@ const NewWorkspaceWizard = (
             <select
               className="options"
               defaultValue={newworkspace.name}
-              onChange={(e) =>
-                newworkspaceState({
-                  ...newworkspace,
-                  datatype: e.target.value,
-                })
+              onChange={(e) =>{
+                  newworkspaceState({
+                    ...newworkspace,
+                    datatype: e.target.value,
+                  });
+                  dataTypes.forEach((type) => {
+                    if (type.value === e.target.value) {
+                      probtypesState([...type.problems ]);
+                    }
+                  });
+                }
               }
             >
               {dataTypes.map((option, i) => {
@@ -231,10 +251,11 @@ const NewWorkspaceWizard = (
                 })
               }
             >
-              {problemTypes.map((option, i) => {
+              <option value="select">Select</option>
+              {problemtypes.map((option, i) => {
                 return (
-                  <option value={option.value} key={i}>
-                    {option.name}
+                  <option value={option} key={i}>
+                    {option}
                   </option>
                 );
               })}
@@ -270,22 +291,6 @@ const Home = (
           homeState({ ...homeData, your_work: your_work });
         });
     });
-  }
-
-  async function _newWorkspace(name) {
-    popupState(undefined);
-    await post({
-      path: "/workspace/new",
-      data: {
-        name: name,
-      },
-    })
-      .then((response) => response.json())
-      .then(async function (data) {
-        if (data.status) {
-          await pullHome();
-        }
-      });
   }
 
   async function newWorkspace(

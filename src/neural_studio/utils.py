@@ -19,19 +19,32 @@ def get_hardware_utilization() -> dict:
     Returns:
         dict: The hardware utilization of the current machine
     """
-    gpu, = GPUtil.getGPUs()
-    cpu_load = psutil.cpu_percent()
-    cpu_ram = psutil.virtual_memory().percent
-    gpu_load = gpu.load*100
-    gpu_ram = 100 * gpu.memoryUsed / gpu.memoryTotal
-    usage_string = f"cpu : {cpu_load:0.4f}% | memory : {cpu_ram:0.4f} | gpu : {gpu_load:0.4f}% | gpu memory : {gpu_ram:0.4f}%"
-    return {
-        "cpu": cpu_load,
-        "memory": cpu_ram,
-        "gpu": gpu_load,
-        "gpu_memory": gpu_ram,
-        "usage_string": usage_string
-    }
+    try:
+        gpu, = GPUtil.getGPUs()
+        cpu_load = psutil.cpu_percent()
+        cpu_ram = psutil.virtual_memory().percent
+        gpu_load = gpu.load*100
+        gpu_ram = 100 * gpu.memoryUsed / gpu.memoryTotal
+        usage_string = f"cpu : {cpu_load:0.2f}% | memory : {cpu_ram:0.2f}% | gpu : {gpu_load:0.2f}% | gpu memory : {gpu_ram:0.2f}%"
+        return {
+            "cpu": cpu_load,
+            "memory": cpu_ram,
+            "gpu": gpu_load,
+            "gpu_memory": gpu_ram,
+            "usage_string": usage_string
+        }
+    except:
+        cpu_load = psutil.cpu_percent()
+        cpu_ram = psutil.virtual_memory().percent
+        usage_string = f"cpu : {cpu_load:0.2f}% | memory : {cpu_ram:0.2f}% | gpu : NA | gpu memory : NA"
+        return {
+            "cpu": cpu_load,
+            "memory": cpu_ram,
+            "gpu": "NA",
+            "gpu_memory": "NA",
+            "usage_string": usage_string
+        }
+
 
 
 def numpy_image_to_b64(image: np.ndarray) -> str:
@@ -60,7 +73,7 @@ def b64_to_numpy_image(b64_string: str) -> np.ndarray:
     return cv2.imdecode(
         np.fromstring(
             b64.b64decode(
-                b64_string.replace("data:image/png;base64,", "")
+                b64_string.replace("data:image/png;base64,", "").replace("data:image/jpeg;base64,","")
             ), 
             np.uint8
         ),

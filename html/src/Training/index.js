@@ -132,7 +132,7 @@ const Training = (
         .then((response) => response.json())
         .then((data) => {
           props.appFunctions.notify({ message: data.message });
-          let socket = statusSocket();
+          statusSocket();
         });
     }
   }

@@ -447,6 +447,10 @@ const Menu = (
   let { type } = props;
 
   switch (type.object_class) {
+    case '_':
+      return <Dataset />
+    case '__':
+      return <CustomNode />
     default:
       return <Layer {...props} train={props.train} />;
   }

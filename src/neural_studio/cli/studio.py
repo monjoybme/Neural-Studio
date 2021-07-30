@@ -1,6 +1,6 @@
 import sys
 
-__version__ = "0.0.2"
+__version__ = "0.0.5"
 __help__ = f"""
 Neural Studio {__version__} 
 
@@ -236,13 +236,16 @@ async def _sys_path(request: Request) -> types.dict:
 
 @lith_sys.get("/utilization")
 async def _sys_utilization(request: Request) -> types.websocketserver:
-    with WebSocketServer(request) as server:
+    server = WebSocketServer(request) 
+    logger.log(f"initializing utilization socket {{{server.secret_key}}}.")
+    with server:
         while True:
             data = await server.recv()
             if data == '$exit':
                 break
             await server.send_json(get_hardware_utilization())
             await server.sleep(1)
+    logger.log(f"closing utilization socket {{{server.secret_key}}}.")
 
 # Workspace endpoints
 

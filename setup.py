@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="neural-studio",
-    version="0.0.2rc",
+    version="0.0.5",
     author="Viraj Patel",
     author_email="vptl185@gmail.com",
     description="A small example package",
@@ -37,7 +37,7 @@ setuptools.setup(
         "tqdm",
         "scikit-learn",
         "GPUtil",
-        "pyrex-core",
+        "pyrex-core==0.0.4",
         "psutil"
     ],
     package_data={

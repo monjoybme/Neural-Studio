@@ -12,15 +12,20 @@ from glob import glob
 from tqdm.cli import tqdm
 from concurrent.futures import ThreadPoolExecutor
 from gc import collect
-from inspect import getfullargspec
+
+from pyrex.core.abs import AbsForm
 
 from ..abc import AbsDataset
-from ..structs import DataDict
-from ..utils import numpy_image_to_b64
+from ..utils import numpy_image_to_b64, b64_to_numpy_image
 
 __all__ = [
+    "ImageSegmentationDatasetFromDirectory",
     "ImageClassificationDatasetFromDirectory",
-    "ImageSegmentationDatasetFromDirectory"
+    "ObjectDetection",
+    "StyleTransfer",
+    "Colorization",
+    "Reconstruction",
+    "SuperResolution",
 ]
 
 
@@ -184,6 +189,28 @@ class ImageClassificationDatasetFromDirectory(AbsDataset):
                 in np.random.randint(0, len(self.train_x), n)
             ]
         }
+
+    def pre_process(self, data: dict) -> np.ndarray:
+        image = b64_to_numpy_image(data["image"])
+        image = cv2.resize(image, self.size[:2])
+        return image.reshape(1, *self.size)
+
+    def post_inference(self, prediction: np.ndarray) -> dict:
+        prediction,  = prediction
+        label_class = self.labels[np.argmax(prediction, axis=-1)]
+        probabilities = list(map(float, prediction))
+        return {
+            "type": "image",
+            "problem": "Classification",
+            "label": label_class,
+            "probabilities": probabilities,
+            "labels": self.labels
+        }
+
+    def pre_process_public(self, form: AbsForm) -> dict:
+        return {
+            "image": b64.b64encode(form.files['image'].content).decode()
+         }
 
 
 class ImageSegmentationDatasetFromDirectory(AbsDataset):
@@ -351,3 +378,27 @@ class ImageSegmentationDatasetFromDirectory(AbsDataset):
                 in np.random.randint(0, len(self.train_x), n)
             ]
         }
+
+
+class ObjectDetection(AbsDataset):
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError()
+
+
+class StyleTransfer(AbsDataset):
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError()
+
+
+class Colorization(AbsDataset):
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError()
+        
+
+class Reconstruction(AbsDataset):
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError()
+
+class SuperResolution(AbsDataset):
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError()

@@ -1,6 +1,5 @@
 import React from "react";
 import { plotConfig as _plotConfig, colors, Grid, XAxis, YAxis } from "./base";
-import { BarChart } from "./barchart";
 import { LineChart } from "./linechart";
 
 import "../../style/_plotting.scss";
@@ -22,29 +21,32 @@ export const Graph = (props = { plotConfig: _plotConfig }) => {
   );
 };
 
+export const Legend = (props = { label: "label", color: "#333" }) => {
+  return (
+    <div className="item">
+      <div className="color" style={{ backgroundColor: props.color }} />
+      <div className="label">{props.label}</div>
+    </div>
+  );
+};
 
-export const Legend = (props={ label: "label", color: '#333' }) => {
-    return (
-        <div className="item">
-              <div className="color" style={{ backgroundColor: props.color }} />
-              <div className="label">{props.label}</div>
-            </div>
-    )
+/*
+dataBarChart = {
+  labels: Array(_n)
+    .fill(0)
+    .map((_, i) => `Label ${i}`),
+  values: Array(_n)
+    .fill(0)
+    .map((_) => Math.random() * 100),
 }
+*/
 
 export const PlotContainer = (props) => {
   let plotRef = React.useRef(null);
   let [plotConfig, plotConfigState] = React.useState({ ..._plotConfig });
   const _n = 10;
-  let [dataBar, dataBarState] = React.useState({
-    labels: Array(_n)
-      .fill(0)
-      .map((_, i) => `Label ${i}`),
-    values: Array(_n)
-      .fill(0)
-      .map((_, i) => Math.random() * 100),
-  });
-  let [dataLine, dataLineState] = React.useState([
+
+  let dataLine = [
     {
       name: "train",
       values: Array(_n)
@@ -59,9 +61,9 @@ export const PlotContainer = (props) => {
         .map((_, i) => Math.random() * 100),
       length: _n,
     },
-  ]);
+  ];
 
-  React.useEffect(() => {
+  function updatePlotConfig() {
     if (plotRef.current) {
       plotConfig.height = plotRef.current.scrollHeight;
       plotConfig.width = plotRef.current.scrollWidth;
@@ -76,6 +78,10 @@ export const PlotContainer = (props) => {
 
       plotConfigState({ ...plotConfig });
     }
+  }
+
+  React.useEffect(() => {
+    updatePlotConfig();
   }, []);
 
   return (

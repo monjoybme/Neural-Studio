@@ -122,7 +122,7 @@ const LinePlot = (
       plotConfig.grid_size.y = 7;
       plotConfigState({ ...plotConfig });
     }
-  }, []);
+  },[]);
 
   return (
     <div className="plot-container" style={{ height: "400px", width: "100%" }}>

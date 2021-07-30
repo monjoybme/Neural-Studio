@@ -11,7 +11,7 @@ import {
   metaAppData,
 } from "../Meta";
 import { icons } from "../data/icons";
-import { get, pos, pull, push, Loading } from "../Utils";
+import { get, pull, push, Loading } from "../Utils";
 
 let cursors = {
   edge: "crosshair",
@@ -235,7 +235,7 @@ const GraphEditor = (
   }
 
   const ContextMenu = (props = { x: Number, y: Number }) => {
-    let [options, optionsState] = React.useState([
+    let options = [
       {
         name: "Build",
         onclick: function (e) {
@@ -281,7 +281,7 @@ const GraphEditor = (
           });
         },
       },
-    ]);
+    ];
 
     const Option = (props = { name: String, onclick: function () {} }) => {
       return (
@@ -391,6 +391,7 @@ const GraphEditor = (
             definition: node,
             node: undefined,
           };
+          break
         default:
           graph.nodes[id] = node;
           break;

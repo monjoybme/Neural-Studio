@@ -76,7 +76,7 @@ export const Notification = (
         }, 500);
       }
     }, props.timeout);
-  }, []);
+  }, [props]);
   return (
     <div className={`notification`} ref={ref}>
       <div className={`message notif-${props.type}`}>{props.message}</div>

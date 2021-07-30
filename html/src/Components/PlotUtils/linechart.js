@@ -1,5 +1,5 @@
 import React from "react";
-import { plotConfig as _plotConfig, colors, Grid, XAxis, YAxis } from "./base";
+import { plotConfig as _plotConfig, colors } from "./base";
 
 export const Line = (
   props = {
