@@ -14,6 +14,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/monjoybme/Neural-Studio",
     project_urls={
+        "Documentation":"https://vptl185.gitbook.io/neuralstudio/",
+        "GitHub":"https://github.com/monjoybme/Neural-Studio",
         "Bug Tracker": "https://github.com/monjoybme/Neural-Studio/issues",
     },
     classifiers=[
