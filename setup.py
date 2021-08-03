@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="neural-studio",
-    version="0.0.5",
+    version="0.0.6",
     author="Viraj Patel",
     author_email="vptl185@gmail.com",
     description="A small example package",

@@ -1,18 +1,16 @@
-![](https://raw.githubusercontent.com/monjoybme/Neural-Studio/master/data/logo.png)
-
 # Neural Studio
 
-> Neural studio is a rapid prototyping tool for deep learning applications. It provides and easy to use and intuitive UI users ranging from beginners to professionals. 
 
-### User Guide
+> Neural studio is a rapid prototyping tool for deep learning applications. It provides and easy to use and intuitive UI for users ranging from beginners to professionals. 
 
-> Installation
 
-```bash
-$ pip install neural-studio
-```
 
-> Here's a list of tutorials to get started.
+
+> Links
+
+[Documentation](https://vptl185.gitbook.io/neuralstudio/)
+
+> Tutorials
 
 1. [Creating a Workspace](https://youtu.be/-odE7gza9cw)
 2. [Creating a Dataset](https://youtu.be/qWpXz_BeDE0)

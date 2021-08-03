@@ -1,23 +1,27 @@
 import sys
 
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 __help__ = f"""
 Neural Studio {__version__} 
 
+Usage:
+  neural_studio [options]
+  
 Options:
   -host : set host
   -port : set port
   -dir  : set project directory 
  
+  -log-file : set log file
+
   --no-cached-dataset : won't load dataset from active workspace
   --no-cached-model   : won't load last saved model from active workspace
   --no-browser        : won't open browser 
 
+
   help    : display help
   version : display version
-
-Usage:
-  neural_studio [options]"""
+"""
 
 if 'help' in sys.argv:
     print(__help__)
@@ -57,7 +61,7 @@ from tensorflow.keras import (
 
 from neural_studio.data import data_path
 from neural_studio.graph import DatasetDef, GraphDef
-from neural_studio.logging import Logger
+from neural_studio.logging import Logger, set_log_output
 from neural_studio.manage import Workspace, WorkspaceManager
 from neural_studio.structs import DataDict
 from neural_studio.trainer import OutputVisualizer, Trainer
@@ -75,14 +79,21 @@ from pyrex.frontend import ServeHTML, ServeStatic
 from pyrex.core.headers import ResponseHeader, content_length, content_type, access_control_allow_origin
 
 
+
 """
 TODO
     1. Document view functions.
 """
 
+if "-log-file" in sys.argv:
+    set_log_output(
+        open(
+            pathlib.abspath(sys.argv[sys.argv.index("-log-file") + 1]), 
+            "w+"
+        )
+    )
 
 # root path
-
 
 HOME_PATH = (pathlib.abspath(sys.argv[sys.argv.index("-dir")+1])
              if "-dir" in sys.argv
@@ -237,7 +248,8 @@ async def _sys_path(request: Request) -> types.dict:
 @lith_sys.get("/utilization")
 async def _sys_utilization(request: Request) -> types.websocketserver:
     server = WebSocketServer(request) 
-    logger.log(f"initializing utilization socket {{{server.secret_key}}}.")
+    server_id = hash(server.secret_key)
+    logger.log(f"initializing utilization socket {{{server_id}}}.")
     with server:
         while True:
             data = await server.recv()
@@ -245,7 +257,7 @@ async def _sys_utilization(request: Request) -> types.websocketserver:
                 break
             await server.send_json(get_hardware_utilization())
             await server.sleep(1)
-    logger.log(f"closing utilization socket {{{server.secret_key}}}.")
+    logger.log(f"closing utilization socket {{{server_id}}}.")
 
 # Workspace endpoints
 
