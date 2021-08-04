@@ -116,15 +116,121 @@ const datasets = {
           },
         },
       },
+      {
+        name: "ObjectDetection",
+        type: {
+          name: "ObjectDetection",
+          object_class: "dataset",
+        },
+        arguments: {},
+      },
+      {
+        name: "StyleTransfer",
+        type: {
+          name: "StyleTransfer",
+          object_class: "dataset",
+        },
+        arguments: {},
+      },
+      {
+        name: "Colorization",
+        type: {
+          name: "Colorization",
+          object_class: "dataset",
+        },
+        arguments: {},
+      },
+      {
+        name: "Reconstruction",
+        type: {
+          name: "Reconstruction",
+          object_class: "dataset",
+        },
+        arguments: {},
+      },
+      {
+        name: "SuperResolution",
+        type: {
+          name: "SuperResolution",
+          object_class: "dataset",
+        },
+        arguments: {},
+      },
     ],
   },
   text: {
     name: "Text",
-    layers: [],
+    layers: [
+      {
+        name: "Classification",
+        type: {
+          name: "LanguageModeling",
+          object_class: "dataset",
+        },
+        arguments: {},
+      },
+      {
+        name: "ImageCaptioning",
+        type: {
+          name: "ImageCaptioning",
+          object_class: "dataset",
+        },
+        arguments: {},
+      },
+      {
+        name: "MachineTranslation",
+        type: {
+          name: "MachineTranslation",
+          object_class: "dataset",
+        },
+        arguments: {},
+      },
+      {
+        name: "Summarization",
+        type: {
+          name: "Summarization",
+          object_class: "dataset",
+        },
+        arguments: {},
+      },
+      {
+        name: "QuestionAnswering",
+        type: {
+          name: "QuestionAnswering",
+          object_class: "dataset",
+        },
+        arguments: {},
+      },
+    ],
   },
   csv: {
     name: "CSV Datasets",
-    layers: [],
+    layers: [
+      {
+        name: "Classification",
+        type: {
+          name: "Classification",
+          object_class: "dataset",
+        },
+        arguments: {},
+      },
+      {
+        name: "Regression",
+        type: {
+          name: "Regression",
+          object_class: "dataset",
+        },
+        arguments: {},
+      },
+      {
+        name: "TimeSeries",
+        type: {
+          name: "TimeSeries",
+          object_class: "dataset",
+        },
+        arguments: {},
+      },
+    ],
   },
   built_in: {
     name: "Built in",
@@ -173,7 +279,7 @@ const datasets = {
         },
         arguments: {
           size: {
-            value: "(32, 32, 1)",
+            value: "(32, 32, 3)",
             type: "tuple",
             render: "text",
             options: "size",
@@ -194,7 +300,7 @@ const datasets = {
         },
         arguments: {
           size: {
-            value: "(32, 32, 1)",
+            value: "(32, 32, 3)",
             type: "tuple",
             render: "text",
             options: "size",

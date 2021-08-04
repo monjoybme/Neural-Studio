@@ -1,0 +1,118 @@
+@import "./app";
+
+.plot-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+
+  .plot {
+    height: 100%;
+    width: calc(100% - 125px);
+    fill: $lightFr;
+
+    .grid {
+      .background {
+        fill: rgba(228, 228, 228, 0.5);
+      }
+
+      .line {
+        stroke-width: 2;
+        stroke: rgba(#fff, 1);
+      }
+    }
+
+    .axis {
+      stroke: $lightColorSc;
+      stroke-width: 1;
+      fill: $lightColorSc;
+    }
+  }
+
+  .legend {
+    width: 120px;
+    padding: 10px 10px 0px 10px;
+    height: max-content;
+    max-height: 100%;
+    overflow: scroll;
+    border: $lightBorder3;
+
+    .item {
+      height: 30px;
+      width: max-content;
+      display: flex;
+
+      .color {
+        height: 20px;
+        width: 20px;
+        border-radius: 2px;
+        border: $lightBorder3;
+        margin-right: 5px;
+        @include flex(row, center, center);
+      }
+
+      .label {
+        padding-top: 2px;
+        @include flex(row, flex-start, flex-start);
+        @extend .heading-4;
+      }
+    }
+  }
+
+  .linechart {
+    .line {
+      .point {
+        stroke-width: 2;
+      }
+      .hover {
+        stroke-width: 1;
+        stroke: $darkFr;
+      }
+    }
+  }
+}
+
+.dark {
+  .plot-container {
+    .plot {
+      fill: $darkFr;
+      .grid {
+        .background {
+          fill: $darkFr;
+        }
+
+        .line {
+          stroke: $darkTr;
+        }
+      }
+
+      .axis {
+        stroke: $darkColorPr;
+        fill: $darkColorSc;
+      }
+    }
+
+    .legend {
+      border: $darkBorder3;
+
+      .item {
+        .color {
+          border: $darkBorder3;
+        }
+
+        .label {
+        }
+      }
+    }
+
+    .linechart {
+      .line {
+        .point {
+        }
+        .hover {
+          fill: $lightBg;
+          stroke: $darkTr;
+        }
+      }
+    }
+  }
+}

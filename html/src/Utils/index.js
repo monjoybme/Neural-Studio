@@ -1,13 +1,18 @@
 import React from "react";
 import { ReactComponent as Logo } from "../data/images/logo.svg";
 
-export const PORT = 8000;
-export const HOST = "localhost";
-export const ROOT = `http://${HOST}:${PORT}`;
+export const PORT = window.PORT;
+export const HOST = window.HOST;
+export const ROOT = window.ROOT;
+export const WSSR = window.WSSR;
+
+export const urlFor = function (uri){
+  return `${ROOT}${uri}`;
+}
 
 export const post = async function (options = { path: "/", data: {}, body: {} }) {
   let { path, data } = options;
-  return await fetch(ROOT + path, {
+  return await fetch(urlFor(path), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -18,7 +23,7 @@ export const post = async function (options = { path: "/", data: {}, body: {} })
 
 export const get = async function (options = { path: "/" }) {
   let { path } = options;
-  return await fetch(ROOT + path);
+  return await fetch(urlFor(path));
 };
 
 export const push = async function (
@@ -56,7 +61,7 @@ export const Loading = (props) => {
 export const Notification = (
   props = {
     message: "Hello, World !",
-    type: "message",
+    type: "info",
     notificationState: undefined,
     timeout: 10,
   }
@@ -71,10 +76,10 @@ export const Notification = (
         }, 500);
       }
     }, props.timeout);
-  }, []);
+  }, [props]);
   return (
-    <div className="notification message" ref={ref}>
-      <div className="message">{props.message}</div>
+    <div className={`notification`} ref={ref}>
+      <div className={`message notif-${props.type}`}>{props.message}</div>
     </div>
   );
 };

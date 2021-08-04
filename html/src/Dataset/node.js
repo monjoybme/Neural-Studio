@@ -1,5 +1,5 @@
 import React from "react";
-import { metaStore, metaStoreContext, metaAppFunctions } from "../Meta";
+import { metaAppFunctions } from "../Meta";
 import Menu from "./menu";
 
 const propMeta = {
@@ -32,7 +32,7 @@ export function calculateEdge(
   }
 ) {
   let pstring = "";
-  let { x1, y1, x2, y2, h1, h2, w1, w2 } = cords;
+  let { x1, y1, x2, y2, w1, w2 } = cords;
   let bcurve = 25;
 
   if (y1 > y2 - 120) {
@@ -213,17 +213,17 @@ export const Node = (
     }
   }
 
-  function edgeOnMouseDown(e) {
-    if (window.canvas.mode === "delete") {
-      window.canvas.activeElement = {
-        type: {
-          object_class: "edge",
-        },
-        inbound: connections.inbound,
-        node: id,
-      };
-    }
-  }
+  // function edgeOnMouseDown(e) {
+  //   if (window.canvas.mode === "delete") {
+  //     window.canvas.activeElement = {
+  //       type: {
+  //         object_class: "edge",
+  //       },
+  //       inbound: connections.inbound,
+  //       node: id,
+  //     };
+  //   }
+  // }
 
   return (
     <g x={pos.x} y={pos.y} ref={nodeRef} onMouseEnter={onMouseOver}>

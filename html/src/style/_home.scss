@@ -1,0 +1,436 @@
+@import "./_app.scss";
+
+@keyframes load_popup {
+  0% {
+    transform: scale(0.8) translate(-60%, -60%);
+  }
+  100% {
+    transform: scale(1) translate(-50%, -50%);
+  }
+}
+
+.home {
+  padding: 10px 10px 10px 10px;
+  display: grid;
+  grid-template-rows: 48px 165px 48px 1fr;
+  background: $lightFr;
+
+  .cards {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: repeat(auto-fill, minMax(240px, 1fr));
+    min-height: 170px;
+    overflow-y: scroll;
+
+    .new {
+      @extend .grid-center;
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr;
+      svg {
+        height: 50px !important;
+        width: 50px !important;
+      }
+      input {
+        letter-spacing: 1px;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .card-grid {
+    overflow-y: scroll;
+  }
+
+  .card {
+    height: 160px;
+    border-radius: 2px;
+    display: grid;
+    grid-template-rows: 8fr 2fr;
+    cursor: pointer;
+
+    .name {
+      display: grid;
+      grid-template-columns: 9fr 1fr 0fr;
+      height: 100%;
+      width: 100%;
+      padding: 0px 10px;
+      @extend .heading-4;
+    }
+
+    svg {
+      height: 15px;
+      width: 15px;
+    }
+  }
+
+  .active {
+    width: 260px;
+    .head {
+      @include flex();
+      @extend .heading-2;
+    }
+    .name {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0px 30px;
+    }
+  }
+
+  .name {
+    display: flex;
+    align-items: center;
+
+    height: 100%;
+    padding-left: 5px;
+
+    @extend .heading-3;
+    @extend .heading-light;
+  }
+}
+
+.new-workspace {
+  background: rgba($color: #333, $alpha: 0.05);
+  height: calc(100% - (#{$topbarHeight} + #{$statusBarHeight}));
+  width: 100%;
+
+  position: absolute;
+  top: $topbarHeight;
+
+  @include flex();
+
+  .card {
+    height: 360px;
+    width: 320px;
+
+    display: grid;
+    grid-template-rows: 1fr 9fr;
+    padding: 10px;
+    grid-gap: 10px;
+
+    background: $lightBg;
+    border: $lightBorder3;
+    border-radius: 3px;
+
+    .title {
+      color: $lightColorPr;
+
+      .close {
+        color: $lightColorPr;
+        font-size: 12px;
+        position: absolute;
+        z-index: 999;
+        transform: translate(145px, -10px);
+        cursor: pointer;
+      }
+
+      @include flex();
+      @extend .heading-3;
+    }
+
+    .body {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-gap: 10px;
+
+      .field {
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        border: $lightBorder3;
+        padding: 10px;
+
+        .name {
+          @extend .heading-4;
+        }
+
+        input {
+          width: 100%;
+          border: $lightBorder3;
+          padding-left: 10px;
+
+          @extend .heading-4;
+        }
+
+        select {
+          border: $lightBorder3;
+
+          @extend .heading-4;
+        }
+      }
+
+      button {
+        cursor: pointer;
+        border: $lightBorder3;
+      }
+    }
+  }
+}
+
+.download-model {
+  height: 100vh;
+  width: 100vw;
+
+  animation-name: load_popup;
+  animation-duration: 300ms;
+
+  @include flex();
+
+  .options {
+    width: 50%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .title {
+      background: none !important;
+      border: none !important;
+
+      @extend .heading-3;
+    }
+
+    .option {
+      height: 40px;
+      width: 50%;
+
+      margin-bottom: 10px;
+      border-radius: 2px;
+      cursor: pointer;
+
+      @include flex();
+      @extend .heading-4;
+    }
+  }
+
+  .output {
+    width: 20%;
+    height: 40px;
+
+    @include flex();
+  }
+
+  .exit {
+    position: absolute;
+    top: 5%;
+    left: 85%;
+
+    @extend .heading-4;
+  }
+
+  a {
+    text-decoration: none;
+    @extend .heading-3;
+  }
+}
+
+.workspace-card-context {
+  height: 100px;
+  width: 100px;
+
+  position: fixed;
+  z-index: 9999;
+
+  @include flex(column, center, none);
+
+  .btn {
+    height: 25%;
+    width: 100%;
+
+    padding-left: 10px;
+    cursor: pointer;
+
+    @include flex(row, flex-start, center);
+    @extend .heading-5;
+  }
+}
+
+.loading-overlay {
+  position: absolute;
+  background: rgba($color: #333, $alpha: 0.5);
+  top: $topbarHeight;
+  height: calc(100vh - #{$topbarHeight});
+  width: 100%;
+
+  display: grid;
+  place-items: center;
+}
+
+.light {
+  .home {
+    background: $lightFr;
+    color: $lightColorPr;
+    .cards {
+      .new {
+        input {
+          background: $lightBg;
+          color: $lightColorPr;
+          border-bottom: $lightBorder1;
+
+          @extend .heading-3;
+        }
+      }
+    }
+
+    .card {
+      background: $lightBg;
+      color: $lightColorPr;
+
+      border: $lightBorder3;
+      .name {
+        background: $lightFr;
+        border-top: $lightBorder3;
+        @extend .heading-medium;
+      }
+    }
+
+    .name {
+      color: $lightColorPr;
+      @extend .heading-regular;
+    }
+  }
+
+  .download-model {
+    background: $lightBg;
+    .options {
+      .option {
+        background: $lightFr;
+        color: $lightColorPr;
+        border: $lightBorder1;
+      }
+    }
+
+    .output {
+      a {
+        color: $lightColorPr;
+      }
+    }
+
+    .exit {
+      color: $lightColorPr;
+    }
+  }
+  .workspace-card-context {
+    background: $lightBg;
+    border: $lightBorder1;
+
+    .btn {
+      color: $lightColorPr;
+      border-bottom: $lightBorder1;
+    }
+  }
+  svg {
+    fill: $lightColorPr;
+  }
+}
+
+.dark {
+  .home {
+    background: $darkFr;
+    color: $darkColorPr;
+    .cards {
+      .new {
+        input {
+          background: $darkBg;
+          color: $darkColorPr;
+          border-bottom: $darkBorder1;
+
+          @extend .heading-3;
+        }
+      }
+    }
+
+    .card {
+      background: $darkBg;
+      color: $darkColorPr;
+
+      .name {
+        background: $darkBg;
+        border-top: $darkBorder2;
+        @extend .heading-medium;
+      }
+    }
+
+    .name {
+      color: $darkColorPr;
+      @extend .heading-regular;
+    }
+  }
+
+  .download-model {
+    background: $darkBg;
+    .options {
+      .option {
+        background: $darkFr;
+        color: $darkColorPr;
+        border: $darkBorder1;
+      }
+    }
+
+    .output {
+      a {
+        color: $darkColorPr;
+      }
+    }
+
+    .exit {
+      color: $darkColorPr;
+    }
+  }
+  .workspace-card-context {
+    background: rgba($color: #333, $alpha: 1);
+    border-radius: 2px;
+    border: $darkBorder3;
+
+    .btn {
+      color: $darkColorPr;
+      border-bottom: $darkBorder1;
+
+      &:last-child{
+        border-bottom: none;
+      }
+    }
+  }
+  svg {
+    fill: $darkColorPr;
+  }
+
+  .new-workspace {
+    background: rgba($color: #111, $alpha: 0.3);
+
+    .card {
+      background: $darkBg;
+      border: $darkBorder2;
+
+      .title {
+        color: $darkColorSc;
+        .close {
+          color: $lightColorPr;
+        }
+
+      }
+
+      .body {
+        .field {
+          border: $lightBorder3;
+          color: $darkColorSc;
+          background: $darkTr;
+          input {
+            border: $lightBorder3;
+          }
+
+          select {
+            border: $lightBorder3;
+          }
+        }
+
+        button {
+          border: $lightBorder3;
+          background: $darkTr;
+          color: $darkColorSc;
+        }
+      }
+    }
+  }
+}

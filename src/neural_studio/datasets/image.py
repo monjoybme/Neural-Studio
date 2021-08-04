@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import base64 as b64
 
 from tensorflow import keras
 from typing import List
@@ -12,19 +13,24 @@ from glob import glob
 from tqdm.cli import tqdm
 from concurrent.futures import ThreadPoolExecutor
 from gc import collect
-from inspect import getfullargspec
 
-from ..abc import Dataset
-from ..structs import DataDict
-from ..utils import numpy_image_to_b64
+from pyrex.core.abs import AbsForm
+
+from ..abc import AbsDataset
+from ..utils import numpy_image_to_b64, b64_to_numpy_image
 
 __all__ = [
+    "ImageSegmentationDatasetFromDirectory",
     "ImageClassificationDatasetFromDirectory",
-    "ImageSegmentationDatasetFromDirectory"
+    "ObjectDetection",
+    "StyleTransfer",
+    "Colorization",
+    "Reconstruction",
+    "SuperResolution",
 ]
 
 
-class ImageClassificationDatasetFromDirectory(Dataset):
+class ImageClassificationDatasetFromDirectory(AbsDataset):
     """
     Dataset will be used in training 
 
@@ -69,6 +75,7 @@ class ImageClassificationDatasetFromDirectory(Dataset):
                  size: tuple,
                  train_folder: str = "train",
                  test_folder: str = "test",
+                 normalize: bool = True,
                  resize: bool = True,
                  show_progress: bool = True
                  ) -> None:
@@ -84,7 +91,7 @@ class ImageClassificationDatasetFromDirectory(Dataset):
         self.size = size
         # whether to resize the image after reading or not.
         self.resize = resize
-
+        self.normalize = normalize
         self.show_progress = show_progress
 
         # Make changed in the following code with the caution
@@ -141,11 +148,11 @@ class ImageClassificationDatasetFromDirectory(Dataset):
         h, w, c = self.size
         if self.resize:
             im = cv2.resize(im, (h, w), interpolation=cv2.INTER_AREA)
-        return im
+        return im.astype(np.float32) / (255 if self.normalize else 1)
 
     def read_image_set(self, image_set: List[str]) -> np.ndarray:
         images = np.zeros(
-            shape=(len(image_set), *self.size), dtype=np.uint8)
+            shape=(len(image_set), *self.size), dtype=np.float32)
         with ThreadPoolExecutor(max_workers=32, ) as executor:
             def set_image(args):
                 try:
@@ -158,7 +165,7 @@ class ImageClassificationDatasetFromDirectory(Dataset):
 
     def read_image_set_with_bar(self, image_set: List[str]) -> np.ndarray:
         images = np.zeros(
-            shape=(len(image_set), *self.size), dtype=np.uint8)
+            shape=(len(image_set), *self.size), dtype=np.float32)
         with tqdm(total=len(image_set)) as bar:
             with ThreadPoolExecutor(max_workers=32, ) as executor:
                 def set_image(args):
@@ -185,8 +192,31 @@ class ImageClassificationDatasetFromDirectory(Dataset):
             ]
         }
 
+    def pre_process(self, data: dict, *args, **kwargs,) -> np.ndarray:
+        image = b64_to_numpy_image(data["image"])
+        image = cv2.resize(
+            image, self.size[:2]) / (255 if self.normalize else 1)
+        return image.reshape(1, *self.size)
 
-class ImageSegmentationDatasetFromDirectory(Dataset):
+    def post_inference(self, prediction: np.ndarray, *args, **kwargs,) -> dict:
+        prediction,  = prediction
+        label_class = self.labels[np.argmax(prediction, axis=-1)]
+        probabilities = list(map(float, prediction))
+        return {
+            "type": "image",
+            "problem": "Classification",
+            "label": label_class,
+            "probabilities": probabilities,
+            "labels": self.labels
+        }
+
+    def pre_process_public(self, form: AbsForm, *args, **kwargs, ) -> dict:
+        return {
+            "image": b64.b64encode(form.files['image'].content).decode()
+        }
+
+
+class ImageSegmentationDatasetFromDirectory(AbsDataset):
     """
     Dataset will be used in training 
 
@@ -235,7 +265,7 @@ class ImageSegmentationDatasetFromDirectory(Dataset):
         show_progress: bool = True
     ) -> None:
         """
-        Load dataset and set required variables.
+
         """
 
         self.root = pathlib.abspath(root)  # Path to dataset folder
@@ -343,11 +373,59 @@ class ImageSegmentationDatasetFromDirectory(Dataset):
                     "image": numpy_image_to_b64(self.train_x[idx].reshape(*self.size)[:, :, ::-1]),
                     "mask": numpy_image_to_b64((
                         self.train_y[idx].reshape(*self.size[:-1])
-                            if self.binary_mask
-                            else self.train_y[idx].reshape(*self.size)[:, :, ::-1]                        
+                        if self.binary_mask
+                        else self.train_y[idx].reshape(*self.size)[:, :, ::-1]
                     ))
                 }
                 for idx
                 in np.random.randint(0, len(self.train_x), n)
             ]
         }
+
+    def pre_process(self, data: dict, *args, **kwargs) -> np.ndarray:
+        image = b64_to_numpy_image(data["image"])
+        image = cv2.resize(
+            image, self.size[:2]) / (255 if self.normalize else 1)
+        return image.reshape(1, *self.size)
+
+    def post_inference(self, prediction: np.ndarray, *args, **kwargs) -> dict:
+        prediction = prediction.reshape(self.size[:2])
+        prediction = (prediction * 255).astype(np.uint8)
+        cv2.imwrite("../../../image.jpg", prediction)
+        mask = numpy_image_to_b64(prediction)
+        return {
+            "type": "image",
+            "problem": "Segmentation",
+            "image": kwargs.get("request_data").get('image'),
+            "mask": mask
+        }
+
+    def pre_process_public(self, form: AbsForm, *args, **kwargs) -> dict:
+        return {
+            "image": b64.b64encode(form.files['image'].content).decode()
+        }
+
+
+class ObjectDetection(AbsDataset):
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError(f"{self.__class__.__name__} Not implemented yet !")
+
+
+class StyleTransfer(AbsDataset):
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError(f"{self.__class__.__name__} Not implemented yet !")
+
+
+class Colorization(AbsDataset):
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError(f"{self.__class__.__name__} Not implemented yet !")
+
+
+class Reconstruction(AbsDataset):
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError(f"{self.__class__.__name__} Not implemented yet !")
+
+
+class SuperResolution(AbsDataset):
+    def __init__(self, *args, **kwargs) -> None:
+        raise NotImplementedError(f"{self.__class__.__name__} Not implemented yet !")

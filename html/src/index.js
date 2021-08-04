@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-window.__FIRST__LOAD__ = true;
+import App from "./App";
+import { PlotContainer } from './Components/PlotUtils';
+import { appConfig } from './data/appconfig';
+
 window.canvas = {
   activeLayer: undefined,
   activeLine:undefined,
@@ -31,8 +33,8 @@ window.copy = function (object) {
 
 setInterval(function () {
   window.offsetX =
-    280 + 60;
-  window.offsetY = 60;
+    appConfig.canvas.toolbar.width + appConfig.geometry.sideBar.width;
+  window.offsetY = appConfig.geometry.topBar.height;
 }, 1000);
 
 ReactDOM.render(
@@ -42,7 +44,4 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for "example": reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn "more": "https"://bit.ly/CRA-vitals
 reportWebVitals();

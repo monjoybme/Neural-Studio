@@ -1,15 +1,40 @@
 import React from "react";
-import {
-  metaAppFunctions,
-  metaHome,
-  metaAppData,
-} from "../Meta/index";
+import { metaAppFunctions, metaHome, metaAppData } from "../Meta/index";
 import { icons } from "../data/icons";
 import { get, Loading, post, pull, push, ROOT } from "../Utils";
 
-const WorkspaceCard = (
-  props = { name: "Hello", appData: metaAppData  }
-) => {
+function _optionPair(option = "Option", problem_types = []) {
+  return {
+    name: option.toLowerCase(),
+    value: option,
+    problems: problem_types,
+  };
+}
+
+const dataTypes = [
+  _optionPair("select", []),
+  _optionPair("image", [
+    "select",
+    "Classification",
+    "ObjectDetection",
+    "Segmentation",
+    "StyleTransfer",
+    "Colorization",
+    "Reconstruction",
+    "SuperResolution",
+  ]),
+  _optionPair("text", [
+    "Classification",
+    "LanguageModeling",
+    "CaptionGeneration",
+    "MachineTranslation",
+    "DocumentSummarization",
+    "QuestionAnswering",
+  ]),
+  _optionPair("csv", ["Classification", "Regression"]),
+];
+
+const WorkspaceCard = (props = { name: "Hello", appData: metaAppData }) => {
   function loadMenu(e) {
     props.appData.popupState(
       <div
@@ -50,73 +75,9 @@ const WorkspaceCard = (
   );
 };
 
-const New = (props = { appData: metaAppData  }) => {
-  let { newworkspace, newworkspaceState } = props;
-  function handleKey(e) {
-    switch (e.key) {
-      case "Enter":
-        newworkspaceState({
-          name: "",
-          active: false,
-        });
-        props.newWorkspace(document.getElementById("newname").value);
-        break;
-      case " ":
-        document.getElementById("newname").value = document
-          .getElementById("newname")
-          .value.replaceAll(" ", "");
-        break;
-      default:
-        break;
-    }
-  }
-
-  React.useEffect(() => {
-    document.getElementById("newname").focus();
-  });
-
-  return (
-    <div>
-      <input
-        id={"newname"}
-        defaultValue={newworkspace.name}
-        placeholder={"Enter Name"}
-        onKeyUp={handleKey}
-      />
-    </div>
-  );
-};
-
-const NewCard = (
-  props = { appData: metaAppData  }
-) => {
-  let [newworkspace, newworkspaceState] = React.useState({
-    active: false,
-    name: "",
-  });
-
-  return (
-    <div
-      className="card new"
-      onClick={(e) => newworkspaceState({ name: "", active: true })}
-      onMouseLeave={(e) => newworkspaceState({ name: "", active: false })}
-    >
-      {newworkspace.active ? (
-        <New
-          newWorkspace={props.newWorkspace}
-          newworkspace={newworkspace}
-          newworkspaceState={newworkspaceState}
-        />
-      ) : (
-        <icons.Add />
-      )}
-    </div>
-  );
-};
-
 const DownloadModel = (
   props = {
-    appData: metaAppData, 
+    appData: metaAppData,
     appFunctions: metaAppFunctions,
   }
 ) => {
@@ -198,6 +159,120 @@ const DownloadModel = (
   );
 };
 
+const NewCard = (
+  props = { appData: metaAppData, openWizard: function () {} }
+) => {
+  return (
+    <div className="card new" onClick={props.openWizard}>
+      <icons.Add />
+    </div>
+  );
+};
+
+const NewWorkspaceWizard = (
+  props = {
+    appData: metaAppData,
+    appFunctions: metaAppFunctions,
+    popupState: function () {},
+    createWorkspace: function () {},
+  }
+) => {
+  let [newworkspace, newworkspaceState] = React.useState({
+    name: "",
+    datatype: "select",
+    problemtype: "select",
+  });
+  let [problemtypes, probtypesState] = React.useState([]);
+
+  return (
+    <div className="new-workspace">
+      <div className="card">
+        <div className="title">
+          New Worksapce
+          <span className="close" onClick={(e) => props.popupState(undefined)}>
+            ❌
+          </span>
+        </div>
+        <div className="body">
+          <div className="field">
+            <div className="name">Name</div>
+            <input
+              className="text"
+              placeholder={"Workspace Name"}
+              defaultValue={newworkspace.name}
+              onChange={(e) =>
+                newworkspaceState({
+                  ...newworkspace,
+                  name: e.target.value,
+                })
+              }
+            />
+          </div>
+          <div className="field">
+            <div className="name">Data</div>
+            <select
+              className="options"
+              defaultValue={newworkspace.name}
+              onChange={(e) => {
+                newworkspaceState({
+                  ...newworkspace,
+                  datatype: e.target.value,
+                });
+                dataTypes.forEach((type) => {
+                  if (type.value === e.target.value) {
+                    probtypesState([...type.problems]);
+                  }
+                });
+              }}
+            >
+              {dataTypes.map((option, i) => {
+                return (
+                  <option value={option.value} key={i}>
+                    {option.name}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+          <div className="field">
+            <div className="name">Problem</div>
+            <select
+              className="options"
+              defaultValue={newworkspace.name}
+              onChange={(e) =>
+                newworkspaceState({
+                  ...newworkspace,
+                  problemtype: e.target.value,
+                })
+              }
+            >
+              <option value="select">Select</option>
+              {problemtypes.map((option, i) => {
+                return (
+                  <option value={option} key={i}>
+                    {option}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+          <button onClick={(e) => props.createWorkspace(newworkspace)}>
+            Create
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const LoadingOverlay = (props) => {
+  return (
+    <div className="loading-overlay">
+      <Loading />
+    </div>
+  );
+};
+
 const Home = (
   props = {
     appData: metaAppData,
@@ -208,37 +283,63 @@ const Home = (
   let [home, homeState] = React.useState(metaHome);
 
   async function pullHome() {
-   pull({
-     name: "home",
-   }).then(async (homeData) => {
-     await get({
-       path: "/workspace/all",
-     })
-       .then((response) => response.json())
-       .then((your_work) => {
-         homeState({ ...homeData, your_work: your_work });
-       });
-   });
+    pull({
+      name: "home",
+    }).then(async (homeData) => {
+      await get({
+        path: "/workspace/all",
+      })
+        .then((response) => response.json())
+        .then((your_work) => {
+          homeState({ ...homeData, your_work: your_work });
+        });
+    });
   }
 
-  async function newWorkspace(name) {
-    popupState(undefined);
-    await post({
-      path: "/workspace/new",
-      data: {
-        name: name,
-      },
-    })
-      .then((response) => response.json())
-      .then(async function (data) {
-        if (data.status) {
-          await pullHome();
-        }
+  async function newWorkspace(
+    data = { name: "workspace", datatype: "select", problemtype: "select" }
+  ) {
+    if (data.name === "") {
+      props.appFunctions.notify({
+        message: "Please enter workspace name !",
+        type: "error",
+        timeout: 3000,
       });
+    } else if (data.datatype === "select") {
+      props.appFunctions.notify({
+        message: "Please select data type !",
+        type: "error",
+        timeout: 3000,
+      });
+    } else if (data.problemtype === "select") {
+      props.appFunctions.notify({
+        message: "Please select problem type !",
+        type: "error",
+        timeout: 3000,
+      });
+    } else {
+      await post({
+        path: "/workspace/new",
+        data: data,
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          props.appFunctions.notify({
+            message: response.message,
+            type: response.status ? "success" : "error",
+            timeout: 3000,
+          });
+          if (response.status) {
+            pullHome();
+            props.appData.appState({ ...props.appData.app, fetch: true});
+            popupState(undefined);
+          }          
+        });
+    }
   }
 
   async function openWorkspace(options = { name: "workspace" }) {
-    popupState(undefined);
+    popupState(<LoadingOverlay />);
     await post({
       path: `/workspace/open/${options.name}`,
       data: {},
@@ -248,6 +349,7 @@ const Home = (
         await pullHome();
         props.appData.app.fetch = true;
         props.appData.appState({ ...props.appData.app });
+        popupState(undefined);
       });
   }
 
@@ -256,6 +358,7 @@ const Home = (
     if (options.name === home.active.name) {
       props.appFunctions.notify({
         message: "Cannot delete active workspace.",
+        type: "error",
       });
     } else {
       await post({
@@ -264,6 +367,11 @@ const Home = (
       })
         .then((response) => response.json())
         .then(async function (data) {
+          props.appFunctions.notify({
+            message: data.message,
+            type: data.status ? "success" : "error",
+            timeout: 3000,
+          });
           if (data.status) {
             pullHome();
           }
@@ -272,13 +380,13 @@ const Home = (
   }
 
   React.useEffect(() => {
-    if (home.fetch){
+    if (home.fetch) {
       pullHome();
-    }else{
+    } else {
       push({
-        name:"home",
-        data: home
-      })
+        name: "home",
+        data: home,
+      });
     }
   }, []);
 
@@ -307,7 +415,16 @@ const Home = (
       <div className="name">Your Work</div>
       <div className="card-grid">
         <div className="cards">
-          <NewCard newWorkspace={newWorkspace} />
+          <NewCard
+            openWizard={function () {
+              popupState(
+                <NewWorkspaceWizard
+                  popupState={popupState}
+                  createWorkspace={newWorkspace}
+                />
+              );
+            }}
+          />
           {home.your_work.map((work, i) => {
             return (
               <WorkspaceCard

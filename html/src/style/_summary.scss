@@ -1,0 +1,33 @@
+@import "./_app.scss";
+
+.summary {
+    .sum-col {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+    }
+}
+
+.dark {
+    .head {
+        .name {
+            color: $darkColorPr;
+        }
+
+        .btn {
+            color: $darkColorPr;
+            background: $darkTr !important;
+            border: $darkBorder2 !important;
+        }
+    }
+    .summary {
+        background: $darkFr;
+
+    }
+}
+
+.light {
+    .summary {
+        background: $lightFr;
+
+    }
+}

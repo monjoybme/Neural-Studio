@@ -1,0 +1,188 @@
+@import "./_app.scss";
+
+
+.nav {
+  height: 100vh;
+  width: 100%;
+  border-right: $lightBorder3;
+
+  .title {
+    height: $topbarHeight;
+    width: $sidebarWidth;
+    @extend .grid-center;
+
+    svg {
+      height: 30px;
+      width: 30px;
+    }
+  }
+
+  .navigation {
+    width: 100%;
+    @include flex(column, flex-start, center);
+
+    .btn {
+      height: $topbarHeight;
+      width: 100%;
+      @extend .grid-center;
+      svg {
+        fill: $secondary;
+        height: 24px !important;
+        width: 24px !important;
+        opacity: 0.3;
+      }
+    }
+
+    .selected {
+      svg {
+        fill: $primary;
+        opacity: 1;
+      }
+    }
+  }
+}
+
+.topbar {
+  height: $topbarHeight;
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: 18fr 1fr 1fr;
+  
+  
+  top: 0px;
+  left: $sidebarWidth;
+  z-index: 9999;
+
+  .title {
+    height: $topbarHeight;
+    width: $topbarHeight;
+    
+    @extend .grid-center;
+    @extend .heading-2;
+    @extend .heading-bold;
+  }
+
+  .switch {
+    height: 100%;
+    width: 100%;
+    @include flex();
+  }
+
+  .holder {
+    height: 23px;
+    width: 42px;
+    border-radius: 15px;
+
+    padding-left: 5px;
+    padding-right: 5px;
+
+    cursor: pointer;
+
+    transition-property: all;
+    transition-duration: 200ms;
+
+    @include flex(row, flex-start, center);
+  }
+
+  .button {
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    transition-property: all;
+    transition-duration: 500ms;
+  }
+}
+
+.statusbar {
+  height: $statusBarHeight;
+  width: 100%;
+  border-top : $lightBorder3;
+
+  padding-left: 3px;
+
+  @include flex(row, flex-start, center);
+  @extend .heading-5;
+}
+
+.light {
+  .nav {
+    background: $lightBg;
+    .title {
+      border-right: 00.001rem solid $lightBg;
+      height: $topbarHeight - 1px;
+    }
+    .navigation {
+      .btn {
+        background: $lightBg;
+      }
+      .selected {
+        background: $lightFr;
+        width: $sidebarWidth;
+        border-right: 1px solid $lightFr;
+        border-top: $lightBorder3;
+        border-bottom: $lightBorder3;
+      }
+    }
+  }
+
+  .topbar {
+    border-bottom: $lightBorder3;
+    box-shadow: 3px 1px 1px 1px $lightFr;
+    .title {
+      color: $lightColorPr;
+    }
+    .holder {
+      background: skyblue;
+    }
+    .button {
+      background: yellow;
+      transform: translateX(0px);
+    }
+  }
+  .statusbar {
+        color: $lightColorPr;
+        background: $lightBg;
+    }
+}
+
+.dark {
+  .nav {
+    background: $darkBg;
+    // border-right: $darkBorder2;
+    .title {
+      border-right: 00.001rem solid $darkBg;
+    }
+    .navigation {
+      .btn {
+        background: $darkBg;
+      }
+      .selected {
+        // border-top: $darkBorder2;
+        // border-bottom: $darkBorder2;
+        background: $darkFr;
+        width: $sidebarWidth;
+      }
+    }
+  }
+
+  .topbar {
+    // border-bottom: $darkBorder2;
+    .title {
+      color: $darkColorPr;
+    }
+    .holder {
+      background: #582d58;
+    }
+    .button {
+      background: rgb(226, 164, 6);
+      transform: translateX(18px);
+    }
+  }
+
+  .statusbar {
+    color: $darkColorPr;
+    background: $darkBg;
+    // border-top: $darkBorder2;
+  }
+}

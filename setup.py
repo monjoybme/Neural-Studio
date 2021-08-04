@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="neural-studio",
-    version="0.0.2",
+    version="0.0.6",
     author="Viraj Patel",
     author_email="vptl185@gmail.com",
     description="A small example package",
@@ -14,6 +14,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/monjoybme/Neural-Studio",
     project_urls={
+        "Documentation":"https://vptl185.gitbook.io/neuralstudio/",
+        "GitHub":"https://github.com/monjoybme/Neural-Studio",
         "Bug Tracker": "https://github.com/monjoybme/Neural-Studio/issues",
     },
     classifiers=[
@@ -22,7 +24,6 @@ setuptools.setup(
         "Development Status :: 4 - Beta",
         "Environment :: GPU :: NVIDIA CUDA :: 10.1",
         "Natural Language :: English",
-        "Operating System :: Microsoft :: Windows :: Windows 10"
     ],
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
@@ -38,18 +39,20 @@ setuptools.setup(
         "tqdm",
         "scikit-learn",
         "GPUtil",
+        "pyrex-core==0.0.4",
+        "psutil"
     ],
     package_data={
         "neural_studio": [
-            "data/studio/*.html", 
-            "data/studio/*.ico", 
-            "data/studio/*.json", 
-            "data/studio/*.png", 
-            "data/studio/*.svg", 
-            "data/studio/*.txt", 
+            "data/studio/*.html",
+            "data/studio/*.ico",
+            "data/studio/*.json",
+            "data/studio/*.png",
+            "data/studio/*.svg",
+            "data/studio/*.txt",
             "data/studio/*.xml"
         ],
-        "neural_studio.data":[
+        "neural_studio.data": [
             "studio/static/*",
             "studio/static/media/*.svg",
             "studio/static/media/*",

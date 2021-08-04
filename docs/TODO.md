@@ -241,3 +241,14 @@
 ## Augmentation
 
 - [ ] Image Augmentation
+
+
+### New workspace
+
+```ts
+{
+    name string
+    data string
+    problem string
+}
+```

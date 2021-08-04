@@ -1,18 +1,19 @@
 import React from "react";
 
 import { TopBar, SideBar } from "./NavBar";
-import { Notification, get, Loading, pull, push } from "./Utils";
+import { Notification, get, Loading, pull, push, WSSR } from "./Utils";
 import { metaSideNav, metaApp, metaAppData, metaRender } from "./Meta";
 
-import "./style/App.scss";
-import "./style/Nav.scss";
-import "./style/Home.scss";
-import "./style/Dataset.scss";
-import "./style/Canvas.scss";
-import "./style/Code.scss";
-import "./style/Training.scss";
-import "./style/Summary.scss";
-import "./style/Utils.scss";
+import "./style/_app.scss";
+import "./style/_nav.scss";
+import "./style/_home.scss";
+import "./style/_dataset.scss";
+import "./style/_canvas.scss";
+import "./style/_code.scss";
+import "./style/_training.scss";
+import "./style/_summary.scss";
+import "./style/_utils.scss";
+import "./style/_inference.scss";
 
 /**
  * It creates pop up overlays for custom pop up components.
@@ -41,70 +42,55 @@ const NotificationPop = (props = { appData: metaAppData }) => {
  * @returns
  */
 const StatusBar = (props = { appData: metaAppData }) => {
-  let [time, timeState] = React.useState('time');
-  function setTime(){
-    let d = new Date();
-    timeState(d.toTimeString());
+  let [time, timeState] = React.useState({ data: "time", _init: false });
+  let [usage, usageState] = React.useState({ data: "usage", _init: false });
+  let initRef = React.useRef();
 
-    setTimeout(setTime, 1000);
-  }
-  function utilSocket(){
-      let socket = new WebSocket("ws://localhost:8000/sys/utilization");
+  React.useState(() => {
+    console.log("[status] status init");
+    if (!usage._init) {
+      let socket = new WebSocket(`${WSSR}/sys/utilization`);
 
       socket.onopen = function (event) {
-        console.log("[socket] Connection established");
-        socket.send("$")
+        console.log("utils socket");
+        socket.send("$");
       };
 
       socket.onmessage = function (event) {
-          socket.send("$");
-          console.log(event.data);
+        let data = JSON.parse(event.data);
+        let d = new Date();
+
+        socket.send("$");
+        usageState({ data: data.usage_string, _init: true });
+        timeState({
+          data: d.toTimeString(),
+          _init: true,
+        });
       };
+
       socket.onclose = function (event) {
-        if (event.wasClean) {
-          console.log(
-            `[socket] Connection closed cleanly, code=${event.code} reason=${event.reason}`
-          );
-        } else {
-          console.log("[socket] Connection died");
-        }
+        console.log("[socket] Connection died");
       };
 
       socket.onerror = function (error) {
         console.log(`[socket] ${error.message}`);
       };
-
-      return socket;
+      usageState({ data: "connecting...", _init: true });
     }
+  }, [time, usage]);
 
-  React.useState(function(){
-    setTime();
-  }, [])
   return (
-    <div className="statusbar">
-      {props.appData.statusbar.toLowerCase()} {" "}
-      | workspace : {props.appData.app.name} {" "}
-      | {time}
+    <div className="statusbar" ref={initRef}>
+      {props.appData.statusbar.toLowerCase()} | workspace :{" "}
+      {props.appData.app.name} | {time.data} | {usage.data}
     </div>
   );
 };
 
-/**
- * Wrapper for app container area.
- *
- * @param {*} props
- * @returns
- */
 const Container = (props = { appData: metaAppData }) => {
   return <div className="container-area">{props.children}</div>;
 };
 
-/**
- * Wrapper for main area.
- *
- * @param {*} props
- * @returns
- */
 const Main = (props = { appData: metaAppData }) => {
   return (
     <div className={`app ${props.appData.app.theme}`}>{props.children}</div>
@@ -155,7 +141,7 @@ const App = (props) => {
       statusbarState(text);
     },
     notify: function (
-      options = { name: "test", message: "Hello", timeout: 3000 }
+      options = { name: "test", message: "Hello", timeout: 3000, type: "info" }
     ) {
       notificationState({ comp: undefined });
       notificationState({
@@ -164,6 +150,7 @@ const App = (props) => {
             {...options}
             notificationState={notificationState}
             timeout={options.timeout ? options.timeout : 3000}
+            type={options.type ? options.type : "info"}
           />
         ),
       });
@@ -280,26 +267,22 @@ const App = (props) => {
   });
 
   React.useEffect(function () {
-      if (app.fetch) {
-        console.log("Hello");
-        pull({ name: "app" }).then((app_data) => {
-          appState({
-            ...app_data,
-            fetch: false,
-          });
+    if (app.fetch) {
+      pull({ name: "app" }).then((app_data) => {
+        appState({
+          ...app_data,
+          fetch: false,
         });
-      } else {
-        console.log("[PUSH] app");
-        push({
-          name: "app",
-          data: app,
-        }).then((response) => {
-          loadState(false);
-        });
-      }
-    },
-    [app]
-  );
+      });
+    } else {
+      push({
+        name: "app",
+        data: app,
+      }).then((response) => {
+        loadState(false);
+      });
+    }
+  },[app]);
 
   return (
     <Main {...appProps}>
@@ -307,7 +290,7 @@ const App = (props) => {
       <Container {...appProps}>
         <TopBar {...appProps} />
         {load ? <LoadingData /> : <render.comp {...appProps} />}
-        <StatusBar {...appProps} />
+        {load ? undefined : <StatusBar {...appProps} />}
       </Container>
       <PopUp {...appProps} />
       <NotificationPop {...appProps} />

@@ -11,7 +11,7 @@ import {
   metaAppData,
 } from "../Meta";
 import { icons } from "../data/icons";
-import { get, pos, pull, push, Loading } from "../Utils";
+import { get, pull, push, Loading } from "../Utils";
 
 let cursors = {
   edge: "crosshair",
@@ -196,6 +196,7 @@ const GraphEditor = (
       .then((data) => {
         props.appFunctions.notify({
           message: data.message,
+          type: data.status ? "success" : "error",
         });
       });
   }
@@ -207,8 +208,34 @@ const GraphEditor = (
     });
   }
 
+  function importGraph() {
+    let fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = ".json";
+    fileInput.addEventListener("change", (e) => {
+      let file = fileInput.files[0];
+      let reader = new FileReader();
+      reader.onload = (e) => {
+        let data = JSON.parse(e.target.result);
+        graphState({...data, fetch: false});
+      };
+      reader.readAsText(file);
+    });
+    fileInput.click();
+  }
+
+  function exportGraph(){
+    let graphString = JSON.stringify(graph);
+    let blob = new Blob([graphString], {type: "application/json;charset=utf-8"});
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = "graph.json";
+    a.click();
+  }
+
   const ContextMenu = (props = { x: Number, y: Number }) => {
-    let [options, optionsState] = React.useState([
+    let options = [
       {
         name: "Build",
         onclick: function (e) {
@@ -226,6 +253,26 @@ const GraphEditor = (
         },
       },
       {
+        name: "Import Graph",
+        onclick: function (e) {
+          importGraph();
+          menuState({
+            render: false,
+            comp: undefined,
+          });
+        },
+      },
+      {
+        name: "Export Graph",
+        onclick: function (e) {
+          exportGraph();
+          menuState({
+            render: false,
+            comp: undefined,
+          });
+        },
+      },
+      {
         name: "Delete",
         onclick: function (e) {
           menuState({
@@ -234,7 +281,7 @@ const GraphEditor = (
           });
         },
       },
-    ]);
+    ];
 
     const Option = (props = { name: String, onclick: function () {} }) => {
       return (
@@ -344,6 +391,7 @@ const GraphEditor = (
             definition: node,
             node: undefined,
           };
+          break
         default:
           graph.nodes[id] = node;
           break;

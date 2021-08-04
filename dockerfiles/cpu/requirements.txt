@@ -1,0 +1,9 @@
+opencv-python
+numpy
+pandas
+tensorflow==2.2.0
+tqdm
+scikit-learn
+GPUtil
+pyrex-core
+psuti

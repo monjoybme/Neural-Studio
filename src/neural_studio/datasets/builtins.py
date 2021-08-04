@@ -1,9 +1,14 @@
-from typing import List
 import numpy as np
+import cv2
+import base64 as b64
+
+from typing import List
 from tensorflow import keras
 
-from ..utils import numpy_image_to_b64
-from ..abc import Dataset
+from pyrex.core.abs import AbsForm
+
+from ..utils import b64_to_numpy_image, numpy_image_to_b64
+from ..abc import AbsDataset
 
 __all__ = [
     'Mnist',
@@ -14,7 +19,7 @@ __all__ = [
 ]
 
 
-class Mnist(Dataset):
+class Mnist(AbsDataset):
     """
     Dataset will be used in training 
 
@@ -48,8 +53,19 @@ class Mnist(Dataset):
         self.train_y = keras.utils.to_categorical(Y)
         self.test_x = x.reshape(-1,  *size) / (255. if normalize else 1.)
         self.test_y = keras.utils.to_categorical(y)
-
         self.size = size
+        self.labels = [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+        ]
 
     def sample(self, n: int) -> List[dict]:
         return {
@@ -65,8 +81,30 @@ class Mnist(Dataset):
             ]
         }
 
+    def pre_process(self, data: dict, *args, **kwargs) -> np.ndarray:
+        image = b64_to_numpy_image(data["image"])
+        image = cv2.resize(
+            image, self.size[:2]) / (255 if self.normalize else 1)
+        return image.reshape(1, *self.size)
 
-class BostonHousing(Dataset):
+    def post_inference(self, prediction: np.ndarray, *args, **kwargs) -> dict:
+        prediction,  = prediction
+        label_class = self.labels[np.argmax(prediction, axis=-1)]
+        probabilities = list(map(float, prediction))
+        return {
+            "type": "image",
+            "problem": "Classification",
+            "label": label_class,
+            "probabilities": probabilities,
+            "labels": self.labels
+        }
+
+    def pre_process_public(self, form: AbsForm, *args, **kwargs) -> dict:
+        return {
+            "image": b64.b64encode(form.files['image'].content).decode()
+         }
+
+class BostonHousing(AbsDataset):
     """
     Dataset will be used in training 
 
@@ -101,8 +139,8 @@ class BostonHousing(Dataset):
         self.train_y = Y
         self.test_x = x
         self.test_y = y
-
         self.size = size
+        
 
     def sample(self, n: int) -> List[dict]:
         return {
@@ -119,7 +157,8 @@ class BostonHousing(Dataset):
         }
 
 
-class Cifar10(Dataset):
+
+class Cifar10(AbsDataset):
     """
     Dataset will be used in training 
 
@@ -149,9 +188,9 @@ class Cifar10(Dataset):
         (X, Y), (x, y) = keras.datasets.cifar10.load_data()
 
         self.train_x = X.reshape(-1, *size) / (255. if normalize else 1.)
-        self.train_y = keras.utils.to_categorical(Y)
+        self.train_y = keras.utils.to_categorical(Y.reshape(-1,1))
         self.test_x = x.reshape(-1, *size) / (255. if normalize else 1.)
-        self.test_y = keras.utils.to_categorical(y)
+        self.test_y = keras.utils.to_categorical(y.reshape(-1,1))
         self.size = size
         self.labels = [
             "airplane",
@@ -180,8 +219,31 @@ class Cifar10(Dataset):
             ]
         }
 
+    def pre_process(self, data: dict, *args, **kwargs) -> np.ndarray:
+        image = b64_to_numpy_image(data["image"])
+        image = cv2.resize(
+            image, self.size[:2]) / (255 if self.normalize else 1)
+        return image.reshape(1, *self.size) 
 
-class Cifar100(Dataset):
+    def post_inference(self, prediction: np.ndarray, *args, **kwargs) -> dict:
+        prediction,  = prediction
+        label_class = self.labels[np.argmax(prediction, axis=-1)]
+        probabilities = list(map(float, prediction))
+        return {
+            "type": "image",
+            "problem": "Classification",
+            "label": label_class,
+            "probabilities": probabilities,
+            "labels": self.labels
+        }
+
+    def pre_process_public(self, form: AbsForm, *args, **kwargs) -> dict:
+        return {
+            "image": b64.b64encode(form.files['image'].content).decode()
+         }
+
+
+class Cifar100(AbsDataset):
     """
     Dataset will be used in training 
 
@@ -250,7 +312,7 @@ class Cifar100(Dataset):
         }
 
 
-class FashionMnist(Dataset):
+class FashionMnist(AbsDataset):
     """
     Dataset will be used in training 
 

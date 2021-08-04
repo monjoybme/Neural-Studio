@@ -31,6 +31,8 @@ import { ReactComponent as Add } from "./images/add.svg";
 import { ReactComponent as Share } from "./images/share.svg";
 import { ReactComponent as Dataset } from "./images/dataset.svg";
 import { ReactComponent as Experiment } from "./images/experiment.svg";
+import { ReactComponent as Upload } from "./images/upload.svg";
+
 
 // import { ReactComponent as  } from "./images/.svg";
 
@@ -67,6 +69,7 @@ const icons = {
   Share: Share,
   Dataset: Dataset,
   Experiment: Experiment,
+  Upload: Upload,
 };
 
 const Icon = (props={icon:React.Component,style:{}}) =>{

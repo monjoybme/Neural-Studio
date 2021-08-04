@@ -8,12 +8,11 @@ import metaDatasetGroups from "../data/datasets";
 import {
   metaAppFunctions,
   metaGraph,
-  metaLayerGroups,
   metaAppData,
 } from "../Meta";
 
 import { icons } from "../data/icons";
-import { get, post, POST, pull, push } from "../Utils";
+import { get,  pull, push } from "../Utils";
 
 let cursors = {
   edge: "crosshair",
@@ -90,7 +89,7 @@ const dataViewers = {
         return (
           <div className="sample">
             <div className="label">{props.class}</div>
-            <img src={props.image} />
+            <img src={props.image} alt={''} />
           </div>
         );
       };
@@ -124,18 +123,14 @@ const dataViewers = {
       );
     },
     Segmentation: (props = { data: [], menuState: undefined }) => {
-      React.useEffect(() => {
-        console.log(props.data);
-      }, []);
-
       const Sample = (props) => {
         return (
           <div className="sample">
             <div>
-              <img src={props.image} />
+              <img src={props.image} alt={''} />
             </div>
             <div>
-              <img src={props.mask} />
+              <img src={props.mask} alt={''} />
             </div>
           </div>
         );
@@ -207,10 +202,6 @@ const GraphEditor = (
     },
   ]);
 
-  let [contextMenu, contextMenuState] = React.useState({
-    state: false,
-  });
-
   async function buildDataset() {
     await get({
       path: "/dataset/build",
@@ -219,6 +210,7 @@ const GraphEditor = (
       .then((data) => {
         props.appFunctions.notify({
           message: data.message,
+          type: data.status ? "success" : "error", 
         });
       });
   }
@@ -229,22 +221,30 @@ const GraphEditor = (
     })
       .then((response) => response.json())
       .then((data) => {
-        let Viewer = dataViewers[data.type][data.problem];
-        menuState({
-          render: true,
-          comp: (
-            <Viewer
-              data={data.data}
-              menuState={menuState}
-              reload={viewSample}
-            />
-          ),
-        });
+        if (data.status){
+          data = data.data;
+          let Viewer = dataViewers[data.type][data.problem];
+          menuState({
+            render: true,
+            comp: (
+              <Viewer
+                data={data.data}
+                menuState={menuState}
+                reload={viewSample}
+              />
+            ),
+          });  
+        } else {
+          props.appFunctions.notify({
+            message: data.message,
+            type: "error",
+          });
+        }
       });
   }
 
   const ContextMenu = (props = { x: Number, y: Number }) => {
-    let [options, optionsState] = React.useState([
+    let options = [
       {
         name: "Build",
         onclick: function (e) {
@@ -274,7 +274,7 @@ const GraphEditor = (
           });
         },
       },
-    ]);
+    ];
 
     const Option = (props = { name: String, onclick: function () {} }) => {
       return (
@@ -600,11 +600,7 @@ const GraphEditor = (
         refCanvas.current.onmouseup = onMouseUp;
         refCanvasTop.current.onmousedown = undefined;
         refCanvasTop.current.onmousemove = undefined;
-
-        // layergroups.custom_nodes.layers = [];
         graphState({ ...metaGraph, fetch: false });
-        console.log("Clean")
-        // layergroupsState({ ...layergroups });
         break;
       case "layer":
         window.canvas.activeLayer = { ...options.layer };
@@ -675,7 +671,7 @@ const GraphEditor = (
         },
       });
     }
-  }, [graph]);
+  }, [graph, ]);
 
   return (
     <div className="container graph-canvas dataset-cotainer">

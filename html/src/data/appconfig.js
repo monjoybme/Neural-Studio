@@ -2,7 +2,7 @@ let appConfig = {
     "theme":"dark",
     "geometry":{
         "sideBar":{
-            "width":70
+            "width":60
         },
         "topBar":{
             "height":60
@@ -10,7 +10,7 @@ let appConfig = {
     },
     "canvas":{
         "toolbar":{
-            "width":280,
+            "width":300,
         }
     },
     "monitor":{

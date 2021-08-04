@@ -5,10 +5,11 @@ import numpy as np
 from threading import Thread
 from time import sleep
 from typing import List, Tuple, Union
+from os import path as pathlib
 
 from .manage import WorkspaceManager
 from .graph import GraphDef, DatasetDef
-from .abc import Dataset
+from .abc import AbsDataset, AbsOutputVisualizer, AbsTfGui, AbsTrainer, AbsWorkspaceManager
 
 from tensorflow import keras
 
@@ -21,26 +22,22 @@ def execute_code(exec_code: str, gbs: dict = None) -> Tuple[dict, str]:
     except Exception as e:
         return {}, str(e)
 
+
 output_visualizers = {
 
 }
 
-class OutputVisualizer(keras.callbacks.Callback):
+
+class OutputVisualizer(AbsOutputVisualizer):
     visualizer: callable
-    def __init__(
-            self,
-            problem_type: str = None, 
-            *args,
-            **kwargs
-        ):
-        super().__init__()
-        # self.trainer = globals().get("trainer")
-        # self.visualizer = output_visualizers.get(problem_type)
+
+    def __init__( self, problem_type: str = None, *args, **kwargs ):
+        super().__init__(*args, **kwargs)
 
     def on_epoch_end(self, epoch: int, logs: list):
-        return 
+        return
 
-class TfGui(keras.callbacks.Callback):
+class TfGui(AbsTfGui):
     batch = None
     epoch = 0
 
@@ -48,11 +45,11 @@ class TfGui(keras.callbacks.Callback):
     batches = 1
     epochs = 1
 
-    trainer = None
+    trainer: AbsTrainer = None
     halt = False
     output = []
 
-    def __init__(self, trainer,):
+    def __init__(self, trainer: AbsTrainer):
         self.trainer = trainer
 
     def __repr__(self,):
@@ -101,6 +98,12 @@ class TfGui(keras.callbacks.Callback):
             "batch": self.batch,
             "output": logs
         }
+        self.trainer.model.save(
+            pathlib.join(
+                self.trainer.workspace_manager.active.path,
+                "last_trained.h5"
+            )
+        )
         while self.halt:
             sleep(0.1)
 
@@ -112,27 +115,28 @@ class TfGui(keras.callbacks.Callback):
         self.trainer.is_training = False
 
 
-class Trainer(object):
-
+class Trainer(AbsTrainer):
+    """
+    Trainer object 
+    """
     training = False
     build = False
-
     re_charset = 'a-zA-Z0-9 .\(\)\{\{\[\] \n=\-_\+,\'\:-\<\>#"'
     build_config = {}
     is_training = False
-
     logs = []
 
-    _session_var = {
-        "dataset": False
-    }
-    
-    __model__: keras.Model = False
-    __model__name__: str = '__model__model__'
-    __dataset__ = None
+    _session_var = { "dataset": False }
+    _model: keras.Model = False
+    _model_name: str = '_model_model'
+    _dataset = None
 
-    def __init__(self, workspace_manager: WorkspaceManager):
-        self.workspace_manager: WorkspaceManager = workspace_manager
+    def __init__(self, workspace_manager: AbsWorkspaceManager):
+        """
+        Args:
+            workspace_manager: WorkspaceManager object 
+        """
+        self.workspace_manager: AbsWorkspaceManager = workspace_manager
         self.session_id = workspace_manager[[
             'active:canvas:graph:train_config:session_id']]
         self.tfgui = TfGui(self,)
@@ -141,14 +145,14 @@ class Trainer(object):
         })
 
     @property
-    def dataset(self, )->Union[Dataset, bool]:
-        return self.__dataset__
+    def dataset(self, ) -> Union[AbsDataset, bool]:
+        return self._dataset
 
     @property
     def model(self,) -> keras.Model:
-        if not self.__model__:
+        if not self._model:
             self.build()
-        return self.__model__
+        return self._model
 
     @property
     def summary(self, ) -> List[List[str]]:
@@ -178,6 +182,9 @@ class Trainer(object):
 
     def update_session(self, data: dict) -> None:
         self._session_var.update(data)
+
+    def infer(self, dx: np.ndarray) -> np.ndarray:
+        return self.model.predict(dx)
 
     def build(self,):
         self.graph = GraphDef(self.workspace_manager[['active:canvas:graph']])
@@ -212,7 +219,8 @@ class Trainer(object):
                         return False, error
                     self.update_session(exec_var)
 
-        exec_var, error = execute_code(self.graph.__model__.to_code(self.graph, train=True), gbs=self._session_var)
+        exec_var, error = execute_code(self.graph.__model__.to_code(
+            self.graph, train=True), gbs=self._session_var)
         if not exec_var:
             self.update_log("error", {
                 "message": error,
@@ -221,9 +229,8 @@ class Trainer(object):
             })
             return False, error
         self.update_session(exec_var)
-
-        self.__model__name__ = self.graph.__model__.id
-        self.__model__ = self._session_var[self.__model__name__]
+        self._model_name = self.graph.__model__.id
+        self._model = self._session_var[self._model_name]
         return True, "Built successful"
 
     def compile(self,):
@@ -257,7 +264,7 @@ class Trainer(object):
         self.update_session(exec_var)
         return True, "Model compiled successfully."
 
-    def __train__thread__(self, ) -> None:
+    def _train_thread(self, ) -> None:
         if self.graph.__train__:
             self.is_training = True
             self.tfgui.epochs = int(
@@ -266,18 +273,18 @@ class Trainer(object):
                 self.graph.__train__.arguments.batch_size.value)
 
             if not self.dataset:
-                dataset = DatasetDef(self.workspace_manager.active.dataset.graph)
+                dataset = DatasetDef(
+                    self.workspace_manager.active.dataset.graph)
                 status, message = dataset.build()
                 if not status:
                     self.update_log(
                         "notif", {"message": message, "ended": True})
                     self.is_training = False
                     return 0
-                self.__dataset__ = dataset.dataset;
+                self._dataset = dataset.dataset
                 self.update_session({
-                    "dataset": self.__dataset__
+                    "dataset": self._dataset
                 })
-
 
             try:
                 self.tfgui.batches = int(
@@ -289,7 +296,8 @@ class Trainer(object):
 
             if self.graph.__callbacks__:
                 for callback in self.graph.__callbacks__:
-                    exec_var, error = execute_code(callback.to_code(self.graph, train=True), gbs=self._session_var)
+                    exec_var, error = execute_code(callback.to_code(
+                        self.graph, train=True), gbs=self._session_var)
                     if not exec_var:
                         self.update_log("error", {
                             "message": error,
@@ -324,7 +332,7 @@ class Trainer(object):
             self.update_log("notif", {"message": "Training Resumed"})
 
     def start(self,) -> None:
-        self.train_thread = Thread(target=self.__train__thread__, )
+        self.train_thread = Thread(target=self._train_thread, )
         self.train_thread.start()
         return True, "Training Started"
 

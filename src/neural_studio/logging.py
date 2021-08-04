@@ -2,6 +2,7 @@ import os
 
 from sys import stdout, exc_info
 from datetime import datetime
+import sys
 
 
 COLORS = {
@@ -25,9 +26,13 @@ BACKGROUNDS = {
     "white": "\u001b[47m",
 }
 
+def set_log_output(output):
+    globals().update({
+        "LOGGER_OUTPUT": output,
+    })
+
 class header:
     color = COLORS.get("white")
-
 
 class info(header):
     color = COLORS.get("blue")
@@ -45,12 +50,20 @@ class Logger:
 
     def __init__(self, name: str= ''):
         self.name = name
+        self.output = globals().get("LOGGER_OUTPUT", stdout)
+
+    def col_size(self,)->int:
+        try:
+            col, _ = os.get_terminal_size()
+        except OSError:
+            col = 80
+        return col
 
     def log(self, msg: str, header: header = header) -> str:
         t = datetime.now().strftime("%Y-%m-%d %X")
         msg = f'[{header.color}{self.name}{COLORS.get("reset")}] {msg}'
-        col, _ = os.get_terminal_size()
-        stdout.write(f'{msg} {" "*(col-len(msg)-len(t))} [{t}]\n')
+        col  = self.col_size()
+        self.output.write(f'{msg} {" "*(col-len(msg)-len(t))} [{t}]\n')
 
     def warning(self, msg:str)->None:
         self.log(msg, warning)

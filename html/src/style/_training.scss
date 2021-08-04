@@ -1,0 +1,363 @@
+@import "./_app.scss";
+
+.training {
+  display: flex;
+
+  .tuner {
+    min-width: 300px;
+    max-width: 300px;
+    width: 300px;
+    .toolbar {
+      width: 100%;
+      height: $topbarHeight;
+      overflow: hidden;
+      border-bottom: $lightBorder3;
+      .controls {
+        width: 100%;
+        height: 100%;
+        @include flex(row, space-around, center);
+
+        .btn {
+          width: 100%;
+          height: $topbarHeight;
+          @include flex();
+
+          svg:hover {
+            fill: $primary;
+          }
+        }
+      }
+    }
+
+    .params {
+      overflow-y: scroll;
+      max-height: calc(100% - 60px);
+      width: 100%;
+      padding: 0px 0px 0px 0px;
+    }
+    .property {
+      padding-left: 5px;
+      .menu {
+        position: relative !important;
+        height: 50%;
+        width: 100%;
+        border: none;
+        overflow-x: hidden;
+      }
+    }
+  }
+}
+
+.logs {
+  overflow-y: scroll;
+  height: auto;
+  max-height: 100%;
+  width: -webkit-fill-available;
+  padding: 10px;
+
+  .title {
+    height: 40px;
+    padding-top: 5px;
+
+    @include flex(row, center, flex-start);
+    @extend .heading-3;
+  }
+
+  .log {
+    width: 100%;
+    background: rgba(228, 228, 228, 0.25);
+    padding: 7px 7px 7px 7px;
+    margin-bottom: 10px;
+    border-radius: 2px;
+  }
+
+  .notif {
+    max-height: 35px;
+    @extend .heading-4;
+  }
+
+  .error {
+    .message {
+      min-height: 30px;
+      background: #fb7d7d;
+      padding: 10px;
+      border-radius: 2px;
+
+      color: rgb(252, 252, 252);
+
+      @include flex(row, flex-start, center);
+      @extend .heading-4;
+      @extend .heading-medium;
+    }
+    pre {
+      padding: 10px;
+      border-radius: 2px;
+    }
+  }
+
+  .epoch {
+    min-height: 80px;
+    @include flex(column, none, none);
+
+    .upper {
+      display: flex;
+      height: 40px;
+      padding: 5px 0px 10px 0px;
+
+      .epochname {
+        min-width: 120px;
+        @include flex(row, flex-start, center);
+        @extend .heading-4;
+      }
+
+      .progress {
+        width: -webkit-fill-available;
+        @include flex();
+
+        .bar {
+          width: 100%;
+          height: 60%;
+          background: rgba(228, 228, 228, 0.3);
+          border-radius: 3px;
+          padding: 3px;
+        }
+
+        .done {
+          background: rgb(87, 158, 87);
+          height: 100%;
+        }
+      }
+    }
+
+    .lower {
+      min-height: 40px;
+      padding-top: 5px;
+      @include flex(row, flex-start, center);
+      .outputs {
+        width: 100%;
+        display: flex;
+        flex-flow: row wrap;
+        align-content: space-between;
+        justify-content: flex-start;
+        .output {
+          padding: 0px 5px 0px 3px;
+          height: 20px;
+          @include flex(row, left, center);
+          @extend .heading-5;
+        }
+      }
+    }
+  }
+}
+
+.monitor-container {
+  @include width($lossmonitorWidth, $lossmonitorWidth, $lossmonitorWidth);
+  padding: 0px 5px 0px 10px;
+  border-left: $lightBorder2;
+
+  .title {
+    height: 30px;
+    margin-top: 10px;
+    cursor: pointer;
+    @include flex();
+    @extend .heading-3;
+  }
+  .monitors {
+    overflow-y: scroll;
+    height: auto;
+    max-height: calc(100% - 50px);
+    padding-right: 5px;
+
+    .plot-container {
+      display: flex !important;
+      width: 100%;
+      padding: 0px;
+      margin-bottom: 10px;
+      .plot {
+        width: 100% !important;
+        .title {
+          fill: $lightColorPr;
+          @extend .heading-4;
+        }
+      }
+      .legend {
+        text{
+          fill: $lightColorPr;
+          @extend .heading-4;
+        }
+      }
+    }
+  }
+}
+
+.tooltipcontainer {
+  position: absolute;
+  padding: 5px;
+  border-radius: 2px;
+
+  color: $darkBg;
+  background: $lightBg;
+  border: $lightBorder3;
+  @extend .heading-4;
+
+  * {
+    color: $darkBg;
+  }
+}
+
+.dark {
+  .context {
+    position: absolute;
+
+    .section {
+      background: $darkFr;
+      border: $darkBorder2;
+      box-shadow: none;
+
+      .option {
+        border-bottom: $lightBorder3;
+        color: $darkColorSc;
+      }
+
+      div:last-child {
+        border: none;
+      }
+    }
+  }
+  .logs {
+    background: rgba(228, 228, 228, 0.05);
+    .title {
+      color: $darkColorPr;
+    }
+    .log {
+      color: $darkColorPr;
+      // border: solid 1px rgba(255, 255, 255, 0.15);
+      border-radius: 1px;
+      .lower {
+        border-top: solid 1px rgba(255, 255, 255, 0.15);
+      }
+    }
+    .error {
+      .message {
+        color: $darkColorPr;
+      }
+      pre {
+        border: solid 1px rgba(228, 228, 228, 0.1);
+        color: $darkColorPr;
+      }
+    }
+    .epoch {
+      .progress {
+        .bar {
+          background: $darkFr;
+          border: $darkBorder2;
+          padding: 3px 3px;
+        }
+      }
+    }
+  }
+  .tuner {
+    background: $darkFr;
+    border-right: $darkBorder2;
+
+    .toolbar {
+      border-bottom: none;
+    }
+
+    .controls {
+      border-bottom: $darkBorder2;
+    }
+  }
+  .monitor-container {
+    background: $darkTr;
+    border-left: $darkBorder2;
+    .title {
+      color: $lightFr;
+    }
+    .monitors {
+      .plot-container {
+      .plot {
+        .title {
+          fill: $darkColorSc;
+        }
+      }
+       .legend {
+        text{
+          fill: $darkColorSc;
+        }
+      }
+    }
+    }
+  }
+}
+
+.light {
+  .logs {
+    .title {
+      color: $lightColorPr;
+    }
+    .log {
+      color: $lightColorPr;
+      border: solid 1px rgba(51, 51, 51, 0.1);
+      .lower {
+        border-top: solid 1px rgba(51, 51, 51, 0.1);
+      }
+    }
+    .error {
+      .message {
+        color: $lightColorPr;
+      }
+      pre {
+        border: solid 1px rgba(51, 51, 51, 0.05);
+        color: $lightColorPr;
+      }
+    }
+    .epoch {
+      .progress {
+        .bar {
+          background: $lightBg;
+          border: $lightBorder3;
+          padding: 3px 3px;
+        }
+      }
+    }
+  }
+  .tuner {
+    background: $lightFr;
+    border-right: $lightBorder1;
+  }
+  .monitor-container {
+    border-left: $lightBorder2;
+    .title {
+      color: $lightColorPr;
+    }
+    .legends {
+      border: $lightBorder2;
+      .legend {
+        .name {
+          color: $lightColorPr;
+        }
+      }
+    }
+    .lossvsmetric {
+      border: $lightBorder2;
+      background-color: $lightFr;
+      .name {
+        color: $lightColorPr;
+      }
+      .graph {
+        svg {
+          text {
+            fill: $lightColorSc;
+          }
+          .axis {
+            stroke: $lightColorTr;
+          }
+          circle {
+            stroke: $lightColorPr;
+          }
+        }
+      }
+    }
+  }
+}
