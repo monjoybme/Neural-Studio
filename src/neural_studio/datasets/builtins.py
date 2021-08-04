@@ -81,12 +81,13 @@ class Mnist(AbsDataset):
             ]
         }
 
-    def pre_process(self, data: dict) -> np.ndarray:
+    def pre_process(self, data: dict, *args, **kwargs) -> np.ndarray:
         image = b64_to_numpy_image(data["image"])
-        image = cv2.resize(image, self.size[:2])
+        image = cv2.resize(
+            image, self.size[:2]) / (255 if self.normalize else 1)
         return image.reshape(1, *self.size)
 
-    def post_inference(self, prediction: np.ndarray) -> dict:
+    def post_inference(self, prediction: np.ndarray, *args, **kwargs) -> dict:
         prediction,  = prediction
         label_class = self.labels[np.argmax(prediction, axis=-1)]
         probabilities = list(map(float, prediction))
@@ -98,7 +99,7 @@ class Mnist(AbsDataset):
             "labels": self.labels
         }
 
-    def pre_process_public(self, form: AbsForm) -> dict:
+    def pre_process_public(self, form: AbsForm, *args, **kwargs) -> dict:
         return {
             "image": b64.b64encode(form.files['image'].content).decode()
          }
@@ -218,12 +219,13 @@ class Cifar10(AbsDataset):
             ]
         }
 
-    def pre_process(self, data: dict) -> np.ndarray:
+    def pre_process(self, data: dict, *args, **kwargs) -> np.ndarray:
         image = b64_to_numpy_image(data["image"])
-        image = cv2.resize(image, self.size[:2])
-        return image.reshape(1, *self.size)
+        image = cv2.resize(
+            image, self.size[:2]) / (255 if self.normalize else 1)
+        return image.reshape(1, *self.size) 
 
-    def post_inference(self, prediction: np.ndarray) -> dict:
+    def post_inference(self, prediction: np.ndarray, *args, **kwargs) -> dict:
         prediction,  = prediction
         label_class = self.labels[np.argmax(prediction, axis=-1)]
         probabilities = list(map(float, prediction))
@@ -235,7 +237,7 @@ class Cifar10(AbsDataset):
             "labels": self.labels
         }
 
-    def pre_process_public(self, form: AbsForm) -> dict:
+    def pre_process_public(self, form: AbsForm, *args, **kwargs) -> dict:
         return {
             "image": b64.b64encode(form.files['image'].content).decode()
          }

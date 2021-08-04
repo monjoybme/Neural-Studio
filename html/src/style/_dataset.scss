@@ -124,6 +124,7 @@ $toolbarWidth: 300px;
       grid-template-columns: 1fr 1fr;
       padding: 10px;
       grid-gap: 10px;
+      max-height: calc(100% - 40px);
 
       .sample {
         height: 100%;

@@ -70,11 +70,17 @@ export const Line = (
             (d * props.plotConfig.plot.height) / maxVal);
         dx = x2;
         dy = y2;
-        return (
+        
+        try{
+          return (
           <g key={i}>
             <circle cx={x1} cy={y1} r={3} className="hover" />
           </g>
         );
+        }catch{
+          return undefined;
+        }
+
       })}
     </g>
   );

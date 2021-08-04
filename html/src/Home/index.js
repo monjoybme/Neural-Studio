@@ -3,6 +3,37 @@ import { metaAppFunctions, metaHome, metaAppData } from "../Meta/index";
 import { icons } from "../data/icons";
 import { get, Loading, post, pull, push, ROOT } from "../Utils";
 
+function _optionPair(option = "Option", problem_types = []) {
+  return {
+    name: option.toLowerCase(),
+    value: option,
+    problems: problem_types,
+  };
+}
+
+const dataTypes = [
+  _optionPair("select", []),
+  _optionPair("image", [
+    "select",
+    "Classification",
+    "ObjectDetection",
+    "Segmentation",
+    "StyleTransfer",
+    "Colorization",
+    "Reconstruction",
+    "SuperResolution",
+  ]),
+  _optionPair("text", [
+    "Classification",
+    "LanguageModeling",
+    "CaptionGeneration",
+    "MachineTranslation",
+    "DocumentSummarization",
+    "QuestionAnswering",
+  ]),
+  _optionPair("csv", ["Classification", "Regression"]),
+];
+
 const WorkspaceCard = (props = { name: "Hello", appData: metaAppData }) => {
   function loadMenu(e) {
     props.appData.popupState(
@@ -43,7 +74,6 @@ const WorkspaceCard = (props = { name: "Hello", appData: metaAppData }) => {
     </div>
   );
 };
-
 
 const DownloadModel = (
   props = {
@@ -139,40 +169,6 @@ const NewCard = (
   );
 };
 
-function _optionPair(option = "Option", problem_types = []) {
-  return {
-    name: option.toLowerCase(),
-    value: option,
-    problems: problem_types,
-  };
-}
-
-const dataTypes = [
-  _optionPair("select", []),
-  _optionPair("image", [
-    "select",
-    "Classification",
-    "ObjectDetection",
-    "Segmentation",
-    "StyleTransfer",
-    "Colorization",
-    "Reconstruction",
-    "SuperResolution",
-  ]),
-  _optionPair("text",[
-    "Classification",
-    "LanguageModeling",
-    "CaptionGeneration",
-    "MachineTranslation",
-    "DocumentSummarization",
-    "QuestionAnswering",
-  ]),
-  _optionPair("csv",[
-    "Classification",
-    "Regression"
-  ]),
-];
-
 const NewWorkspaceWizard = (
   props = {
     appData: metaAppData,
@@ -217,18 +213,17 @@ const NewWorkspaceWizard = (
             <select
               className="options"
               defaultValue={newworkspace.name}
-              onChange={(e) =>{
-                  newworkspaceState({
-                    ...newworkspace,
-                    datatype: e.target.value,
-                  });
-                  dataTypes.forEach((type) => {
-                    if (type.value === e.target.value) {
-                      probtypesState([...type.problems ]);
-                    }
-                  });
-                }
-              }
+              onChange={(e) => {
+                newworkspaceState({
+                  ...newworkspace,
+                  datatype: e.target.value,
+                });
+                dataTypes.forEach((type) => {
+                  if (type.value === e.target.value) {
+                    probtypesState([...type.problems]);
+                  }
+                });
+              }}
             >
               {dataTypes.map((option, i) => {
                 return (
@@ -266,6 +261,14 @@ const NewWorkspaceWizard = (
           </button>
         </div>
       </div>
+    </div>
+  );
+};
+
+const LoadingOverlay = (props) => {
+  return (
+    <div className="loading-overlay">
+      <Loading />
     </div>
   );
 };
@@ -317,23 +320,26 @@ const Home = (
     } else {
       await post({
         path: "/workspace/new",
-        data: data
-      }).then(response=>response.json()).then(response=>{
-        props.appFunctions.notify({
-          message: response.message,
-          type: response.status ? "success" : "error",
-          timeout: 3000,
-        });
-        if (response.status){
-          pullHome()
-          popupState(undefined);
-        }
+        data: data,
       })
+        .then((response) => response.json())
+        .then((response) => {
+          props.appFunctions.notify({
+            message: response.message,
+            type: response.status ? "success" : "error",
+            timeout: 3000,
+          });
+          if (response.status) {
+            pullHome();
+            props.appData.appState({ ...props.appData.app, fetch: true});
+            popupState(undefined);
+          }          
+        });
     }
   }
 
   async function openWorkspace(options = { name: "workspace" }) {
-    popupState(undefined);
+    popupState(<LoadingOverlay />);
     await post({
       path: `/workspace/open/${options.name}`,
       data: {},
@@ -343,6 +349,7 @@ const Home = (
         await pullHome();
         props.appData.app.fetch = true;
         props.appData.appState({ ...props.appData.app });
+        popupState(undefined);
       });
   }
 

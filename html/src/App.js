@@ -46,20 +46,8 @@ const StatusBar = (props = { appData: metaAppData }) => {
   let [usage, usageState] = React.useState({ data: "usage", _init: false });
   let initRef = React.useRef();
 
-  function setTime() {
-    let d = new Date();
-    timeState({
-      data: d.toTimeString(),
-      _init: true,
-    });
-    setTimeout(setTime, 1000);
-  }
-
   React.useState(() => {
     console.log("[status] status init");
-    if (!time._init) {
-      setTime();
-    }
     if (!usage._init) {
       let socket = new WebSocket(`${WSSR}/sys/utilization`);
 
@@ -70,8 +58,14 @@ const StatusBar = (props = { appData: metaAppData }) => {
 
       socket.onmessage = function (event) {
         let data = JSON.parse(event.data);
+        let d = new Date();
+
         socket.send("$");
         usageState({ data: data.usage_string, _init: true });
+        timeState({
+          data: d.toTimeString(),
+          _init: true,
+        });
       };
 
       socket.onclose = function (event) {
@@ -83,7 +77,6 @@ const StatusBar = (props = { appData: metaAppData }) => {
       };
       usageState({ data: "connecting...", _init: true });
     }
-
   }, [time, usage]);
 
   return (
@@ -94,22 +87,10 @@ const StatusBar = (props = { appData: metaAppData }) => {
   );
 };
 
-/**
- * Wrapper for app container area.
- *
- * @param {*} props
- * @returns
- */
 const Container = (props = { appData: metaAppData }) => {
   return <div className="container-area">{props.children}</div>;
 };
 
-/**
- * Wrapper for main area.
- *
- * @param {*} props
- * @returns
- */
 const Main = (props = { appData: metaAppData }) => {
   return (
     <div className={`app ${props.appData.app.theme}`}>{props.children}</div>
@@ -285,26 +266,23 @@ const App = (props) => {
     };
   });
 
-  React.useEffect(
-    function () {
-      if (app.fetch) {
-        pull({ name: "app" }).then((app_data) => {
-          appState({
-            ...app_data,
-            fetch: false,
-          });
+  React.useEffect(function () {
+    if (app.fetch) {
+      pull({ name: "app" }).then((app_data) => {
+        appState({
+          ...app_data,
+          fetch: false,
         });
-      } else {
-        push({
-          name: "app",
-          data: app,
-        }).then((response) => {
-          loadState(false);
-        });
-      }
-    },
-    [app]
-  );
+      });
+    } else {
+      push({
+        name: "app",
+        data: app,
+      }).then((response) => {
+        loadState(false);
+      });
+    }
+  },[app]);
 
   return (
     <Main {...appProps}>

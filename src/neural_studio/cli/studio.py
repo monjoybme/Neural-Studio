@@ -51,9 +51,9 @@ from sklearn.model_selection import train_test_split
 from tqdm.cli import tqdm
 from tensorflow import keras
 from tensorflow.keras import (
-    applications, 
-    callbacks, 
-    layers, 
+    applications,
+    callbacks,
+    layers,
     losses,
     optimizers
 )
@@ -66,10 +66,10 @@ from neural_studio.manage import Workspace, WorkspaceManager
 from neural_studio.structs import DataDict
 from neural_studio.trainer import OutputVisualizer, Trainer
 from neural_studio.utils import (
-    b64_to_numpy_image, 
-    download_options, 
-    generate_args, 
-    get_hardware_utilization, 
+    b64_to_numpy_image,
+    download_options,
+    generate_args,
+    get_hardware_utilization,
     embed_root
 )
 
@@ -77,7 +77,6 @@ from pyrex import App, Lith, Request, json_response, text_response, send_file, t
 from pyrex.core.websocket import WebSocketServer
 from pyrex.frontend import ServeHTML, ServeStatic
 from pyrex.core.headers import ResponseHeader, content_length, content_type, access_control_allow_origin
-
 
 
 """
@@ -88,7 +87,7 @@ TODO
 if "-log-file" in sys.argv:
     set_log_output(
         open(
-            pathlib.abspath(sys.argv[sys.argv.index("-log-file") + 1]), 
+            pathlib.abspath(sys.argv[sys.argv.index("-log-file") + 1]),
             "w+"
         )
     )
@@ -151,6 +150,7 @@ if "--no-cached-dataset" not in sys.argv:
         status, message = dataset.build()
         if status:
             workspace_manager.dataset = dataset
+            trainer._dataset = dataset.dataset
             trainer.update_session({
                 "dataset": dataset.dataset
             })
@@ -247,7 +247,7 @@ async def _sys_path(request: Request) -> types.dict:
 
 @lith_sys.get("/utilization")
 async def _sys_utilization(request: Request) -> types.websocketserver:
-    server = WebSocketServer(request) 
+    server = WebSocketServer(request)
     server_id = hash(server.secret_key)
     logger.log(f"initializing utilization socket {{{server_id}}}.")
     with server:
@@ -317,11 +317,38 @@ async def _workspace_new(request: Request) -> types.dict:
 @lith_workspace.post("/open/<str:name>")
 async def _workspace_open(request: Request, name: str) -> types.dict:
     workspace_manager.open_workspace(name)
-    assert workspace_manager.active.idx == name
-    return {
-        "status": True,
-    }
+    if workspace_manager.active.idx == name:
+        logger.log("loading cached model")
+        try:
+            trainer._model = keras.models.load_model(
+                pathlib.join(workspace_manager.active.path, "last_trained.h5"))
+        except Exception as e:
+            logger.sys_error(e)
+        try:
+            logger.log("Building cached dataset")
+            dataset = DatasetDef(workspace_manager[["active:dataset:graph"]])
+            status, message = dataset.build()
+            if status:
+                workspace_manager.dataset = dataset
+                trainer._dataset = dataset.dataset
+                trainer.update_session({
+                    "dataset": dataset.dataset
+                })
+                trainer.__dataset__ = dataset
+                logger.success(
+                    f"Loaded : {{ { dataset.dataset.__class__.__name__ } }}")
+            else:
+                logger.error(message)
+        except Exception as e:
+            logger.sys_error(e)
 
+        return {
+            "status": True,
+        }
+
+    return {
+        "status": False,
+    }
 
 @lith_workspace.post("/delete/<str:name>")
 async def _workspace_new(request: Request, name: str) -> types.dict:
@@ -370,7 +397,7 @@ async def _dataset_build(request: Request) -> types.dict:
         trainer.update_session({
             "dataset": dataset.dataset
         })
-        trainer.__dataset__ = dataset.dataset
+        trainer._dataset = dataset.dataset
         logger.success(
             f"Build dataset {{ { dataset.dataset.__class__.__name__ } }}")
         return {"status": True, "message": "Dataset Built Succesfully"}
@@ -422,7 +449,7 @@ async def _model_infer(request: Request) -> types.dict:
     prediction_data = workspace_manager.dataset.dataset.pre_process(data)
     prediction = trainer.infer(prediction_data)
     response_data = workspace_manager.dataset.dataset.post_inference(
-        prediction)
+        prediction, prediction_data=prediction_data, request_data=data)
     return {
         "status": True,
         "data": response_data
