@@ -14,7 +14,6 @@ function _optionPair(option = "Option", problem_types = []) {
 const dataTypes = [
   _optionPair("select", []),
   _optionPair("image", [
-    "select",
     "Classification",
     "ObjectDetection",
     "Segmentation",
@@ -331,9 +330,9 @@ const Home = (
           });
           if (response.status) {
             pullHome();
-            props.appData.appState({ ...props.appData.app, fetch: true});
+            props.appData.appState({ ...props.appData.app, fetch: true });
             popupState(undefined);
-          }          
+          }
         });
     }
   }

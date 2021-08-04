@@ -53,7 +53,10 @@ class Mnist(AbsDataset):
         self.train_y = keras.utils.to_categorical(Y)
         self.test_x = x.reshape(-1,  *size) / (255. if normalize else 1.)
         self.test_y = keras.utils.to_categorical(y)
+        
         self.size = size
+        self.normalize = normalize
+
         self.labels = [
             "0",
             "1",
@@ -156,8 +159,6 @@ class BostonHousing(AbsDataset):
             ]
         }
 
-
-
 class Cifar10(AbsDataset):
     """
     Dataset will be used in training 
@@ -191,7 +192,10 @@ class Cifar10(AbsDataset):
         self.train_y = keras.utils.to_categorical(Y.reshape(-1,1))
         self.test_x = x.reshape(-1, *size) / (255. if normalize else 1.)
         self.test_y = keras.utils.to_categorical(y.reshape(-1,1))
+        
         self.size = size
+        self.normalize = normalize
+        
         self.labels = [
             "airplane",
             "automobile",
@@ -278,6 +282,8 @@ class Cifar100(AbsDataset):
         self.test_y = keras.utils.to_categorical(y)
 
         self.size = size
+        self.normalize = normalize
+
         self.labels = [
             'apple', 'aquarium_fish', 'baby', 'bear', 'beaver', 'bed', 'bee', 
             'beetle', 'bicycle', 'bottle', 'bowl', 'boy', 'bridge', 'bus', 
@@ -348,6 +354,8 @@ class FashionMnist(AbsDataset):
         self.test_y = keras.utils.to_categorical(y)
 
         self.size = size
+        self.normalize = normalize
+
         self.labels = [
             "T-shirt/top",
             "Trouser",
