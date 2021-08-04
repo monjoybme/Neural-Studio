@@ -1,8 +1,10 @@
 import React from "react";
 
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import { TopBar, SideBar } from "./NavBar";
 import { Notification, get, Loading, pull, push, WSSR } from "./Utils";
 import { metaSideNav, metaApp, metaAppData, metaRender } from "./Meta";
+import { icons } from "./data/icons";
 
 import "./style/_app.scss";
 import "./style/_nav.scss";
@@ -15,32 +17,23 @@ import "./style/_summary.scss";
 import "./style/_utils.scss";
 import "./style/_inference.scss";
 
-/**
- * It creates pop up overlays for custom pop up components.
- *
- * @param {object} props
- * @returns
- */
-const PopUp = (props = { appData: metaAppData }) => {
-  return <>{props.appData.popup}</>;
+const Logo = icons.Logo;
+
+const LoadingOverlay = (props) => {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+      className="container loaddata"
+    >
+      <Loading />
+    </div>
+  );
 };
 
-/**
- * Creates a pop up notification.
- *
- * @param {*} props
- * @returns
- */
-const NotificationPop = (props = { appData: metaAppData }) => {
-  return <>{props.appData.notification.comp}</>;
-};
-
-/**
- * Displays active workspace status.
- *
- * @param {*} props
- * @returns
- */
 const StatusBar = (props = { appData: metaAppData }) => {
   let [time, timeState] = React.useState({ data: "time", _init: false });
   let [usage, usageState] = React.useState({ data: "usage", _init: false });
@@ -59,13 +52,14 @@ const StatusBar = (props = { appData: metaAppData }) => {
       socket.onmessage = function (event) {
         let data = JSON.parse(event.data);
         let d = new Date();
-
-        socket.send("$");
         usageState({ data: data.usage_string, _init: true });
         timeState({
           data: d.toTimeString(),
           _init: true,
         });
+        if (initRef.current) {
+          socket.send("$");
+        }
       };
 
       socket.onclose = function (event) {
@@ -75,110 +69,49 @@ const StatusBar = (props = { appData: metaAppData }) => {
       socket.onerror = function (error) {
         console.log(`[socket] ${error.message}`);
       };
+
       usageState({ data: "connecting...", _init: true });
     }
   }, [time, usage]);
 
   return (
     <div className="statusbar" ref={initRef}>
-      {props.appData.statusbar.toLowerCase()} | workspace :{" "}
-      {props.appData.app.name} | {time.data} | {usage.data}
+      {time.data} | {usage.data}
     </div>
   );
 };
 
-const Container = (props = { appData: metaAppData }) => {
-  return <div className="container-area">{props.children}</div>;
-};
-
-const Main = (props = { appData: metaAppData }) => {
-  return (
-    <div className={`app ${props.appData.app.theme}`}>{props.children}</div>
-  );
-};
-
 const App = (props) => {
-  let [app, appState] = React.useState(metaApp); // contains global app data.
-  let [nav, navState] = React.useState(metaSideNav); //  contains navbar and active work area information.
-  let [popup, popupState] = React.useState(<></>);
-  let [statusbar, statusbarState] = React.useState("status bar");
-  let [notification, notificationState] = React.useState(<></>);
-  let [render, renderState] = React.useState(metaRender);
-  let [load, loadState] = React.useState(true);
+  let [app, appState] = React.useState(metaApp);
+  let [navbar, navbarState] = React.useState(metaSideNav);
+  let [popUp, popUpState] = React.useState(undefined);
+  let [notification, notificationState] = React.useState(undefined);
 
   const appData = {
     app: app,
     appState: appState,
-    nav: nav,
-    navState: navState,
-    popup: popup,
-    popupState: popupState,
-    statusbar: statusbar,
-    statusbarState: statusbarState,
-    notification: notification,
-    notificationState: notificationState,
-    render: render,
-    renderState: renderState,
-    load: load,
-    loadState: loadState,
-  };
-
-  const appFunctions = {
-    downloadCode: async function (e) {
-      await get({
-        path: "/model/code",
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          let link = document.createElement("a");
-          link.href = `data:text/x-python,${encodeURIComponent(data.code)}`;
-          link.download = "train.py";
-          link.click();
-        });
-    },
-    updateStatus: function (options = { text: "Notification" }) {
-      let { text } = options;
-      statusbarState(text);
-    },
+    popUpState: popUpState,
     notify: function (
       options = { name: "test", message: "Hello", timeout: 3000, type: "info" }
     ) {
-      notificationState({ comp: undefined });
-      notificationState({
-        comp: (
-          <Notification
-            {...options}
-            notificationState={notificationState}
-            timeout={options.timeout ? options.timeout : 3000}
-            type={options.type ? options.type : "info"}
-          />
-        ),
-      });
+      notificationState(undefined);
+      notificationState(
+        <Notification
+          {...options}
+          notificationState={notificationState}
+          timeout={options.timeout ? options.timeout : 3000}
+          type={options.type ? options.type : "info"}
+        />
+      );
     },
-    getappconfig: function () {
-      return app;
-    },
-    loadState: loadState,
   };
 
-  let appProps = {
-    appData: appData,
-    appFunctions: appFunctions,
-  };
-
-  const LoadingData = (props) => {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-        className="container loaddata"
-      >
-        <Loading />
-      </div>
-    );
+  const updateNav = (button) => {
+    navbar = metaSideNav.map((comp) => {
+      comp.selected = comp.name === button;
+      return comp;
+    });
+    navbarState(navbar);
   };
 
   React.useEffect(function () {
@@ -195,7 +128,7 @@ const App = (props) => {
               break;
             case "d":
               e.preventDefault();
-              appFunctions.downloadCode();
+              // appFunctions.downloadCode();
               break;
             case "Escape":
               e.preventDefault();
@@ -250,8 +183,11 @@ const App = (props) => {
               window.__SHORTCUT__ = 2;
               break;
             case "Escape":
-              popupState(<div className="popup"></div>);
-              if (render.name === "Graph" || render.name === "Dataset") {
+              popUpState(<div className="popup"></div>);
+              if (
+                window.location.pathname === "/graph" ||
+                window.location.pathname === "/dataset"
+              ) {
                 window.setToolMode({ name: "normal" });
               }
               break;
@@ -266,35 +202,73 @@ const App = (props) => {
     };
   });
 
-  React.useEffect(function () {
-    if (app.fetch) {
-      pull({ name: "app" }).then((app_data) => {
-        appState({
-          ...app_data,
-          fetch: false,
+  React.useEffect(
+    function () {
+      if (app.fetch) {
+        pull({ name: "app" }).then((app_data) => {
+          appState({
+            ...app_data,
+            fetch: false,
+          });
         });
-      });
-    } else {
-      push({
-        name: "app",
-        data: app,
-      }).then((response) => {
-        loadState(false);
-      });
-    }
-  },[app]);
+      } else {
+        push({
+          name: "app",
+          data: app,
+        }).then((response) => {});
+      }
+    },
+    [app]
+  );
 
   return (
-    <Main {...appProps}>
-      <SideBar {...appProps} />
-      <Container {...appProps}>
-        <TopBar {...appProps} />
-        {load ? <LoadingData /> : <render.comp {...appProps} />}
-        {load ? undefined : <StatusBar {...appProps} />}
-      </Container>
-      <PopUp {...appProps} />
-      <NotificationPop {...appProps} />
-    </Main>
+    <div className={`app ${app.theme}`}>
+      <Router>
+        <div className="sidenav">
+          <div className="nav">
+            <div className="title">
+              <Logo />
+            </div>
+            <div className="navigation">
+              {navbar.map((button, i) => {
+                let Icon = button.icon;
+                return (
+                  <div
+                    key={i}
+                    className={button.selected ? "btn selected" : "btn"}
+                  >
+                    <Link to={button.path}>
+                      <Icon
+                        fill={
+                          button.selected ? "white" : "rgba(255,255,255,0.3)"
+                        }
+                        onClick={(e) => updateNav(button.name)}
+                      />
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        <div className="container-area">
+          <TopBar appData={appData} />
+          {metaSideNav.map((item, i) => {
+            let Component = item.comp;
+            return (
+              <Route key={i} path={item.path} exact>
+                <Component appData={appData} />
+              </Route>
+            );
+          })}
+        </div>
+      </Router>
+      <StatusBar />
+      <>
+        {popUp}
+        {notification}
+      </>
+    </div>
   );
 };
 

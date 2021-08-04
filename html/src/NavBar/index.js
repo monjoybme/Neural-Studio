@@ -1,39 +1,27 @@
 import React from 'react';
-
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import { icons } from '../data/icons';
 import { metaAppFunctions, metaAppData } from '../Meta';
 
+
 const SideBar = ( props = { appData: metaAppData }) => {
   let Logo = icons.Logo;
-  let { nav, navState, renderState } = props.appData;
-
-  function loadComp(button) {
-    nav = nav.map((btn) => {
-      btn.selected = btn.name === button.name;
-      if (btn.selected) {
-        renderState({
-          ...btn,
-        });
-      }
-      return btn;
-    });
-    navState([...nav]);
-  }
 
   return (
-    <div className="sidenav">
-      <div className="nav">
-        <div className="title">
-          <Logo />
-        </div>
-        <div className="navigation">
-          {nav.map((button, i) => {
+    <Router>
+      <div className="sidenav">
+        <div className="nav">
+          <div className="title">
+            <Logo />
+          </div>
+          <div className="navigation">
+            {[].map((button, i) => {
             let Icon = button.icon;
             return (
               <div
                 key={i}
                 className={button.selected ? "btn selected" : "btn"}
-                onClick={(e) => loadComp(button)}
+                onClick={function(){}}
               >
                 <Icon
                   fill={button.selected ? "white" : "rgba(255,255,255,0.3)"}
@@ -41,21 +29,21 @@ const SideBar = ( props = { appData: metaAppData }) => {
               </div>
             );
           })}
+          </div>
         </div>
       </div>
-    </div>
+    </Router>
   );
 };
 
 const TopBar = (
-  props = { appData: metaAppData,  appFunctions : metaAppFunctions }
+  props = { appData: metaAppData }
 ) => {
-  let { app, appState, render } = props.appData;
-
+  let  { app, appState } = props.appData;
   return (
     <div className="topbar">
       <div className="title" id="context-title">
-        {render.name}
+        { app.name }
       </div>
       <div className="cmenupar"></div>
       <div

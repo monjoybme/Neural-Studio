@@ -56,7 +56,7 @@
 
   .title {
     height: $topbarHeight;
-    width: $topbarHeight;
+    width: max-content;
     
     @extend .grid-center;
     @extend .heading-2;
@@ -95,10 +95,12 @@
 }
 
 .statusbar {
+  position: absolute;
+  top: calc(100vh - 20px);
+  left: $sidebarWidth;
   height: $statusBarHeight;
   width: 100%;
   border-top : $lightBorder3;
-
   padding-left: 3px;
 
   @include flex(row, flex-start, center);

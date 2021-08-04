@@ -35,11 +35,11 @@ const dataTypes = [
 
 const WorkspaceCard = (props = { name: "Hello", appData: metaAppData }) => {
   function loadMenu(e) {
-    props.appData.popupState(
+    props.appData.popUpState(
       <div
         className="workspace-card-context"
         style={{ top: e.clientY - 5, left: e.clientX - 5, cursor: "default" }}
-        onMouseLeave={(e) => props.appData.popupState(<div></div>)}
+        onMouseLeave={(e) => props.appData.popUpState(<div></div>)}
       >
         <div
           className="btn"
@@ -98,7 +98,7 @@ const DownloadModel = (
             <div className="option output">
               <a
                 href={`${ROOT}/workspace/download/${download}`}
-                onClick={(e) => props.appData.popupState(<div></div>)}
+                onClick={(e) => props.appData.popUpState(<div></div>)}
                 download={download}
               >
                 {" "}
@@ -172,7 +172,7 @@ const NewWorkspaceWizard = (
   props = {
     appData: metaAppData,
     appFunctions: metaAppFunctions,
-    popupState: function () {},
+    popUpState: function () {},
     createWorkspace: function () {},
   }
 ) => {
@@ -188,7 +188,7 @@ const NewWorkspaceWizard = (
       <div className="card">
         <div className="title">
           New Worksapce
-          <span className="close" onClick={(e) => props.popupState(undefined)}>
+          <span className="close" onClick={(e) => props.popUpState(undefined)}>
             ❌
           </span>
         </div>
@@ -275,10 +275,9 @@ const LoadingOverlay = (props) => {
 const Home = (
   props = {
     appData: metaAppData,
-    appFunctions: metaAppFunctions,
   }
 ) => {
-  let { popupState } = props.appData;
+  let { popUpState, notify } = props.appData;
   let [home, homeState] = React.useState(metaHome);
 
   async function pullHome() {
@@ -299,19 +298,19 @@ const Home = (
     data = { name: "workspace", datatype: "select", problemtype: "select" }
   ) {
     if (data.name === "") {
-      props.appFunctions.notify({
+      notify({
         message: "Please enter workspace name !",
         type: "error",
         timeout: 3000,
       });
     } else if (data.datatype === "select") {
-      props.appFunctions.notify({
+      notify({
         message: "Please select data type !",
         type: "error",
         timeout: 3000,
       });
     } else if (data.problemtype === "select") {
-      props.appFunctions.notify({
+      notify({
         message: "Please select problem type !",
         type: "error",
         timeout: 3000,
@@ -323,7 +322,7 @@ const Home = (
       })
         .then((response) => response.json())
         .then((response) => {
-          props.appFunctions.notify({
+          notify({
             message: response.message,
             type: response.status ? "success" : "error",
             timeout: 3000,
@@ -331,14 +330,14 @@ const Home = (
           if (response.status) {
             pullHome();
             props.appData.appState({ ...props.appData.app, fetch: true });
-            popupState(undefined);
+            popUpState(undefined);
           }
         });
     }
   }
 
   async function openWorkspace(options = { name: "workspace" }) {
-    popupState(<LoadingOverlay />);
+    popUpState(<LoadingOverlay />);
     await post({
       path: `/workspace/open/${options.name}`,
       data: {},
@@ -348,14 +347,14 @@ const Home = (
         await pullHome();
         props.appData.app.fetch = true;
         props.appData.appState({ ...props.appData.app });
-        popupState(undefined);
+        popUpState(undefined);
       });
   }
 
   async function deleteWorkspace(options = { name: "workspace" }) {
-    popupState(undefined);
+    popUpState(undefined);
     if (options.name === home.active.name) {
-      props.appFunctions.notify({
+      notify({
         message: "Cannot delete active workspace.",
         type: "error",
       });
@@ -366,7 +365,7 @@ const Home = (
       })
         .then((response) => response.json())
         .then(async function (data) {
-          props.appFunctions.notify({
+          notify({
             message: data.message,
             type: data.status ? "success" : "error",
             timeout: 3000,
@@ -398,16 +397,8 @@ const Home = (
           <div className="name">
             <icons.Save onClick={(e) => props.appFunctions.autosave()} />
             <icons.Code onClick={(e) => props.appFunctions.downloadCode()} />
-            <icons.Download
-              onClick={(e) => {
-                popupState(<DownloadModel {...props} />);
-              }}
-            />
-            <icons.Delete
-              onClick={(e) => {
-                deleteWorkspace({ name: home.active.name });
-              }}
-            />
+            <icons.Download onClick={(e) => {popUpState(<DownloadModel {...props} />)}}/>
+            <icons.Delete onClick={(e) => { deleteWorkspace({ name: home.active.name })}}/>
           </div>
         </div>
       </div>
@@ -416,9 +407,9 @@ const Home = (
         <div className="cards">
           <NewCard
             openWizard={function () {
-              popupState(
+              popUpState(
                 <NewWorkspaceWizard
-                  popupState={popupState}
+                  popUpState={popUpState}
                   createWorkspace={newWorkspace}
                 />
               );
@@ -440,5 +431,7 @@ const Home = (
     </div>
   );
 };
+
+
 
 export default Home;

@@ -194,7 +194,7 @@ const GraphEditor = (
     })
       .then((response) => response.json())
       .then((data) => {
-        props.appFunctions.notify({
+        props.appData.notify({
           message: data.message,
           type: data.status ? "success" : "error",
         });
@@ -370,7 +370,7 @@ const GraphEditor = (
         case "build_tools":
           let comp = window.canvas.activeLayer.type.name.toLowerCase();
           if (graph.train_config[comp]) {
-            props.appFunctions.notify({
+            props.appData.notify({
               message: `${window.canvas.activeLayer.type.name} node already exists for this graph ! `,
             });
           } else {
@@ -543,7 +543,7 @@ const GraphEditor = (
           removeNode(activeElement);
           break;
         default:
-          props.appFunctions.notify({
+          props.appData.notify({
             message: `Add delete method for : ${window.canvas.activeElement.type.object_class}`,
           });
           break;

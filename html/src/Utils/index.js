@@ -72,7 +72,7 @@ export const Notification = (
       if (ref.current) {
         ref.current.setAttribute("class", "notification nout");
         setTimeout(function () {
-          props.notificationState({ comp: undefined });
+          props.notificationState(undefined);
         }, 500);
       }
     }, props.timeout);

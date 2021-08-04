@@ -6,7 +6,6 @@ import LayerGroups from "./layergroups";
 import metaDatasetGroups from "../data/datasets";
 
 import {
-  metaAppFunctions,
   metaGraph,
   metaAppData,
 } from "../Meta";
@@ -169,13 +168,13 @@ const dataViewers = {
 
 const GraphEditor = (
   props = {
-    appData: { ...metaAppData },
-    appFunctions: metaAppFunctions,
+    appData: metaAppData
   }
 ) => {
   let refCanvas = React.useRef();
   let refCanvasTop = React.useRef();
   let refDummyLine = React.useRef();
+
   let [graph, graphState] = React.useState(metaDataset);
   let [layergroups, layergroupsState] = React.useState(metaDatasetGroups);
   let [menu, menuState] = React.useState({ comp: <div />, render: false });
@@ -208,7 +207,7 @@ const GraphEditor = (
     })
       .then((response) => response.json())
       .then((data) => {
-        props.appFunctions.notify({
+        props.appData.notify({
           message: data.message,
           type: data.status ? "success" : "error", 
         });
@@ -235,7 +234,7 @@ const GraphEditor = (
             ),
           });  
         } else {
-          props.appFunctions.notify({
+          props.appData.notify({
             message: data.message,
             type: "error",
           });
@@ -480,7 +479,7 @@ const GraphEditor = (
           graphState({ ...graph });
           break;
         default:
-          props.appFunctions.notify({
+          props.appData.notify({
             message: `Add delete method for : ${window.canvas.activeElement.type.object_class}`,
           });
           break;
