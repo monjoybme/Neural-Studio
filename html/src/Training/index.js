@@ -108,7 +108,7 @@ const Training = (
 
   async function trainModel(e) {
     if (istraining.state) {
-      props.appFunctions.notify({
+      props.appData.notify({
         message: "Training Session Already Running",
       });
     } else {
@@ -122,7 +122,7 @@ const Training = (
       istrainingState({
         state: true,
       });
-      props.appFunctions.notify({
+      props.appData.notify({
         message: "Training Started !",
       });
       await post({
@@ -131,7 +131,7 @@ const Training = (
       })
         .then((response) => response.json())
         .then((data) => {
-          props.appFunctions.notify({ message: data.message });
+          props.appData.notify({ message: data.message });
           statusSocket();
         });
     }
@@ -148,13 +148,13 @@ const Training = (
       if (halt.state) {
         halt.name = "Resume";
         halt.state = false;
-        props.appFunctions.notify({
+        props.appData.notify({
           message: "Training paused !",
         });
       } else {
         halt.name = "Pause";
         halt.state = true;
-        props.appFunctions.notify({
+        props.appData.notify({
           message: "Training resumed !",
         });
       }
@@ -162,7 +162,7 @@ const Training = (
         ...halt,
       });
     } else {
-      props.appFunctions.notify({
+      props.appData.notify({
         message: "Can't halt, Training has not started !",
       });
     }
@@ -179,13 +179,15 @@ const Training = (
           istrainingState({
             state: false,
           });
-          props.appFunctions.notify({
+          props.appData.notify({
             message: "Training has stopped !",
+            type: "info"
           });
         });
     } else {
-      props.appFunctions.notify({
+      props.appData.notify({
         message: "Can't stop, Training has not started !",
+        type: "error"
       });
     }
   }

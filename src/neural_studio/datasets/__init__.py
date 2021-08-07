@@ -1,6 +1,8 @@
 from .image import *
+from .text import *
 from .builtins import *
-from ..abc import AbsDataset
+
+from neural_studio.abc import AbsDataset
 
 class Dataset(AbsDataset):
     """

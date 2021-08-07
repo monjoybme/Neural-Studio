@@ -70,6 +70,8 @@ class ImageClassificationDatasetFromDirectory(AbsDataset):
     train_y = None
     test_y = None
 
+    multiclass: bool
+
     def __init__(self,
                  root: str,
                  size: tuple,
@@ -108,6 +110,7 @@ class ImageClassificationDatasetFromDirectory(AbsDataset):
         self.n_labels = len(self.labels)
 
         if self.n_labels > 2:
+            self.multiclass = True
             self.train_y = keras.utils.to_categorical(
                 np.array([
                     self.labels.index(label)
@@ -124,6 +127,7 @@ class ImageClassificationDatasetFromDirectory(AbsDataset):
             )
             self.output_shape = (self.size, self.n_labels)
         else:
+            self.multiclass = False
             p, n = self.labels
             self.train_y = (
                 np.array([self.train_labels]) == p).astype(np.uint8)
@@ -185,7 +189,8 @@ class ImageClassificationDatasetFromDirectory(AbsDataset):
             "data": [
                 {
                     "image": numpy_image_to_b64(self.train_x[idx].reshape(*self.size)[:, :, ::-1]),
-                    "class": self.labels[self.train_y[idx].argmax(-1)]
+                    "class": self.labels[self.train_y[idx].argmax(-1) if self.multiclass else self.train_y[idx]]
+
                 }
                 for idx
                 in np.random.randint(0, len(self.train_x), n)

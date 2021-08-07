@@ -1,4 +1,4 @@
-from ..abc import AbsDataset
+from neural_studio.abc import AbsDataset
 
 __all__ = [
     "Classification",

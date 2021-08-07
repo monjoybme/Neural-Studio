@@ -162,12 +162,19 @@ const datasets = {
     name: "Text",
     layers: [
       {
-        name: "Classification",
+        name: "ClassificationFromDirectory",
         type: {
-          name: "LanguageModeling",
+          name: "TextClassificationFromDirectory",
           object_class: "dataset",
         },
-        arguments: {},
+        arguments: {
+          root: {
+            value: "required",
+            type: "str",
+            render: "path",
+            options: "root",
+          },
+        },
       },
       {
         name: "ImageCaptioning",
@@ -335,6 +342,21 @@ const datasets = {
         },
       },
     ],
+  },
+  text_preprocessors:{
+    name: "Text Preprocessing",
+    layers:[
+      {
+        name: "Regex",
+        type:{
+          object_class: "preprocessors",
+          name: "Regex"
+        },
+        arguments:{
+          
+        }
+      }
+    ]
   },
   cross_validation: {
     name: "Cross Validation",

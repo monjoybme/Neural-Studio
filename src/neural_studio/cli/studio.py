@@ -163,7 +163,7 @@ if "--no-cached-dataset" not in sys.argv:
         logger.sys_error(e)
 
 
-@app.get("/",)
+@app.get("/")
 async def _index(request: Request) -> types.template:
     '''
     index page
@@ -184,6 +184,26 @@ async def _index(request: Request) -> types.template:
         response = response @ content
     return response
 
+@app.get("/<str:interface>",)
+async def _index(request: Request, interface: str) -> types.template:
+    '''
+    index page
+
+    :param request: Request
+    :return: template    
+    '''
+    file = html_serve.get_path_for("index.html")
+    with open(file, "rb") as template:
+        content = template.read().decode()
+        content = embed_root(content)
+        response = ResponseHeader() | 200
+        response.update(
+            content_length(len(content)),
+            content_type("html"),
+            access_control_allow_origin(),
+        )
+        response = response @ content
+    return response
 
 @app.get("/favicon.ico",)
 async def _ico(request: Request) -> types.file:

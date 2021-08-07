@@ -33,7 +33,7 @@ class AbsDataset:
     Abstract Dataset
     """
     labels: List[str]
-    train_X: np.ndarray
+    train_x: np.ndarray
     train_y: np.ndarray
     test_x: np.ndarray
     test_y: np.ndarray

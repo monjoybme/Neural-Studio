@@ -1,17 +1,18 @@
 import React from "react";
-
-import { Node, calculateEdge } from "./node";
 import Toolbar from "./toolbar";
 import LayerGroups from "./layergroups";
 import metaDatasetGroups from "../data/datasets";
 
+import { Node, calculateEdge } from "./node";
 import {
   metaGraph,
   metaAppData,
 } from "../Meta";
+import imageDataViewers from './Viewers/image';
+import textDataViewers from './Viewers/text';
 
 import { icons } from "../data/icons";
-import { get,  pull, push } from "../Utils";
+import { get,  Loading,  pull, push } from "../Utils";
 
 let cursors = {
   edge: "crosshair",
@@ -82,88 +83,16 @@ const metaDataset = {
 };
 
 const dataViewers = {
-  image: {
-    Classification: (props = { data: [], menuState: undefined }) => {
-      const Sample = (props) => {
-        return (
-          <div className="sample">
-            <div className="label">{props.class}</div>
-            <img src={props.image} alt={''} />
-          </div>
-        );
-      };
-      return (
-        <div className="viewer">
-          <div className="head">
-            <div className="name">Image Viewer</div>
-            <div className="buttons">
-              <div className="btn" onClick={props.reload}>
-                Reload
-              </div>
-              <div
-                className="btn"
-                onClick={(e) => {
-                  props.menuState({
-                    render: false,
-                    comp: undefined,
-                  });
-                }}
-              >
-                Exit
-              </div>
-            </div>
-          </div>
-          <div className="image classification">
-            {props.data.map((sample, i) => {
-              return <Sample {...sample} key={i} />;
-            })}
-          </div>
-        </div>
-      );
-    },
-    Segmentation: (props = { data: [], menuState: undefined }) => {
-      const Sample = (props) => {
-        return (
-          <div className="sample">
-            <div>
-              <img src={props.image} alt={''} />
-            </div>
-            <div>
-              <img src={props.mask} alt={''} />
-            </div>
-          </div>
-        );
-      };
-      return (
-        <div className="viewer">
-          <div className="head">
-            <div className="name">Image Viewer</div>
-            <div className="buttons">
-              <div className="btn" onClick={props.reload}>
-                Reload
-              </div>
-              <div
-                className="btn"
-                onClick={(e) => {
-                  props.menuState({
-                    render: false,
-                    comp: undefined,
-                  });
-                }}
-              >
-                Exit
-              </div>
-            </div>
-          </div>
-          <div className="image segmentation">
-            {props.data.map((sample, i) => {
-              return <Sample {...sample} key={i} />;
-            })}
-          </div>
-        </div>
-      );
-    },
-  },
+  image: imageDataViewers,
+  text: textDataViewers
+};
+
+const LoadingOverlay = (props) => {
+  return (
+    <div className="loading-overlay">
+      <Loading />
+    </div>
+  );
 };
 
 const GraphEditor = (
@@ -202,11 +131,13 @@ const GraphEditor = (
   ]);
 
   async function buildDataset() {
+    props.appData.popUpState(<LoadingOverlay />);
     await get({
       path: "/dataset/build",
     })
       .then((response) => response.json())
       .then((data) => {
+        props.appData.popUpState(undefined);
         props.appData.notify({
           message: data.message,
           type: data.status ? "success" : "error", 
