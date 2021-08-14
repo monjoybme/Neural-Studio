@@ -339,6 +339,7 @@ const GraphEditor = (
   function newLayer(e) {
     e.preventDefault();
     if (e.button) {
+
     } else {
       let layer = window.copy(window.canvas.activeLayer);
       let { name, id } = layerIdGenerator(layer.name);
@@ -361,6 +362,7 @@ const GraphEditor = (
         offsetX: Math.floor(node.width / 2),
         offsetY: 15,
       };
+
 
       switch (window.canvas.activeLayer.type.object_class) {
         case "optimizers":
@@ -391,6 +393,7 @@ const GraphEditor = (
             definition: node,
             node: undefined,
           };
+          graph.nodes[id] = node;
           break
         default:
           graph.nodes[id] = node;

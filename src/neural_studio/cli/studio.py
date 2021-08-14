@@ -1,6 +1,6 @@
 import sys
 
-__version__ = "0.0.6"
+__version__ = "0.0.9"
 __help__ = f"""
 Neural Studio {__version__} 
 
@@ -36,16 +36,18 @@ from webbrowser import open as open_url
 from concurrent.futures import ThreadPoolExecutor
 from gc import collect
 from glob import glob
-from os import listdir, name, path as pathlib
+from os import listdir, name, path as pathlib, mkdir
 from time import sleep
 from pathlib import Path
 from shutil import ExecError
 
+import pickle
 import inspect
 import cv2
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+
 
 from sklearn.model_selection import train_test_split
 from tqdm.cli import tqdm
@@ -145,20 +147,37 @@ if "--no-cached-model" not in sys.argv:
 
 if "--no-cached-dataset" not in sys.argv:
     try:
-        logger.log("Building cached dataset")
-        dataset = DatasetDef(workspace_manager[["active:dataset:graph"]])
-        status, message = dataset.build()
-        if status:
-            workspace_manager.dataset = dataset
-            trainer._dataset = dataset.dataset
-            trainer.update_session({
-                "dataset": dataset.dataset
-            })
-            trainer.__dataset__ = dataset
-            logger.success(
-                f"Loaded : {{ { dataset.dataset.__class__.__name__ } }}")
-        else:
-            logger.error(message)
+        path = workspace_manager.active.path
+        cache_dir = pathlib.join(path, "cache")
+        dataset = None
+        if pathlib.isdir(cache_dir):
+            cache_file = pathlib.join(cache_dir, "dataset.p")
+            if pathlib.isfile(cache_file):
+                logger.log(f"Loading cached dataset")
+                with open(cache_file, "rb") as file:
+                    dataset = pickle.load(file)
+                    workspace_manager.dataset = dataset
+                    trainer._dataset = dataset.dataset
+                    trainer.update_session({
+                        "dataset": dataset.dataset
+                    })
+                    trainer.__dataset__ = dataset
+
+        if not dataset:
+            logger.log("Building  dataset")
+            dataset = DatasetDef(workspace_manager[["active:dataset:graph"]])
+            status, message = dataset.build()
+            if status:
+                workspace_manager.dataset = dataset
+                trainer._dataset = dataset.dataset
+                trainer.update_session({
+                    "dataset": dataset.dataset
+                })
+                trainer.__dataset__ = dataset
+                logger.success(
+                    f"Loaded : {{ { dataset.dataset.__class__.__name__ } }}")
+            else:
+                logger.error(message)
     except Exception as e:
         logger.sys_error(e)
 
@@ -423,6 +442,19 @@ async def _dataset_build(request: Request) -> types.dict:
         return {"status": True, "message": "Dataset Built Succesfully"}
     except Exception as e:
         return {"status": False, "message": repr(e)}
+
+
+@lith_dataset.get("/cache")
+async def _dataset_cache(request: Request) -> types.dict:
+    path = workspace_manager.active.path
+    cache_dir = pathlib.join(path, "cache")
+    
+    if not pathlib.isdir(cache_dir):
+        mkdir(cache_dir)    
+    
+    with open(pathlib.join(cache_dir, "dataset.p"), "wb") as cache_file:
+        pickle.dump(workspace_manager.dataset, cache_file)
+    return { "status": True }
 
 
 @lith_dataset.get("/sample")

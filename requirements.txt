@@ -6,4 +6,4 @@ tqdm
 scikit-learn
 GPUtil
 pyrex-core
-psuti
+psutil

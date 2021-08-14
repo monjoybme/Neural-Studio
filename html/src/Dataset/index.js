@@ -4,15 +4,12 @@ import LayerGroups from "./layergroups";
 import metaDatasetGroups from "../data/datasets";
 
 import { Node, calculateEdge } from "./node";
-import {
-  metaGraph,
-  metaAppData,
-} from "../Meta";
-import imageDataViewers from './Viewers/image';
-import textDataViewers from './Viewers/text';
+import { metaGraph, metaAppData } from "../Meta";
+import imageDataViewers from "./Viewers/image";
+import textDataViewers from "./Viewers/text";
 
 import { icons } from "../data/icons";
-import { get,  Loading,  pull, push } from "../Utils";
+import { get, Loading, pull, push } from "../Utils";
 
 let cursors = {
   edge: "crosshair",
@@ -84,7 +81,7 @@ const metaDataset = {
 
 const dataViewers = {
   image: imageDataViewers,
-  text: textDataViewers
+  text: textDataViewers,
 };
 
 const LoadingOverlay = (props) => {
@@ -97,7 +94,7 @@ const LoadingOverlay = (props) => {
 
 const GraphEditor = (
   props = {
-    appData: metaAppData
+    appData: metaAppData,
   }
 ) => {
   let refCanvas = React.useRef();
@@ -140,7 +137,7 @@ const GraphEditor = (
         props.appData.popUpState(undefined);
         props.appData.notify({
           message: data.message,
-          type: data.status ? "success" : "error", 
+          type: data.status ? "success" : "error",
         });
       });
   }
@@ -151,7 +148,7 @@ const GraphEditor = (
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.status){
+        if (data.status) {
           data = data.data;
           let Viewer = dataViewers[data.type][data.problem];
           menuState({
@@ -163,12 +160,25 @@ const GraphEditor = (
                 reload={viewSample}
               />
             ),
-          });  
+          });
         } else {
           props.appData.notify({
             message: data.message,
             type: "error",
           });
+        }
+      });
+  }
+
+  async function cacheDataset() {
+    await get({ path: "/dataset/cache" })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.status){
+          props.appData.notify({
+            message: "Dataset cached succesfully",
+            type: "success"
+          })
         }
       });
   }
@@ -189,6 +199,16 @@ const GraphEditor = (
         name: "View Sample",
         onclick: function (e) {
           viewSample();
+          menuState({
+            render: false,
+            comp: undefined,
+          });
+        },
+      },
+      {
+        name: "Cache",
+        onclick: function (e) {
+          cacheDataset();
           menuState({
             render: false,
             comp: undefined,
@@ -224,7 +244,7 @@ const GraphEditor = (
       </div>
     );
   };
-  
+
   function newLine(e) {
     e.preventDefault();
     let line = document.getElementById("dummy");
@@ -357,7 +377,7 @@ const GraphEditor = (
       // console.log(TypeError)
     }
   }
-  
+
   function normalMouseDown() {
     if (window.canvas.mode === "normal") {
       window.canvas.pan = true;
@@ -601,7 +621,7 @@ const GraphEditor = (
         },
       });
     }
-  }, [graph, ]);
+  }, [graph]);
 
   return (
     <div className="container graph-canvas dataset-cotainer">
