@@ -13,3 +13,8 @@
 2. [Creating a Dataset](https://youtu.be/qWpXz_BeDE0)
 3. [Building a Model](https://youtu.be/YRT34hsqIXg)
 4. [Training Model](https://youtu.be/kb3VNgJUK0s)
+
+
+> Contribution Guide.
+
+coming soon...
