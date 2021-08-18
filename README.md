@@ -46,14 +46,15 @@
 
 ✅ Add preprocessed open source datasets from different domains. 
 
+
+*These are features that i proposed as part of my GSoC proposal. I have also added severl more features like cross platform distribution using PyPi, Public Inference APIs for trained models and Workspace management.*
+
 ---
-
-> These are features that i proposed as part of my GSoC proposal. I have also added severl more features like cross platform distribution using PyPi, Public Inference APIs for trained models and Workspace management. 
-
 
 > Links
 
-[Documentation](https://vptl185.gitbook.io/neuralstudio/)
++ [Documentation](https://vptl185.gitbook.io/neuralstudio/)
++ [PyPi Repository](https://pypi.org/project/neural-studio/)
 
 > Tutorials
 
