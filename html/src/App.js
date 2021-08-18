@@ -237,12 +237,14 @@ const App = (props) => {
                     key={i}
                     className={button.selected ? "btn selected" : "btn"}
                   >
-                    <Link to={button.path}>
+                    <Link
+                      to={button.path}
+                      onClick={(e) => updateNav(button.name)}
+                    >
                       <Icon
                         fill={
                           button.selected ? "white" : "rgba(255,255,255,0.3)"
                         }
-                        onClick={(e) => updateNav(button.name)}
                       />
                     </Link>
                   </div>
