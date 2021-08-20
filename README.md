@@ -1,6 +1,12 @@
-**Tensorflow GUI has been officially renamed to Neural Studio.**
-
 # Neural Studio 
+(**Formally known as TensorFlow GUI.**)
+
+[![GitHub stars](https://img.shields.io/github/stars/monjoybme/Neural-Studio)](https://github.com/monjoybme/Neural-Studio/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/monjoybme/Neural-Studio)](https://github.com/monjoybme/Neural-Studio/issues)
+[![GitHub forks](https://img.shields.io/github/forks/monjoybme/Neural-Studio)](https://github.com/monjoybme/Neural-Studio/network)
+![GitHub License](https://img.shields.io/github/license/monjoybme/Neural-Studio)
+
+
 
 > Neural studio is a rapid prototyping tool for deep learning applications. It provides and easy to use and intuitive UI for users ranging from beginners to professionals. 
 
