@@ -35,7 +35,6 @@ setuptools.setup(
         "opencv-python",
         "numpy",
         "pandas",
-        "tensorflow-gpu",
         "tqdm",
         "scikit-learn",
         "GPUtil",
